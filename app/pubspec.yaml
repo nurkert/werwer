@@ -1,0 +1,49 @@
+name: whowolf
+description: Werewolf at the table. Everyone on their own phone.
+publish_to: none
+# Set by CI from the git tag (--build-name/--build-number); 0.0.x are pre-releases.
+version: 0.0.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+  flutter: 3.44.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_launcher_icons: 0.14.4
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: 10.3.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/
+  fonts:
+    - family: LilitaOne
+      fonts:
+        - asset: assets/fonts/LilitaOne-Regular.ttf
+
+# App icons for every platform from the emblem (dart run flutter_launcher_icons).
+flutter_launcher_icons:
+  image_path: assets/icon/icon.png
+  remove_alpha_ios: true
+  background_color_ios: '#141a33'
+  android: true
+  adaptive_icon_background: '#141a33'
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  ios: true
+  macos:
+    generate: true
+    image_path: assets/icon/icon_macos.png
+  windows:
+    generate: true
+    icon_size: 256
+  linux:
+    generate: true

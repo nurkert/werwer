@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Walking Skeleton zuerst:** minimale Flutter-App + Pre-Release-Pipeline (`v0.0.X`) vor den Spielregeln; Mindestversionen iOS 15 und macOS 12 (Vorgabe der aktuellen Xcode-Version); Android-Pre-Releases bis zum eigenen Keystore mit Debug-Schlüssel signiert, macOS unsigniert bis Developer-ID-Secrets da sind, iOS nur Compile-Check bis TestFlight-Secrets da sind | Signierung, Builds und Downloads früh auf allen Plattformen erproben statt kurz vor dem Release |
 | 2026-10-25 | **iPhone und Mac zuerst:** Entwicklung und Tests auf iOS/macOS; Android im Emulator auf dem Mac, Windows und Linux über CI-Builds (Linux-Test in einer VM); iOS-Testversionen über TestFlight von Anfang an | Eigentümer testet mit iPhone und Mac und hat kein Android-Gerät |
 | 2026-10-25 | **Website mehrsprachig per Konfiguration:** jede Sprache eine Datei in `website/src/i18n/locales/` (typgeprüft gegen Deutsch), lokalisierte URL-Slugs, alle Seiten aus einer Route; hreflang, Sprachumschalter und Sitemap leiten sich daraus ab | Neue Sprachen ohne Umbau hinzufügen |
 | 2026-10-25 | **Website im Theaterzettel-Look:** Papierstruktur (CSS-Rauschen) über der ganzen Seite, Wechsel von Programmheft-Papier und Nachtkarton mit gerissenen Kanten, Schäfchen-Zählen als spielbares Element, nur Scroll-Parallaxe (keine Maus-Parallaxe) | Alles wirkt wie auf dasselbe Papier gedruckt, KI-Bilder und CSS aus einem Guss |

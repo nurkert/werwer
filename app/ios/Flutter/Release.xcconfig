@@ -1,0 +1,4 @@
+#include "Generated.xcconfig"
+
+// Local signing (team ID), git-ignored. See CLAUDE.md.
+#include? "Signing.xcconfig"

@@ -36,10 +36,10 @@ Open-source Werewolf party game: players sit together, each on their own device,
 ## Commands
 
 ```bash
-dart pub get                        # at repo root, resolves the whole workspace
-dart analyze                        # must be clean (no infos/warnings)
-dart format .                       # format before committing
-dart test packages/game_core        # run game_core tests
+flutter pub get                     # at repo root, resolves the whole workspace
+tool/check.sh                       # exactly what CI runs: signing guard, format, analyze, tests
+tool/deploy_ios.sh                  # build + install + launch on the paired iPhone
+git tag v0.0.N && git push --tags   # pre-release: builds all platforms (.github/workflows/prerelease.yml)
 ```
 
 ## Running on real devices

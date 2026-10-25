@@ -1,0 +1,6 @@
+include: ../analysis_options.yaml
+
+linter:
+  rules:
+    # The app is not a library; game_core keeps public API docs enforced.
+    public_member_api_docs: false

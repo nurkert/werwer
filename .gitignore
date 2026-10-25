@@ -25,8 +25,8 @@ coverage/
 *.jks
 key.properties
 # Personal Apple signing (team ID) – local only, see CLAUDE.md
-ios/Flutter/Signing.xcconfig
-macos/Flutter/Signing.xcconfig
+**/ios/Flutter/Signing.xcconfig
+**/macos/Flutter/Signing.xcconfig
 *.mobileprovision
 *.p12
 
