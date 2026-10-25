@@ -1,0 +1,23 @@
+# OS / editors
+.DS_Store
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Dart / Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+coverage/
+*.g.dart.tmp
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+key.properties
