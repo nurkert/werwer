@@ -20,12 +20,18 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
    - Die App sagt an: „Das Dorf schläft ein …“
    - Rollen mit Nachtaktion werden der Reihe nach (oder parallel) aufgerufen und wählen ihr Ziel.
    - **Anti-Tell:** Alle anderen Spieler bekommen gleichzeitig eine Tarnaufgabe. So tippt nachts **jeder**.
-   - **Tarnaufgabe „Schäfchen zählen“:** Schafe hüpfen über eine Wiese. Weiße Schafe antippen gibt Traumpunkte, schwarze besser springen lassen (Abzug). Am Spielende gibt es eine kleine Wertung („Bester Träumer“). Wichtig: Das Tipp-Muster muss dem der echten Nachtaktionen ähneln (gleiche Dauer, ähnlich viele Tipps), damit niemand am Fingerspiel erkennbar ist. Assets: `design/source/sheep/`.
+   - **Tarnaufgabe „Schäfchen zählen“:** Schafe hüpfen über eine Wiese. Weiße Schafe (und Lämmer) antippen gibt einen Traumpunkt, schwarze besser springen lassen (−3). Alle Lebenden können die ganze Nacht zählen, auch Werwölfe und Seherin neben ihrer Aktion. Wichtig: Das Tipp-Muster muss dem der echten Nachtaktionen ähneln, damit niemand am Fingerspiel erkennbar ist. Assets: `design/source/sheep/`.
+   - **Herden verteilt das Spiel:** Wie viele Schafe über die eigene Wiese laufen (3–30), legt `game_core` pro Spieler und Nacht fest, abgeleitet aus einem Startwert der Partie, mit Schwerpunkt auf kleinen Herden. Manche bekommen also einfach wenig Schafe. Die eigene Herdengröße kennt nur man selbst; mehr zählen als die Herde geht nicht.
+   - **Wie gut habt ihr geschlafen?** Am Morgen sieht jeder, wie viele Schäfchen jeder gezählt hat. Das ist ein Hinweis zum Kombinieren (wer jagen musste, hatte weniger Zeit), aber kein Beweis, weil die Herden verschieden groß sind. Am Spielende gibt es den „Besten Träumer“.
 5. **Morgen:** Die App verkündet, wer gestorben ist (und ggf. dessen Rolle, je nach Einstellung).
 6. **Tag:** Freie Diskussion am Tisch, optional mit Timer. **Handys weg:** Der Bildschirm zeigt nur, wer noch lebt (und deutlich, ob man selbst noch lebt), am besten im selben **Tischkreis** wie in der Lobby, und dimmt sich. Keine Ablenkung, man soll sich anschauen.
 7. **Abstimmung:** Jeder stimmt in der App ab. Bei Gleichstand gilt eine Regel (Stichwahl / niemand stirbt, einstellbar).
 8. Zurück zu **4**, bis ein Lager gewinnt.
 9. **Ende:** Siegerbildschirm + Story/Zusammenfassung der Partie.
+
+## Personas
+
+Jeder Spieler wählt in der Lobby eine Persona aus den Pappfiguren (Magd, Laternenträgerin, Grauwolf, Bauer, Jäger, Kräuterhexe, Amor, Wächter, Fährtenleger, Lauscherin, Stille Pfote). Die Persona ist nur das Aussehen: Jede Persona kann jede Rolle sein, die Rolle wird geheim und zufällig verteilt. Personas sind eindeutig, solange noch welche frei sind; danach dürfen sie sich wiederholen. Beim Beitritt bekommt man die erste freie Persona und kann sie in der Lobby ändern.
 
 ## Startrollen (MVP)
 

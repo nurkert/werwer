@@ -34,6 +34,7 @@ Whowolf ist also **nicht die erste** App mit eigenem Handy pro Spieler. Das Beso
 ## Was Whowolf besonders machen soll
 
 - **Beitritt ohne Installation:** QR-Code scannen, sofort im Browser dabei.
+- **Personas:** Jeder wählt eine der Pappfiguren als seine Persona (Magd, Jäger, Grauwolf …). Die Persona ist nur das Aussehen; die Rolle wird geheim und zufällig verteilt, jede Persona kann jede Rolle sein. Abstimmungen und Tischansicht zeigen die Personas.
 - **Ein richtig guter Erzähler:** Atmosphäre, Sprachausgabe, Musik, verschiedene Stimmungen (gruselig, lustig, dramatisch).
 - **Keine Tells:** Alle haben nachts eine Aufgabe. Geräusche verraten nur dort etwas, wo es eine bewusste Spielmechanik ist.
 - **Zuverlässigkeit:** Verbindungsabbrüche und gesperrte Bildschirme sind laut Rezensionen die häufigste Kritik an Konkurrenz-Apps. Rejoin muss einfach funktionieren.
