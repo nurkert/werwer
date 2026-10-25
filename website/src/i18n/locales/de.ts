@@ -173,7 +173,7 @@ const de = {
       ios: 'Über TestFlight, später im App Store.',
       macos: 'Für Apple Silicon und Intel.',
       windows: 'Windows 10 und 11.',
-      linux: 'AppImage für die meisten Distributionen.',
+      linux: 'Debian-Paket (.deb) für Debian, Ubuntu und Verwandte.',
     },
   },
   legal: {
@@ -185,13 +185,22 @@ const de = {
   privacy: {
     updated: 'Stand: 25. Oktober 2026',
     sections: [
-      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto. Nur der Bestwert beim Schäfchenzählen wird lokal in deinem Browser gespeichert und verlässt dein Gerät nie.' },
+      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto.  Auf deinem Gerät wird nichts gespeichert, auch nicht im lokalen Speicher des Browsers. Deshalb gibt es auch keinen Cookie-Hinweis.' },
       { title: 'Verantwortlicher', html: 'Verantwortlich für diese Website ist die im <a href="/impressum/">Impressum</a> genannte Person.' },
       { title: 'Hosting durch GitHub Pages', html: 'Die Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Niederlande, bzw. der GitHub Inc., USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Datum und Uhrzeit, die aufgerufene Seite sowie Angaben zu Browser und Betriebssystem, um die Seite auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren und zuverlässigen Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO). Eine Übermittlung in die USA ist möglich; GitHub ist unter dem EU-U.S. Data Privacy Framework zertifiziert. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.' },
       { title: 'Externe Links', html: 'Die Seite verlinkt unter anderem auf GitHub. Erst wenn du einem Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.' },
       { title: 'Die App', html: 'Die Whowolf-App wird so gebaut, dass sie keine personenbezogenen Daten an uns oder Dritte sendet: kein Konto, keine Werbung, kein Tracking. Gespielt wird lokal im eigenen WLAN. Mit der Veröffentlichung der App folgt eine eigene, ausführliche Erklärung.' },
       { title: 'Deine Rechte', html: 'Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 15 bis 21 DSGVO). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Da wir selbst keine Daten über Besucher speichern, richten sich Anfragen zu den Server-Protokollen in der Regel an GitHub.' },
     ],
+  },
+  box: {
+    headline: 'Ein Tisch. Viele Geheimnisse.',
+    lede: ['Das Werwolfspiel für eure Runde.', 'Jeder mit dem eigenen Handy. Die App erzählt,', 'ihr entscheidet.'],
+    cta: 'Projekt verfolgen',
+    stamp: 'In Entwicklung',
+    flap: '5–20 Spieler · jeder mit seinem Handy',
+    footer: 'Open Source. Gemeinsam entwickelt.',
+    boxAlt: 'Die Whowolf-Spielschachtel: Werwolf und Seherin als Pappfiguren vor einem nächtlichen Dorf',
   },
   docsLabel: 'Dokumentation',
   date: 'de-DE',

@@ -32,3 +32,9 @@ key.properties
 
 # Asset tool environment
 .venv-assets/
+
+# Impeccable working files (comps, reviews)
+.impeccable/mocks/
+.impeccable/review/
+.impeccable/build/
+.impeccable/config.local.json

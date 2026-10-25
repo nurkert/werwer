@@ -1,9 +1,12 @@
 ---
 import '@fontsource/lilita-one';
+import '@fontsource/ancizar-serif/400.css';
+import '@fontsource/ancizar-serif/700.css';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
 
-import { Picture } from 'astro:assets';
+import { getImage, Picture } from 'astro:assets';
+import feltPlate from '../assets/plates/felt.png';
 
 import Icon from '../components/Icon.astro';
 import emblem from '../../../design/source/brand/emblem.png';
@@ -15,13 +18,16 @@ interface Props {
   description: string;
   /** Header floats over the hero image. */
   overlay?: boolean;
+  /** The page draws its own navigation (the game-box hero). */
+  bare?: boolean;
   /** The localized page this is; omitted for single-language pages such as the German docs. */
   page?: Page;
 }
 
-const { lang, title, description, overlay = false, page } = Astro.props;
+const { lang, title, description, overlay = false, bare = false, page } = Astro.props;
 const t = ui[lang];
 const site = Astro.site!;
+const feltTile = (await getImage({ src: feltPlate, width: 616, format: 'webp' })).src;
 const canonical = new URL(Astro.url.pathname, site);
 const versions = alternates(page ?? 'home');
 const others = versions.filter((version) => version.lang !== lang);
@@ -99,10 +105,10 @@ const jsonLd = {
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body>
+  <body style={`--felt-tile: url(${feltTile})`}>
     <a class="skip" href="#inhalt">{t.skip}</a>
 
-    <header class:list={['site-header', { 'site-header--overlay': overlay }]}>
+    {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
       <div class="site-header__inner">
         <a class="brand" href={home} aria-label="Whowolf">
           <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[48, 96]} sizes="44px" loading="eager" />
@@ -148,7 +154,7 @@ const jsonLd = {
           </details>
         </div>
       </div>
-    </header>
+    </header>)}
 
     <div id="inhalt">
       <slot />
@@ -206,6 +212,15 @@ const jsonLd = {
     position: relative;
     z-index: 30;
     background: var(--night-900);
+  }
+  .site-header--mobile-only {
+    display: none;
+  }
+  @media (max-width: 900px) {
+    .site-header--mobile-only {
+      display: block;
+      background: #0d140f;
+    }
   }
   .site-header--overlay {
     position: absolute;

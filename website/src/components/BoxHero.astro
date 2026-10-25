@@ -1,0 +1,598 @@
+---
+// First viewport "Die Spielschachtel": the game box on a games-table felt.
+// The box is a real CSS 3D object (six textured faces); scrolling lifts and turns it.
+// Desktop keeps the measured comp frame (1536 × 1024); narrow screens restack it.
+import { getImage, Picture } from 'astro:assets';
+
+import { alternates, languages, path, repoUrl, ui, type Lang } from '../i18n/ui';
+import lid from '../assets/box/lid.jpg';
+import band from '../assets/box/band.jpg';
+import bandFront from '../assets/box/band-front.jpg';
+import bandSide from '../assets/box/band-side.jpg';
+import felt from '../assets/plates/felt.png';
+import wordmark from '../assets/plates/nav-wordmark.png';
+import lantern from '../assets/plates/lantern.png';
+import decorTopRight from '../assets/plates/decor-top-right.png';
+import decorLeft from '../assets/plates/decor-left.png';
+import tableCluster from '../assets/plates/table-cluster.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const home = path('home', lang);
+const others = alternates('home').filter((v) => v.lang !== lang);
+
+const feltTile = (await getImage({ src: felt, width: 616, format: 'webp' })).src;
+const lidTexture = (await getImage({ src: lid, width: 1600, format: 'webp' })).src;
+const bandTexture = (await getImage({ src: band, width: 1600, format: 'webp' })).src;
+const bandFrontTexture = (await getImage({ src: bandFront, width: 1600, format: 'webp' })).src;
+const bandSideTexture = (await getImage({ src: bandSide, height: 1600, format: 'webp' })).src;
+const formats = ['avif', 'webp'] as const;
+
+const nav = [
+  { href: `${home}#spiel`, label: t.nav.play },
+  { href: `${home}#rollen`, label: t.nav.cast },
+  { href: `${home}#wolfsspur`, label: t.nav.trail },
+  { href: '/docs/', label: t.nav.docs },
+  { href: path('download', lang), label: t.nav.download },
+];
+
+// Table props at their measured boxes (% of the comp frame).
+const props = [
+  { src: lantern, cls: 'p-lantern', w: 240 },
+  { src: decorTopRight, cls: 'p-decor-tr', w: 240 },
+  { src: decorLeft, cls: 'p-decor-left', w: 240 },
+  { src: tableCluster, cls: 'p-cluster', w: 640 },
+];
+---
+
+<section
+  class="box-hero"
+  aria-labelledby="box-title"
+  data-box-hero
+  style={`--felt: url(${feltTile}); --lid: url(${lidTexture}); --band: url(${bandTexture}); --band-front: url(${bandFrontTexture}); --band-side: url(${bandSideTexture});`}
+>
+  <div class="frame">
+    {
+      props.map((p) => (
+        <Picture class:list={['prop', p.cls]} src={p.src} alt="" formats={formats} widths={[p.w, p.w * 2]} sizes={`${p.w}px`} loading="eager" />
+      ))
+    }
+
+    <!-- The game box: a real 3D object. -->
+    <div class="box-scene" aria-hidden="true">
+      <div class="box-shadow"></div>
+      <div class="box">
+        <div class="face lid"></div>
+        <div class="face side south"><span>{t.box.flap}</span></div>
+        <div class="face side north"></div>
+        <div class="face side east"></div>
+        <div class="face side west"></div>
+        <div class="face bottom"></div>
+      </div>
+    </div>
+    <p class="visually-hidden">{t.box.boxAlt}</p>
+
+    <nav class="hero-nav" aria-label={t.nav.menu}>
+      <a class="hero-brand" href={home} aria-label="Whowolf">
+        <Picture src={wordmark} alt="" formats={formats} widths={[220, 440]} sizes="220px" loading="eager" />
+      </a>
+      <ul class="hero-links">
+        {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+      <p class="hero-lang">
+        <span aria-current="true">{lang.toUpperCase()}</span>
+        {
+          others.map((v) => (
+            <>
+              <span aria-hidden="true">/</span>
+              <a href={v.href} hreflang={v.lang} lang={v.lang} aria-label={languages[v.lang].label}>
+                {v.lang.toUpperCase()}
+              </a>
+            </>
+          ))
+        }
+      </p>
+    </nav>
+
+    <div class="hero-copy">
+      <h1 id="box-title" class="hero-headline">
+        <span class="visually-hidden">Whowolf – </span>{t.box.headline.split('. ').map((part, i, all) => <span class="line">{i < all.length - 1 ? `${part}.` : part}</span>)}
+      </h1>
+      <p class="hero-lede">{t.box.lede.map((line) => <span>{line}</span>)}</p>
+      <div class="hero-actions">
+        <a class="hero-cta" href={repoUrl}>
+          {t.box.cta}
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg>
+        </a>
+        <span class="hero-stamp">{t.box.stamp}</span>
+      </div>
+    </div>
+
+    <p class="hero-foot">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Zm0 0v13" /></svg>
+      {t.box.footer}
+    </p>
+  </div>
+</section>
+
+<script>
+  // Scroll lifts the box off the table: tilt, turn and rise follow the scroll progress.
+  const hero = document.querySelector<HTMLElement>('[data-box-hero]');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (hero && !calm.matches) {
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const rect = hero.getBoundingClientRect();
+      const progress = Math.min(Math.max(-rect.top / (rect.height * 0.9), 0), 1);
+      hero.style.setProperty('--p', progress.toFixed(4));
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
+  }
+</script>
+
+<style>
+  .box-hero {
+    --p: 0;
+    --felt-color: #0d140f;
+    --cream: #f6e8c6;
+    --amber: #f5aa42;
+    --stamp: #dc382e;
+    position: relative;
+    overflow: hidden;
+    background: var(--felt-color) var(--felt) repeat;
+    background-size: 308px;
+    color: var(--cream);
+    font-family: 'Ancizar Serif', Georgia, serif;
+  }
+
+  /* The measured comp frame; every box below is a share of it (cqw = 1/100 of its width). */
+  .frame {
+    position: relative;
+    width: min(100%, 120rem);
+    margin-inline: auto;
+    aspect-ratio: 1536 / 1024;
+    container-type: inline-size;
+  }
+
+  .frame :global(picture) {
+    display: contents;
+  }
+  .frame :global(.prop) {
+    position: absolute;
+    display: block;
+    object-fit: cover;
+  }
+  .frame :global(.p-lantern) {
+    left: 0;
+    top: 0;
+    width: 10%;
+    height: 20%;
+  }
+  .frame :global(.p-decor-tr) {
+    object-fit: contain;
+    padding: 0.4cqw 0 0 1cqw;
+    left: 90%;
+    top: 0;
+    width: 10%;
+    height: 20%;
+  }
+  .frame :global(.p-decor-left) {
+    left: 0;
+    top: 20%;
+    width: 10%;
+    height: 80%;
+  }
+  .frame :global(.p-cluster) {
+    left: 62.5%;
+    top: 43%;
+    width: 37.5%;
+    height: 57%;
+    object-fit: cover;
+    object-position: 0 0;
+  }
+
+  /* ---------- 3D box ---------- */
+  .box-scene {
+    --w: 55.5cqw;
+    --d: calc(var(--w) / 1.04);
+    --h: calc(var(--w) * 0.1);
+    position: absolute;
+    left: 6.4cqw;
+    top: 7.4cqw;
+    width: var(--w);
+    height: var(--d);
+    perspective: 75cqw;
+    perspective-origin: 46% 210%;
+  }
+  .box-shadow {
+    position: absolute;
+    inset: 6% 6% -2% 4%;
+    border-radius: 3%;
+    background: rgb(0 0 0 / 0.55);
+    filter: blur(2.4cqw);
+    transform: translateY(calc(var(--p) * 4cqw)) scale(calc(1 - var(--p) * 0.08));
+    opacity: calc(1 - var(--p) * 0.35);
+  }
+  .box {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateY(calc(var(--p) * -6cqw)) translateZ(calc(var(--p) * 8cqw))
+      rotateX(calc(7deg + var(--p) * 22deg)) rotateY(calc(-3deg + var(--p) * 16deg))
+      rotateZ(calc(-3.8deg + var(--p) * 6deg));
+    will-change: transform;
+  }
+  .face {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    backface-visibility: hidden;
+  }
+  .lid {
+    width: var(--w);
+    height: var(--d);
+    margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2);
+    background: var(--lid) center / 100% 100%;
+    border-radius: 0.3cqw;
+    transform: translateZ(calc(var(--h) / 2));
+    box-shadow: inset 0 0 0 0.15cqw rgb(255 235 190 / 0.18);
+  }
+  .side {
+    background: #c9a46c var(--band) center / 100% 100%;
+  }
+  .south,
+  .north {
+    width: var(--w);
+    height: var(--h);
+    margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+  }
+  .south {
+    background-image: var(--band-front);
+    filter: brightness(0.62);
+    transform: rotateX(-90deg) translateZ(calc(var(--d) / 2));
+    display: flex;
+    align-items: center;
+    padding-left: 12%;
+  }
+  .south span {
+    position: relative;
+    z-index: 1;
+    color: #2a1b12;
+    font-size: 1.8cqw;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transform: rotate(-0.3deg);
+    text-shadow: 0 0.05cqw 0 rgb(255 240 210 / 0.35);
+  }
+  .north {
+    transform: rotateX(90deg) translateZ(calc(var(--d) / 2));
+  }
+  .east,
+  .west {
+    width: var(--h);
+    height: var(--d);
+    margin: calc(var(--d) / -2) 0 0 calc(var(--h) / -2);
+    background: #c9a46c var(--band-side) center / 100% 100%;
+  }
+  .east {
+    transform: rotateY(90deg) translateZ(calc(var(--w) / 2));
+    filter: brightness(0.5) saturate(0.9);
+  }
+  .west {
+    transform: rotateY(-90deg) translateZ(calc(var(--w) / 2));
+    filter: brightness(0.6);
+  }
+  .bottom {
+    width: var(--w);
+    height: var(--d);
+    margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2);
+    background: #6b4a2a;
+    transform: rotateY(180deg) translateZ(calc(var(--h) / 2));
+  }
+
+  /* ---------- Navigation ---------- */
+  .hero-nav {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 10%;
+    z-index: 3;
+  }
+  .hero-brand {
+    position: absolute;
+    left: 10.5%;
+    top: 13%;
+    width: 14.5%;
+    height: 76%;
+    display: flex;
+    align-items: center;
+  }
+  .hero-brand :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0.3cqw 0.5cqw rgb(0 0 0 / 0.5));
+  }
+  .hero-links {
+    position: absolute;
+    left: 35.5%;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 3.25cqw;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hero-links a,
+  .hero-lang a {
+    color: #f0f0e2;
+    font-size: 1.36cqw;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .hero-links a:hover,
+  .hero-lang a:hover {
+    color: var(--amber);
+  }
+  .hero-lang {
+    position: absolute;
+    left: 79.6%;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5cqw;
+    margin: 0;
+    padding-left: 3.4cqw;
+    border-left: 1px solid rgb(246 232 198 / 0.35);
+    font-size: 1.1cqw;
+    letter-spacing: 0.05em;
+    height: 38%;
+    top: 31%;
+  }
+  .hero-lang [aria-current] {
+    color: var(--amber);
+  }
+  .hero-lang a {
+    font-size: 1.1cqw;
+  }
+
+  /* ---------- Copy ---------- */
+  .hero-copy {
+    position: absolute;
+    z-index: 3;
+    left: 64.3%;
+    top: 11.4%;
+    width: 35.6%;
+  }
+  .hero-headline {
+    margin: 0;
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-weight: 700;
+    font-size: 4.3cqw;
+    line-height: 1.04;
+    letter-spacing: -0.005em;
+    color: var(--cream);
+    text-shadow: 0 0.2cqw 0.8cqw rgb(0 0 0 / 0.45);
+    text-wrap: balance;
+  }
+  .hero-headline .line {
+    display: block;
+  }
+  .hero-lede {
+    margin: 1.5cqw 0 0;
+    font-size: 1.5cqw;
+    line-height: 1.32;
+    color: var(--cream);
+  }
+  .hero-lede span {
+    display: block;
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.4cqw;
+    margin-top: 1.1cqw;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9cqw;
+    width: 20.3cqw;
+    height: 3.6cqw;
+    border-radius: 999px;
+    background: var(--amber);
+    color: #2a1b12;
+    font-size: 1.45cqw;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 0.4cqw 1.2cqw rgb(0 0 0 / 0.35);
+    transition:
+      transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1),
+      background-color 0.2s ease;
+  }
+  .hero-cta:hover {
+    background: #f8bf62;
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  .hero-cta svg {
+    width: 1.5cqw;
+    height: 1.5cqw;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hero-stamp {
+    display: inline-block;
+    padding: 0.3cqw 0.8cqw;
+    border: 0.18cqw solid var(--stamp);
+    border-radius: 0.3cqw;
+    color: var(--stamp);
+    font-size: 1.45cqw;
+    white-space: nowrap;
+    transform: rotate(-10deg) translateY(-1.4cqw);
+    opacity: 0.92;
+  }
+
+  .hero-foot {
+    position: absolute;
+    z-index: 2;
+    left: 27.6%;
+    top: 93.4%;
+    width: 43%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6cqw;
+    margin: 0;
+    font-size: 0.95cqw;
+    --rule-gap: 0;
+    letter-spacing: -0.01em;
+    color: rgb(246 232 198 / 0.72);
+  }
+  .hero-foot::before,
+  .hero-foot::after {
+    content: '';
+    flex: 1;
+  }
+  .hero-foot::after {
+    margin-left: 1.2cqw;
+  }
+  .hero-foot::before,
+  .hero-foot::after {
+    height: 1px;
+    background: rgb(246 232 198 / 0.3);
+  }
+  .hero-foot svg {
+    width: 1.6cqw;
+    height: 1.6cqw;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+
+  /* ---------- Phones and small tablets: the box becomes the hero object above the copy. ---------- */
+  @media (max-width: 900px) {
+    .frame {
+      aspect-ratio: auto;
+      display: grid;
+      grid-template-areas: 'copy' 'box' 'parts' 'foot';
+      gap: 1.5rem;
+      padding: 1.25rem var(--gutter, 1rem) 2.5rem;
+    }
+    .hero-nav,
+    .frame :global(.p-lantern),
+    .frame :global(.p-decor-tr),
+    .frame :global(.p-decor-left),
+    .frame :global(.p-bowl) {
+      display: none;
+    }
+    .hero-copy {
+      grid-area: copy;
+      position: static;
+      width: auto;
+    }
+    .hero-headline {
+      font-size: clamp(2.3rem, 10vw, 3.4rem);
+    }
+    .hero-lede {
+      margin-top: 1rem;
+      font-size: 1.12rem;
+      line-height: 1.45;
+    }
+    .hero-lede span {
+      display: inline;
+    }
+    .hero-lede span + span::before {
+      content: ' ';
+    }
+    .hero-actions {
+      flex-wrap: wrap;
+      gap: 1rem 1.25rem;
+      margin-top: 1.4rem;
+    }
+    .hero-cta {
+      width: auto;
+      height: 3.25rem;
+      padding: 0 1.6rem;
+      gap: 0.6rem;
+      font-size: 1.1rem;
+    }
+    .hero-cta svg {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+    .hero-stamp {
+      padding: 0.25rem 0.7rem;
+      border-width: 2px;
+      border-radius: 4px;
+      font-size: 1.05rem;
+      transform: rotate(-6deg);
+    }
+    .box-scene {
+      grid-area: box;
+      position: relative;
+      left: auto;
+      top: auto;
+      --w: min(86vw, 34rem);
+      justify-self: center;
+      margin-block: 0.5rem 1.5rem;
+      perspective: 160vw;
+    }
+    .south span {
+      font-size: calc(var(--w) * 0.032);
+    }
+    .frame :global(.p-cluster) {
+      grid-area: parts;
+      position: static;
+      justify-self: center;
+      width: min(100%, 26rem);
+      height: auto;
+      aspect-ratio: 1;
+    }
+    .hero-foot {
+      grid-area: foot;
+      position: static;
+      width: auto;
+      font-size: 0.85rem;
+    }
+    .hero-foot svg {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .box {
+      transform: rotateX(7deg) rotateY(-3deg) rotateZ(-3.8deg);
+    }
+    .hero-cta:hover {
+      transform: none;
+    }
+  }
+</style>

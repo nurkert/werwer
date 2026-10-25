@@ -81,7 +81,7 @@ jobs:
               cp build/app/outputs/flutter-apk/app-release.apk "../dist/whowolf-$NAME-android.apk" ;;
             linux)
               flutter build linux $FLAGS
-              tar -czf "../dist/whowolf-$NAME-linux-x64.tar.gz" -C build/linux/x64/release/bundle . ;;
+              ../tool/package_deb.sh "$NAME" build/linux/x64/release/bundle "../dist/whowolf-$NAME-linux-amd64.deb" ;;
             windows)
               flutter build windows $FLAGS
               (cd build/windows/x64/runner/Release && 7z a -tzip "$GITHUB_WORKSPACE/dist/whowolf-$NAME-windows-x64.zip" . >/dev/null) ;;

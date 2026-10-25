@@ -80,14 +80,9 @@ const formats = ['avif', 'webp'] as const;
     const d = root.dataset;
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Kept in memory only: the site stores nothing on the visitor's device (no cookies, no storage, no banner).
     let score = 0;
     let best = 0;
-    try {
-      best = Number(localStorage.getItem('whowolf-sheep-best') ?? 0) || 0;
-    } catch {
-      best = 0;
-    }
-    bestEl.textContent = String(best);
 
     let running = !calm;
     let visible = false;
@@ -112,11 +107,6 @@ const formats = ['avif', 'webp'] as const;
       if (score > best) {
         best = score;
         bestEl.textContent = String(best);
-        try {
-          localStorage.setItem('whowolf-sheep-best', String(best));
-        } catch {
-          /* private mode: keep it for this visit only */
-        }
       }
       const field = flock.getBoundingClientRect();
       const box = sheep.getBoundingClientRect();

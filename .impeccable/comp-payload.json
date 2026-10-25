@@ -1,0 +1,39 @@
+{
+  "title": "Welche Komposition wird die Messlatte?",
+  "question": "Drei Kompositionen der Richtung „Die Spielschachtel“. Welche soll gebaut werden? Gern mit Anmerkung, was übernommen oder verworfen werden soll.",
+  "options": [
+    {
+      "id": "comp-1",
+      "label": "Schachteldeckel",
+      "kicker": "DEINE WAHL AUS DER RICHTUNGSRUNDE",
+      "thesis": "Der Deckel füllt den Bildschirm, daneben Stanzbogen und Regelheft.",
+      "palette": ["#1f3b2d", "#f5ead0", "#f2a93b", "#9e1f24", "#141a33"],
+      "materials": ["Schachtelpappe", "Stanzbogen", "Regelheft"],
+      "viewport": "Links der Deckel mit Schriftzug und Figuren, rechts Headline, Button und Stempel.",
+      "risk": "Zeigt die Handy-Mechanik nicht direkt.",
+      "comp": ".impeccable/mocks/comp-1-schachteldeckel.png"
+    },
+    {
+      "id": "comp-2",
+      "label": "Ausgepackt",
+      "kicker": "EMPFEHLUNG",
+      "thesis": "Der Deckel ist ab: Rollenkarten und drei Handys mit echten App-Screens liegen in der Schachtel.",
+      "palette": ["#1f3b2d", "#f5ead0", "#f2a93b", "#9e1f24", "#141a33"],
+      "materials": ["Schachteleinsatz", "Rollenkarten", "Handys im Fach"],
+      "viewport": "Links die offene Schachtel mit Karten und Handys, rechts Headline, Satz, Button, Stempel; der Deckel lehnt unten rechts.",
+      "risk": "Viele Details: die Handy-Screens müssen im Bau als echte UI entstehen, nicht als Bild.",
+      "comp": ".impeccable/mocks/comp-2-ausgepackt.png"
+    },
+    {
+      "id": "comp-3",
+      "label": "Schachtelrückseite",
+      "thesis": "Die Rückseite der Schachtel als Infolayout: Panorama, drei Schritte, Eckdaten.",
+      "palette": ["#13261d", "#f5ead0", "#f2a93b", "#9e1f24"],
+      "materials": ["Rückseiten-Layout", "Panorama", "Icon-Spalte"],
+      "viewport": "Ein Kasten mit Wortmarke und Headline oben, Panorama, rechts Eckdaten, unten drei Schritte.",
+      "risk": "Das Bild ist aus der Welt gerutscht (falscher Schriftzug, Filzfiguren); nur die Struktur taugt.",
+      "comp": ".impeccable/mocks/comp-3-rueckseite.png"
+    }
+  ],
+  "steer": true
+}

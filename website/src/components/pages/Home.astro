@@ -3,7 +3,7 @@ import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 
 import CountingSheep from '../CountingSheep.astro';
-import Hero from '../Hero.astro';
+import BoxHero from '../BoxHero.astro';
 import Icon from '../Icon.astro';
 import TrailDiagram from '../TrailDiagram.astro';
 import Base from '../../layouts/Base.astro';
@@ -54,8 +54,8 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .filter((entry) => entry !== undefined);
 ---
 
-<Base lang={lang} page="home" overlay title={t.meta.title} description={t.meta.description}>
-  <Hero lang={lang} />
+<Base lang={lang} page="home" bare title={t.meta.title} description={t.meta.description}>
+  <BoxHero lang={lang} />
 
   <main>
     <!-- The playbill: what this is, on paper. -->

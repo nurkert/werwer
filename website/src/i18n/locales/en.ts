@@ -174,7 +174,7 @@ const en: Copy = {
       ios: 'Via TestFlight, later on the App Store.',
       macos: 'For Apple silicon and Intel.',
       windows: 'Windows 10 and 11.',
-      linux: 'AppImage for most distributions.',
+      linux: 'Debian package (.deb) for Debian, Ubuntu and friends.',
     },
   },
   legal: {
@@ -186,13 +186,22 @@ const en: Copy = {
   privacy: {
     updated: 'Last updated: 25 October 2026',
     sections: [
-      { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. Only your best score at counting sheep is stored locally in your browser, and it never leaves your device.' },
+      { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. Nothing is stored on your device, not even in your browser’s local storage. That is why there is no cookie notice.' },
       { title: 'Controller', html: 'The person named in the <a href="/en/imprint/">imprint</a> is responsible for this website.' },
       { title: 'Hosting by GitHub Pages', html: 'The website is served by GitHub Pages, a service of GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, the Netherlands, and GitHub Inc., USA. When you visit, GitHub processes technically necessary data such as your IP address, date and time, the page requested and details about your browser and operating system, in order to deliver the site and protect it from abuse. The legal basis is our legitimate interest in providing the site securely and reliably (Art. 6(1)(f) GDPR). Data may be transferred to the USA; GitHub is certified under the EU-U.S. Data Privacy Framework. Details: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.' },
       { title: 'External links', html: 'This site links to GitHub, among others. Only when you follow a link do the privacy terms of that provider apply.' },
       { title: 'The app', html: 'The Whowolf app is being built so that it sends no personal data to us or anyone else: no account, no ads, no tracking. Games are played locally over your own Wi-Fi. A separate, detailed policy will accompany the app’s release.' },
       { title: 'Your rights', html: 'You have the right of access, rectification, erasure and restriction of processing, the right to data portability and the right to object to processing based on legitimate interests (Art. 15 to 21 GDPR). You may also lodge a complaint with a data protection authority (Art. 77 GDPR). As we store no data about visitors ourselves, requests about server logs are usually a matter for GitHub.' },
     ],
+  },
+  box: {
+    headline: 'One table. Many secrets.',
+    lede: ['The werewolf game for your group.', 'Everyone on their own phone. The app narrates,', 'you decide.'],
+    cta: 'Follow the project',
+    stamp: 'In development',
+    flap: '5–20 players · everyone on their own phone',
+    footer: 'Open source. Built together.',
+    boxAlt: 'The Whowolf game box: werewolf and seer as cardboard puppets in front of a village at night',
   },
   docsLabel: 'Documentation',
   date: 'en-GB',

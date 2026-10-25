@@ -26,7 +26,7 @@ const patterns: [Platform, RegExp][] = [
   ['android', /\.apk$/i],
   ['macos', /(\.dmg$|mac(os)?.*\.zip$)/i],
   ['windows', /(\.msix$|\.exe$|windows.*\.zip$)/i],
-  ['linux', /(\.appimage$|linux.*\.tar\.gz$|\.flatpak$)/i],
+  ['linux', /(\.deb$|\.appimage$|linux.*\.tar\.gz$|\.flatpak$)/i],
 ];
 
 interface ApiAsset {
