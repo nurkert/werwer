@@ -20,12 +20,15 @@
 - [ ] Gefilterte Spieler-Sichten (jeder sieht nur, was er darf)
 - [ ] Unit-Tests für alle Regeln
 
-## Phase 2 – Spielbarer Prototyp
+## Phase 2 – Spielbarer Prototyp (lokal im WLAN, ohne Server)
 
-- [ ] Server: Räume, Raumcode, WebSockets, Timer, Reconnect
-- [ ] Flutter-App: Raum erstellen/beitreten, Rolle ansehen, Nachtaktion, Abstimmung
+- [ ] Host-Logik als reines Dart: Räume, Raumcode, Timer, Reconnect (Transport austauschbar)
+- [ ] Versioniertes JSON-Protokoll (Absichten rein, gefilterte Sichten + Ereignisse raus)
+- [ ] LAN-Transport: Host-Gerät öffnet WebSocket-Server, Clients verbinden sich
+- [ ] Flutter-App (alle Plattformen): Raum erstellen/beitreten, Rolle ansehen, Nachtaktion, Abstimmung
 - [ ] Anti-Tell: Dummy-Aufgaben für alle in der Nacht
-- [ ] Beitritt per QR-Code (Flutter Web)
+- [ ] Beitritt per QR-Code (IP + Port + Raumcode), später Suche per mDNS
+- [ ] Beitritt im Browser (Flutter Web als Client, Auslieferung durch den Host klären)
 - [ ] Einfacher Erzähler (Text + Sprachausgabe)
 - [ ] **Mit Freunden testen** und Feedback sammeln
 
@@ -46,6 +49,7 @@
 
 ## Phase 5 – Open-Source-Infrastruktur
 
+- [ ] Dedizierter Server (`server/`), der dieselbe Host-Logik ausführt; App wählt „lokal“ oder „Server“
 - [ ] `docker-compose.yml` + Docker-Image für den Server
 - [ ] GitHub Actions: Tests, Builds für alle Plattformen, Releases
 - [ ] Website auf GitHub Pages im App-Style mit Downloads

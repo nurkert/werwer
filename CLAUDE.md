@@ -15,6 +15,7 @@ Open-source Werewolf party game: players sit together, each on their own device,
 - Game rules live only in `game_core`; never duplicate rule logic in app or server.
 - `game_core` is pure Dart: no Flutter, no `dart:io`, no network, no clock. Randomness is injected (`Random` passed in) so games are reproducible in tests.
 - Server is authoritative; clients receive only per-player filtered state.
+- **Local-first:** for now there is no server. One device hosts the game over the local Wi-Fi (LAN WebSocket); a dedicated server comes later. Keep host logic in pure Dart and the transport behind an interface so the same host logic and protocol run on a server later without rework. See `docs/ARCHITECTURE.md` ("Ausbaustufen").
 - Never use third-party trademarks, artwork or rule texts from commercial Werewolf editions (see `docs/LEGAL.md`). All names and texts are original.
 - License: Apache 2.0.
 - Record new project decisions in `docs/DECISIONS.md` (German, newest on top) and tick off items in `docs/ROADMAP.md`.

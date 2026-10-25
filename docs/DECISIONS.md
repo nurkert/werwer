@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Start: nur Flutter-App, lokal im gleichen WLAN, ohne Server.** Ein Gerät ist Host und spielt intern die Rolle des autoritativen Servers, die anderen verbinden sich per WebSocket im LAN. So plattformübergreifend wie möglich (Android, iOS, macOS, Windows, Linux; Web nur als beitretender Client, siehe ARCHITECTURE). | Schnellster Weg zu einer spielbaren Runde am Tisch, keine Hosting-Kosten. Die Architektur bleibt so geschnitten, dass später ein echter Server **ohne Umbau** dazukommt: Host-Logik und Transport sind getrennt, das Protokoll ist dasselbe. |
 | 2026-10-25 | Name **Werwer** statt „Lycan“ | Wortspiel „Wer? Wer?“ + Werwolf, einzigartig, gut verfügbar; „Lycan“ ist im Genre schon belegt („Lycan Master“, „Lycans“). Repo umbenannt in `nurkert/werwer` |
 | 2026-10-25 | Doku/Wiki im Repo (`website/`), nicht im GitHub-Wiki | Versioniert, Teil von Pull Requests, im App-Style gestaltbar |
 | 2026-10-25 | Server ist **autoritativ** | Kein Schummeln, Clients sehen nur ihre eigenen Infos |
