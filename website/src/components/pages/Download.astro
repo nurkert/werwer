@@ -6,6 +6,7 @@ import { Picture } from 'astro:assets';
 import Icon from '../Icon.astro';
 import Base from '../../layouts/Base.astro';
 import { languages, repoUrl, ui, type Lang } from '../../i18n/ui';
+import { platformIcons, type PlatformIcon } from '../../lib/platform-icons';
 import { loadReleases, type Platform } from '../../lib/releases';
 import seherin from '../../../../design/source/figures/seherin.png';
 import tableCluster from '../../assets/plates/table-cluster.png';
@@ -24,12 +25,12 @@ const stable = releases.find((release) => !release.prerelease);
 const shown = stable ?? newest;
 
 // iPhone and Mac first: that is where Whowolf is developed and tested.
-const platforms: { id: Platform; name: string; icon: 'phone' | 'laptop' | 'terminal' }[] = [
-  { id: 'ios', name: 'iPhone & iPad', icon: 'phone' },
-  { id: 'macos', name: 'macOS', icon: 'laptop' },
-  { id: 'android', name: 'Android', icon: 'phone' },
-  { id: 'windows', name: 'Windows', icon: 'laptop' },
-  { id: 'linux', name: 'Linux', icon: 'terminal' },
+const platforms: { id: Platform; name: string; icon: PlatformIcon }[] = [
+  { id: 'ios', name: 'iPhone & iPad', icon: 'apple' },
+  { id: 'macos', name: 'macOS', icon: 'apple' },
+  { id: 'android', name: 'Android', icon: 'android' },
+  { id: 'windows', name: 'Windows', icon: 'window' },
+  { id: 'linux', name: 'Linux', icon: 'linux' },
 ];
 const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, { day: 'numeric', month: 'long', year: 'numeric' });
 const formats = ['avif', 'webp'] as const;
@@ -72,7 +73,7 @@ const formats = ['avif', 'webp'] as const;
               <li class:list={['card', { 'card--ready': files.length > 0 }]} data-reveal style={`--i: ${i}`}>
                 <div class="card__top">
                   <span class="card__token">
-                    <Icon name={platform.icon} />
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d={platformIcons[platform.icon]} /></svg>
                   </span>
                   <h2>{platform.name}</h2>
                 </div>
@@ -228,7 +229,7 @@ const formats = ['avif', 'webp'] as const;
   /* Each platform is a punch-out component card. */
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--space-3);
     margin: 0;
     padding: 0;
@@ -263,9 +264,10 @@ const formats = ['avif', 'webp'] as const;
     color: #f5aa42;
     box-shadow: 0 0 0 0.25rem #e9d6ac, 0 0 0 0.32rem rgb(42 27 18 / 0.35);
   }
-  .card__token :global(svg) {
+  .card__token svg {
     width: 1.5rem;
     height: 1.5rem;
+    fill: currentColor;
   }
   .card h2 {
     font-size: 1.55rem;
