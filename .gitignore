@@ -14,6 +14,9 @@ build/
 coverage/
 *.g.dart.tmp
 
+# Claude Code (shared settings.json is committed, personal overrides are not)
+.claude/settings.local.json
+
 # Env / secrets
 .env
 .env.*
