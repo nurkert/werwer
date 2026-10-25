@@ -60,7 +60,7 @@ Einschätzung: Der Name ist gut verfügbar. Der Witz funktioniert vor allem auf 
 | Kleine itch.io-Projekte („Lycan“, „Lycan Trickery“) | gering |
 | Markenregister | ungeprüft, die Websuche fand keinen Eintrag „LYCAN“ in Klasse 9/28/41 |
 | Domains | `lycan.app`, `lycan.io`, `lycangame.com` vergeben; `getlycan.app` und `lycanparty.com` vermutlich frei |
-| GitHub | `github.com/lycan` ist vergeben (Repo `nurkert/lycan` ist ok) |
+| GitHub | `github.com/lycan` ist vergeben (Projekt-Repo inzwischen `nurkert/werwer`) |
 
 Einschätzung: „Lycan“ allein ist nicht verbrannt, aber im Werwolf-Genre schon angekratzt. Mit einem Zusatz (z. B. „Lycan – Werewolf Party“) und eigener Optik ist es vermutlich vertretbar. Vor der Store-Veröffentlichung müssen DPMA/EUIPO/USPTO trotzdem richtig geprüft werden.
 
