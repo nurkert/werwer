@@ -607,6 +607,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That is not possible right now.'**
   String get refused;
+
+  /// No description provided for @scanQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code'**
+  String get scanQr;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the room code'**
+  String get scanTitle;
+
+  /// No description provided for @scanInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a Whowolf room code.'**
+  String get scanInvalid;
+
+  /// No description provided for @joinConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join room {room}?'**
+  String joinConfirmTitle(String room);
+
+  /// No description provided for @joinConfirmLan.
+  ///
+  /// In en, this message translates to:
+  /// **'In the Wi-Fi: {address}'**
+  String joinConfirmLan(String address);
+
+  /// No description provided for @joinConfirmOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online via {server}'**
+  String joinConfirmOnline(String server);
+
+  /// No description provided for @joinLan.
+  ///
+  /// In en, this message translates to:
+  /// **'In the Wi-Fi'**
+  String get joinLan;
+
+  /// No description provided for @joinOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get joinOnline;
+
+  /// No description provided for @onlineCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Online code'**
+  String get onlineCode;
+
+  /// No description provided for @noRelayServer.
+  ///
+  /// In en, this message translates to:
+  /// **'No server set up for online games. Add one in the settings.'**
+  String get noRelayServer;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the game (room {room})'**
+  String resume(String room);
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @relayServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server for online players'**
+  String get relayServer;
+
+  /// No description provided for @relayServerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use the official server once it exists. Own server: docker compose up -d, see the docs.'**
+  String get relayServerHelp;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @invalidServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an address starting with ws:// or wss://.'**
+  String get invalidServer;
+
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan this code with the Whowolf app:'**
+  String get scanHint;
+
+  /// No description provided for @relayFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The online server is not reachable: Wi-Fi only.'**
+  String get relayFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -24,6 +24,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Whowolf scans the QR code to join a room.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Whowolf connects the phones at your table over the local Wi-Fi.</string>
 	<key>NSAppTransportSecurity</key>

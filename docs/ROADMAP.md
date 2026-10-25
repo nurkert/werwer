@@ -39,7 +39,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] D4b – Website ausgebaut: Theaterzettel-Look mit Papierstruktur, Schäfchen-Zählen zum Ausprobieren, Besetzung mit allen Rollen, Docs-Wiki, Download-Seite aus Releases, Impressum/Datenschutz, Deutsch + Englisch (weitere Sprachen per Datei), SEO (hreflang, Sitemap, JSON-LD)
 - [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente, Schäfchen-Zählen) für M3
 
-> **Stand 2026-10-25:** Eine minimal spielbare Testversion (LAN, ohne Verschlüsselung, Sitzordnung noch ohne Tischkreis) steht; siehe DECISIONS.md.
+> **Stand 2026-10-25:** Eine minimal spielbare Testversion steht: WLAN und Relay-Server (Docker Compose), QR-Beitritt, Rejoin nach Neustart; noch ohne Ende-zu-Ende-Verschlüsselung, ohne Tischkreis und ohne Host-Absturzsicherung. Siehe DECISIONS.md.
 
 ## M0 – Fundament
 
@@ -101,7 +101,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Flutter-App im Workspace, Mehrsprachigkeit (Deutsch/Englisch) von Anfang an
 - [x] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
 - [ ] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
-- [ ] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
+- [x] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
 - [ ] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
 - [x] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg
 - [ ] Erzähler: Text auf allen Geräten, Sprachausgabe auf dem Host-Gerät

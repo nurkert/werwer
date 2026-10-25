@@ -318,4 +318,69 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get refused => 'Das geht gerade nicht.';
+
+  @override
+  String get scanQr => 'QR-Code scannen';
+
+  @override
+  String get scanTitle => 'Raumcode scannen';
+
+  @override
+  String get scanInvalid => 'Das ist kein Whowolf-Raumcode.';
+
+  @override
+  String joinConfirmTitle(String room) {
+    return 'Raum $room beitreten?';
+  }
+
+  @override
+  String joinConfirmLan(String address) {
+    return 'Im WLAN: $address';
+  }
+
+  @override
+  String joinConfirmOnline(String server) {
+    return 'Online über $server';
+  }
+
+  @override
+  String get joinLan => 'Im WLAN';
+
+  @override
+  String get joinOnline => 'Online';
+
+  @override
+  String get onlineCode => 'Online-Code';
+
+  @override
+  String get noRelayServer =>
+      'Kein Server für Online-Spiele eingestellt. Trag in den Einstellungen einen ein.';
+
+  @override
+  String resume(String room) {
+    return 'Zurück ins Spiel (Raum $room)';
+  }
+
+  @override
+  String get settings => 'Einstellungen';
+
+  @override
+  String get relayServer => 'Server für Online-Spieler';
+
+  @override
+  String get relayServerHelp =>
+      'Leer lassen für den offiziellen Server, sobald es ihn gibt. Eigener Server: docker compose up -d, siehe Docs.';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get invalidServer =>
+      'Die Adresse muss mit ws:// oder wss:// beginnen.';
+
+  @override
+  String get scanHint => 'Oder scannt diesen Code mit der Whowolf-App:';
+
+  @override
+  String get relayFailed => 'Online-Server nicht erreichbar: nur WLAN.';
 }

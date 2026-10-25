@@ -14,13 +14,16 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_secure_storage: ^11.2.0
   game_core:
     path: ../packages/game_core
   game_host:
     path: ../packages/game_host
   intl: any
+  mobile_scanner: ^7.4.2
   protocol:
     path: ../packages/protocol
+  qr_flutter: ^4.1.0
   wakelock_plus: ^1.8.2
 
 dev_dependencies:

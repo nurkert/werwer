@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
+import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// First screen: the wordmark, your name, open or join a room.
@@ -21,6 +25,89 @@ class _StartScreenState extends State<StartScreen> {
   final _name = TextEditingController();
   String? _error;
   bool _busy = false;
+  ResumeInfo? _resume;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadResume());
+  }
+
+  Future<void> _loadResume() async {
+    final resume = await const Store().loadResume();
+    if (!mounted) return;
+    setState(() {
+      _resume = resume;
+      if (resume != null && _name.text.isEmpty) _name.text = resume.name;
+    });
+  }
+
+  Future<void> _continue(ResumeInfo resume) async {
+    await playSession(
+      context,
+      playerSession(
+        name: resume.name,
+        room: resume.room,
+        lan: resume.lan,
+        relayRoom: resume.relayRoom,
+        server: resume.server,
+        token: resume.token,
+      ),
+    );
+    await _loadResume();
+  }
+
+  Future<void> _settings() async {
+    const store = Store();
+    final field = TextEditingController(text: await store.customServer());
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    String? error;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialog) => AlertDialog(
+          title: Text(l10n.settings),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: field,
+                autocorrect: false,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(
+                  labelText: l10n.relayServer,
+                  hintText: 'wss://relay.example.org',
+                  errorText: error,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(l10n.relayServerHelp, style: const TextStyle(fontSize: 13)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final text = field.text.trim();
+                if (text.isNotEmpty && parseRelayServer(text) == null) {
+                  setDialog(() => error = l10n.invalidServer);
+                  return;
+                }
+                await store.setCustomServer(text);
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: Text(l10n.save),
+            ),
+          ],
+        ),
+      ),
+    );
+    field.dispose();
+  }
 
   @override
   void dispose() {
@@ -44,7 +131,9 @@ class _StartScreenState extends State<StartScreen> {
     setState(() => _busy = true);
     final l10n = AppLocalizations.of(context);
     try {
-      final room = await HostedRoom.open();
+      final room = await HostedRoom.open(
+        relayServer: await const Store().relayServer(),
+      );
       final session = GameSession(
         name: name,
         roomCode: room.roomCode,
@@ -76,7 +165,19 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final resume = _resume;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Palette.moon200,
+        actions: [
+          IconButton(
+            tooltip: l10n.settings,
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: _settings,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -97,6 +198,13 @@ class _StartScreenState extends State<StartScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 28),
+                  if (resume != null) ...[
+                    PrimaryButton(
+                      label: l10n.resume(resume.room),
+                      onPressed: () => _continue(resume),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                   TextField(
                     controller: _name,
                     maxLength: 24,

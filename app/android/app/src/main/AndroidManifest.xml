@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Players connect to the host phone over the local Wi-Fi. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Only to scan the room QR code; asked for when scanning. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="Whowolf"
         android:name="${applicationName}"

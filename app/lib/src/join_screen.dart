@@ -7,11 +7,52 @@ import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/scan_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// Joining by the host's address and room code. A QR scanner replaces the
-/// typing later; it will carry exactly these two values (plus a key).
+/// A player session that remembers itself for a resume after a restart.
+GameSession playerSession({
+  required String name,
+  required String room,
+  LanAddress? lan,
+  String? relayRoom,
+  Uri? server,
+  String? token,
+}) {
+  const store = Store();
+  return GameSession(
+    name: name,
+    roomCode: room,
+    token: token,
+    dial: dialerFor(lan: lan, relayRoom: relayRoom, server: server),
+    onWelcome: (token) => unawaited(
+      store.saveResume(
+        ResumeInfo(
+          name: name,
+          room: room,
+          token: token,
+          lan: lan,
+          relayRoom: relayRoom,
+          server: server,
+        ),
+      ),
+    ),
+    onEnded: () => unawaited(store.clearResume()),
+  );
+}
+
+/// Opens the game screen for [session].
+Future<void> playSession(BuildContext context, GameSession session) =>
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => GameScreen(session: session)),
+    );
+
+/// Joining: scan the host's QR code, or type the address (same Wi-Fi) or the
+/// online code (through the relay server) plus the room code.
 class JoinScreen extends StatefulWidget {
   const JoinScreen({required this.name, super.key});
 
@@ -23,7 +64,9 @@ class JoinScreen extends StatefulWidget {
 
 class _JoinScreenState extends State<JoinScreen> {
   final _address = TextEditingController();
+  final _online = TextEditingController();
   final _code = TextEditingController();
+  bool _onlineMode = false;
   String? _error;
 
   @override
@@ -42,45 +85,97 @@ class _JoinScreenState extends State<JoinScreen> {
   @override
   void dispose() {
     _address.dispose();
+    _online.dispose();
     _code.dispose();
     super.dispose();
   }
 
-  /// `ip` or `ip:port`; only private IPv4 addresses are accepted.
-  (String, int)? _parse(String input) {
-    final parts = input.trim().split(':');
-    if (parts.isEmpty || parts.length > 2) return null;
-    final ip = parts.first;
-    final port = parts.length == 2 ? int.tryParse(parts[1]) : defaultPort;
-    final octets = ip.split('.').map(int.tryParse).toList();
-    final valid =
-        octets.length == 4 &&
-        octets.every((o) => o != null && o >= 0 && o < 256);
-    if (!valid || port == null || port <= 0 || port > 65535) return null;
-    final a = octets[0]!;
-    final b = octets[1]!;
-    final private =
-        a == 10 || (a == 172 && b >= 16 && b <= 31) || (a == 192 && b == 168);
-    return private ? (ip, port) : null;
+  Future<void> _scan() async {
+    final link = await Navigator.push<JoinLink>(
+      context,
+      MaterialPageRoute(builder: (_) => const ScanScreen()),
+    );
+    if (link == null || !mounted) return;
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.joinConfirmTitle(link.room)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (link.lan != null)
+              Text(l10n.joinConfirmLan(link.lan.toString())),
+            if (link.server != null)
+              Text(l10n.joinConfirmOnline(link.server!.host)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.connect),
+          ),
+        ],
+      ),
+    );
+    if (!(ok ?? false) || !mounted) return;
+    await playSession(
+      context,
+      playerSession(
+        name: widget.name,
+        room: link.room,
+        lan: link.lan,
+        relayRoom: link.relayRoom,
+        server: link.server,
+      ),
+    );
   }
 
   Future<void> _join() async {
     final l10n = AppLocalizations.of(context);
-    final target = _parse(_address.text);
     final code = _code.text.trim();
-    if (target == null || code.length != roomCodeLength) {
+    if (code.length != roomCodeLength) {
       setState(() => _error = l10n.connectFailed);
       return;
     }
-    final (ip, port) = target;
-    final session = GameSession(
-      name: widget.name,
-      roomCode: code,
-      dial: () => dialHost(ip, port),
-    );
-    await Navigator.push(
+    if (_onlineMode) {
+      final relayRoom = _online.text.trim().toLowerCase();
+      final server = await const Store().relayServer();
+      if (!mounted) return;
+      if (server == null) {
+        setState(() => _error = l10n.noRelayServer);
+        return;
+      }
+      if (!isRelayRoomId(relayRoom)) {
+        setState(() => _error = l10n.connectFailed);
+        return;
+      }
+      setState(() => _error = null);
+      await playSession(
+        context,
+        playerSession(
+          name: widget.name,
+          room: code,
+          relayRoom: relayRoom,
+          server: server,
+        ),
+      );
+      return;
+    }
+    final lan = LanAddress.tryParse(_address.text);
+    if (lan == null) {
+      setState(() => _error = l10n.connectFailed);
+      return;
+    }
+    setState(() => _error = null);
+    await playSession(
       context,
-      MaterialPageRoute<void>(builder: (_) => GameScreen(session: session)),
+      playerSession(name: widget.name, room: code, lan: lan),
     );
   }
 
@@ -101,21 +196,43 @@ class _JoinScreenState extends State<JoinScreen> {
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 children: [
-                  Body(l10n.joinHelp),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _address,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[0-9.:]')),
+                  if (canScan) ...[
+                    PrimaryButton(label: l10n.scanQr, onPressed: _scan),
+                    const SizedBox(height: 24),
+                  ],
+                  SegmentedButton<bool>(
+                    segments: [
+                      ButtonSegment(value: false, label: Text(l10n.joinLan)),
+                      ButtonSegment(value: true, label: Text(l10n.joinOnline)),
                     ],
-                    decoration: InputDecoration(
-                      labelText: l10n.hostAddress,
-                      hintText: '192.168.1.23',
-                    ),
+                    selected: {_onlineMode},
+                    onSelectionChanged: (v) =>
+                        setState(() => _onlineMode = v.first),
                   ),
+                  const SizedBox(height: 16),
+                  Body(l10n.joinHelp, muted: true),
+                  const SizedBox(height: 16),
+                  if (_onlineMode)
+                    TextField(
+                      controller: _online,
+                      maxLength: relayRoomIdLength,
+                      autocorrect: false,
+                      decoration: InputDecoration(labelText: l10n.onlineCode),
+                    )
+                  else
+                    TextField(
+                      controller: _address,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp('[0-9.:]')),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: l10n.hostAddress,
+                        hintText: '192.168.1.23',
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _code,
@@ -129,6 +246,7 @@ class _JoinScreenState extends State<JoinScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _error!,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(color: Palette.curtain400),
                     ),
                   ],

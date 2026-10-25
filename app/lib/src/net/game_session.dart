@@ -18,7 +18,11 @@ class GameSession extends ChangeNotifier {
     required this.name,
     required this.roomCode,
     required this._dial,
+    this._token,
+    this.onWelcome,
+    this.onEnded,
     this.reconnectDelay = const Duration(seconds: 2),
+    this.maxReconnects = 30,
   }) {
     unawaited(_connect());
   }
@@ -26,7 +30,18 @@ class GameSession extends ChangeNotifier {
   final String name;
   final String roomCode;
   final Duration reconnectDelay;
+
+  /// Give up after this many failed reconnects in a row (the host is gone).
+  final int maxReconnects;
+
+  /// Called with the session token once the host welcomed us.
+  final void Function(String token)? onWelcome;
+
+  /// Called when the session ends for good.
+  final void Function()? onEnded;
+
   final Dial _dial;
+  int _failedReconnects = 0;
 
   Connection? _connection;
   StreamSubscription<String>? _subscription;
@@ -82,7 +97,9 @@ class GameSession extends ChangeNotifier {
     switch (message) {
       case Welcome(:final token):
         _token = token;
+        _failedReconnects = 0;
         status = SessionStatus.connected;
+        onWelcome?.call(token);
       case StateMessage():
         view = message.view;
         isOwner = message.isOwner;
@@ -94,7 +111,7 @@ class GameSession extends ChangeNotifier {
         refused = reason;
       case Bye(:final reason):
         byeReason = reason;
-        status = SessionStatus.ended;
+        _end();
         unawaited(_subscription?.cancel());
         unawaited(_connection?.close());
     }
@@ -107,11 +124,13 @@ class GameSession extends ChangeNotifier {
     _subscription = null;
     _connection = null;
     // Without a token the host never knew us: give up instead of retrying.
-    if (_token == null && status == SessionStatus.connecting) {
-      status = SessionStatus.ended;
+    final neverJoined = _token == null && status == SessionStatus.connecting;
+    if (neverJoined || _failedReconnects >= maxReconnects) {
+      _end();
       notifyListeners();
       return;
     }
+    if (status == SessionStatus.reconnecting) _failedReconnects++;
     status = SessionStatus.reconnecting;
     notifyListeners();
     Timer(reconnectDelay, () {
@@ -121,13 +140,19 @@ class GameSession extends ChangeNotifier {
     });
   }
 
+  void _end() {
+    if (status == SessionStatus.ended) return;
+    status = SessionStatus.ended;
+    onEnded?.call();
+  }
+
   void send(ClientMessage message) => _connection?.send(message.encode());
 
   /// Leaves for good: tells the host (in the lobby) and closes.
   void leave() {
     if (view?.phase == Phase.lobby) send(const LeaveIntent());
-    status = SessionStatus.ended;
     byeReason = ByeReason.left;
+    _end();
     unawaited(_connection?.close());
     notifyListeners();
   }

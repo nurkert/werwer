@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -32,10 +33,18 @@ class PhaseBody extends StatelessWidget {
 }
 
 class LobbyPhase extends StatelessWidget {
-  const LobbyPhase({required this.session, this.address, super.key});
+  const LobbyPhase({
+    required this.session,
+    this.link,
+    this.relayFailed = false,
+    super.key,
+  });
 
   final GameSession session;
-  final String? address;
+
+  /// How others reach this room (only on the host device).
+  final JoinLink? link;
+  final bool relayFailed;
 
   @override
   Widget build(BuildContext context) {
@@ -56,19 +65,8 @@ class LobbyPhase extends StatelessWidget {
 
     return PhaseBody(
       children: [
-        if (session.isOwner)
-          Panel(
-            highlight: true,
-            child: Column(
-              children: [
-                Body(l10n.lobbyJoinHint),
-                const SizedBox(height: 12),
-                _BigLabel(l10n.hostAddress, address ?? '—'),
-                const SizedBox(height: 8),
-                _BigLabel(l10n.roomCode, session.roomCode),
-              ],
-            ),
-          ),
+        if (session.isOwner && link != null) _Invite(link: link!),
+        if (relayFailed) Body(l10n.relayFailed, muted: true),
         Headline(l10n.players(count)),
         SeatGrid(
           view: view,
@@ -98,6 +96,55 @@ class LobbyPhase extends StatelessWidget {
         ] else
           Body(l10n.waitingForOwner, muted: true),
       ],
+    );
+  }
+}
+
+class _Invite extends StatelessWidget {
+  const _Invite({required this.link});
+
+  final JoinLink link;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Panel(
+      highlight: true,
+      child: Column(
+        children: [
+          Body(l10n.lobbyJoinHint),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 28,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              _BigLabel(l10n.roomCode, link.room),
+              if (link.lan != null)
+                _BigLabel(l10n.hostAddress, link.lan.toString()),
+              if (link.relayRoom != null)
+                _BigLabel(l10n.onlineCode, link.relayRoom!),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Body(l10n.scanHint, muted: true),
+          const SizedBox(height: 10),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: QrImageView(
+                data: link.encode(),
+                size: 200,
+                semanticsLabel: l10n.scanHint,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

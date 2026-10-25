@@ -129,7 +129,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _phase(PlayerView view) => switch (view.phase) {
-    Phase.lobby => LobbyPhase(session: session, address: widget.room?.address),
+    Phase.lobby => LobbyPhase(
+      session: session,
+      link: widget.room?.link,
+      relayFailed: widget.room?.relayFailed ?? false,
+    ),
     Phase.roleReveal => RevealPhase(session: session),
     Phase.night => NightPhase(session: session),
     Phase.day => DayPhase(session: session),

@@ -153,6 +153,14 @@
 - **Vor jedem Release:** Diese Datei durchgehen, das Bedrohungsmodell aktualisieren und `osv-scanner` sowie den Secret-Scan prüfen.
 - **Vor 1.0** ist ein externer Blick wünschenswert, etwa ein Review des Handshakes durch jemanden mit Krypto-Erfahrung.
 
+## Stand der Testversion (2026-10-25)
+
+Was schon umgesetzt ist und was noch fehlt, damit niemand die Testversion für fertig hält:
+
+- **Umgesetzt:** gefilterte Sichten (getestet für jeden Spieler), Identität nur aus der Sitzung, 128-Bit-Sitzungstokens aus `Random.secure()` im sicheren Speicher, strenges Parsen mit Größenlimits, Ratenlimits, Hello-Timeout, Verbindungslimit, LAN-Socket nur für private/Loopback-Adressen, strenge Prüfung des QR-Links mit Bestätigung vor dem Verbinden, Relay ohne Spielwissen und ohne Logs der Inhalte, Container ohne Root und ohne Shell.
+- **Fehlt noch:** Ende-zu-Ende-Verschlüsselung (Noise). Bis dahin können Mitspieler im selben WLAN und der Betreiber des Relays die Nachrichten mitlesen. Außerdem fehlen gleicher Nachrichtentakt mit Padding, Host-Bestätigung bei manuellem Beitritt mit Prüfbild und Fuzz-Tests für den Host.
+- **Folge:** nur im eigenen WLAN bzw. mit eigenem Relay unter Freunden testen; kein offizieller Release, bevor diese Punkte erledigt sind.
+
 ## Offene Entscheidungen
 
 - Konkrete Bibliothek bzw. Implementierung für den Noise-Handshake in Dart, auch im Browser lauffähig (M2).

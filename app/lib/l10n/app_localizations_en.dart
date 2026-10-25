@@ -313,4 +313,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refused => 'That is not possible right now.';
+
+  @override
+  String get scanQr => 'Scan QR code';
+
+  @override
+  String get scanTitle => 'Scan the room code';
+
+  @override
+  String get scanInvalid => 'That is not a Whowolf room code.';
+
+  @override
+  String joinConfirmTitle(String room) {
+    return 'Join room $room?';
+  }
+
+  @override
+  String joinConfirmLan(String address) {
+    return 'In the Wi-Fi: $address';
+  }
+
+  @override
+  String joinConfirmOnline(String server) {
+    return 'Online via $server';
+  }
+
+  @override
+  String get joinLan => 'In the Wi-Fi';
+
+  @override
+  String get joinOnline => 'Online';
+
+  @override
+  String get onlineCode => 'Online code';
+
+  @override
+  String get noRelayServer =>
+      'No server set up for online games. Add one in the settings.';
+
+  @override
+  String resume(String room) {
+    return 'Back to the game (room $room)';
+  }
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get relayServer => 'Server for online players';
+
+  @override
+  String get relayServerHelp =>
+      'Leave empty to use the official server once it exists. Own server: docker compose up -d, see the docs.';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get invalidServer => 'Use an address starting with ws:// or wss://.';
+
+  @override
+  String get scanHint => 'Or scan this code with the Whowolf app:';
+
+  @override
+  String get relayFailed => 'The online server is not reachable: Wi-Fi only.';
 }

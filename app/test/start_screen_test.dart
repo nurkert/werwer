@@ -28,6 +28,7 @@ void main() {
 
   testWidgets('asks for a name before opening a room', (tester) async {
     await tester.pumpWidget(host(const Locale('en')));
+    await tester.ensureVisible(find.text('Join a room'));
     await tester.tap(find.text('Join a room'));
     await tester.pump();
     expect(find.text('Enter your name first.'), findsOneWidget);
