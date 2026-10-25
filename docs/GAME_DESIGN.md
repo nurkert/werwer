@@ -46,7 +46,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 ## Wichtige Regeln für die App
 
-- **Der Server entscheidet.** Clients bekommen nur, was sie wissen dürfen.
+- **Der Host entscheidet** (das Gerät des Spielleiters). Alle bekommen nur, was sie wissen dürfen, auch der Spielleiter selbst.
 - **Timer pro Phase**, damit das Spiel nicht hängt, wenn jemand nicht reagiert. Dann gibt es eine Standardaktion oder einen Zufall.
 - **Keine Vibration, keine Töne** während der Nacht auf einzelnen Geräten. Der Erzähler läuft über ein Host-Gerät oder synchron über alle.
 - **Reconnect:** Wer kurz rausfliegt (Bildschirm aus, Netzwerk weg), muss wieder in dasselbe Spiel kommen.

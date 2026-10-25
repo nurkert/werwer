@@ -28,7 +28,7 @@ One Flutter codebase for **Android, iOS, Web, Windows, macOS and Linux**.
 whowolf/
 ├── app/                 Flutter client (all platforms)
 ├── packages/game_core/  Game rules, roles and phases (pure Dart, shared)
-├── server/              Dart WebSocket server (authoritative)
+├── server/              Relay server + web app hosting (no game logic)
 ├── website/             GitHub Pages site + docs/wiki
 ├── docker-compose.yml   Self-hosting
 └── docs/                Planning documents

@@ -49,7 +49,10 @@
 
 ## Phase 5 – Open-Source-Infrastruktur
 
-- [ ] Dedizierter Server (`server/`), der dieselbe Host-Logik ausführt; App wählt „lokal“ oder „Server“
+- [ ] Relay-Server (`server/`): Raumcodes, Weiterleitung zwischen Host und Spielern von außen, keine Spiellogik
+- [ ] Gemischtes Spiel: Host bedient LAN- und Relay-Transport gleichzeitig
+- [ ] Beitrittsseite `/r/<raumcode>`: im Browser mitspielen oder App installieren, Deep Links in die App, QR-Scanner in der App für direkten Beitritt (WLAN bevorzugt, sonst Server)
+- [ ] Eigener Server in den App-Einstellungen eintragbar (offizieller Server voreingestellt)
 - [ ] `docker-compose.yml` + Docker-Image für den Server
 - [ ] GitHub Actions: Tests, Builds für alle Plattformen, Releases
 - [ ] Website auf GitHub Pages im App-Style mit Downloads
