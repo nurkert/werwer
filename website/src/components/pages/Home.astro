@@ -63,12 +63,12 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     <!-- The playbill: what this is, on paper. -->
     <section id="spiel" class="paper" aria-labelledby="spiel-title">
       <div class="container playbill">
-        <div class="section-head">
-          <h2 id="spiel-title" class="display" data-reveal>{t.playbill.title}</h2>
-          <p class="lead" data-reveal style="--i: 1">{t.playbill.intro}</p>
-        </div>
         <div class="playbill__intro">
           <div>
+            <div class="section-head section-head--tight">
+              <h2 id="spiel-title" class="display" data-reveal>{t.playbill.title}</h2>
+              <p class="lead" data-reveal style="--i: 1">{t.playbill.intro}</p>
+            </div>
         <div class="rulebook">
           {
             t.playbill.pillars.map((p, i) => (
@@ -143,13 +143,10 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
               {group.roles.map((role, i) => (
                 <li class="role" data-reveal style={`--i: ${i}`}>
                   <div class="role__stage">
-                    <Picture
-                      src={figures[role.id]}
-                      alt=""
-                      formats={formats}
-                      widths={[260, 520, 780]}
-                      sizes="(max-width: 760px) 62vw, 18rem"
-                    />
+                    <div class="role__flip">
+                      <Picture class="role__face" src={figures[role.id]} alt="" formats={formats} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
+                      <Picture class="role__face role__face--back" src={figures[role.id]} alt="" formats={formats} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
+                    </div>
                   </div>
                   <div class="role__card">
                     <div class="role__plate">
@@ -310,7 +307,7 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   }
 
   .programme {
-    margin-top: var(--space-6);
+    margin-top: var(--space-5);
   }
   .section-head--tight {
     margin-bottom: var(--space-4);
@@ -924,13 +921,17 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
 
   .playbill__intro {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    gap: var(--space-5);
-    align-items: center;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: stretch;
+  }
+  .playbill__intro .rulebook p {
+    margin-bottom: var(--space-2);
   }
   .playbill__cast {
     position: relative;
-    height: 26rem;
+    height: 100%;
+    min-height: 24rem;
     margin: 0;
   }
   .playbill__cast :global(picture) {
@@ -977,6 +978,37 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     }
     .playbill__cast {
       height: 18rem;
+    }
+  }
+
+  .role__flip {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
+  }
+  .role__stage {
+    perspective: 60rem;
+  }
+  .role__flip :global(.role__face) {
+    height: 100%;
+    width: auto;
+    margin-inline: auto;
+    backface-visibility: hidden;
+  }
+  .role__flip :global(.role__face--back) {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    filter: brightness(0.88) sepia(0.08) drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
+  }
+  .role:hover .role__flip,
+  .role:focus-within .role__flip {
+    transform: rotateY(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .role__flip {
+      transition: none;
     }
   }
 </style>

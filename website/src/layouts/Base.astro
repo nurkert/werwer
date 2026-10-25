@@ -319,10 +319,15 @@ const jsonLd = {
     top: 1rem;
   }
 
+  /* The header stays with you: clear over the stage, solid once the page moves on. */
   .site-header {
-    position: relative;
-    z-index: 30;
-    background: transparent;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: rgb(13 20 15 / 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
   .site-header--mobile-only {
     display: none;
@@ -334,9 +339,17 @@ const jsonLd = {
     }
   }
   .site-header--overlay {
-    position: absolute;
+    position: fixed;
     inset: 0 0 auto;
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .site-header--overlay.is-solid {
+    background: rgb(13 20 15 / 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.35);
   }
   .site-header__inner {
     display: flex;

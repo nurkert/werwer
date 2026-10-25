@@ -70,3 +70,11 @@ document.addEventListener('keydown', (event) => {
     menu.querySelector('summary')?.focus();
   }
 });
+
+// Overlay header turns solid once the hero has scrolled under it.
+const header = document.querySelector<HTMLElement>('.site-header--overlay');
+if (header) {
+  const solid = () => header.classList.toggle('is-solid', window.scrollY > window.innerHeight * 0.35);
+  window.addEventListener('scroll', solid, { passive: true });
+  solid();
+}

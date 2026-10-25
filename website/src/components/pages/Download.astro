@@ -97,14 +97,14 @@ const formats = ['avif', 'webp'] as const;
                     <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
                   )}
                 </div>
-                <details class="card__steps">
-                  <summary>{x.install}</summary>
+                <div class="card__steps">
+                  <p class="card__steps-title">{x.install}</p>
                   <ol>
                     {info.steps.map((step) => (
                       <li>{step}</li>
                     ))}
                   </ol>
-                </details>
+                </div>
               </li>
             );
           })
@@ -284,7 +284,6 @@ const formats = ['avif', 'webp'] as const;
   .card__files {
     display: grid;
     gap: 0.5rem;
-    margin-top: auto;
   }
   .card__download {
     display: flex;
@@ -329,19 +328,52 @@ const formats = ['avif', 'webp'] as const;
     font-size: var(--step-small);
     font-weight: 600;
   }
-  .card__steps summary {
-    cursor: pointer;
-    font-weight: 700;
+  .card__steps {
+    margin-top: 0.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed rgb(42 27 18 / 0.25);
+  }
+  .card__steps-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--curtain-600);
   }
   .card__steps ol {
-    margin: 0.6rem 0 0;
-    padding-left: 1.2rem;
-    font-size: var(--step-small);
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    font-size: 0.86rem;
+    line-height: 1.4;
     color: var(--ink-soft);
   }
+  .card__steps li {
+    position: relative;
+    padding-left: 1.7rem;
+    counter-increment: step;
+  }
+  .card__steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.05rem;
+    display: grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #f5aa42;
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
   .card__steps li + li {
-    margin-top: 0.3rem;
+    margin-top: 0.45rem;
+  }
+  .card__req {
+    min-height: 2.9em;
   }
 
   /* Verification as a page of the rule booklet. */
