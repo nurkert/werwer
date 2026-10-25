@@ -9,10 +9,14 @@ sealed class GameAction {
   const GameAction();
 }
 
-/// A player joins the lobby.
+/// A player joins the lobby. Without a [persona], the first free one is
+/// given.
 final class AddPlayer extends GameAction {
   /// Creates the action.
-  const AddPlayer(this.player, this.name);
+  const AddPlayer(this.player, this.name, {this.persona});
+
+  /// The wished persona.
+  final Persona? persona;
 
   /// New player's id.
   final PlayerId player;
@@ -28,6 +32,18 @@ final class RemovePlayer extends GameAction {
 
   /// Who leaves.
   final PlayerId player;
+}
+
+/// A player picks another persona in the lobby.
+final class ChoosePersona extends GameAction {
+  /// Creates the action.
+  const ChoosePersona(this.player, this.persona);
+
+  /// Who picks.
+  final PlayerId player;
+
+  /// The persona.
+  final Persona persona;
 }
 
 /// Deals the roles and starts the game.
@@ -89,6 +105,12 @@ final class NightDecoy extends GameAction {
 
 /// Most sheep (or least, negative) a player can count in one night.
 const maxSheepPerNight = 500;
+
+/// Fewest sheep a player gets in a night.
+const minFlock = 3;
+
+/// Most sheep a player gets in a night.
+const maxFlock = 30;
 
 /// How many sheep a player has counted so far tonight (a running total that
 /// replaces the previous one). Has no effect on the night itself; the totals

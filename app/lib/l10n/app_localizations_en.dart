@@ -434,4 +434,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String bestDreamer(String name, int points) {
     return 'Best dreamer: $name ($points dream points)';
   }
+
+  @override
+  String get youAppearAs => 'You appear as';
+
+  @override
+  String get changePersona => 'Choose your figure';
+
+  @override
+  String get personaHint =>
+      'Your figure is only your look. Your role stays secret and is dealt by chance.';
+
+  @override
+  String get persona_maid => 'Maid';
+
+  @override
+  String get persona_lanternBearer => 'Lantern bearer';
+
+  @override
+  String get persona_greyWolf => 'Grey wolf';
+
+  @override
+  String get persona_farmer => 'Farmer';
+
+  @override
+  String get persona_hunter => 'Hunter';
+
+  @override
+  String get persona_herbWitch => 'Herb witch';
+
+  @override
+  String get persona_cupid => 'Cupid';
+
+  @override
+  String get persona_guard => 'Guard';
+
+  @override
+  String get persona_tracker => 'Tracker';
+
+  @override
+  String get persona_listener => 'Listener';
+
+  @override
+  String get persona_quietPaw => 'Quiet paw';
 }

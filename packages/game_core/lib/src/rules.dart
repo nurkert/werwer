@@ -26,6 +26,7 @@ class GameUpdate {
 GameUpdate apply(GameState state, GameAction action) => switch (action) {
   AddPlayer() => _addPlayer(state, action),
   RemovePlayer() => _removePlayer(state, action),
+  ChoosePersona() => _choosePersona(state, action),
   StartGame() => _startGame(state, action),
   ConfirmRole() => _confirmRole(state, action),
   WerewolfVote(:final wolf, :final target) => _night(
@@ -79,10 +80,42 @@ GameUpdate _addPlayer(GameState state, AddPlayer action) {
     state.copyWith(
       players: [
         ...state.players,
-        Player(id: action.player, name: name),
+        Player(
+          id: action.player,
+          name: name,
+          persona: _persona(state, action.player, action.persona),
+        ),
       ],
     ),
     [PlayerJoined(action.player)],
+  );
+}
+
+/// [wish] if it is free (or nothing is free any more), else the first free
+/// persona. Personas repeat only once all are taken.
+Persona _persona(GameState state, PlayerId player, Persona? wish) {
+  final taken = {
+    for (final p in state.players)
+      if (p.id != player) p.persona,
+  };
+  final free = Persona.values.where((p) => !taken.contains(p));
+  if (wish != null && (free.isEmpty || !taken.contains(wish))) return wish;
+  if (wish != null) _refuse(Violation.personaTaken);
+  return free.firstOrNull ??
+      Persona.values[state.players.length % Persona.values.length];
+}
+
+GameUpdate _choosePersona(GameState state, ChoosePersona action) {
+  _expectPhase(state, Phase.lobby);
+  if (state.player(action.player) == null) _refuse(Violation.unknownPlayer);
+  final persona = _persona(state, action.player, action.persona);
+  return GameUpdate(
+    state.copyWith(
+      players: [
+        for (final p in state.players)
+          p.id == action.player ? p.copyWith(persona: persona) : p,
+      ],
+    ),
   );
 }
 
@@ -115,6 +148,7 @@ GameUpdate _startGame(GameState state, StartGame action) {
   return GameUpdate(
     state.copyWith(
       phase: Phase.roleReveal,
+      seed: action.random.nextInt(1 << 32),
       players: [
         for (var i = 0; i < count; i++)
           state.players[i].copyWith(role: roles[i]),
@@ -197,10 +231,33 @@ PlayerId? _majority(Iterable<PlayerId> votes) {
   return leaders.length == 1 ? leaders.single.key : null;
 }
 
+/// How many sheep run across [player]'s meadow in this night. Decided by the
+/// game, not by the role: some nights bring a big flock, some only a few
+/// sheep, so a low count in the morning is a hint at most, never proof.
+int flockFor(GameState state, PlayerId player) {
+  // FNV-1a over seed, round and player id: stable, serializable, no Random.
+  var hash = 0x811c9dc5;
+  void mix(int value) {
+    hash = ((hash ^ (value & 0xff)) * 0x01000193) & 0xffffffff;
+  }
+
+  for (var shift = 0; shift < 32; shift += 8) {
+    mix(state.seed >> shift);
+  }
+  mix(state.round);
+  player.value.codeUnits.forEach(mix);
+  final u = hash / 0xffffffff;
+  // Skewed towards small flocks: a few players get very little each night.
+  return minFlock + (u * u * (maxFlock - minFlock)).round();
+}
+
 GameUpdate _countSheep(GameState state, CountSheep action) {
   _expectPhase(state, Phase.night);
   _living(state, action.player);
-  if (action.sheep.abs() > maxSheepPerNight) _refuse(Violation.outOfRange);
+  if (action.sheep.abs() > maxSheepPerNight ||
+      action.sheep > flockFor(state, action.player)) {
+    _refuse(Violation.outOfRange);
+  }
   return GameUpdate(
     state.copyWith(sheep: {...state.sheep, action.player: action.sheep}),
   );

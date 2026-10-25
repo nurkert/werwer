@@ -24,10 +24,18 @@ class _Sheep {
 /// sheep (or lamb) gives a dream point, tapping a black one costs three.
 /// Everyone gets it at night, so nobody stands out by tapping.
 class SheepMeadow extends StatefulWidget {
-  const SheepMeadow({required this.onPoints, super.key, this.height = 220});
+  const SheepMeadow({
+    required this.onPoints,
+    super.key,
+    this.flock,
+    this.height = 220,
+  });
 
   /// Called with the change in dream points (+1 or -3).
   final void Function(int delta) onPoints;
+
+  /// How many sheep the host lets run tonight; endless without.
+  final int? flock;
   final double height;
 
   @override
@@ -50,6 +58,16 @@ class _SheepMeadowState extends State<SheepMeadow>
   Duration _now = Duration.zero;
   Duration _nextSpawn = Duration.zero;
   int _score = 0;
+  int _spawned = 0;
+
+  /// Pause between sheep: the flock spreads over about half a minute.
+  Duration get _gap {
+    final flock = widget.flock;
+    final base = flock == null ? 1000 : (30000 / flock).clamp(600, 6000);
+    return Duration(
+      milliseconds: (base * (0.6 + _random.nextDouble() * 0.8)).round(),
+    );
+  }
 
   @override
   void initState() {
@@ -66,7 +84,10 @@ class _SheepMeadowState extends State<SheepMeadow>
 
   void _tick(Duration elapsed) {
     _now = elapsed;
-    if (elapsed >= _nextSpawn) {
+    final flock = widget.flock;
+    final more = flock == null || _spawned < flock;
+    if (more && elapsed >= _nextSpawn) {
+      _spawned++;
       final roll = _random.nextDouble();
       final kind = roll < 0.22
           ? _Kind.black
@@ -79,7 +100,7 @@ class _SheepMeadowState extends State<SheepMeadow>
         _Kind.white => _whites[_random.nextInt(_whites.length)],
       };
       _sheep.add(_Sheep(kind, asset, elapsed, _random.nextDouble()));
-      _nextSpawn = elapsed + Duration(milliseconds: 700 + _random.nextInt(700));
+      _nextSpawn = elapsed + _gap;
     }
     _sheep.removeWhere(
       (s) =>

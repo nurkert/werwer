@@ -66,6 +66,7 @@ sealed class ClientMessage {
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
+      'persona' => PersonaIntent(json.enumValue('persona', Persona.values)),
       'sheep' => SheepIntent(
         json.integer('count', min: -maxSheepPerNight, max: maxSheepPerNight),
       ),
@@ -202,6 +203,21 @@ final class LeaveIntent extends ClientMessage {
 
   @override
   String get _type => 'leave';
+}
+
+/// In the lobby: I want to appear as this persona.
+final class PersonaIntent extends ClientMessage {
+  /// Creates the message.
+  const PersonaIntent(this.persona);
+
+  /// The persona.
+  final Persona persona;
+
+  @override
+  String get _type => 'persona';
+
+  @override
+  Map<String, Object?> get _fields => {'persona': persona.name};
 }
 
 /// How many sheep I have counted tonight (running total).

@@ -19,6 +19,20 @@ extension RoleText on AppLocalizations {
     Role.seer => roleSeerText,
   };
 
+  String persona(Persona persona) => switch (persona) {
+    Persona.maid => persona_maid,
+    Persona.lanternBearer => persona_lanternBearer,
+    Persona.greyWolf => persona_greyWolf,
+    Persona.farmer => persona_farmer,
+    Persona.hunter => persona_hunter,
+    Persona.herbWitch => persona_herbWitch,
+    Persona.cupid => persona_cupid,
+    Persona.guard => persona_guard,
+    Persona.tracker => persona_tracker,
+    Persona.listener => persona_listener,
+    Persona.quietPaw => persona_quietPaw,
+  };
+
   String faction(Faction faction) => switch (faction) {
     Faction.village => factionVillage,
     Faction.werewolves => factionWerewolves,
@@ -183,7 +197,7 @@ class _SeatTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Row(
                 children: [
-                  Portrait(role: seat.role),
+                  Portrait(persona: seat.persona),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(

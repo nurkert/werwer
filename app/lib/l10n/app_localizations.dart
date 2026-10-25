@@ -805,6 +805,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Best dreamer: {name} ({points} dream points)'**
   String bestDreamer(String name, int points);
+
+  /// No description provided for @youAppearAs.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear as'**
+  String get youAppearAs;
+
+  /// No description provided for @changePersona.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your figure'**
+  String get changePersona;
+
+  /// No description provided for @personaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your figure is only your look. Your role stays secret and is dealt by chance.'**
+  String get personaHint;
+
+  /// No description provided for @persona_maid.
+  ///
+  /// In en, this message translates to:
+  /// **'Maid'**
+  String get persona_maid;
+
+  /// No description provided for @persona_lanternBearer.
+  ///
+  /// In en, this message translates to:
+  /// **'Lantern bearer'**
+  String get persona_lanternBearer;
+
+  /// No description provided for @persona_greyWolf.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey wolf'**
+  String get persona_greyWolf;
+
+  /// No description provided for @persona_farmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer'**
+  String get persona_farmer;
+
+  /// No description provided for @persona_hunter.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunter'**
+  String get persona_hunter;
+
+  /// No description provided for @persona_herbWitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Herb witch'**
+  String get persona_herbWitch;
+
+  /// No description provided for @persona_cupid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cupid'**
+  String get persona_cupid;
+
+  /// No description provided for @persona_guard.
+  ///
+  /// In en, this message translates to:
+  /// **'Guard'**
+  String get persona_guard;
+
+  /// No description provided for @persona_tracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracker'**
+  String get persona_tracker;
+
+  /// No description provided for @persona_listener.
+  ///
+  /// In en, this message translates to:
+  /// **'Listener'**
+  String get persona_listener;
+
+  /// No description provided for @persona_quietPaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet paw'**
+  String get persona_quietPaw;
 }
 
 class _AppLocalizationsDelegate

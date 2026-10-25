@@ -22,6 +22,7 @@ class Player {
   const Player({
     required this.id,
     required this.name,
+    this.persona = Persona.farmer,
     this.role,
     this.isAlive = true,
   });
@@ -32,6 +33,9 @@ class Player {
   /// Display name, unique within the game.
   final String name;
 
+  /// The character this player appears as.
+  final Persona persona;
+
   /// Assigned role; `null` until the game starts.
   final Role? role;
 
@@ -39,9 +43,10 @@ class Player {
   final bool isAlive;
 
   /// Returns a copy with the given fields replaced.
-  Player copyWith({Role? role, bool? isAlive}) => Player(
+  Player copyWith({Persona? persona, Role? role, bool? isAlive}) => Player(
     id: id,
     name: name,
+    persona: persona ?? this.persona,
     role: role ?? this.role,
     isAlive: isAlive ?? this.isAlive,
   );
@@ -132,6 +137,7 @@ class GameState {
     Map<PlayerId, int> sheep = const {},
     Map<PlayerId, int> lastNightSheep = const {},
     Map<PlayerId, int> dreams = const {},
+    this.seed = 0,
     this.winner,
   }) : players = List.unmodifiable(players),
        sheep = Map.unmodifiable(sheep),
@@ -188,6 +194,9 @@ class GameState {
   /// Dream points (all sheep counted) per player over the whole game.
   final Map<PlayerId, int> dreams;
 
+  /// Random seed drawn when the game starts; decides the flock sizes.
+  final int seed;
+
   /// The winning faction once [phase] is [Phase.ended].
   final Faction? winner;
 
@@ -215,6 +224,7 @@ class GameState {
     Map<PlayerId, int>? sheep,
     Map<PlayerId, int>? lastNightSheep,
     Map<PlayerId, int>? dreams,
+    int? seed,
     Faction? winner,
   }) => GameState(
     players: players ?? this.players,
@@ -229,6 +239,7 @@ class GameState {
     sheep: sheep ?? this.sheep,
     lastNightSheep: lastNightSheep ?? this.lastNightSheep,
     dreams: dreams ?? this.dreams,
+    seed: seed ?? this.seed,
     winner: winner ?? this.winner,
   );
 }

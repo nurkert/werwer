@@ -46,6 +46,43 @@ enum Role {
   final NightAbility nightAbility;
 }
 
+/// A character a player appears as at the table. Any persona can have any
+/// role: the persona is who you are, the role is your secret.
+enum Persona {
+  /// The maid with her bucket.
+  maid,
+
+  /// The cloaked woman with the lantern.
+  lanternBearer,
+
+  /// The grey wolf in the red vest.
+  greyWolf,
+
+  /// The farmer with the pitchfork.
+  farmer,
+
+  /// The hunter with the longbow.
+  hunter,
+
+  /// The herb witch.
+  herbWitch,
+
+  /// The little cupid.
+  cupid,
+
+  /// The guard with the shield.
+  guard,
+
+  /// The tracker.
+  tracker,
+
+  /// The listener.
+  listener,
+
+  /// The quiet paw.
+  quietPaw,
+}
+
 /// Fewest players a game can start with (for play tests; fun starts at
 /// [recommendedMinPlayers]).
 const minPlayers = 3;

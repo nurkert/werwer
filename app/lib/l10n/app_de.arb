@@ -117,5 +117,19 @@
   "sheepWhileWaiting": "Bis zum Morgen: Schäfchen zählen.",
   "sleepTitle": "Wie gut habt ihr geschlafen?",
   "sheepCount": "{count} Schäfchen",
-  "bestDreamer": "Bester Träumer: {name} ({points} Traumpunkte)"
+  "bestDreamer": "Bester Träumer: {name} ({points} Traumpunkte)",
+  "youAppearAs": "Du erscheinst als",
+  "changePersona": "Figur wählen",
+  "personaHint": "Deine Figur ist nur dein Aussehen. Deine Rolle bleibt geheim und wird zufällig verteilt.",
+  "persona_maid": "Magd",
+  "persona_lanternBearer": "Laternenträgerin",
+  "persona_greyWolf": "Grauwolf",
+  "persona_farmer": "Bauer",
+  "persona_hunter": "Jäger",
+  "persona_herbWitch": "Kräuterhexe",
+  "persona_cupid": "Amor",
+  "persona_guard": "Wächter",
+  "persona_tracker": "Fährtenleger",
+  "persona_listener": "Lauscherin",
+  "persona_quietPaw": "Stille Pfote"
 }

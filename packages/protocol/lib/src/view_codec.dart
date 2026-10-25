@@ -23,6 +23,7 @@ Map<String, Object?> encodeView(PlayerView view) => {
         'id': s.id.value,
         'name': s.name,
         'alive': s.isAlive,
+        'persona': s.persona.name,
         'role': ?s.role?.name,
       },
   ],
@@ -62,6 +63,7 @@ Map<String, Object?> encodeView(PlayerView view) => {
     for (final MapEntry(:key, :value) in view.dreams.entries)
       {'player': key.value, 'n': value},
   ],
+  'flock': ?view.yourFlock,
   'winner': ?view.winner?.name,
 };
 
@@ -81,6 +83,7 @@ PlayerView decodeView(JsonReader json) => PlayerView(
         id: _pid(s, 'id'),
         name: s.string('name', max: maxNameLength),
         isAlive: s.boolean('alive'),
+        persona: s.enumValue('persona', Persona.values),
         role: s.maybeEnum('role', Role.values),
       ),
   ],
@@ -114,5 +117,6 @@ PlayerView decodeView(JsonReader json) => PlayerView(
   ],
   lastNightSheep: _counts(json, 'sheepLast'),
   dreams: _counts(json, 'dreams'),
+  yourFlock: json.maybeInteger('flock', max: maxFlock),
   winner: json.maybeEnum('winner', Faction.values),
 );

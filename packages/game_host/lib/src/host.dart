@@ -303,6 +303,8 @@ class GameHost {
           final update = apply(_state, RemovePlayer(me));
           _endSession(me, ByeReason.left);
           _commit(update);
+        case PersonaIntent(:final persona):
+          _commit(apply(_state, ChoosePersona(me, persona)));
         case SheepIntent(:final count):
           _commit(apply(_state, CountSheep(me, count)));
         case RematchIntent():
@@ -334,7 +336,7 @@ class GameHost {
     }
     var next = GameState.lobby(settings: _state.settings);
     for (final p in _state.players) {
-      next = apply(next, AddPlayer(p.id, p.name)).state;
+      next = apply(next, AddPlayer(p.id, p.name, persona: p.persona)).state;
     }
     _commit(GameUpdate(next));
   }

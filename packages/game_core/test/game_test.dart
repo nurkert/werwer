@@ -189,6 +189,45 @@ void main() {
     });
   });
 
+  group('personas', () {
+    test('joiners get free personas; personas can be changed in the lobby', () {
+      var state = lobby(3);
+      expect(state.players.map((p) => p.persona).toSet(), hasLength(3));
+      state = apply(state, ChoosePersona(id(0), Persona.hunter)).state;
+      expect(state.player(id(0))!.persona, Persona.hunter);
+      expect(
+        () => apply(state, ChoosePersona(id(1), Persona.hunter)),
+        refuses(Violation.personaTaken),
+      );
+      state = apply(
+        state,
+        AddPlayer(id(7), 'Hugo', persona: Persona.cupid),
+      ).state;
+      expect(viewFor(state, id(1)).seats.last.persona, Persona.cupid);
+    });
+
+    test('personas repeat only when all are taken', () {
+      var state = GameState.lobby();
+      for (var i = 0; i < Persona.values.length + 2; i++) {
+        state = apply(state, AddPlayer(id(i), 'P$i')).state;
+      }
+      final first = state.players
+          .take(Persona.values.length)
+          .map((p) => p.persona);
+      expect(first.toSet(), hasLength(Persona.values.length));
+      state = apply(state, ChoosePersona(id(12), Persona.maid)).state;
+      expect(state.player(id(12))!.persona, Persona.maid);
+    });
+
+    test('personas are only chosen in the lobby', () {
+      final started = apply(lobby(5), StartGame(random: Random(1))).state;
+      expect(
+        () => apply(started, ChoosePersona(id(0), Persona.hunter)),
+        refuses(Violation.wrongPhase),
+      );
+    });
+  });
+
   group('role reveal', () {
     test('night falls once everyone confirmed', () {
       var state = apply(lobby(5), StartGame(random: Random(3))).state;
@@ -320,30 +359,48 @@ void main() {
 
     test('sheep stay secret at night and are told in the morning', () {
       var state = night(roles);
+      state = apply(state, CountSheep(id(2), 1)).state;
       state = apply(state, CountSheep(id(2), 3)).state;
-      state = apply(state, CountSheep(id(2), 7)).state;
       state = apply(state, CountSheep(id(3), -2)).state;
       expect(viewFor(state, id(4)).lastNightSheep, isEmpty);
       state = playNight(state, {0: 4, 1: 0}).state;
       final view = viewFor(state, id(0));
-      expect(view.lastNightSheep[id(2)], 7);
+      expect(view.lastNightSheep[id(2)], 3);
       expect(view.lastNightSheep[id(3)], -2);
       expect(view.lastNightSheep[id(0)], 0);
       // The victim counted too before the wolves came.
       expect(view.lastNightSheep[id(4)], 0);
-      expect(view.dreams[id(2)], 7);
-      expect(publicView(state).dreams[id(2)], 7);
+      expect(view.dreams[id(2)], 3);
+      expect(publicView(state).dreams[id(2)], 3);
     });
 
     test('dream points add up over the nights', () {
       var state = night(roles);
-      state = apply(state, CountSheep(id(2), 5)).state;
+      state = apply(state, CountSheep(id(2), 3)).state;
       state = playNight(state, {0: 4, 1: 0}).state;
       state = playVote(state, {0: null, 1: null, 2: null, 3: null}).state;
-      state = apply(state, CountSheep(id(2), 4)).state;
+      state = apply(state, CountSheep(id(2), 2)).state;
       state = playNight(state, {0: 3, 1: 0}).state;
-      expect(state.dreams[id(2)], 9);
-      expect(state.lastNightSheep[id(2)], 4);
+      expect(state.dreams[id(2)], 5);
+      expect(state.lastNightSheep[id(2)], 2);
+    });
+
+    test('flocks differ between players and nights, and cap the count', () {
+      final state = night(roles);
+      final flocks = {for (final p in state.players) flockFor(state, p.id)};
+      expect(flocks.every((f) => f >= minFlock && f <= maxFlock), isTrue);
+      final many = apply(lobby(8), StartGame(random: Random(3))).state;
+      final sizes = <int>{
+        for (var r = 1; r < 6; r++)
+          for (final p in many.players) flockFor(many.copyWith(round: r), p.id),
+      };
+      expect(sizes.length, greaterThan(5));
+      final flock = flockFor(state, id(2));
+      expect(viewFor(state, id(2)).yourFlock, flock);
+      expect(
+        () => apply(state, CountSheep(id(2), flock + 1)),
+        refuses(Violation.outOfRange),
+      );
     });
 
     test('counting is only for the living, at night, within limits', () {

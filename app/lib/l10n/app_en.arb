@@ -291,5 +291,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "youAppearAs": "You appear as",
+  "changePersona": "Choose your figure",
+  "personaHint": "Your figure is only your look. Your role stays secret and is dealt by chance.",
+  "persona_maid": "Maid",
+  "persona_lanternBearer": "Lantern bearer",
+  "persona_greyWolf": "Grey wolf",
+  "persona_farmer": "Farmer",
+  "persona_hunter": "Hunter",
+  "persona_herbWitch": "Herb witch",
+  "persona_cupid": "Cupid",
+  "persona_guard": "Guard",
+  "persona_tracker": "Tracker",
+  "persona_listener": "Listener",
+  "persona_quietPaw": "Quiet paw"
 }

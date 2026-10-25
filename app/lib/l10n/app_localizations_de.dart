@@ -440,4 +440,47 @@ class AppLocalizationsDe extends AppLocalizations {
   String bestDreamer(String name, int points) {
     return 'Bester Träumer: $name ($points Traumpunkte)';
   }
+
+  @override
+  String get youAppearAs => 'Du erscheinst als';
+
+  @override
+  String get changePersona => 'Figur wählen';
+
+  @override
+  String get personaHint =>
+      'Deine Figur ist nur dein Aussehen. Deine Rolle bleibt geheim und wird zufällig verteilt.';
+
+  @override
+  String get persona_maid => 'Magd';
+
+  @override
+  String get persona_lanternBearer => 'Laternenträgerin';
+
+  @override
+  String get persona_greyWolf => 'Grauwolf';
+
+  @override
+  String get persona_farmer => 'Bauer';
+
+  @override
+  String get persona_hunter => 'Jäger';
+
+  @override
+  String get persona_herbWitch => 'Kräuterhexe';
+
+  @override
+  String get persona_cupid => 'Amor';
+
+  @override
+  String get persona_guard => 'Wächter';
+
+  @override
+  String get persona_tracker => 'Fährtenleger';
+
+  @override
+  String get persona_listener => 'Lauscherin';
+
+  @override
+  String get persona_quietPaw => 'Stille Pfote';
 }

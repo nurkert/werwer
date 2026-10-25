@@ -35,6 +35,9 @@ enum Violation {
 
   /// A number is out of the allowed range.
   outOfRange,
+
+  /// Another player already has this persona (and others are still free).
+  personaTaken,
 }
 
 /// Thrown by `apply` for an action that breaks the rules. The state is never

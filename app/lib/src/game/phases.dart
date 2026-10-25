@@ -72,6 +72,7 @@ class LobbyPhase extends StatelessWidget {
       children: [
         if (session.isOwner && link != null) _Invite(link: link!),
         if (relayFailed) Body(l10n.relayFailed, muted: true),
+        _PersonaPicker(session: session),
         Headline(l10n.players(count)),
         SeatGrid(
           view: view,
@@ -101,6 +102,156 @@ class LobbyPhase extends StatelessWidget {
         ] else
           Body(l10n.waitingForOwner, muted: true),
       ],
+    );
+  }
+}
+
+/// Your own figure in the lobby, and the sheet to pick another one.
+class _PersonaPicker extends StatelessWidget {
+  const _PersonaPicker({required this.session});
+
+  final GameSession session;
+
+  Future<void> _pick(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final view = session.view!;
+    final taken = {
+      for (final s in view.seats)
+        if (s.id != view.you) s.persona,
+    };
+    final allTaken = taken.length >= Persona.values.length;
+    final picked = await showModalBottomSheet<Persona>(
+      context: context,
+      backgroundColor: Palette.night800,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            children: [
+              Headline(l10n.changePersona),
+              const SizedBox(height: 6),
+              Body(l10n.personaHint, muted: true),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final p in Persona.values)
+                    _PersonaChoice(
+                      persona: p,
+                      selected: p == view.yourSeat.persona,
+                      enabled: allTaken || !taken.contains(p),
+                      onTap: () => Navigator.pop(context, p),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) session.send(PersonaIntent(picked));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final persona = session.view!.yourSeat.persona;
+    return Panel(
+      child: Row(
+        children: [
+          Figure(asset: personaAsset(persona), height: 96),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.youAppearAs,
+                  style: const TextStyle(color: Palette.moon200),
+                ),
+                Text(
+                  l10n.persona(persona),
+                  style: const TextStyle(
+                    fontFamily: displayFont,
+                    fontSize: 26,
+                    color: Palette.moon100,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Palette.lantern400,
+                    side: const BorderSide(color: Palette.lantern400),
+                  ),
+                  onPressed: () => _pick(context),
+                  child: Text(l10n.changePersona),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PersonaChoice extends StatelessWidget {
+  const _PersonaChoice({
+    required this.persona,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final Persona persona;
+  final bool selected;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Opacity(
+      opacity: enabled ? 1 : 0.35,
+      child: Material(
+        color: selected ? Palette.night700 : Palette.night900,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: selected ? Palette.lantern400 : Palette.night700,
+            width: selected ? 2.5 : 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: enabled ? onTap : null,
+          child: SizedBox(
+            width: 104,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                children: [
+                  Figure(asset: personaAsset(persona), height: 90),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.persona(persona),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Palette.moon100,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -400,6 +551,8 @@ class _NightPhaseState extends State<NightPhase> {
     final inspected =
         role.nightAbility == NightAbility.inspect && choice != null;
     final meadow = SheepMeadow(
+      key: ValueKey('meadow-${view.round}'),
+      flock: view.yourFlock,
       onPoints: (delta) => _sheep += delta,
     );
     return PhaseBody(

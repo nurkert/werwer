@@ -1,5 +1,6 @@
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
+import 'package:game_core/src/rules.dart';
 
 /// A seat at the table as one viewer sees it.
 class SeatView {
@@ -8,6 +9,7 @@ class SeatView {
     required this.id,
     required this.name,
     required this.isAlive,
+    this.persona = Persona.farmer,
     this.role,
   });
 
@@ -19,6 +21,9 @@ class SeatView {
 
   /// Whether the player is alive.
   final bool isAlive;
+
+  /// The character the player appears as.
+  final Persona persona;
 
   /// The player's role, only if the viewer may know it.
   final Role? role;
@@ -67,6 +72,7 @@ class PlayerView {
     this.seerResults = const [],
     this.lastNightSheep = const {},
     this.dreams = const {},
+    this.yourFlock,
     this.winner,
   });
 
@@ -115,6 +121,9 @@ class PlayerView {
   /// Dream points per player over the whole game (public).
   final Map<PlayerId, int> dreams;
 
+  /// At night: how many sheep run across the viewer's meadow.
+  final int? yourFlock;
+
   /// The winning faction once the game is over.
   final Faction? winner;
 
@@ -146,7 +155,13 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     round: state.round,
     seats: [
       for (final p in state.players)
-        SeatView(id: p.id, name: p.name, isAlive: p.isAlive, role: known(p)),
+        SeatView(
+          id: p.id,
+          name: p.name,
+          isAlive: p.isAlive,
+          persona: p.persona,
+          role: known(p),
+        ),
     ],
     deaths: _deaths(state),
     waitingFor: _waitingFor(state),
@@ -165,6 +180,9 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     seerResults: state.seerResults[viewer] ?? const [],
     lastNightSheep: state.lastNightSheep,
     dreams: state.dreams,
+    yourFlock: state.phase == Phase.night && me.isAlive
+        ? flockFor(state, viewer)
+        : null,
     winner: state.winner,
   );
 }
@@ -180,6 +198,7 @@ PlayerView publicView(GameState state) => PlayerView(
         id: p.id,
         name: p.name,
         isAlive: p.isAlive,
+        persona: p.persona,
         role:
             state.phase == Phase.ended ||
                 (!p.isAlive && state.settings.revealRoleOnDeath)
