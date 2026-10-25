@@ -1,6 +1,6 @@
 ---
 // Night scene: painted backdrop plus flat cutouts on depth layers (2.5D).
-// Puppets are held from below, like in a puppet show: their sticks run out of the frame.
+// Cardboard puppets rise from below and stand on the meadow, like in a puppet show.
 // Depth only reacts to scrolling: far layers drift, near layers rush past.
 import { Picture } from 'astro:assets';
 
@@ -241,7 +241,7 @@ const formats = ['avif', 'webp'] as const;
 
   .puppet {
     position: absolute;
-    bottom: -10%;
+    bottom: 4%;
     transform-origin: 50% 100%;
     transform: translateY(70%);
     opacity: 0;
@@ -488,16 +488,16 @@ const formats = ['avif', 'webp'] as const;
 
   /* ---------- The puppet phone ---------- */
   .puppet--phone {
-    bottom: -12%;
+    bottom: 3%;
   }
   .pscreen {
     position: absolute;
     left: 8.6%;
-    top: 7%;
+    top: 9.2%;
     width: 81.3%;
-    height: 63%;
+    height: 83.2%;
     overflow: hidden;
-    border-radius: 0 0 9% 9% / 0 0 5% 5%;
+    border-radius: 0 0 9% 9% / 0 0 6.6% 6.6%;
     container-type: inline-size;
     color: #f6e8c6;
     font-family: 'Ancizar Serif', Georgia, serif;

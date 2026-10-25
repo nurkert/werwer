@@ -9,13 +9,14 @@ import { Picture } from 'astro:assets';
 
 import Icon from '../components/Icon.astro';
 import emblem from '../../../design/source/brand/emblem.png';
+import wordmark from '../assets/plates/nav-wordmark.png';
 import { alternates, defaultLang, languages, langs, path, repoUrl, ui, type Lang, type Page } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
   title: string;
   description: string;
-  /** Header floats over the hero image. */
+  /** Header floats over the hero image; its logo is the hero's wordmark, docked once scrolled. */
   overlay?: boolean;
   /** The page draws its own navigation (the game-box hero). */
   bare?: boolean;
@@ -75,6 +76,7 @@ const jsonLd = {
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#141a33" />
     <title>{title}</title>
+    {overlay && <noscript><style is:inline>.site-header--overlay .brand--wordmark { visibility: visible !important; }</style></noscript>}
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {
@@ -108,10 +110,18 @@ const jsonLd = {
 
     {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
       <div class="site-header__inner">
-        <a class="brand" href={home} aria-label="Whowolf">
-          <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[48, 96]} sizes="44px" loading="eager" />
-          <span>Whowolf</span>
-        </a>
+        {
+          overlay ? (
+            <a class="brand brand--wordmark" href={home} aria-label="Whowolf" data-brand>
+              <Picture src={wordmark} alt="" formats={['avif', 'webp']} widths={[120, 240, 360]} sizes="120px" loading="eager" />
+            </a>
+          ) : (
+            <a class="brand" href={home} aria-label="Whowolf">
+              <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[48, 96]} sizes="44px" loading="eager" />
+              <span>Whowolf</span>
+            </a>
+          )
+        }
 
         <nav class="nav-desktop" aria-label={t.nav.menu}>
           <ul>
@@ -373,6 +383,20 @@ const jsonLd = {
   .brand :global(img) {
     width: 44px;
     height: auto;
+  }
+  .brand--wordmark :global(picture) {
+    display: contents;
+  }
+  .brand--wordmark :global(img) {
+    width: auto;
+    height: 2.9rem;
+    filter: drop-shadow(0 0.2rem 0.5rem rgb(8 10 28 / 0.6));
+  }
+  /* The hero's own wordmark flies up here while scrolling; the header shows its copy only
+     once the flight has landed, so the swap happens on the same pixels (without script the
+     noscript style in the head shows it right away). */
+  .site-header--overlay:not(.is-docked) .brand--wordmark {
+    visibility: hidden;
   }
 
   .nav-desktop ul {
