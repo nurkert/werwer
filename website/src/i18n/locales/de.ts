@@ -185,7 +185,7 @@ const de = {
   privacy: {
     updated: 'Stand: 25. Oktober 2026',
     sections: [
-      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto.  Auf deinem Gerät wird nichts gespeichert, auch nicht im lokalen Speicher des Browsers. Deshalb gibt es auch keinen Cookie-Hinweis.' },
+      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto.  Auf deinem Gerät wird nur gespeichert, dass du den Hinweis zu Cookies bestätigt hast (Eintrag im lokalen Speicher des Browsers, technisch notwendig nach § 25 Abs. 2 TDDDG). Er enthält keine personenbezogenen Daten und wird nicht übertragen.' },
       { title: 'Verantwortlicher', html: 'Verantwortlich für diese Website ist die im <a href="/impressum/">Impressum</a> genannte Person.' },
       { title: 'Hosting durch GitHub Pages', html: 'Die Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Niederlande, bzw. der GitHub Inc., USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Datum und Uhrzeit, die aufgerufene Seite sowie Angaben zu Browser und Betriebssystem, um die Seite auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren und zuverlässigen Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO). Eine Übermittlung in die USA ist möglich; GitHub ist unter dem EU-U.S. Data Privacy Framework zertifiziert. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.' },
       { title: 'Externe Links', html: 'Die Seite verlinkt unter anderem auf GitHub. Erst wenn du einem Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.' },
@@ -238,6 +238,11 @@ const de = {
     verifyText: 'Vergleiche die Prüfsumme deiner Datei mit der Liste SHA256SUMS.txt des Releases. Stimmen sie überein, ist die Datei unverändert.',
     verifyCmd: { mac: 'shasum -a 256 whowolf-*.zip', linux: 'sha256sum whowolf-*.deb', win: 'certutil -hashfile whowolf-*.zip SHA256' },
     allReleases: 'Alle Versionen auf GitHub',
+  },
+  consent: {
+    text: 'Diese Seite setzt keine Tracking- oder Werbe-Cookies. Gespeichert wird nur, dass du diesen Hinweis gesehen hast (technisch notwendig).',
+    more: 'Datenschutz',
+    ok: 'Verstanden',
   },
   docsLabel: 'Dokumentation',
   date: 'de-DE',

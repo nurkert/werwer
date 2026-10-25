@@ -186,7 +186,7 @@ const en: Copy = {
   privacy: {
     updated: 'Last updated: 25 October 2026',
     sections: [
-      { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. Nothing is stored on your device, not even in your browser’s local storage. That is why there is no cookie notice.' },
+      { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. The only thing stored on your device is that you confirmed the cookie notice (an entry in your browser’s local storage, strictly necessary). It contains no personal data and is never transmitted.' },
       { title: 'Controller', html: 'The person named in the <a href="/en/imprint/">imprint</a> is responsible for this website.' },
       { title: 'Hosting by GitHub Pages', html: 'The website is served by GitHub Pages, a service of GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, the Netherlands, and GitHub Inc., USA. When you visit, GitHub processes technically necessary data such as your IP address, date and time, the page requested and details about your browser and operating system, in order to deliver the site and protect it from abuse. The legal basis is our legitimate interest in providing the site securely and reliably (Art. 6(1)(f) GDPR). Data may be transferred to the USA; GitHub is certified under the EU-U.S. Data Privacy Framework. Details: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.' },
       { title: 'External links', html: 'This site links to GitHub, among others. Only when you follow a link do the privacy terms of that provider apply.' },
@@ -239,6 +239,11 @@ const en: Copy = {
     verifyText: 'Compare your file’s checksum with the release’s SHA256SUMS.txt. If they match, the file is unmodified.',
     verifyCmd: { mac: 'shasum -a 256 whowolf-*.zip', linux: 'sha256sum whowolf-*.deb', win: 'certutil -hashfile whowolf-*.zip SHA256' },
     allReleases: 'All versions on GitHub',
+  },
+  consent: {
+    text: 'This site uses no tracking or advertising cookies. It only remembers that you have seen this notice (strictly necessary).',
+    more: 'Privacy',
+    ok: 'Got it',
   },
   docsLabel: 'Documentation',
   date: 'en-GB',

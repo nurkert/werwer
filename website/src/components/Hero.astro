@@ -19,12 +19,17 @@ import werwolf from '../../../design/source/figures/werwolf.png';
 import seherin from '../../../design/source/figures/seherin.png';
 import dorfbewohner from '../../../design/source/figures/dorfbewohner.png';
 import magd from '../../../design/source/figures/magd.png';
+import phonePuppet from '../../../design/source/brand/phone-puppet.png';
+import seerFace from '../../../design/source/figures/seherin.png';
+import hexe from '../../../design/source/figures/hexe.png';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = ui[lang];
+const u = t.unbox;
+const votePortraits = [dorfbewohner, magd, hexe, seerFace];
 
 // x/bottom/width in % of the scene; depth: 0 = far (barely moves), 1 = near (moves most).
 const scenery = [
@@ -41,8 +46,8 @@ const scenery = [
 const puppets = [
   { src: werwolf, alt: lang === 'de' ? 'Der Werwolf, grinsend' : 'The werewolf, grinning', x: 11, w: 16, delay: 0 },
   { src: seherin, alt: lang === 'de' ? 'Die Seherin mit Laterne' : 'The seer with her lantern', x: 31, w: 12.5, delay: 0.15 },
-  { src: dorfbewohner, alt: lang === 'de' ? 'Ein Dorfbewohner mit Mistgabel' : 'A villager with a pitchfork', x: 50, w: 11.5, delay: 0.3 },
-  { src: magd, alt: lang === 'de' ? 'Eine Dorfbewohnerin mit Eimer' : 'A villager with a bucket', x: 66, w: 9.5, delay: 0.45 },
+  { src: dorfbewohner, alt: lang === 'de' ? 'Ein Dorfbewohner mit Mistgabel' : 'A villager with a pitchfork', x: 45, w: 11, delay: 0.3 },
+  { src: magd, alt: lang === 'de' ? 'Eine Dorfbewohnerin mit Eimer' : 'A villager with a bucket', x: 79, w: 8.5, delay: 0.6 },
 ];
 
 const widths = [240, 480, 800, 1200];
@@ -86,6 +91,41 @@ const formats = ['avif', 'webp'] as const;
           </div>
         ))
       }
+      <div class="puppet puppet--phone" style="left: 59%; width: 15.5%; --delay: 0.45s">
+        <Picture src={phonePuppet} alt="" formats={formats} widths={[300, 600]} sizes="28vw" loading="eager" />
+        <div class="pscreen" data-pscreen aria-hidden="true">
+          <div class="ps ps--role">
+            <p class="ps__kicker">{u.youAre}</p>
+            <p class="ps__title">{u.role}</p>
+            <Picture class="ps__portrait" src={seerFace} alt="" formats={formats} widths={[160, 320]} sizes="10vw" />
+            <span class="ps__btn">{u.next}</span>
+          </div>
+          <div class="ps ps--night">
+            <span class="ps__moon"></span>
+            <p class="ps__title">{u.night}</p>
+            <p class="ps__hint">{u.nightHint}</p>
+          </div>
+          <div class="ps ps--vote">
+            <p class="ps__title">{u.vote}</p>
+            <div class="ps__grid">
+              {votePortraits.map((src) => <Picture src={src} alt="" formats={formats} widths={[80, 160]} sizes="4vw" />)}
+            </div>
+            <span class="ps__btn">{u.voteButton}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sky" aria-hidden="true">
+      {Array.from({ length: 26 }, (_, i) => (
+        <span class="star" style={`left:${(i * 37) % 100}%; top:${(i * 53) % 34}%; --d:${(i % 7) * 0.6}s; --s:${0.6 + (i % 3) * 0.35}`}></span>
+      ))}
+      <span class="cloud cloud--a"></span>
+      <span class="cloud cloud--b"></span>
+    </div>
+    <div class="fireflies" aria-hidden="true">
+      {Array.from({ length: 14 }, (_, i) => (
+        <span style={`left:${8 + ((i * 41) % 84)}%; top:${52 + ((i * 29) % 36)}%; --d:${(i % 5) * 1.3}s; --t:${7 + (i % 4) * 2}s`}></span>
+      ))}
     </div>
     <div class="light" aria-hidden="true"></div>
     <div class="fade" aria-hidden="true"></div>
@@ -141,6 +181,20 @@ const formats = ['avif', 'webp'] as const;
     update();
   }
   hero?.classList.add('is-lit');
+
+  // The puppet phone plays the app: role, night, vote, in a loop.
+  const screen = hero?.querySelector<HTMLElement>('[data-pscreen]');
+  if (screen) {
+    const states = ['role', 'night', 'vote'];
+    let index = 0;
+    screen.dataset.state = states[0];
+    if (!calm.matches) {
+      window.setInterval(() => {
+        index = (index + 1) % states.length;
+        screen.dataset.state = states[index];
+      }, 3200);
+    }
+  }
 </script>
 
 <style>
@@ -330,6 +384,207 @@ const formats = ['avif', 'webp'] as const;
     color: var(--moon-200);
   }
 
+
+  /* ---------- Living night ---------- */
+  .sky {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    width: calc(0.28vw * var(--s));
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff3d1;
+    box-shadow: 0 0 0.6vw rgb(255 243 209 / 0.8);
+    animation: twinkle 3.6s ease-in-out var(--d) infinite;
+  }
+  @keyframes twinkle {
+    50% {
+      opacity: 0.25;
+      transform: scale(0.6);
+    }
+  }
+  .cloud {
+    position: absolute;
+    height: 4vw;
+    border-radius: 999px;
+    background: rgb(160 175 220 / 0.14);
+    filter: blur(0.4vw);
+    animation: drift 70s linear infinite;
+  }
+  .cloud::before,
+  .cloud::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: inherit;
+  }
+  .cloud::before {
+    width: 45%;
+    height: 160%;
+    left: 15%;
+    bottom: 20%;
+  }
+  .cloud::after {
+    width: 35%;
+    height: 130%;
+    left: 50%;
+    bottom: 25%;
+  }
+  .cloud--a {
+    top: 9%;
+    width: 18vw;
+    left: -20%;
+  }
+  .cloud--b {
+    top: 20%;
+    width: 13vw;
+    left: -20%;
+    animation-duration: 95s;
+    animation-delay: -40s;
+    opacity: 0.8;
+  }
+  @keyframes drift {
+    to {
+      transform: translateX(140vw);
+    }
+  }
+  .fireflies {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .fireflies span {
+    position: absolute;
+    width: 0.35vw;
+    min-width: 3px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #ffd27a;
+    box-shadow: 0 0 0.8vw 0.25vw rgb(255 196 90 / 0.55);
+    opacity: 0;
+    animation: firefly var(--t) ease-in-out var(--d) infinite;
+  }
+  @keyframes firefly {
+    0%,
+    100% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+    20% {
+      opacity: 0.9;
+    }
+    50% {
+      transform: translate(2.2vw, -3vw);
+      opacity: 0.5;
+    }
+    80% {
+      opacity: 0.85;
+      transform: translate(-1.4vw, -1.2vw);
+    }
+  }
+
+  /* ---------- The puppet phone ---------- */
+  .puppet--phone {
+    bottom: -12%;
+  }
+  .pscreen {
+    position: absolute;
+    left: 8.6%;
+    top: 7%;
+    width: 81.3%;
+    height: 63%;
+    overflow: hidden;
+    border-radius: 0 0 9% 9% / 0 0 5% 5%;
+    container-type: inline-size;
+    color: #f6e8c6;
+    font-family: 'Ancizar Serif', Georgia, serif;
+  }
+  .ps {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 5cqw;
+    padding: 6% 8%;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(4cqw);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  [data-state='role'] .ps--role,
+  [data-state='night'] .ps--night,
+  [data-state='vote'] .ps--vote {
+    opacity: 1;
+    transform: none;
+  }
+  .ps__kicker {
+    margin: 0;
+    font-size: 10cqw;
+    opacity: 0.8;
+  }
+  .ps__title {
+    margin: 0;
+    font-size: 13cqw;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #f5aa42;
+  }
+  .ps--night .ps__title,
+  .ps--vote .ps__title {
+    color: #f6e8c6;
+  }
+  .ps--vote .ps__title {
+    font-size: 11cqw;
+  }
+  .ps :global(picture) {
+    display: block;
+  }
+  .ps :global(.ps__portrait) {
+    width: 70%;
+    height: auto;
+  }
+  .ps__hint {
+    margin: 0;
+    font-size: 8cqw;
+    opacity: 0.85;
+  }
+  .ps__btn {
+    padding: 3.5cqw 10cqw;
+    border-radius: 999px;
+    background: #f5aa42;
+    color: #2a1b12;
+    font-size: 8.5cqw;
+    font-weight: 700;
+  }
+  .ps__moon {
+    width: 40cqw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: inset 9cqw -5cqw 0 0 #f6e8c6;
+    transform: rotate(-20deg);
+  }
+  .ps__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5cqw;
+    width: 84%;
+  }
+  .ps__grid :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: 50% 10%;
+    border-radius: 50%;
+    background: #232c52;
+    box-shadow: 0 0 0 1.4cqw #c9973f;
+  }
+
   @media (max-width: 700px) {
     .scene {
       width: 180%;
@@ -370,7 +625,10 @@ const formats = ['avif', 'webp'] as const;
       opacity: 1;
     }
     .is-lit .light,
-    .hero__title h1 {
+    .hero__title h1,
+    .star,
+    .cloud,
+    .fireflies span {
       animation: none;
     }
   }

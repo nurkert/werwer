@@ -5,8 +5,7 @@ import '@fontsource/ancizar-serif/700.css';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
 
-import { getImage, Picture } from 'astro:assets';
-import feltPlate from '../assets/plates/felt.png';
+import { Picture } from 'astro:assets';
 
 import Icon from '../components/Icon.astro';
 import emblem from '../../../design/source/brand/emblem.png';
@@ -27,7 +26,6 @@ interface Props {
 const { lang, title, description, overlay = false, bare = false, page } = Astro.props;
 const t = ui[lang];
 const site = Astro.site!;
-const feltTile = (await getImage({ src: feltPlate, width: 1024, format: 'webp' })).src;
 const canonical = new URL(Astro.url.pathname, site);
 const versions = alternates(page ?? 'home');
 const others = versions.filter((version) => version.lang !== lang);
@@ -105,7 +103,7 @@ const jsonLd = {
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body style={`--felt-tile: url(${feltTile})`}>
+  <body>
     <a class="skip" href="#inhalt">{t.skip}</a>
 
     {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
@@ -186,6 +184,11 @@ const jsonLd = {
       </div>
     </footer>
 
+    <div class="consent" data-consent hidden role="region" aria-label={t.consent.more}>
+      <p>{t.consent.text} <a href={path('privacy', lang)}>{t.consent.more}</a></p>
+      <button class="button button--primary" type="button" data-consent-ok>{t.consent.ok}</button>
+    </div>
+
     <script>
       import '../scripts/site.ts';
     </script>
@@ -193,6 +196,52 @@ const jsonLd = {
 </html>
 
 <style>
+  .consent {
+    position: fixed;
+    z-index: 80;
+    left: 50%;
+    bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: min(100% - 1.5rem, 46rem);
+    padding: 0.9rem 1rem 0.9rem 1.2rem;
+    border-radius: 1rem;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+    box-shadow: 0 1rem 2.4rem rgb(0 0 0 / 0.5);
+    transform: translateX(-50%);
+    animation: consent-in 0.5s var(--ease-out);
+  }
+  .consent[hidden] {
+    display: none;
+  }
+  .consent p {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .consent a {
+    color: var(--curtain-600);
+  }
+  .consent .button {
+    flex: none;
+    min-height: 2.6rem;
+  }
+  @keyframes consent-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 1rem);
+    }
+  }
+  @media (max-width: 560px) {
+    .consent {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
   .skip {
     position: absolute;
     left: 1rem;
@@ -219,7 +268,7 @@ const jsonLd = {
   @media (max-width: 900px) {
     .site-header--mobile-only {
       display: block;
-      background: #0d140f;
+      background: var(--night-900);
     }
   }
   .site-header--overlay {

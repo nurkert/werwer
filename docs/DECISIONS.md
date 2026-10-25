@@ -4,6 +4,9 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Startseite wieder Mondbühne:** Nachtszene mit Pappfiguren und einem Handy als Pappfigur, das die App zeigt (Rolle, Nacht, Abstimmung); Sterne, Wolken, Glühwürmchen und wippende Figuren für mehr Leben; Spielschachtel und Filz entfernt | Wunsch des Eigentümers: Karton-Look gefiel nicht, Mondbühnen-Ambiente soll tragen |
+| 2026-10-25 | **Automatische Sprachwahl:** Erster Besuch von außen mit nicht-deutscher Browsersprache wird auf die englische Seite geleitet; interne Navigation und Crawler nicht | Nicht-deutschsprachige Besucher landen direkt auf Englisch, ohne Speicherung |
+| 2026-10-25 | **Cookie-Hinweis** eingeführt (ersetzt „Kein Cookie-Banner nötig“): reiner Infohinweis, speichert nur die Bestätigung im localStorage (technisch notwendig) | Wunsch des Eigentümers nach einem sichtbaren Hinweis |
 | 2026-10-25 | **Website-Redesign „Die Spielschachtel“:** Startbild als Spielschachtel auf grünem Spieltisch-Filz, die Schachtel als echtes CSS-3D-Objekt mit texturierten Seiten, das sich beim Scrollen hebt und dreht; Überschriften in Ancizar Serif; restliche Seite als Regelheft-Tafeln und Nachtbrett auf Filz. Entstanden mit impeccable (Richtung gewählt, Entwurf freigegeben, Startbild vermessen nachgebaut; die 3D-Schachtel weicht auf Wunsch vom flachen Entwurf ab) | Eigenständiger Auftritt eines Spiels zum Auspacken statt Indie-Standard; wirkt wertig und verspielt zugleich |
 | 2026-10-25 | **Kein Cookie-Banner nötig:** Die Website speichert nichts auf dem Gerät (keine Cookies, kein localStorage, keine Dritt-Inhalte); der Bestwert beim Schäfchenzählen gilt nur für den Besuch | Banner wäre rechtlich überflüssig und stört |
 | 2026-10-25 | **Linux-Pre-Releases als `.deb`** (`tool/package_deb.sh`, Installation nach `/opt/whowolf`, Starter und Icon) statt `tar.gz` | Wunsch des Eigentümers; einfache Installation unter Debian/Ubuntu |

@@ -3,7 +3,7 @@ import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 
 import CountingSheep from '../CountingSheep.astro';
-import BoxHero from '../BoxHero.astro';
+import Hero from '../Hero.astro';
 import Icon from '../Icon.astro';
 import TrailDiagram from '../TrailDiagram.astro';
 import Base from '../../layouts/Base.astro';
@@ -23,7 +23,7 @@ import faehrtenleger from '../../../../design/source/figures/faehrtenleger.png';
 import lauscherin from '../../../../design/source/figures/lauscherin.png';
 import stillePfote from '../../../../design/source/figures/stille_pfote.png';
 import emblem from '../../../../design/source/brand/emblem.png';
-import tray from '../../../../design/source/stage/box-tray.png';
+
 
 interface Props {
   lang: Lang;
@@ -56,19 +56,19 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .filter((entry) => entry !== undefined);
 ---
 
-<Base lang={lang} page="home" bare title={t.meta.title} description={t.meta.description}>
-  <BoxHero lang={lang} />
+<Base lang={lang} page="home" overlay title={t.meta.title} description={t.meta.description}>
+  <Hero lang={lang} />
 
   <main>
     <!-- The playbill: what this is, on paper. -->
     <section id="spiel" class="paper" aria-labelledby="spiel-title">
       <div class="container playbill">
-        <div class="playbill__intro">
-          <div>
         <div class="section-head">
           <h2 id="spiel-title" class="display" data-reveal>{t.playbill.title}</h2>
           <p class="lead" data-reveal style="--i: 1">{t.playbill.intro}</p>
         </div>
+        <div class="playbill__intro">
+          <div>
         <div class="rulebook">
           {
             t.playbill.pillars.map((p, i) => (
@@ -79,7 +79,11 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
           }
         </div>
           </div>
-          <Picture class="playbill__tray" src={tray} alt={t.box.boxAlt} formats={formats} widths={[480, 960, 1400]} sizes="(max-width: 900px) 92vw, 40vw" />
+          <figure class="playbill__cast" aria-hidden="true">
+            <Picture class="pc pc--wolf" src={werwolf} alt="" formats={formats} widths={[300, 600]} sizes="18vw" />
+            <Picture class="pc pc--seer" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="15vw" />
+            <Picture class="pc pc--villager" src={dorfbewohner} alt="" formats={formats} widths={[240, 480]} sizes="13vw" />
+          </figure>
         </div>
 
         <div class="programme">
@@ -416,6 +420,25 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     filter: drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
     transform-origin: 50% 100%;
     transition: transform 0.5s var(--ease-puppet);
+  }
+  .role__stage :global(picture) {
+    animation: idle 6.5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  .role:nth-child(2n) .role__stage :global(picture) {
+    animation-delay: -2.2s;
+  }
+  .role:nth-child(3n) .role__stage :global(picture) {
+    animation-delay: -4.1s;
+  }
+  @keyframes idle {
+    0%,
+    100% {
+      transform: rotate(-1.2deg);
+    }
+    50% {
+      transform: rotate(1.2deg) translateY(-0.3rem);
+    }
   }
   .role:hover .role__stage :global(img) {
     transform: rotate(-2.5deg) translateY(-6px);
@@ -764,6 +787,10 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .role__stage :global(picture),
+    .playbill__cast :global(.pc) {
+      animation: none;
+    }
     .role:hover .role__stage :global(img),
     .doc-links a:hover {
       transform: none;
@@ -901,15 +928,44 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     gap: var(--space-5);
     align-items: center;
   }
-  .playbill__intro :global(picture) {
+  .playbill__cast {
+    position: relative;
+    height: 26rem;
+    margin: 0;
+  }
+  .playbill__cast :global(picture) {
     display: contents;
   }
-  .playbill__intro :global(.playbill__tray) {
-    width: 100%;
+  .playbill__cast :global(.pc) {
+    position: absolute;
+    bottom: 0;
     height: auto;
-    border-radius: 0.8rem;
-    transform: rotate(2deg);
-    box-shadow: 0 1.4rem 2.6rem rgb(42 27 18 / 0.35);
+    transform-origin: 50% 100%;
+    filter: drop-shadow(0 1rem 1.2rem rgb(42 27 18 / 0.35));
+    animation: sway 6s ease-in-out infinite;
+  }
+  .playbill__cast :global(.pc--wolf) {
+    left: 0;
+    width: 44%;
+  }
+  .playbill__cast :global(.pc--seer) {
+    left: 36%;
+    width: 33%;
+    animation-delay: -2s;
+  }
+  .playbill__cast :global(.pc--villager) {
+    right: 0;
+    width: 30%;
+    animation-delay: -4s;
+  }
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotate(-1.5deg);
+    }
+    50% {
+      transform: rotate(1.5deg) translateY(-0.4rem);
+    }
   }
   .playbill__intro .rulebook {
     columns: 1;
@@ -919,8 +975,8 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
       grid-template-columns: 1fr;
       gap: var(--space-4);
     }
-    .playbill__intro :global(.playbill__tray) {
-      transform: none;
+    .playbill__cast {
+      height: 18rem;
     }
   }
 </style>
