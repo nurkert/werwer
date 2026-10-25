@@ -240,9 +240,19 @@ const de = {
     allReleases: 'Alle Versionen auf GitHub',
   },
   consent: {
+    title: 'Kurz zur Info',
     text: 'Diese Seite setzt keine Tracking- oder Werbe-Cookies. Gespeichert wird nur, dass du diesen Hinweis gesehen hast (technisch notwendig).',
     more: 'Datenschutz',
     ok: 'Verstanden',
+  },
+  story: {
+    beats: [
+      { title: 'Ein Dorf bei Nacht.', text: 'Alle sitzen am Tisch. Keiner weiß, wem er trauen kann.' },
+      { title: 'Einer von ihnen ist ein Werwolf.', text: 'Vielleicht auch zwei. Tagsüber sehen sie aus wie alle anderen.' },
+      { title: 'Jeder hat sein Handy.', text: 'Darauf steht deine Rolle. Nur du siehst sie.' },
+      { title: 'Nachts tippen alle.', text: 'Die Wölfe wählen ein Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
+      { title: 'Am Tag wird abgestimmt.', text: 'Ihr streitet am Tisch, die App zählt. Geheim.' },
+    ],
   },
   docsLabel: 'Dokumentation',
   date: 'de-DE',

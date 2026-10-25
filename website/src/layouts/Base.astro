@@ -184,9 +184,13 @@ const jsonLd = {
       </div>
     </footer>
 
-    <div class="consent" data-consent hidden role="region" aria-label={t.consent.more}>
-      <p>{t.consent.text} <a href={path('privacy', lang)}>{t.consent.more}</a></p>
-      <button class="button button--primary" type="button" data-consent-ok>{t.consent.ok}</button>
+    <div class="consent" data-consent hidden role="region" aria-label={t.consent.title}>
+      <Picture class="consent__seal" src={emblem} alt="" formats={['avif', 'webp']} widths={[96, 192]} sizes="56px" />
+      <div class="consent__text">
+        <p class="consent__title">{t.consent.title}</p>
+        <p>{t.consent.text} <a href={path('privacy', lang)}>{t.consent.more}</a></p>
+      </div>
+      <button class="consent__ok" type="button" data-consent-ok>{t.consent.ok}</button>
     </div>
 
     <script>
@@ -196,50 +200,108 @@ const jsonLd = {
 </html>
 
 <style>
+  /* A small playbill slip in the corner: emblem seal, two lines, one button. */
   .consent {
     position: fixed;
     z-index: 80;
-    left: 50%;
-    bottom: 1rem;
-    display: flex;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 0.9rem;
     align-items: center;
-    gap: 1rem;
-    width: min(100% - 1.5rem, 46rem);
-    padding: 0.9rem 1rem 0.9rem 1.2rem;
-    border-radius: 1rem;
+    width: min(100% - 1.5rem, 25rem);
+    padding: 1.1rem 1.2rem 1.15rem;
+    border-radius: 0.9rem;
     color: var(--ink);
-    background-color: var(--paper);
-    background-image: var(--fibre), var(--grain);
-    background-size: 600px, 220px;
-    background-blend-mode: multiply, soft-light;
-    box-shadow: 0 1rem 2.4rem rgb(0 0 0 / 0.5);
-    transform: translateX(-50%);
-    animation: consent-in 0.5s var(--ease-out);
+    background: #f7ecd2;
+    box-shadow:
+      inset 0 0 0 0.3rem #f7ecd2,
+      inset 0 0 0 0.38rem #b98a43,
+      0 1.2rem 2.6rem rgb(0 0 0 / 0.55);
+    animation: consent-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .consent[hidden] {
     display: none;
   }
-  .consent p {
-    font-size: 0.92rem;
+  .consent :global(.consent__seal) {
+    width: 3.2rem;
+    height: auto;
+    grid-row: span 2;
+    align-self: start;
+    filter: drop-shadow(0 0.3rem 0.4rem rgb(42 27 18 / 0.3));
+  }
+  .consent__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .consent__text p + p {
+    margin-top: 0.2rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
     color: var(--ink-soft);
   }
   .consent a {
     color: var(--curtain-600);
+    font-weight: 600;
   }
-  .consent .button {
-    flex: none;
-    min-height: 2.6rem;
+  .consent__ok {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.4rem;
+    padding: 0.55rem 1.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #f7ecd2;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.3s var(--ease-out);
+  }
+  .consent__ok:hover {
+    background: var(--curtain-600);
+    transform: translateY(-1px);
   }
   @keyframes consent-in {
     from {
       opacity: 0;
-      transform: translate(-50%, 1rem);
+      transform: translateY(1rem) rotate(1deg);
     }
   }
   @media (max-width: 560px) {
     .consent {
-      flex-direction: column;
-      align-items: stretch;
+      right: 0.6rem;
+      left: 0.6rem;
+      bottom: 0.6rem;
+      width: auto;
+      grid-template-columns: auto 1fr auto;
+      padding: 0.8rem 0.9rem;
+      gap: 0.3rem 0.7rem;
+    }
+    .consent :global(.consent__seal) {
+      width: 2.4rem;
+      grid-row: auto;
+      align-self: center;
+    }
+    .consent__title {
+      display: none;
+    }
+    .consent__text p + p {
+      margin: 0;
+      font-size: 0.8rem;
+    }
+    .consent__ok {
+      grid-column: auto;
+      margin: 0;
+      padding: 0.5rem 0.9rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      animation: none;
     }
   }
   .skip {

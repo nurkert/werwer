@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Startseite als Puppenspiel-Geschichte:** Bühne auf dem Spieltisch (gemalter Nachthintergrund, Kulissen, Filz-Tischkante), die beim Scrollen stehen bleibt; in fünf Szenen werden Pappfiguren und zwei moderne Papp-Handys (Dynamic Island / randlos) an Stäben hereingehalten; Handys zeigen echte App-Screens (Rolle, Nacht, Schäfchenzählen, Abstimmung) | Setting der Spielschachtel-Version ohne Schachtel, mit Mondbühnen-Ambiente und einer kleinen Geschichte |
 | 2026-10-25 | **Startseite wieder Mondbühne:** Nachtszene mit Pappfiguren und einem Handy als Pappfigur, das die App zeigt (Rolle, Nacht, Abstimmung); Sterne, Wolken, Glühwürmchen und wippende Figuren für mehr Leben; Spielschachtel und Filz entfernt | Wunsch des Eigentümers: Karton-Look gefiel nicht, Mondbühnen-Ambiente soll tragen |
 | 2026-10-25 | **Automatische Sprachwahl:** Erster Besuch von außen mit nicht-deutscher Browsersprache wird auf die englische Seite geleitet; interne Navigation und Crawler nicht | Nicht-deutschsprachige Besucher landen direkt auf Englisch, ohne Speicherung |
 | 2026-10-25 | **Cookie-Hinweis** eingeführt (ersetzt „Kein Cookie-Banner nötig“): reiner Infohinweis, speichert nur die Bestätigung im localStorage (technisch notwendig) | Wunsch des Eigentümers nach einem sichtbaren Hinweis |

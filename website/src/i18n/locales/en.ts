@@ -241,9 +241,19 @@ const en: Copy = {
     allReleases: 'All versions on GitHub',
   },
   consent: {
+    title: 'Just so you know',
     text: 'This site uses no tracking or advertising cookies. It only remembers that you have seen this notice (strictly necessary).',
     more: 'Privacy',
     ok: 'Got it',
+  },
+  story: {
+    beats: [
+      { title: 'A village at night.', text: 'Everyone sits at the table. Nobody knows whom to trust.' },
+      { title: 'One of them is a werewolf.', text: 'Maybe two. By day they look like everyone else.' },
+      { title: 'Everyone has a phone.', text: 'It shows your role. Only you can see it.' },
+      { title: 'At night, everyone taps.', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
+      { title: 'By day, you vote.', text: 'You argue at the table, the app counts. In secret.' },
+    ],
   },
   docsLabel: 'Documentation',
   date: 'en-GB',

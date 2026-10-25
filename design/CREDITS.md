@@ -19,3 +19,4 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 
 Platform logos on the download page come from [Simple Icons](https://simpleicons.org) 16.34.0 (CC0 1.0). The logos are trademarks of their respective owners and are used only to identify the platform.
 | `source/brand/phone-puppet.png` (phone as cardboard puppet, blank screen) | Codex CLI 0.164.0 | 2026-10-25 | prompt embedded in the PNG |
+| `source/brand/phone-island.png`, `source/brand/phone-edge.png` (modern phone puppets, blank displays) | Codex CLI 0.164.0 | 2026-10-25 | prompt embedded in the PNGs |
