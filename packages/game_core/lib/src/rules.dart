@@ -46,6 +46,7 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
     target,
     NightAbility.decoy,
   ),
+  CountSheep() => _countSheep(state, action),
   EndDiscussion() => _endDiscussion(state),
   CastVote() => _castVote(state, action),
   PhaseTimeout() => _timeout(state),
@@ -196,13 +197,32 @@ PlayerId? _majority(Iterable<PlayerId> votes) {
   return leaders.length == 1 ? leaders.single.key : null;
 }
 
+GameUpdate _countSheep(GameState state, CountSheep action) {
+  _expectPhase(state, Phase.night);
+  _living(state, action.player);
+  if (action.sheep.abs() > maxSheepPerNight) _refuse(Violation.outOfRange);
+  return GameUpdate(
+    state.copyWith(sheep: {...state.sheep, action.player: action.sheep}),
+  );
+}
+
 GameUpdate _resolveNight(GameState state) {
   final wolfVotes = [
     for (final MapEntry(:key, :value) in state.nightChoices.entries)
       if (state.player(key)?.role?.nightAbility == NightAbility.hunt) value,
   ];
   final victim = _majority(wolfVotes);
-  final cleared = state.copyWith(nightChoices: const {});
+  final counted = {for (final p in state.alive) p.id: state.sheep[p.id] ?? 0};
+  final cleared = state.copyWith(
+    nightChoices: const {},
+    sheep: const {},
+    lastNightSheep: counted,
+    dreams: {
+      ...state.dreams,
+      for (final MapEntry(:key, :value) in counted.entries)
+        key: (state.dreams[key] ?? 0) + value,
+    },
+  );
   if (victim == null) {
     return GameUpdate(cleared.copyWith(phase: Phase.day), [
       const NobodyDied(),

@@ -115,5 +115,7 @@
   "nightSheep": "Zähl Schäfchen bis zum Morgen: Tipp die weißen an, lass die schwarzen springen.",
   "dreamPoints": "{points} Traumpunkte",
   "sheepWhileWaiting": "Bis zum Morgen: Schäfchen zählen.",
-  "yourDreamPoints": "Deine Traumpunkte: {points}"
+  "sleepTitle": "Wie gut habt ihr geschlafen?",
+  "sheepCount": "{count} Schäfchen",
+  "bestDreamer": "Bester Träumer: {name} ({points} Traumpunkte)"
 }

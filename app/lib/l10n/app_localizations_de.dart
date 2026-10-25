@@ -429,7 +429,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sheepWhileWaiting => 'Bis zum Morgen: Schäfchen zählen.';
 
   @override
-  String yourDreamPoints(int points) {
-    return 'Deine Traumpunkte: $points';
+  String get sleepTitle => 'Wie gut habt ihr geschlafen?';
+
+  @override
+  String sheepCount(int count) {
+    return '$count Schäfchen';
+  }
+
+  @override
+  String bestDreamer(String name, int points) {
+    return 'Bester Träumer: $name ($points Traumpunkte)';
   }
 }

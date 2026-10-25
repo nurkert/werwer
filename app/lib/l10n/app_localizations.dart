@@ -788,11 +788,23 @@ abstract class AppLocalizations {
   /// **'Until morning: count sheep.'**
   String get sheepWhileWaiting;
 
-  /// No description provided for @yourDreamPoints.
+  /// No description provided for @sleepTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your dream points: {points}'**
-  String yourDreamPoints(int points);
+  /// **'How well did you sleep?'**
+  String get sleepTitle;
+
+  /// No description provided for @sheepCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sheep'**
+  String sheepCount(int count);
+
+  /// No description provided for @bestDreamer.
+  ///
+  /// In en, this message translates to:
+  /// **'Best dreamer: {name} ({points} dream points)'**
+  String bestDreamer(String name, int points);
 }
 
 class _AppLocalizationsDelegate

@@ -54,7 +54,20 @@ Map<String, Object?> encodeView(PlayerView view) => {
         'role': ?r.role?.name,
       },
   ],
+  'sheepLast': [
+    for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
+      {'player': key.value, 'n': value},
+  ],
+  'dreams': [
+    for (final MapEntry(:key, :value) in view.dreams.entries)
+      {'player': key.value, 'n': value},
+  ],
   'winner': ?view.winner?.name,
+};
+
+Map<PlayerId, int> _counts(JsonReader json, String key) => {
+  for (final c in json.objects(key, max: maxPlayers))
+    _pid(c, 'player'): c.integer('n', min: -1000000, max: 1000000),
 };
 
 /// Decodes a [PlayerView]; throws a [ProtocolError] for invalid input.
@@ -99,5 +112,7 @@ PlayerView decodeView(JsonReader json) => PlayerView(
         role: r.maybeEnum('role', Role.values),
       ),
   ],
+  lastNightSheep: _counts(json, 'sheepLast'),
+  dreams: _counts(json, 'dreams'),
   winner: json.maybeEnum('winner', Faction.values),
 );

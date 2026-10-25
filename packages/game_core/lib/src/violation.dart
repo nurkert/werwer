@@ -32,6 +32,9 @@ enum Violation {
 
   /// The roles do not fit the players or make no game.
   invalidRoles,
+
+  /// A number is out of the allowed range.
+  outOfRange,
 }
 
 /// Thrown by `apply` for an action that breaks the rules. The state is never

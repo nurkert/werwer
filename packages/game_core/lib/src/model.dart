@@ -129,8 +129,14 @@ class GameState {
     Map<PlayerId, PlayerId?> votes = const {},
     Map<PlayerId, List<SeerResult>> seerResults = const {},
     List<Death> deaths = const [],
+    Map<PlayerId, int> sheep = const {},
+    Map<PlayerId, int> lastNightSheep = const {},
+    Map<PlayerId, int> dreams = const {},
     this.winner,
   }) : players = List.unmodifiable(players),
+       sheep = Map.unmodifiable(sheep),
+       lastNightSheep = Map.unmodifiable(lastNightSheep),
+       dreams = Map.unmodifiable(dreams),
        confirmed = Set.unmodifiable(confirmed),
        nightChoices = Map.unmodifiable(nightChoices),
        votes = Map.unmodifiable(votes),
@@ -173,6 +179,15 @@ class GameState {
   /// All deaths so far, oldest first.
   final List<Death> deaths;
 
+  /// Sheep each player has counted so far tonight (secret until morning).
+  final Map<PlayerId, int> sheep;
+
+  /// Sheep each player counted last night, told to everyone in the morning.
+  final Map<PlayerId, int> lastNightSheep;
+
+  /// Dream points (all sheep counted) per player over the whole game.
+  final Map<PlayerId, int> dreams;
+
   /// The winning faction once [phase] is [Phase.ended].
   final Faction? winner;
 
@@ -197,6 +212,9 @@ class GameState {
     Map<PlayerId, PlayerId?>? votes,
     Map<PlayerId, List<SeerResult>>? seerResults,
     List<Death>? deaths,
+    Map<PlayerId, int>? sheep,
+    Map<PlayerId, int>? lastNightSheep,
+    Map<PlayerId, int>? dreams,
     Faction? winner,
   }) => GameState(
     players: players ?? this.players,
@@ -208,6 +226,9 @@ class GameState {
     votes: votes ?? this.votes,
     seerResults: seerResults ?? this.seerResults,
     deaths: deaths ?? this.deaths,
+    sheep: sheep ?? this.sheep,
+    lastNightSheep: lastNightSheep ?? this.lastNightSheep,
+    dreams: dreams ?? this.dreams,
     winner: winner ?? this.winner,
   );
 }

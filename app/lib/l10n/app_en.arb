@@ -272,9 +272,21 @@
     }
   },
   "sheepWhileWaiting": "Until morning: count sheep.",
-  "yourDreamPoints": "Your dream points: {points}",
-  "@yourDreamPoints": {
+  "sleepTitle": "How well did you sleep?",
+  "sheepCount": "{count} sheep",
+  "@sheepCount": {
     "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bestDreamer": "Best dreamer: {name} ({points} dream points)",
+  "@bestDreamer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
       "points": {
         "type": "int"
       }

@@ -65,6 +65,8 @@ class PlayerView {
     this.youVoted = false,
     this.packChoices = const {},
     this.seerResults = const [],
+    this.lastNightSheep = const {},
+    this.dreams = const {},
     this.winner,
   });
 
@@ -106,6 +108,12 @@ class PlayerView {
 
   /// For the seer: everything seen so far.
   final List<SeerResult> seerResults;
+
+  /// Sheep each player counted last night (public in the morning).
+  final Map<PlayerId, int> lastNightSheep;
+
+  /// Dream points per player over the whole game (public).
+  final Map<PlayerId, int> dreams;
 
   /// The winning faction once the game is over.
   final Faction? winner;
@@ -155,6 +163,8 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
           }
         : const {},
     seerResults: state.seerResults[viewer] ?? const [],
+    lastNightSheep: state.lastNightSheep,
+    dreams: state.dreams,
     winner: state.winner,
   );
 }
@@ -179,6 +189,8 @@ PlayerView publicView(GameState state) => PlayerView(
   ],
   deaths: _deaths(state),
   waitingFor: _waitingFor(state),
+  lastNightSheep: state.lastNightSheep,
+  dreams: state.dreams,
   winner: state.winner,
 );
 

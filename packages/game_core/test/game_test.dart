@@ -309,6 +309,57 @@ void main() {
     });
   });
 
+  group('counting sheep', () {
+    const roles = [
+      Role.werewolf,
+      Role.seer,
+      Role.villager,
+      Role.villager,
+      Role.villager,
+    ];
+
+    test('sheep stay secret at night and are told in the morning', () {
+      var state = night(roles);
+      state = apply(state, CountSheep(id(2), 3)).state;
+      state = apply(state, CountSheep(id(2), 7)).state;
+      state = apply(state, CountSheep(id(3), -2)).state;
+      expect(viewFor(state, id(4)).lastNightSheep, isEmpty);
+      state = playNight(state, {0: 4, 1: 0}).state;
+      final view = viewFor(state, id(0));
+      expect(view.lastNightSheep[id(2)], 7);
+      expect(view.lastNightSheep[id(3)], -2);
+      expect(view.lastNightSheep[id(0)], 0);
+      // The victim counted too before the wolves came.
+      expect(view.lastNightSheep[id(4)], 0);
+      expect(view.dreams[id(2)], 7);
+      expect(publicView(state).dreams[id(2)], 7);
+    });
+
+    test('dream points add up over the nights', () {
+      var state = night(roles);
+      state = apply(state, CountSheep(id(2), 5)).state;
+      state = playNight(state, {0: 4, 1: 0}).state;
+      state = playVote(state, {0: null, 1: null, 2: null, 3: null}).state;
+      state = apply(state, CountSheep(id(2), 4)).state;
+      state = playNight(state, {0: 3, 1: 0}).state;
+      expect(state.dreams[id(2)], 9);
+      expect(state.lastNightSheep[id(2)], 4);
+    });
+
+    test('counting is only for the living, at night, within limits', () {
+      final state = night(roles);
+      expect(
+        () => apply(state, CountSheep(id(2), maxSheepPerNight + 1)),
+        refuses(Violation.outOfRange),
+      );
+      final day = playNight(state, {0: 4, 1: 0}).state;
+      expect(
+        () => apply(day, CountSheep(id(2), 1)),
+        refuses(Violation.wrongPhase),
+      );
+    });
+  });
+
   group('vote', () {
     const roles = [
       Role.werewolf,

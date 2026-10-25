@@ -66,6 +66,9 @@ sealed class ClientMessage {
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
+      'sheep' => SheepIntent(
+        json.integer('count', min: -maxSheepPerNight, max: maxSheepPerNight),
+      ),
       _ => throw const ProtocolError('unknown type'),
     };
   }
@@ -199,6 +202,21 @@ final class LeaveIntent extends ClientMessage {
 
   @override
   String get _type => 'leave';
+}
+
+/// How many sheep I have counted tonight (running total).
+final class SheepIntent extends ClientMessage {
+  /// Creates the message.
+  const SheepIntent(this.count);
+
+  /// Tonight's running total.
+  final int count;
+
+  @override
+  String get _type => 'sheep';
+
+  @override
+  Map<String, Object?> get _fields => {'count': count};
 }
 
 /// Room owner: after a game, play again with the same players.

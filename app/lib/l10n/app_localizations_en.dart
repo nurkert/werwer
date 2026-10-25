@@ -423,7 +423,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sheepWhileWaiting => 'Until morning: count sheep.';
 
   @override
-  String yourDreamPoints(int points) {
-    return 'Your dream points: $points';
+  String get sleepTitle => 'How well did you sleep?';
+
+  @override
+  String sheepCount(int count) {
+    return '$count sheep';
+  }
+
+  @override
+  String bestDreamer(String name, int points) {
+    return 'Best dreamer: $name ($points dream points)';
   }
 }

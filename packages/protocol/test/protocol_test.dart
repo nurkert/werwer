@@ -22,6 +22,7 @@ void main() {
         const KickIntent(PlayerId('p4')),
         const LeaveIntent(),
         const RematchIntent(),
+        const SheepIntent(-3),
       ];
       for (final m in messages) {
         final back = ClientMessage.parse(m.encode());

@@ -303,6 +303,8 @@ class GameHost {
           final update = apply(_state, RemovePlayer(me));
           _endSession(me, ByeReason.left);
           _commit(update);
+        case SheepIntent(:final count):
+          _commit(apply(_state, CountSheep(me, count)));
         case RematchIntent():
           _ownerOnly(session);
           _rematch();

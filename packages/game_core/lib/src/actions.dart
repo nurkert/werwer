@@ -87,6 +87,23 @@ final class NightDecoy extends GameAction {
   final PlayerId target;
 }
 
+/// Most sheep (or least, negative) a player can count in one night.
+const maxSheepPerNight = 500;
+
+/// How many sheep a player has counted so far tonight (a running total that
+/// replaces the previous one). Has no effect on the night itself; the totals
+/// are told to everyone in the morning.
+final class CountSheep extends GameAction {
+  /// Creates the action.
+  const CountSheep(this.player, this.sheep);
+
+  /// Who counted.
+  final PlayerId player;
+
+  /// The running total for tonight.
+  final int sheep;
+}
+
 /// The discussion is over; voting starts.
 final class EndDiscussion extends GameAction {
   /// Creates the action.

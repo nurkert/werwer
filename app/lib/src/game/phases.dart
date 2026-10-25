@@ -312,24 +312,49 @@ class NightPhase extends StatefulWidget {
 class _NightPhaseState extends State<NightPhase> {
   final _random = Random();
   Timer? _decoy;
+  late final Timer _report;
+  int _sheep = 0;
+  int _sentSheep = 0;
+  int _round = 0;
 
   GameSession get session => widget.session;
 
   @override
   void initState() {
     super.initState();
+    _round = session.view!.round;
     _planDecoy();
+    // Tonight's sheep go to the host as a running total, at most once a
+    // second; everyone sees the totals in the morning.
+    _report = Timer.periodic(const Duration(seconds: 1), (_) => _sendSheep());
+  }
+
+  void _sendSheep() {
+    if (_sheep == _sentSheep) return;
+    _sentSheep = _sheep;
+    session.send(
+      SheepIntent(_sheep.clamp(-maxSheepPerNight, maxSheepPerNight)),
+    );
   }
 
   @override
   void didUpdateWidget(NightPhase oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final round = session.view!.round;
+    if (round != _round) {
+      _round = round;
+      _sheep = 0;
+      _sentSheep = 0;
+      _decoy?.cancel();
+      _decoy = null;
+    }
     _planDecoy();
   }
 
   @override
   void dispose() {
     _decoy?.cancel();
+    _report.cancel();
     super.dispose();
   }
 
@@ -353,6 +378,7 @@ class _NightPhaseState extends State<NightPhase> {
           .where((s) => s.isAlive && s.id != now.you)
           .toList();
       if (others.isEmpty) return;
+      _sendSheep();
       session.send(NightIntent(others[_random.nextInt(others.length)].id));
     });
   }
@@ -374,7 +400,7 @@ class _NightPhaseState extends State<NightPhase> {
     final inspected =
         role.nightAbility == NightAbility.inspect && choice != null;
     final meadow = SheepMeadow(
-      onPoints: (delta) => session.dreamPoints += delta,
+      onPoints: (delta) => _sheep += delta,
     );
     return PhaseBody(
       children: [
@@ -415,10 +441,10 @@ class _NightPhaseState extends State<NightPhase> {
                   ),
                 ),
               ),
-            if (choice != null) ...[
-              Body(l10n.sheepWhileWaiting, muted: true),
-              meadow,
-            ],
+            // Everyone can count sheep all night, so the morning totals
+            // are a hint, not a giveaway.
+            Body(l10n.sheepWhileWaiting, muted: true),
+            meadow,
           ],
           Body(l10n.nightHint, muted: true),
         ],
@@ -443,7 +469,17 @@ class DayPhase extends StatelessWidget {
         if (!view.yourSeat.isAlive) Body(l10n.youAreDead),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
-        SeatGrid(view: view),
+        if (view.lastNightSheep.isNotEmpty) ...[
+          Headline(l10n.sleepTitle),
+          SeatGrid(
+            view: view,
+            badges: {
+              for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
+                key: l10n.sheepCount(value),
+            },
+          ),
+        ] else
+          SeatGrid(view: view),
         if (session.isOwner)
           PrimaryButton(
             label: l10n.startVote,
@@ -525,10 +561,16 @@ class EndedPhase extends StatelessWidget {
           villageWon ? l10n.villageWins : l10n.werewolvesWin,
           color: villageWon ? Palette.lantern400 : Palette.curtain400,
         ),
-        if (session.dreamPoints != 0)
-          Body(l10n.yourDreamPoints(session.dreamPoints)),
+        if (_bestDreamer(view) case (final name, final points))
+          Panel(highlight: true, child: Body(l10n.bestDreamer(name, points))),
         Body(l10n.everyRole),
-        SeatGrid(view: view),
+        SeatGrid(
+          view: view,
+          badges: {
+            for (final MapEntry(:key, :value) in view.dreams.entries)
+              key: l10n.dreamPoints(value),
+          },
+        ),
         if (session.isOwner)
           PrimaryButton(
             label: l10n.playAgain,
@@ -538,4 +580,15 @@ class EndedPhase extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The player with the most dream points, if anyone counted at all.
+(String, int)? _bestDreamer(PlayerView view) {
+  final best = view.dreams.entries
+      .where((e) => e.value > 0)
+      .fold<MapEntry<PlayerId, int>?>(
+        null,
+        (top, e) => top == null || e.value > top.value ? e : top,
+      );
+  return best == null ? null : (view.nameOf(best.key), best.value);
 }
