@@ -157,7 +157,7 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
    - gemischtes Spiel
    - Beitrittsseite `whowolf.de/join` mit Deep Links
    - eigener Server in den Einstellungen
-   - Docker-Image und offizieller Server
+   - Docker-Image (ghcr.io) und offizieller Server auf eigenem VPS unter Subdomain von whowolf.de (Arbeitsname `game.whowolf.de`), mit genau diesem Container
    - optional: Server als Spielleiter
 
 ---

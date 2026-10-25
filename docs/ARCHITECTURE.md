@@ -126,5 +126,8 @@ GitHub Actions baut bei jedem Release-Tag:
 
 ## Hosting des offiziellen Servers
 
-- Anfangs reicht ein kleiner VPS (ein paar Euro im Monat).
+- Läuft auf dem **VPS des Eigentümers** unter einer Subdomain von `whowolf.de` (Arbeitsname `game.whowolf.de`, endgültiger Name noch offen).
+- Es läuft **genau der Container, den das Repo bereitstellt** (Image aus der CI, `ghcr.io`). Es gibt keine Sonderversion, der offizielle Server ist ein ganz normaler Self-Host. So merken wir Probleme beim Self-Hosting zuerst selbst.
+- Die Standard-Adresse steht in der App an **einer** Stelle (Konfiguration), nicht verstreut im Code.
+- TLS über einen Reverse-Proxy (z. B. Caddy) mit automatischen Zertifikaten. Container ohne Root-Rechte, Updates per neuem Image-Tag.
 - Später: Monitoring, Rate-Limits, Raumgrenzen.
