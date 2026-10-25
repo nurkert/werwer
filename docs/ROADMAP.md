@@ -21,7 +21,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 | Einfacher Erzähler: Text + Sprachausgabe | Eigene Stimmen, Musik, Stimmungen |
 | Rejoin mit vollem Status | Story am Spielende, Geistermodus |
 | Deutsch + Englisch | Weitere Sprachen |
-| Android, macOS, Windows, Linux als Download; iOS über TestFlight | App Store, Google Play |
+| iPhone (TestFlight) und Mac zuerst, dazu Android, Windows, Linux als Download | App Store, Google Play |
 | Minimales eigenes Logo, Icon und Farben | Rollen-Artwork, Animationen |
 
 ---
@@ -36,7 +36,8 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] D3 – Design-Tokens als eine Quelle für Website (CSS-Variablen) und App (Flutter-Theme)
 - [x] D4 – Website v1 gebaut (Deploy-Workflow steht; live, sobald DNS/Pages eingerichtet sind) unter **whowolf.de**: Astro, statisch, Bühnen-Hero mit Parallaxe, „Bald verfügbar“, Idee, Wolfsspur, Open Source; Lighthouse 100, keine Tracker
 - [x] D5 – Logo (Schriftzug) und Emblem im Mondbühnen-Stil; App-Icon-Varianten folgen mit der App
-- [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente) für M3
+- [x] D4b – Website ausgebaut: Theaterzettel-Look mit Papierstruktur, Schäfchen-Zählen zum Ausprobieren, Besetzung mit allen Rollen, Docs-Wiki, Download-Seite aus Releases, Impressum/Datenschutz, Deutsch + Englisch (weitere Sprachen per Datei), SEO (hreflang, Sitemap, JSON-LD)
+- [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente, Schäfchen-Zählen) für M3
 
 ## M0 – Fundament
 
@@ -105,7 +106,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
   - iOS-Berechtigung „Lokales Netzwerk“
   - Firewall-Freigabe auf dem Desktop
   - Gäste-WLAN mit Client-Isolation, Ausweg: Hotspot des Host-Handys
-- [ ] Läuft auf Android, iOS, macOS, Windows, Linux
+- [ ] Läuft auf iPhone und Mac (Hauptplattformen, dort wird getestet), Android (im Emulator auf dem Mac), Windows und Linux (CI-Builds, Linux-Test in einer VM)
 - [ ] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
 
 **Fertig, wenn:** Eine **erste Testrunde** mit 5+ Leuten ohne Wolfsspur von Anfang bis Ende funktioniert hat.
@@ -140,7 +141,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Visuelle Identität aus Spur D in der App angekommen
 - [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
 - [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
-- [ ] iOS über **TestFlight**. Dafür braucht es den Apple Developer Account (99 $/Jahr), alternativ iOS erst nach 0.1.
+- [ ] iOS über **TestFlight** von Anfang an (Apple Developer Account vorhanden), macOS signiert und notarisiert
 - [ ] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
 - [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren (`SECURITY.md` existiert bereits)

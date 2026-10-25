@@ -4,7 +4,7 @@ Open-source Werewolf party game: players sit together, each on their own device,
 
 ## Start here
 
-1. Read `docs/` (German): VISION, GAME_DESIGN, ARCHITECTURE, ROADMAP, LEGAL, DECISIONS.
+1. Read `docs/` (German): VISION, GAME_DESIGN, NIGHT_SOUNDS, ARCHITECTURE, SECURITY_DESIGN, TOOLING, DESIGN, ROADMAP, LEGAL, DECISIONS.
 2. The current task is described in `docs/tasks/` — pick the lowest-numbered task that is not marked done.
 3. Talk to the user in German. Code, comments, commit messages and the public README are in English.
 
