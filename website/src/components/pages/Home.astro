@@ -1,0 +1,761 @@
+---
+import { Picture } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+import CountingSheep from '../CountingSheep.astro';
+import Hero from '../Hero.astro';
+import Icon from '../Icon.astro';
+import TrailDiagram from '../TrailDiagram.astro';
+import Base from '../../layouts/Base.astro';
+import { path, repoUrl, ui, type Lang } from '../../i18n/ui';
+import { docSummary, docTitle } from '../../lib/docs';
+import { loadReleases } from '../../lib/releases';
+
+import werwolf from '../../../../design/source/figures/werwolf.png';
+import seherin from '../../../../design/source/figures/seherin.png';
+import dorfbewohner from '../../../../design/source/figures/dorfbewohner.png';
+import magd from '../../../../design/source/figures/magd.png';
+import hexe from '../../../../design/source/figures/hexe.png';
+import jaeger from '../../../../design/source/figures/jaeger.png';
+import amor from '../../../../design/source/figures/amor.png';
+import beschuetzer from '../../../../design/source/figures/beschuetzer.png';
+import faehrtenleger from '../../../../design/source/figures/faehrtenleger.png';
+import lauscherin from '../../../../design/source/figures/lauscherin.png';
+import stillePfote from '../../../../design/source/figures/stille_pfote.png';
+import emblem from '../../../../design/source/brand/emblem.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const formats = ['avif', 'webp'] as const;
+
+const figures: Record<string, ImageMetadata> = {
+  werwolf,
+  seherin,
+  dorfbewohner,
+  magd,
+  hexe,
+  jaeger,
+  amor,
+  beschuetzer,
+  faehrtenleger,
+  lauscherin,
+  stille_pfote: stillePfote,
+};
+
+const releases = await loadReleases();
+const latest = releases.find((release) => !release.prerelease) ?? releases[0];
+
+const docs = await getCollection('docs');
+const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design']
+  .map((id) => docs.find((entry) => entry.id === id))
+  .filter((entry) => entry !== undefined);
+---
+
+<Base lang={lang} page="home" overlay title={t.meta.title} description={t.meta.description}>
+  <Hero lang={lang} />
+
+  <main>
+    <!-- The playbill: what this is, on paper. -->
+    <section id="spiel" class="paper" aria-labelledby="spiel-title">
+      <div class="container playbill">
+        <div class="section-head">
+          <h2 id="spiel-title" class="display" data-reveal>{t.playbill.title}</h2>
+          <p class="lead" data-reveal style="--i: 1">{t.playbill.intro}</p>
+        </div>
+        <ul class="pillars">
+          {
+            t.playbill.pillars.map((p, i) => (
+              <li data-reveal style={`--i: ${i}`}>
+                <Icon name={p.icon as 'phone'} />
+                <h3 class="heading">{p.title}</h3>
+                <p>{p.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="programme">
+          <div class="section-head section-head--tight">
+            <h2 class="display" data-reveal>{t.evening.title}</h2>
+            <p class="lead" data-reveal style="--i: 1">{t.evening.intro}</p>
+          </div>
+          <ol class="acts">
+            {
+              t.evening.acts.map((a, i) => (
+                <li data-reveal style={`--i: ${i}`}>
+                  <span class="acts__icon">
+                    <Icon name={a.icon as 'qr'} />
+                  </span>
+                  <p class="acts__act">{a.act}</p>
+                  <h3>{a.title}</h3>
+                  <p>{a.text}</p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- The live thing: what villagers do at night. -->
+    <section id="schaefchen" class="night night--deep" aria-labelledby="sheep-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="sheep-title" class="display" data-reveal>{t.sheep.title}</h2>
+          <p class="lead" data-reveal style="--i: 1">{t.sheep.intro}</p>
+          <p class="sheep-rule" data-reveal style="--i: 2">{t.sheep.rule}</p>
+        </div>
+        <div data-reveal style="--i: 2">
+          <CountingSheep lang={lang} />
+        </div>
+      </div>
+    </section>
+
+    <!-- The cast list. -->
+    <section id="rollen" class="night" aria-labelledby="cast-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="cast-title" class="display" data-reveal>{t.cast.title}</h2>
+          <p class="lead" data-reveal style="--i: 1">{t.cast.intro}</p>
+        </div>
+      </div>
+      {
+        t.cast.groups.map((group) => (
+          <div class="cast">
+            <div class="container cast__head">
+              <h3 class="heading">{group.title}</h3>
+              <p class="cast__swipe" aria-hidden="true">
+                {t.cast.swipe}
+              </p>
+            </div>
+            <ul class="cast__roles">
+              {group.roles.map((role, i) => (
+                <li class="role" data-reveal style={`--i: ${i}`}>
+                  <div class="role__stage">
+                    <Picture
+                      src={figures[role.id]}
+                      alt=""
+                      formats={formats}
+                      widths={[260, 520, 780]}
+                      sizes="(max-width: 760px) 62vw, 18rem"
+                    />
+                  </div>
+                  <div class="role__card">
+                    <div class="role__plate">
+                      <h4>{role.name}</h4>
+                      <span class:list={['stamp', role.side === 'wolf' ? 'stamp--wolf' : 'stamp--dorf']}>
+                        {role.side === 'wolf' ? t.cast.wolves : t.cast.village}
+                      </span>
+                    </div>
+                    <p>{role.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </section>
+
+    <!-- The wolf trail. -->
+    <section id="wolfsspur" class="night night--deep" aria-labelledby="trail-title">
+      <div class="container trail">
+        <div class="trail__copy">
+          <h2 id="trail-title" class="display" data-reveal>{t.trail.title}</h2>
+          <p class="lead" data-reveal style="--i: 1">{t.trail.intro}</p>
+          <blockquote class="trail__rule" data-reveal style="--i: 2">{t.trail.rule}</blockquote>
+          <dl class="trail__points">
+            {
+              t.trail.points.map((p, i) => (
+                <div data-reveal style={`--i: ${i}`}>
+                  <dt>{p.title}</dt>
+                  <dd>{p.text}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <a class="text-link" href="/docs/night_sounds/">{t.trail.more}</a>
+        </div>
+        <figure class="trail__diagram" data-reveal style="--i: 1">
+          <TrailDiagram lang={lang} />
+        </figure>
+      </div>
+    </section>
+
+    <!-- House rules and honest status, on paper. -->
+    <section class="paper" aria-labelledby="rules-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="rules-title" class="display" data-reveal>{t.rules.title}</h2>
+        </div>
+        <dl class="rules">
+          {
+            t.rules.items.map((r, i) => (
+              <div data-reveal style={`--i: ${i % 3}`}>
+                <dt>{r.title}</dt>
+                <dd>{r.text}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <div id="stand" class="progress">
+          <div class="section-head section-head--tight">
+            <h2 class="display" data-reveal>{t.progress.title}</h2>
+            <p class="lead" data-reveal style="--i: 1">{t.progress.intro}</p>
+          </div>
+          <ol class="steps">
+            {
+              t.progress.steps.map((s, i) => (
+                <li class:list={['step', `step--${s.state}`]} data-reveal style={`--i: ${i}`}>
+                  <span class:list={['stamp', s.state === 'done' ? 'stamp--dorf' : s.state === 'now' ? 'stamp--wolf' : 'stamp--plan']}>
+                    {s.state === 'done' ? t.progress.done : s.state === 'now' ? t.progress.now : t.progress.next}
+                  </span>
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                </li>
+              ))
+            }
+          </ol>
+          <a class="button button--ghost" href="/docs/roadmap/">{t.progress.roadmap}</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Built in the open. -->
+    <section class="night" aria-labelledby="open-title">
+      <div class="container open">
+        <div>
+          <h2 id="open-title" class="display" data-reveal>{t.open.title}</h2>
+          <p class="lead" data-reveal style="--i: 1">{t.open.intro}</p>
+          <div class="open__actions" data-reveal style="--i: 2">
+            <a class="button button--primary" href="/docs/">{t.open.docs}</a>
+            <a class="button button--ghost" href={repoUrl}>{t.open.github}</a>
+          </div>
+          {lang === 'en' && <p class="open__note">{t.open.note}</p>}
+        </div>
+        <ul class="doc-links">
+          {
+            featuredDocs.map((entry, i) => (
+              <li data-reveal style={`--i: ${i}`}>
+                <a href={`/docs/${entry.id}/`}>
+                  <strong>{docTitle(entry)}</strong>
+                  <span>{docSummary(entry)}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <!-- The ticket. -->
+    <section class="night night--deep finale" aria-labelledby="ticket-title">
+      <div class="container">
+        <div class="ticket" data-reveal>
+          <div class="ticket__main">
+            <h2 id="ticket-title" class="display">{latest ? t.ticket.released : t.ticket.title}</h2>
+            <p class="lead">{latest ? t.ticket.releasedText : t.ticket.text}</p>
+            <div class="ticket__actions">
+              <a class="button button--primary" href={latest ? path('download', lang) : repoUrl}>
+                {latest ? t.ticket.ctaReleased : t.hero.primary}
+              </a>
+              <a class="button button--ghost" href={path('download', lang)}>{t.ticket.cta}</a>
+            </div>
+          </div>
+          <div class="ticket__stub" aria-hidden="true">
+            <Picture src={emblem} alt="" formats={formats} widths={[160, 320]} sizes="8rem" />
+            <p>{t.ticket.admit}</p>
+            <p>{t.ticket.seat}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  /* ---------- Playbill ---------- */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pillars :global(svg) {
+    width: 3.2rem;
+    height: 3.2rem;
+    color: var(--curtain-600);
+  }
+  .pillars h3 {
+    margin-top: var(--space-2);
+  }
+  .pillars p {
+    margin-top: var(--space-1);
+    max-width: 34ch;
+  }
+
+  .programme {
+    margin-top: var(--space-6);
+  }
+  .section-head--tight {
+    margin-bottom: var(--space-4);
+  }
+  .acts {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .acts li {
+    position: relative;
+  }
+  .acts__icon {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .acts__icon :global(svg) {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+  .acts__act {
+    margin-top: var(--space-2);
+    font-weight: 800;
+    color: var(--curtain-600) !important;
+  }
+  .acts h3 {
+    margin-top: 0.15rem;
+    font-size: 1.55rem;
+  }
+  .acts p:last-child {
+    margin-top: 0.4rem;
+  }
+
+  /* ---------- Sheep ---------- */
+  .sheep-rule {
+    font-weight: 800;
+    color: var(--lantern-300);
+  }
+
+  /* ---------- Cast ---------- */
+  .cast + .cast {
+    margin-top: var(--space-5);
+  }
+  .cast__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+  .cast__head h3 {
+    color: var(--lantern-300);
+  }
+  .cast__swipe {
+    display: none;
+    font-size: var(--step-small);
+    color: var(--moon-200);
+  }
+  .cast__roles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-3);
+    width: min(100% - 2 * var(--gutter), var(--content));
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .role {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  /* The puppet stands above its card and pops out of it: the 2.5D moment of the cast list. */
+  .role__stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 19rem;
+    margin-bottom: -3rem;
+  }
+  .role__stage::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 3.6rem;
+    width: 72%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(246 231 193 / 0.2), rgb(246 231 193 / 0.04) 62%, transparent 63%);
+    transform: translateX(-50%);
+  }
+  .role__stage :global(picture) {
+    position: relative;
+    display: block;
+    height: 100%;
+  }
+  .role__stage :global(img) {
+    height: 100%;
+    width: auto;
+    filter: drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
+    transform-origin: 50% 100%;
+    transition: transform 0.5s var(--ease-puppet);
+  }
+  .role:hover .role__stage :global(img) {
+    transform: rotate(-2.5deg) translateY(-6px);
+  }
+  .role__card {
+    padding: 3.6rem var(--space-3) var(--space-3);
+    border-radius: var(--radius-l);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+  }
+  .role__plate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1);
+  }
+  .role__plate h4 {
+    font-size: 1.7rem;
+    color: var(--ink);
+  }
+  .role__card p {
+    margin-top: var(--space-1);
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Wolf trail ---------- */
+  .trail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .trail__copy {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .trail__rule {
+    margin: var(--space-3) 0 var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-m);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+    font-family: var(--font-display);
+    font-size: var(--step-lead);
+    line-height: 1.35;
+    transform: rotate(-0.8deg);
+  }
+  .trail__points {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-2) 0;
+  }
+  .trail__points dt {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: var(--lantern-300);
+  }
+  .trail__points dd {
+    margin: 0.2rem 0 0;
+    max-width: 50ch;
+    color: var(--moon-200);
+  }
+  .trail__diagram {
+    margin: 0;
+  }
+  .trail__diagram :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .text-link {
+    justify-self: start;
+    font-weight: 800;
+  }
+
+  /* ---------- House rules ---------- */
+  .rules {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-5);
+    margin: 0;
+  }
+  .rules dt {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--ink);
+  }
+  .rules dd {
+    margin: 0.3rem 0 0;
+    max-width: 36ch;
+  }
+
+  .progress {
+    margin-top: var(--space-6);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+  .step {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    padding: var(--space-3);
+    border-radius: var(--radius-m);
+    background: rgb(42 27 18 / 0.07);
+  }
+  .step--now {
+    background: rgb(158 31 36 / 0.12);
+  }
+  .step .stamp {
+    justify-self: start;
+  }
+  .step h3 {
+    margin-top: 0.4rem;
+    font-size: 1.5rem;
+  }
+  :global(.stamp--plan) {
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Open ---------- */
+  .open {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: center;
+  }
+  .open .lead {
+    margin-top: var(--space-2);
+    color: var(--moon-200);
+  }
+  .open__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .open__note {
+    margin-top: var(--space-2);
+    font-size: var(--step-small);
+    color: var(--moon-200);
+  }
+  .doc-links {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .doc-links a {
+    display: grid;
+    gap: 0.25rem;
+    padding: var(--space-3);
+    border-radius: var(--radius-m);
+    background: var(--night-800);
+    color: var(--moon-100);
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      transform 0.35s var(--ease-puppet);
+  }
+  .doc-links a:hover {
+    background: var(--night-700);
+    transform: translateX(6px);
+  }
+  .doc-links strong {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.35rem;
+  }
+  .doc-links span {
+    color: var(--moon-200);
+    font-size: var(--step-small);
+  }
+
+  /* ---------- Ticket ---------- */
+  .ticket {
+    --notch: 1.1rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+    border-radius: var(--radius-l);
+    /* Two half-moon notches where the stub tears off. */
+    mask:
+      radial-gradient(circle at calc(100% - 15rem) 0, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) top / 100% 51% no-repeat,
+      radial-gradient(circle at calc(100% - 15rem) 100%, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) bottom / 100% 51% no-repeat;
+  }
+  .ticket__main {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+  }
+  .ticket__main h2 {
+    font-size: clamp(2.2rem, 1.6rem + 2.6vw, 4rem);
+    color: var(--ink);
+  }
+  .ticket__main .lead {
+    max-width: 40ch;
+    color: var(--ink-soft);
+  }
+  .ticket__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .ticket .button--ghost {
+    color: var(--ink);
+    box-shadow: inset 0 0 0 2px var(--ink-soft);
+  }
+  .ticket__stub {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.4rem;
+    padding: var(--space-4) var(--space-3);
+    border-left: 3px dashed rgb(42 27 18 / 0.35);
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+  .ticket__stub :global(img) {
+    width: 7rem;
+    height: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ---------- Phones and tablets ---------- */
+  @media (max-width: 1080px) {
+    .acts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+    .cast__roles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .trail,
+    .open {
+      grid-template-columns: 1fr;
+    }
+    .trail__diagram {
+      max-width: 34rem;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .pillars,
+    .rules {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+    .acts {
+      grid-template-columns: 1fr;
+    }
+    .acts li {
+      display: grid;
+      grid-template-columns: 4rem 1fr;
+      column-gap: var(--space-3);
+    }
+    .acts__icon {
+      grid-row: span 3;
+    }
+    .acts__act {
+      margin-top: 0;
+    }
+    .steps {
+      grid-template-columns: 1fr;
+    }
+    /* The cast becomes a swipeable row of big cards on phones. */
+    .cast__swipe {
+      display: block;
+    }
+    .cast__roles {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: 78%;
+      gap: var(--space-3);
+      width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--gutter);
+      padding: 0 var(--gutter) var(--space-2);
+      scrollbar-width: none;
+    }
+    .cast__roles::-webkit-scrollbar {
+      display: none;
+    }
+    .role {
+      scroll-snap-align: start;
+    }
+    .role__stage {
+      height: 22rem;
+    }
+    .ticket {
+      grid-template-columns: 1fr;
+      mask: none;
+    }
+    .ticket__main {
+      padding: var(--space-4) var(--space-3);
+    }
+    .ticket__stub {
+      grid-auto-flow: column;
+      align-items: center;
+      gap: var(--space-2);
+      border-left: 0;
+      border-top: 3px dashed rgb(42 27 18 / 0.35);
+      padding: var(--space-3);
+      font-size: 1rem;
+    }
+    .ticket__stub :global(img) {
+      width: 3.5rem;
+      margin: 0;
+    }
+    .ticket__actions .button,
+    .open__actions .button {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .role:hover .role__stage :global(img),
+    .doc-links a:hover {
+      transform: none;
+    }
+  }
+</style>

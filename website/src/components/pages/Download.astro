@@ -1,0 +1,264 @@
+---
+import { Picture } from 'astro:assets';
+
+import Icon from '../Icon.astro';
+import Base from '../../layouts/Base.astro';
+import { languages, repoUrl, ui, type Lang } from '../../i18n/ui';
+import { loadReleases, type Platform } from '../../lib/releases';
+import seherin from '../../../../design/source/figures/seherin.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const d = t.download;
+
+const releases = await loadReleases();
+const latest = releases.find((release) => !release.prerelease) ?? releases[0];
+
+// iPhone and Mac first: that is where Whowolf is developed and tested.
+const platforms: { id: Platform; name: string; icon: 'phone' | 'laptop' | 'terminal' }[] = [
+  { id: 'ios', name: 'iPhone & iPad', icon: 'phone' },
+  { id: 'macos', name: 'macOS', icon: 'laptop' },
+  { id: 'android', name: 'Android', icon: 'phone' },
+  { id: 'windows', name: 'Windows', icon: 'laptop' },
+  { id: 'linux', name: 'Linux', icon: 'terminal' },
+];
+const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<Base lang={lang} page="download" title={`${d.title} – Whowolf`} description={d.metaDescription}>
+  <main>
+    <section class="paper download-head">
+      <div class="container download-head__inner">
+        <div>
+          <h1 class="display">{d.title}</h1>
+          {
+            latest ? (
+              <p class="lead">
+                {d.current} <strong>{latest.version}</strong> {d.from} {date(latest.publishedAt)}. <a href={latest.url}>{d.whatsNew}</a>
+              </p>
+            ) : (
+              <p class="lead">{d.none}</p>
+            )
+          }
+          {!latest && <p class="download-head__status"><span class="stamp stamp--wolf">{t.status.badge}</span></p>}
+        </div>
+        <Picture class="download-head__figure" src={seherin} alt="" formats={['avif', 'webp']} widths={[240, 480]} sizes="12rem" />
+      </div>
+    </section>
+
+    <section class="night" aria-label={d.title}>
+      <div class="container">
+        <ul class="platforms">
+          {
+            platforms.map((platform, i) => {
+              const files = latest?.downloads.filter((file) => file.platform === platform.id) ?? [];
+              return (
+                <li class:list={['platform', { 'platform--ready': files.length > 0 }]} data-reveal style={`--i: ${i}`}>
+                  <Icon name={platform.icon} />
+                  <h2>{platform.name}</h2>
+                  <p>{d.platforms[platform.id]}</p>
+                  {files.length > 0 ? (
+                    <div class="platform__files">
+                      {files.map((file) => (
+                        <a class="button button--primary" href={file.url}>
+                          <Icon name="download" />
+                          {file.name.split('.').pop()?.toUpperCase()} · {file.sizeMb} MB
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <span class="platform__soon">{latest ? d.notInRelease : d.soon}</span>
+                  )}
+                </li>
+              );
+            })
+          }
+        </ul>
+
+        <div class="trust" data-reveal>
+          <Icon name="shield" />
+          <div>
+            <h2>{d.checkTitle}</h2>
+            <p>
+              {d.check1}
+              {latest?.checksumsUrl && (
+                <>
+                  {' '}
+                  <a href={latest.checksumsUrl}>{d.checksums}</a>.
+                </>
+              )}
+            </p>
+            <p>{d.check2}</p>
+          </div>
+        </div>
+
+        {
+          releases.length > 1 && (
+            <div class="history">
+              <h2>{d.older}</h2>
+              <ul>
+                {releases
+                  .filter((release) => release !== latest)
+                  .map((release) => (
+                    <li>
+                      <a href={release.url}>{release.name}</a>
+                      <span>
+                        {date(release.publishedAt)}
+                        {release.prerelease ? ` · ${d.prerelease}` : ''}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )
+        }
+
+        <p class="source"><a href={repoUrl}>{d.source}</a></p>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .download-head {
+    margin-top: var(--space-2);
+  }
+  .download-head__inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .download-head .lead {
+    margin-top: var(--space-2);
+    max-width: 50ch;
+    color: var(--ink-soft);
+  }
+  .download-head__status {
+    margin-top: var(--space-3);
+  }
+  .download-head :global(.download-head__figure) {
+    width: 11rem;
+    height: auto;
+    filter: drop-shadow(0 12px 18px rgb(42 27 18 / 0.35));
+    transform: rotate(3deg);
+  }
+
+  .platforms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .platform {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--space-3);
+    border-radius: var(--radius-l);
+    background: var(--night-800);
+  }
+  .platform--ready {
+    background: var(--night-700);
+  }
+  .platform :global(svg) {
+    width: 2.2rem;
+    height: 2.2rem;
+    color: var(--lantern-400);
+  }
+  .platform h2 {
+    font-size: 1.6rem;
+  }
+  .platform p {
+    flex: 1;
+    color: var(--moon-200);
+    font-size: var(--step-small);
+  }
+  .platform__files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: var(--space-1);
+  }
+  .platform__soon {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    background: var(--night-950);
+    color: var(--moon-200);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .trust {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+    border-radius: var(--radius-l);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+  }
+  .trust > :global(svg) {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: var(--curtain-600);
+  }
+  .trust h2 {
+    font-size: var(--step-heading);
+    color: var(--ink);
+  }
+  .trust p {
+    margin-top: var(--space-1);
+    max-width: 68ch;
+    color: var(--ink-soft);
+  }
+  .trust a {
+    color: var(--curtain-600);
+  }
+
+  .history {
+    margin-top: var(--space-5);
+  }
+  .history h2 {
+    font-size: var(--step-heading);
+  }
+  .history ul {
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .history li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: 0.8rem;
+    color: var(--moon-200);
+  }
+  .history li + li {
+    background: linear-gradient(var(--night-700), var(--night-700)) top / 100% 1px no-repeat;
+  }
+  .source {
+    margin-top: var(--space-5);
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .download-head :global(.download-head__figure) {
+      display: none;
+    }
+    .trust {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,201 @@
+// German copy. This file defines the shape every other language must follow.
+
+const de = {
+  meta: {
+    title: 'Whowolf – Werwolf am Tisch, jeder mit seinem Handy',
+    description:
+      'Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend, das gerade entsteht: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, die App ist der Erzähler.',
+  },
+  skip: 'Zum Inhalt springen',
+  nav: { play: 'Spiel', cast: 'Rollen', sheep: 'Schäfchen', trail: 'Wolfsspur', docs: 'Docs', download: 'Download', menu: 'Menü', close: 'Schließen', language: 'Sprache' },
+  status: {
+    badge: 'In Entwicklung',
+    line: 'Whowolf ist derzeit ein Konzept in Entwicklung. Noch gibt es nichts zu spielen.',
+  },
+  hero: {
+    statement: 'Werwolf am Tisch. Jeder mit seinem Handy.',
+    sub: 'Die App ist der Erzähler: kein Spielleiter, keine Zettel, keine verräterischen Geräusche.',
+    primary: 'Projekt verfolgen',
+    secondary: 'So soll es werden',
+  },
+  playbill: {
+    title: 'Ein Spieleabend ohne Spielleiter.',
+    intro:
+      'Werwolf lebt von Geheimnissen. Whowolf legt sie dahin, wo sie hingehören: auf das Handy jedes einzelnen Spielers. Alle sitzen am Tisch, alle spielen mit.',
+    pillars: [
+      { icon: 'phone', title: 'Jeder hat sein Handy', text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du.' },
+      { icon: 'scroll', title: 'Die App erzählt', text: 'Sie führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.' },
+      { icon: 'mask', title: 'Niemand verrät sich', text: 'Nachts tippen alle etwas. Von außen sieht man nicht, wer Werwolf ist.' },
+    ],
+  },
+  evening: {
+    title: 'Der Spielplan.',
+    intro: 'So soll ein Abend mit Whowolf ablaufen.',
+    acts: [
+      { icon: 'qr', act: 'Vorspiel', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Kein Konto, kein Internet.' },
+      { icon: 'circle', act: 'Erster Akt', title: 'Platz nehmen', text: 'Die App zeigt den Tischkreis aus deiner Sicht. So stimmt die Sitzordnung sofort.' },
+      { icon: 'moon', act: 'Zweiter Akt', title: 'Die Nacht', text: 'Die Wölfe wählen ihr Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
+      { icon: 'sun', act: 'Dritter Akt', title: 'Der Morgen', text: 'Jedes Handy gähnt. Dann verkündet die App, wen es erwischt hat.' },
+      { icon: 'vote', act: 'Finale', title: 'Der Tag', text: 'Handys weg, Gesichter lesen, anklagen, lügen. Abgestimmt wird geheim.' },
+    ],
+  },
+  sheep: {
+    title: 'Schäfchen zählen.',
+    intro:
+      'Was machen Dorfbewohner nachts, während die Wölfe jagen? Sie zählen Schäfchen. So tippen alle, und niemand fällt auf. Probier es aus.',
+    rule: 'Tippe die weißen Schafe an. Die schwarzen lässt du besser springen.',
+    score: 'Traumpunkte',
+    best: 'Bester Traum',
+    sheep: 'Schaf antippen',
+    blackSheep: 'Schwarzes Schaf',
+    good: '+1 Traumpunkt',
+    bad: 'Albtraum! −3',
+    paused: 'Pausiert',
+    start: 'Einschlafen',
+    stop: 'Aufwachen',
+    noScript: 'Mit aktiviertem JavaScript kannst du hier selbst Schäfchen zählen.',
+  },
+  cast: {
+    title: 'Die Besetzung.',
+    intro: 'Jede Rolle eine Pappfigur, jede Figur mit eigenem Charakter. Begonnen wird klein, der Spielplan wächst.',
+    swipe: 'Zum Durchblättern wischen',
+    village: 'Dorf',
+    wolves: 'Werwölfe',
+    groups: [
+      {
+        title: 'Für den Anfang',
+        roles: [
+          { id: 'werwolf', name: 'Werwolf', side: 'wolf', text: 'Wählt nachts mit seinem Rudel ein Opfer. Tagsüber spielt er den Harmlosen.' },
+          { id: 'seherin', name: 'Seherin', side: 'dorf', text: 'Blickt jede Nacht in die Rolle eines Mitspielers. Wem verrät sie, was sie weiß?' },
+          { id: 'dorfbewohner', name: 'Dorfbewohner', side: 'dorf', text: 'Keine Gabe außer Menschenkenntnis. Und einer lauten Stimme bei der Abstimmung.' },
+          { id: 'magd', name: 'Dorfbewohnerin', side: 'dorf', text: 'Hört die Wolfsspur, wenn ihr Handy laut genug ist, und muss dann überzeugen.' },
+        ],
+      },
+      {
+        title: 'Auf dem Spielplan',
+        roles: [
+          { id: 'hexe', name: 'Hexe', side: 'dorf', text: 'Ein Heiltrank, ein Gifttrank und ein ganzes Spiel lang Zeit für die richtige Entscheidung.' },
+          { id: 'jaeger', name: 'Jäger', side: 'dorf', text: 'Wer ihn erwischt, nimmt ihn nicht allein mit. Sein letzter Schuss trifft immer.' },
+          { id: 'amor', name: 'Amor', side: 'dorf', text: 'Verkuppelt in der ersten Nacht zwei Spieler. Stirbt einer, stirbt der andere.' },
+          { id: 'beschuetzer', name: 'Beschützer', side: 'dorf', text: 'Wacht nachts über einen Spieler, nur nie zweimal hintereinander über denselben.' },
+        ],
+      },
+      {
+        title: 'Nur bei Whowolf',
+        roles: [
+          { id: 'faehrtenleger', name: 'Fährtenleger', side: 'wolf', text: 'Legt einmal pro Spiel eine falsche Wolfsspur auf ein Handy seiner Wahl.' },
+          { id: 'lauscherin', name: 'Lauscherin', side: 'dorf', text: 'Hört Spuren auch von weiter weg. Nur weiß das außer ihr niemand.' },
+          { id: 'stille_pfote', name: 'Stille Pfote', side: 'wolf', text: 'Schleicht so leise, dass sie nie eine Spur hinterlässt.' },
+        ],
+      },
+    ],
+  },
+  trail: {
+    title: 'Die Wolfsspur.',
+    intro: 'Nachts flüstern die Handys auf dem Tisch: Wind, Schritte, ein Käuzchen. Und manchmal ein leises Knurren.',
+    rule: 'Kommt ein Wolfsgeräusch aus dem Handy von X, sitzt ein Werwolf ganz in der Nähe: höchstens einen Platz entfernt, in großen Runden bis zu drei.',
+    points: [
+      { title: 'Ein Verdacht, kein Beweis', text: 'Wer es auf dem eigenen Handy hört, weiß viel. Für alle anderen ist er aber selbst verdächtig.' },
+      { title: 'Laut oder leise?', text: 'Dorfbewohner wollen alles hören, Werwölfe würden lieber stummschalten. Doch am Morgen gähnt jedes Handy.' },
+      { title: 'Leise und dosiert', text: 'Ein paar Geräusche pro Nacht, viel Stille dazwischen. Atmosphäre statt Lärm.' },
+    ],
+    diagramTitle: 'Bei X kommt ein Wolfsgeräusch',
+    diagramNote: '→ ein Werwolf sitzt auf X oder daneben (8 Spieler)',
+    diagramAlt: 'Tischkreis: Ein Wolfsgeräusch kommt aus dem Handy von X, also sitzt auf X oder direkt daneben ein Werwolf.',
+    more: 'Die Wolfsspur im Detail',
+  },
+  rules: {
+    title: 'Die Hausordnung.',
+    items: [
+      { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail, keine Telefonnummer.' },
+      { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker. Weder in der App noch hier.' },
+      { title: 'Lokal im WLAN', text: 'Ein Handy ist die Bühne. Eure Partie verlässt den Tisch nicht.' },
+      { title: 'Verschlüsselt', text: 'Jede Verbindung wird Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
+      { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
+      { title: 'Für alle Geräte', text: 'Android, iOS, macOS, Windows und Linux aus einer Codebasis.' },
+    ],
+  },
+  progress: {
+    title: 'Wo wir stehen.',
+    intro: 'Whowolf wird offen entwickelt. Das ist der aktuelle Stand, ehrlich und ohne Versprechen.',
+    done: 'Erledigt',
+    now: 'In Arbeit',
+    next: 'Geplant',
+    steps: [
+      { state: 'done', title: 'Idee und Konzept', text: 'Spielprinzip, Wolfsspur, Sicherheitskonzept und Stil sind ausgearbeitet.' },
+      { state: 'now', title: 'Spielregeln', text: 'Die Regel-Engine in Dart, vollständig getestet.' },
+      { state: 'next', title: 'Erste Testrunde', text: 'Spielbarer Prototyp im WLAN, mit Freunden am Tisch.' },
+      { state: 'next', title: 'Version 0.1', text: 'Für iPhone (TestFlight) und Mac zuerst, dazu Android, Windows und Linux.' },
+    ],
+    roadmap: 'Zur Roadmap',
+  },
+  open: {
+    title: 'Offen gebaut.',
+    intro: 'Jede Entscheidung, jede Regel und das ganze Sicherheitskonzept stehen offen im Repository. Die Docs auf dieser Seite werden direkt daraus erzeugt.',
+    docs: 'Zu den Docs',
+    github: 'Auf GitHub mitbauen',
+    note: 'Die Docs sind auf Deutsch.',
+  },
+  ticket: {
+    title: 'Der Vorhang hebt sich bald.',
+    text: 'Noch gibt es nichts herunterzuladen. Gib dem Projekt einen Stern auf GitHub, dann verpasst du die Premiere nicht.',
+    released: 'Der Vorhang ist offen.',
+    releasedText: 'Holt euch die App und ladet zum Spieleabend.',
+    admit: 'Eintritt frei',
+    seat: 'Platz: am Tisch',
+    cta: 'Zum Download-Status',
+    ctaReleased: 'Jetzt herunterladen',
+  },
+  footer: {
+    tagline: 'Werwolf am Tisch. Ein Open-Source-Projekt, Apache 2.0.',
+    security: 'Sicherheit',
+    imprint: 'Impressum',
+    privacy: 'Datenschutz',
+  },
+  download: {
+    title: 'Download',
+    metaDescription: 'Status und Downloads von Whowolf für Android, iOS, macOS, Windows und Linux. Kostenlos und Open Source.',
+    none: 'Noch gibt es keine Version zum Herunterladen. Whowolf ist ein Konzept in Entwicklung. Sobald das erste Release erscheint, steht es automatisch hier.',
+    current: 'Aktuelle Version',
+    from: 'vom',
+    whatsNew: 'Was ist neu?',
+    soon: 'Bald verfügbar',
+    notInRelease: 'In dieser Version noch nicht dabei',
+    checkTitle: 'Downloads prüfen',
+    check1: 'Jedes Release wird ausschließlich von GitHub Actions aus dem öffentlichen Quellcode gebaut, mit SHA-256-Prüfsummen und einem Herkunftsnachweis.',
+    checksums: 'Prüfsummen dieser Version',
+    check2: 'Ohne kostenpflichtige Signatur zeigen macOS und Windows beim ersten Start eine Warnung. Die Prüfsumme zeigt dir, dass die Datei echt ist.',
+    older: 'Frühere Versionen',
+    prerelease: 'Vorabversion',
+    source: 'Lieber selbst bauen? Der komplette Quellcode liegt auf GitHub.',
+    platforms: {
+      android: 'APK direkt installieren, später auch bei Google Play.',
+      ios: 'Über TestFlight, später im App Store.',
+      macos: 'Für Apple Silicon und Intel.',
+      windows: 'Windows 10 und 11.',
+      linux: 'AppImage für die meisten Distributionen.',
+    },
+  },
+  legal: {
+    imprintTitle: 'Impressum',
+    privacyTitle: 'Datenschutzerklärung',
+    forkNote:
+      'Diese Seite wurde aus einer Kopie (Fork) des Whowolf-Projekts gebaut. Wer sie öffentlich betreibt, braucht in der Regel ein eigenes Impressum. Betreiber hinterlegen dafür in ihrem Repository die Variable IMPRINT_URL mit der Adresse ihrer Impressums-Seite.',
+  },
+  privacy: {
+    updated: 'Stand: 25. Oktober 2026',
+    sections: [
+      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto. Nur der Bestwert beim Schäfchenzählen wird lokal in deinem Browser gespeichert und verlässt dein Gerät nie.' },
+      { title: 'Verantwortlicher', html: 'Verantwortlich für diese Website ist die im <a href="/impressum/">Impressum</a> genannte Person.' },
+      { title: 'Hosting durch GitHub Pages', html: 'Die Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Niederlande, bzw. der GitHub Inc., USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Datum und Uhrzeit, die aufgerufene Seite sowie Angaben zu Browser und Betriebssystem, um die Seite auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren und zuverlässigen Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO). Eine Übermittlung in die USA ist möglich; GitHub ist unter dem EU-U.S. Data Privacy Framework zertifiziert. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.' },
+      { title: 'Externe Links', html: 'Die Seite verlinkt unter anderem auf GitHub. Erst wenn du einem Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.' },
+      { title: 'Die App', html: 'Die Whowolf-App wird so gebaut, dass sie keine personenbezogenen Daten an uns oder Dritte sendet: kein Konto, keine Werbung, kein Tracking. Gespielt wird lokal im eigenen WLAN. Mit der Veröffentlichung der App folgt eine eigene, ausführliche Erklärung.' },
+      { title: 'Deine Rechte', html: 'Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 15 bis 21 DSGVO). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Da wir selbst keine Daten über Besucher speichern, richten sich Anfragen zu den Server-Protokollen in der Regel an GitHub.' },
+    ],
+  },
+  docsLabel: 'Dokumentation',
+  date: 'de-DE',
+};
+
+export type Copy = typeof de;
+export default de;

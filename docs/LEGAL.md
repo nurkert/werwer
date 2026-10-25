@@ -46,34 +46,6 @@ Noch offiziell zu prüfen:
 | Domains | `whowolf.de` gesichert ✅ |
 | GitHub | ungeprüft |
 
-## Verworfener Name „Werwer“
-
-Wortspiel „Wer? Wer?“ + Werwolf. Verworfen, weil der Witz nur auf Deutsch funktioniert und der Wortanfang nah an bestehenden Werwolf-Spielen liegt.
-
-| Fund | Relevanz |
-|---|---|
-| Apps / Spiele namens „Werwer“ | keine gefunden |
-| **Werwörter** (Ravensburger, Spiel + Begleit-App), deutsche Ausgabe von **Werewords** (Bezier Games) | ⚠️ gering bis mittel: ähnlicher Wortanfang, ebenfalls Werwolf-Thema |
-| Domains | `werwer.com`, `werwer.de` vergeben |
-| GitHub | `github.com/werwer` vergeben |
-
-## Verworfener Arbeitstitel „Lycan“
-
-„Lycan“ wurde verworfen, weil der Name im Werwolf-Genre schon angekratzt ist.
-
-#### Recherche zu „Lycan“ (2026-10-25)
-
-| Fund | Relevanz |
-|---|---|
-| **Lycan Master** (App Store, LOGAMES): Erzähler-/Spielleiter-App für Werwolf | ⚠️ hoch: gleiche Nische, ähnlicher Name |
-| **Lycans** (Steam, Onu Games, 2023): Social-Deduction-Werwolfspiel mit Voice-Chat | ⚠️ mittel: gleiches Genre, Plural, PC |
-| Kleine itch.io-Projekte („Lycan“, „Lycan Trickery“) | gering |
-| Markenregister | ungeprüft, die Websuche fand keinen Eintrag „LYCAN“ in Klasse 9/28/41 |
-| Domains | `lycan.app`, `lycan.io`, `lycangame.com` vergeben; `getlycan.app` und `lycanparty.com` vermutlich frei |
-| GitHub | `github.com/lycan` ist vergeben (Projekt-Repo inzwischen `nurkert/whowolf`) |
-
-Einschätzung: „Lycan“ allein ist nicht verbrannt, aber im Werwolf-Genre schon angekratzt. Mit einem Zusatz (z. B. „Lycan – Werewolf Party“) und eigener Optik ist es vermutlich vertretbar. Vor der Store-Veröffentlichung müssen DPMA/EUIPO/USPTO trotzdem richtig geprüft werden.
-
 ## Impressum und Datenschutz der Website
 
 - Das Impressum steht **nicht im Repo**. Der offizielle Build liest es aus `https://nurkert.de/impressum` (Details in DECISIONS.md). Forks brauchen ein eigenes.

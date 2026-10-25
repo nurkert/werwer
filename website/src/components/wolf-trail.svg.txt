@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 430" width="600" height="430" role="img" aria-labelledby="t d">
-<title id="t">The wolf trail rule</title><desc id="d">Eight players around a table. A wolf sound plays on the phone of player X. A werewolf sits on X or on one of the two seats directly next to X.</desc>
-<rect width="600" height="430" rx="28" fill="#141a33"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 430" role="img" aria-label="{ALT}">
+
+<rect rx="28" fill="#141a33"/>
 <circle cx="300" cy="215" r="150" fill="none" stroke="#3a4677" stroke-width="2" stroke-dasharray="4 8"/>
 <ellipse cx="300" cy="215" rx="78" ry="78" fill="#5a3a22"/><ellipse cx="300" cy="215" rx="70" ry="70" fill="#6e4829"/>
 <path d="M403.6,290.2 A128,128 0 0 1 196.4,290.2" fill="none" stroke="#f2a93b" stroke-opacity="0.35" stroke-width="58" stroke-linecap="round"/>
@@ -18,6 +18,6 @@
 <circle cx="428.0" cy="215.0" r="20" fill="#232c52" stroke="#3a4677" stroke-width="3"/>
 <circle cx="390.5" cy="305.5" r="22" fill="#e9d6ac" stroke="#5a3a22" stroke-width="4"/>
 <text x="390.5" y="312.5" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="20" fill="#5a3a22">?</text>
-<text x="300" y="44" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="22" fill="#f6e7c1">A wolf sound plays on the phone of X</text>
-<text x="300" y="410" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" fill="#e9d8ad">→ a werewolf sits on X or directly next to X</text>
+<text x="300" y="44" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="22" fill="#f6e7c1">{TITLE}</text>
+<text x="300" y="410" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" fill="#e9d8ad">{NOTE}</text>
 </svg>

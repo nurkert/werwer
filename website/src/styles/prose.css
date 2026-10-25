@@ -112,3 +112,19 @@
 .prose a {
   overflow-wrap: anywhere;
 }
+
+/* Legal pages are printed on playbill paper. */
+.prose--paper,
+.prose--paper p,
+.prose--paper li {
+  color: var(--ink-soft);
+}
+.prose--paper h1,
+.prose--paper h2,
+.prose--paper h3,
+.prose--paper strong {
+  color: var(--ink);
+}
+.prose--paper a {
+  color: var(--curtain-600);
+}

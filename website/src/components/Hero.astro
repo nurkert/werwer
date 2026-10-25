@@ -1,8 +1,10 @@
 ---
 // Night scene: painted backdrop plus flat cutouts on depth layers (2.5D).
 // Puppets are held from below, like in a puppet show: their sticks run out of the frame.
+// Depth only reacts to scrolling: far layers drift, near layers rush past.
 import { Picture } from 'astro:assets';
 
+import { path, repoUrl, ui, type Lang } from '../i18n/ui';
 import prospekt from '../../../design/source/stage/prospekt.png';
 import wordmark from '../../../design/source/brand/wordmark.png';
 import haeuser from '../../../design/source/props/haeuser.png';
@@ -18,12 +20,18 @@ import seherin from '../../../design/source/figures/seherin.png';
 import dorfbewohner from '../../../design/source/figures/dorfbewohner.png';
 import magd from '../../../design/source/figures/magd.png';
 
-// x/bottom/width in % of the scene; depth drives parallax (0 = far, 1 = near).
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+
+// x/bottom/width in % of the scene; depth: 0 = far (barely moves), 1 = near (moves most).
 const scenery = [
-  { src: tanne1, x: 3, bottom: 25, w: 8, depth: 0.3 },
+  { src: tanne1, x: 3, bottom: 25, w: 8, depth: 0.35 },
   { src: kirchturm, x: 21, bottom: 27, w: 6.5, depth: 0.25 },
   { src: haeuser, x: 29, bottom: 27, w: 24, depth: 0.25 },
-  { src: tanne2, x: 86, bottom: 26, w: 7.5, depth: 0.3 },
+  { src: tanne2, x: 86, bottom: 26, w: 7.5, depth: 0.35 },
   { src: steine, x: 8, bottom: 17, w: 11, depth: 0.55 },
   { src: zaun, x: 55.5, bottom: 17, w: 10, depth: 0.55 },
   { src: busch, x: 74, bottom: 17, w: 10, depth: 0.55 },
@@ -31,10 +39,10 @@ const scenery = [
 ];
 
 const puppets = [
-  { src: werwolf, alt: 'Der Werwolf, grinsend', x: 11, w: 16, delay: 0 },
-  { src: seherin, alt: 'Die Seherin mit Laterne', x: 31, w: 12.5, delay: 0.15 },
-  { src: dorfbewohner, alt: 'Ein Dorfbewohner mit Mistgabel', x: 50, w: 11.5, delay: 0.3 },
-  { src: magd, alt: 'Eine Dorfbewohnerin mit Eimer', x: 66, w: 9.5, delay: 0.45 },
+  { src: werwolf, alt: lang === 'de' ? 'Der Werwolf, grinsend' : 'The werewolf, grinning', x: 11, w: 16, delay: 0 },
+  { src: seherin, alt: lang === 'de' ? 'Die Seherin mit Laterne' : 'The seer with her lantern', x: 31, w: 12.5, delay: 0.15 },
+  { src: dorfbewohner, alt: lang === 'de' ? 'Ein Dorfbewohner mit Mistgabel' : 'A villager with a pitchfork', x: 50, w: 11.5, delay: 0.3 },
+  { src: magd, alt: lang === 'de' ? 'Eine Dorfbewohnerin mit Eimer' : 'A villager with a bucket', x: 66, w: 9.5, delay: 0.45 },
 ];
 
 const widths = [240, 480, 800, 1200];
@@ -54,7 +62,6 @@ const formats = ['avif', 'webp'] as const;
         fetchpriority="high"
       />
     </div>
-
     {
       scenery.map((s) => (
         <div class="layer" style={`--depth: ${s.depth}`}>
@@ -71,8 +78,7 @@ const formats = ['avif', 'webp'] as const;
         </div>
       ))
     }
-
-    <div class="layer" style="--depth: 0.85">
+    <div class="layer" style="--depth: 0.9">
       {
         puppets.map((p) => (
           <div class="puppet" style={`left: ${p.x}%; width: ${p.w}%; --delay: ${p.delay}s`}>
@@ -81,7 +87,6 @@ const formats = ['avif', 'webp'] as const;
         ))
       }
     </div>
-
     <div class="light" aria-hidden="true"></div>
     <div class="fade" aria-hidden="true"></div>
   </div>
@@ -93,59 +98,53 @@ const formats = ['avif', 'webp'] as const;
         alt="Whowolf"
         formats={formats}
         widths={[400, 800, 1336]}
-        sizes="(max-width: 700px) 86vw, 44vw"
+        sizes="(max-width: 700px) 78vw, 36vw"
         loading="eager"
         fetchpriority="high"
       />
     </h1>
   </div>
+
+  <div class="hero__copy container">
+    <p class="hero__statement">{t.hero.statement}</p>
+    <p class="hero__sub">{t.hero.sub}</p>
+    <div class="hero__actions">
+      <a class="button button--primary" href={repoUrl}>{t.hero.primary}</a>
+      <a class="button button--ghost" href={`${path('home', lang)}#spiel`}>{t.hero.secondary}</a>
+    </div>
+    <p class="hero__status"><span class="stamp stamp--status">{t.status.badge}</span> {t.status.line}</p>
+  </div>
 </section>
 
 <script>
-  // Pointer + scroll parallax. Writes custom properties; CSS does the rest.
+  // Scroll-linked depth only: write the scroll progress once per frame, CSS moves the layers.
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   if (hero && !calm.matches) {
-    const target = { x: 0, y: 0 };
-    const current = { x: 0, y: 0 };
-    let frame = 0;
-
-    const tick = () => {
-      current.x += (target.x - current.x) * 0.08;
-      current.y += (target.y - current.y) * 0.08;
-      hero.style.setProperty('--px', current.x.toFixed(4));
-      hero.style.setProperty('--py', current.y.toFixed(4));
-      const settled = Math.abs(target.x - current.x) < 0.001 && Math.abs(target.y - current.y) < 0.001;
-      frame = settled ? 0 : requestAnimationFrame(tick);
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const progress = Math.min(Math.max(window.scrollY / hero.offsetHeight, 0), 1);
+      hero.style.setProperty('--scroll', progress.toFixed(4));
     };
-
     window.addEventListener(
-      'pointermove',
-      (event) => {
-        if (event.pointerType !== 'mouse') return;
-        target.x = event.clientX / window.innerWidth - 0.5;
-        target.y = event.clientY / window.innerHeight - 0.5;
-        if (!frame) frame = requestAnimationFrame(tick);
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
       },
       { passive: true },
     );
-
-    const onScroll = () => {
-      const progress = Math.min(window.scrollY / window.innerHeight, 1);
-      hero.style.setProperty('--scroll', progress.toFixed(4));
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    update();
   }
-
   hero?.classList.add('is-lit');
 </script>
 
 <style>
   .hero {
-    --px: 0;
-    --py: 0;
     --scroll: 0;
     position: relative;
     overflow: hidden;
@@ -159,23 +158,19 @@ const formats = ['avif', 'webp'] as const;
     margin-inline: auto;
     aspect-ratio: 1672 / 900;
     isolation: isolate;
-    /* On very wide screens the painted backdrop melts into the page. */
     mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
   }
 
+  /* Near layers travel further than far ones; the backdrop almost stands still. */
   .layer {
     position: absolute;
     inset: 0;
-    transform: translate3d(
-      calc(var(--px) * var(--depth) * -2.2%),
-      calc(var(--py) * var(--depth) * -1.4% + var(--scroll) * var(--depth) * 7%),
-      0
-    );
+    transform: translate3d(0, calc(var(--scroll) * var(--depth) * -26%), 0);
     will-change: transform;
   }
-
   .backdrop {
-    inset: -4%;
+    inset: -4% -4% -12%;
+    transform: translate3d(0, calc(var(--scroll) * 10%), 0) scale(calc(1 + var(--scroll) * 0.06));
   }
   .backdrop :global(img) {
     width: 100%;
@@ -190,7 +185,6 @@ const formats = ['avif', 'webp'] as const;
     filter: drop-shadow(0 0.4vw 0.6vw rgb(5 8 20 / 0.45));
   }
 
-  /* Puppets rise from below the frame, then bob on their sticks. */
   .puppet {
     position: absolute;
     bottom: -10%;
@@ -205,8 +199,8 @@ const formats = ['avif', 'webp'] as const;
   }
   .is-lit .puppet {
     animation:
-      rise 1.1s var(--ease-puppet) calc(0.5s + var(--delay)) forwards,
-      bob 5.2s ease-in-out calc(1.7s + var(--delay) * 3) infinite;
+      rise 1.1s var(--ease-puppet) calc(0.4s + var(--delay)) forwards,
+      bob 5.2s ease-in-out calc(1.6s + var(--delay) * 3) infinite;
   }
   @keyframes rise {
     to {
@@ -230,7 +224,6 @@ const formats = ['avif', 'webp'] as const;
     }
   }
 
-  /* One slow lantern spot over the ensemble plus a soft vignette. */
   .light {
     position: absolute;
     inset: 0;
@@ -264,7 +257,6 @@ const formats = ['avif', 'webp'] as const;
     }
   }
 
-  /* The sticks disappear into the night below. */
   .fade {
     position: absolute;
     inset: auto 0 0;
@@ -276,15 +268,15 @@ const formats = ['avif', 'webp'] as const;
   .hero__title {
     position: absolute;
     z-index: 2;
-    top: clamp(4.5rem, 9vw, 9rem);
+    top: clamp(4.75rem, 8vw, 8.5rem);
     left: 50%;
     width: min(36vw, 40rem);
-    transform: translateX(-50%);
+    transform: translate3d(-50%, calc(var(--scroll) * 40%), 0);
   }
   .hero__title h1 {
     margin: 0;
     filter: drop-shadow(0 0.8rem 1.4rem rgb(5 8 20 / 0.6));
-    animation: title-in 1s var(--ease-out) both;
+    animation: title-in 0.6s var(--ease-out) both;
   }
   .hero__title :global(img) {
     width: 100%;
@@ -297,6 +289,47 @@ const formats = ['avif', 'webp'] as const;
     }
   }
 
+  .hero__copy {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    margin-top: -1.5rem;
+    padding-bottom: var(--space-5);
+    text-align: center;
+  }
+  .hero__statement {
+    max-width: 22ch;
+    font-family: var(--font-display);
+    font-size: var(--step-heading);
+    line-height: 1.12;
+    color: var(--moon-100);
+  }
+  .hero__sub {
+    max-width: 38ch;
+    font-size: var(--step-lead);
+    color: var(--moon-200);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .hero__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem 0.75rem;
+    max-width: 40rem;
+    margin-top: var(--space-2);
+    font-size: var(--step-small);
+    color: var(--moon-200);
+  }
+
   @media (max-width: 700px) {
     .scene {
       width: 180%;
@@ -305,14 +338,30 @@ const formats = ['avif', 'webp'] as const;
       mask-image: none;
     }
     .hero__title {
-      top: 6.5rem;
+      top: 5.5rem;
       width: 78vw;
+    }
+    .hero__copy {
+      margin-top: 0;
+      padding-top: var(--space-2);
+    }
+    .hero__actions {
+      flex-direction: column;
+      align-self: stretch;
+      width: 100%;
+    }
+    .hero__actions .button {
+      width: 100%;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .layer {
+    .layer,
+    .backdrop {
       transform: none;
+    }
+    .hero__title {
+      transform: translateX(-50%);
     }
     .puppet,
     .is-lit .puppet {

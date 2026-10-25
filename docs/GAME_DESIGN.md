@@ -19,7 +19,8 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 4. **Nacht:**
    - Die App sagt an: „Das Dorf schläft ein …“
    - Rollen mit Nachtaktion werden der Reihe nach (oder parallel) aufgerufen und wählen ihr Ziel.
-   - **Anti-Tell:** Alle anderen Spieler bekommen gleichzeitig eine Dummy-Aufgabe (z. B. „Wähle, wem du am wenigsten traust“). So tippt nachts **jeder**.
+   - **Anti-Tell:** Alle anderen Spieler bekommen gleichzeitig eine Tarnaufgabe. So tippt nachts **jeder**.
+   - **Tarnaufgabe „Schäfchen zählen“:** Schafe hüpfen über eine Wiese. Weiße Schafe antippen gibt Traumpunkte, schwarze besser springen lassen (Abzug). Am Spielende gibt es eine kleine Wertung („Bester Träumer“). Wichtig: Das Tipp-Muster muss dem der echten Nachtaktionen ähneln (gleiche Dauer, ähnlich viele Tipps), damit niemand am Fingerspiel erkennbar ist. Assets: `design/source/sheep/`.
 5. **Morgen:** Die App verkündet, wer gestorben ist (und ggf. dessen Rolle, je nach Einstellung).
 6. **Tag:** Freie Diskussion am Tisch, optional mit Timer. **Handys weg:** Der Bildschirm zeigt nur, wer noch lebt (und deutlich, ob man selbst noch lebt), am besten im selben **Tischkreis** wie in der Lobby, und dimmt sich. Keine Ablenkung, man soll sich anschauen.
 7. **Abstimmung:** Jeder stimmt in der App ab. Bei Gleichstand gilt eine Regel (Stichwahl / niemand stirbt, einstellbar).

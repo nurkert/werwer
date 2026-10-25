@@ -17,7 +17,7 @@ const groups = groupDocs(await getCollection('docs'));
 const toc = headings.filter((heading) => heading.depth === 2);
 ---
 
-<Base title={title} description={description}>
+<Base lang="de" title={title} description={description}>
   <div class="docs container">
     <nav class="docs__nav" aria-label="Dokumentation">
       <a class="docs__home" href="/docs/" aria-current={current ? undefined : 'page'}>Übersicht</a>

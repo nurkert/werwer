@@ -1,0 +1,17 @@
+---
+// The wolf-trail table circle as inline SVG, labelled in the page's language.
+import { ui, type Lang } from '../i18n/ui';
+import template from './wolf-trail.svg.txt?raw';
+
+interface Props {
+  lang: Lang;
+}
+const t = ui[Astro.props.lang].trail;
+const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const svg = template
+  .replace('{ALT}', escape(t.diagramAlt))
+  .replace('{TITLE}', escape(t.diagramTitle))
+  .replace('{NOTE}', escape(t.diagramNote));
+---
+
+<Fragment set:html={svg} />

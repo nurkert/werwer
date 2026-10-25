@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { repoUrl, ui, type Lang } from '../../i18n/ui';
+import { loadImprint } from '../../lib/imprint';
+import '../../styles/prose.css';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+// The imprint text itself is German (as required); it is fetched once per build.
+const imprint = await loadImprint();
+---
+
+<Base lang={lang} page="imprint" title={`${t.legal.imprintTitle} – Whowolf`} description={t.legal.imprintTitle}>
+  <main class="paper legal">
+    <article class="container prose prose--paper" lang="de">
+      <h1>{t.legal.imprintTitle}</h1>
+      {
+        imprint ? (
+          <Fragment set:html={imprint.html} />
+        ) : (
+          <>
+            <p lang={lang}>{t.legal.forkNote}</p>
+            <p lang={lang}>
+              <a href={repoUrl}>GitHub</a>
+            </p>
+          </>
+        )
+      }
+    </article>
+  </main>
+</Base>
+
+<style>
+  .legal {
+    margin-top: var(--space-3);
+  }
+</style>

@@ -14,16 +14,20 @@ Leitsätze:
 
 ## Die Spur-Regel (öffentlich, jeder kennt sie)
 
-> **Ein Wolfsgeräusch auf dem Handy von X bedeutet: Auf dem Platz von X oder direkt daneben sitzt ein Werwolf.**
+> **Ein Wolfsgeräusch auf dem Handy von X bedeutet: Ein Werwolf sitzt höchstens r Plätze von X entfernt.**
+>
+> **Spur-Radius r = max(1, ⌊Spielerzahl / 5⌋):** 5–9 Spieler → 1 (X und die direkten Nachbarn), 10–14 → 2, 15–20 → 3. Die App zeigt r zu Beginn jeder Partie im Tischkreis an.
 
-Wenn die Werwölfe nachts ihr Opfer wählen, kann eine **Wolfsspur** entstehen. Sie wird auf **genau einem** Handy abgespielt: entweder auf dem eines Werwolfs selbst **oder** auf dem seines linken oder rechten Sitznachbarn.
+Wenn die Werwölfe nachts ihr Opfer wählen, kann eine **Wolfsspur** entstehen. Sie wird auf **genau einem** Handy abgespielt: auf dem eines Werwolfs selbst **oder** auf einem Handy höchstens r Plätze links oder rechts von ihm.
+
+**Warum dieser Radius:** Das Spur-Fenster (2r+1 Plätze) deckt so in jeder Gruppengröße etwa ein Drittel bis die Hälfte des Tisches ab (8 Spieler: 3 von 8, 10 Spieler: 5 von 10, 15 Spieler: 7 von 15). Die Spur bleibt damit überall ähnlich aussagekräftig: nie so genau, dass sie das Spiel entscheidet, nie so ungenau, dass sie wertlos ist. Das Fenster ist symmetrisch, damit die Regel in einem Satz erklärbar bleibt. Eine asymmetrische Variante (z. B. 1 Platz in die eine, 2 in die andere Richtung) ist eine Option für die Testrunden.
 
 ### Wer erfährt was?
 
 | Wer | Was er weiß |
 |---|---|
-| Dorfbewohner, bei dem die Spur **auf dem eigenen Handy** kommt | „Einer meiner beiden Nachbarn ist ein Werwolf.“ Für ihn fast sicher (**privater Beweis**). |
-| Die Sitznachbarn von X | „Bei X kam das Geräusch. X oder einer von uns beiden ist Werwolf.“ |
+| Dorfbewohner, bei dem die Spur **auf dem eigenen Handy** kommt | „Einer in meiner Nähe (höchstens r Plätze) ist ein Werwolf.“ Für ihn fast sicher (**privater Beweis**). |
+| Die Nachbarn von X | „Bei X kam das Geräusch. X oder einer von uns ist Werwolf.“ |
 | Der Rest des Tisches | Vielleicht nur „da drüben hat was geknurrt“, unscharf. |
 | Der Werwolf, wenn die Spur bei ihm kommt | Er muss es gut überspielen oder hatte sein Handy leise. |
 
@@ -49,7 +53,7 @@ Das Schöne daran: Wer die Spur auf dem eigenen Handy hört, weiß viel, ist abe
 
 - Pro Nacht entsteht mit Wahrscheinlichkeit **p_spur ≈ 50 %** eine Wolfsspur.
 - Ausgangspunkt ist ein zufälliger lebender Werwolf.
-- Ziel-Handy: Werwolf selbst / linker Nachbar / rechter Nachbar, je **⅓** (einstellbar).
+- Ziel-Handy: gleichverteilt auf einen der 2r+1 Plätze um den Werwolf (Werwolf selbst eingeschlossen), einstellbar.
 - Ist der Nachbar selbst ein Werwolf, ist das in Ordnung. Die Regel stimmt trotzdem.
 - **Tote Spieler:** Vorschlag: Spuren landen nur auf Handys lebender Spieler. „Nachbar“ heißt dann „nächster lebender Nachbar“ (offene Frage).
 
@@ -66,8 +70,8 @@ Das System ist allgemein: **Jede Nachtaktion kann eine Spur mit eigenem Geräusc
 
 ## Balance
 
-- **Informationswert:** Bei 8 Spielern grenzt eine Spur den Werwolf auf 3 Plätze ein. Mit p_spur ≈ 50 % ist das grob „eine halbe Seherin“, aber unscharf und öffentlich umstritten.
-- **Spielerzahl beachten:** Bei 5–6 Spielern deckt „X oder daneben“ die halbe Runde ab, die Spur ist also schwach. Bei 15+ Spielern ist sie stark. Die Standardwerte richten sich deshalb nach der Spielerzahl.
+- **Informationswert:** Eine Spur grenzt den Werwolf auf 2r+1 Plätze ein (bei 8 Spielern 3, bei 10 Spielern 5). Mit p_spur ≈ 50 % ist das grob „eine halbe Seherin“, aber unscharf und öffentlich umstritten.
+- **Spielerzahl beachten:** Der Spur-Radius wächst mit der Spielerzahl, damit das Fenster stets ein Drittel bis die Hälfte des Tisches abdeckt. Ganz kleine Runden (5–6) bleiben trotzdem etwas unschärfer.
 - **Ziel:** Die Gewinnquote der Werwölfe soll mit Spuren ungefähr gleich bleiben. Die Eulenspur gleicht aus.
 - **Simulation:** `game_core` ist deterministisch und hat injizierten Zufall. Damit lassen sich vor den Testrunden tausende Partien mit einfachen Bot-Strategien simulieren, um die Startwerte abzuschätzen. Das ist nur eine grobe Näherung, echte Menschen bluffen anders.
 

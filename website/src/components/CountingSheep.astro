@@ -1,0 +1,473 @@
+---
+// The villagers' night task as a playable teaser: sheep leap over a fence; tap the white
+// ones for dream points, let the black ones jump. Built from real buttons, keyboard included.
+import { getImage, Picture } from 'astro:assets';
+
+import { ui, type Lang } from '../i18n/ui';
+import schaf from '../../../design/source/sheep/schaf_2.png';
+import schafFlug from '../../../design/source/sheep/schaf_3.png';
+import schwarz from '../../../design/source/sheep/schwarzes_schaf.png';
+import lamm from '../../../design/source/sheep/lamm.png';
+import zaun from '../../../design/source/sheep/zaun.png';
+import wiese from '../../../design/source/sheep/wiese.png';
+import sterne from '../../../design/source/sheep/sterne.png';
+import stern from '../../../design/source/sheep/stern.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang].sheep;
+
+const sprite = async (src: ImageMetadata) => (await getImage({ src, width: 360, format: 'webp' })).src;
+const sprites = {
+  white: await sprite(schaf),
+  flying: await sprite(schafFlug),
+  black: await sprite(schwarz),
+  lamb: await sprite(lamm),
+};
+const formats = ['avif', 'webp'] as const;
+---
+
+<div
+  class="sheep-game"
+  data-sheep
+  data-white={sprites.white}
+  data-flying={sprites.flying}
+  data-black={sprites.black}
+  data-lamb={sprites.lamb}
+  data-label-white={t.sheep}
+  data-label-black={t.blackSheep}
+  data-good={t.good}
+  data-bad={t.bad}
+  data-start={t.start}
+  data-stop={t.stop}
+>
+  <div class="sheep-game__field">
+    <Picture class="sky sky--a" src={sterne} alt="" formats={formats} widths={[200, 400]} sizes="12vw" />
+    <Picture class="sky sky--b" src={stern} alt="" formats={formats} widths={[120, 240]} sizes="6vw" />
+    <Picture class="sky sky--c" src={stern} alt="" formats={formats} widths={[120, 240]} sizes="5vw" />
+    <div class="moon" aria-hidden="true"></div>
+    <Picture class="meadow meadow--left" src={wiese} alt="" formats={formats} widths={[400, 800]} sizes="40vw" />
+    <Picture class="meadow meadow--right" src={wiese} alt="" formats={formats} widths={[400, 800]} sizes="40vw" />
+    <Picture class="fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="20vw" />
+    <div class="flock" data-flock aria-label={t.sheep}></div>
+    <p class="burst-layer" data-bursts aria-hidden="true"></p>
+    <noscript><p class="sheep-game__noscript">{t.noScript}</p></noscript>
+  </div>
+
+  <div class="sheep-game__board">
+    <p class="tally">
+      <span class="tally__label">{t.score}</span>
+      <span class="tally__value" data-score aria-live="polite">0</span>
+    </p>
+    <p class="tally tally--best">
+      <span class="tally__label">{t.best}</span>
+      <span class="tally__value" data-best>0</span>
+    </p>
+    <button class="button button--primary sheep-game__toggle" type="button" data-toggle>{t.stop}</button>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-sheep]');
+  if (root) {
+    const flock = root.querySelector<HTMLElement>('[data-flock]')!;
+    const bursts = root.querySelector<HTMLElement>('[data-bursts]')!;
+    const scoreEl = root.querySelector<HTMLElement>('[data-score]')!;
+    const bestEl = root.querySelector<HTMLElement>('[data-best]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    const d = root.dataset;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let score = 0;
+    let best = 0;
+    try {
+      best = Number(localStorage.getItem('whowolf-sheep-best') ?? 0) || 0;
+    } catch {
+      best = 0;
+    }
+    bestEl.textContent = String(best);
+
+    let running = !calm;
+    let visible = false;
+    let timer = 0;
+
+    const pop = (text: string, x: number, y: number, bad: boolean) => {
+      const burst = document.createElement('span');
+      burst.className = bad ? 'burst burst--bad' : 'burst';
+      burst.textContent = text;
+      burst.style.left = `${x}px`;
+      burst.style.top = `${y}px`;
+      bursts.append(burst);
+      burst.addEventListener('animationend', () => burst.remove());
+    };
+
+    const count = (sheep: HTMLButtonElement) => {
+      if (sheep.dataset.counted) return;
+      sheep.dataset.counted = 'true';
+      const bad = sheep.dataset.kind === 'black';
+      score = Math.max(0, score + (bad ? -3 : 1));
+      scoreEl.textContent = String(score);
+      if (score > best) {
+        best = score;
+        bestEl.textContent = String(best);
+        try {
+          localStorage.setItem('whowolf-sheep-best', String(best));
+        } catch {
+          /* private mode: keep it for this visit only */
+        }
+      }
+      const field = flock.getBoundingClientRect();
+      const box = sheep.getBoundingClientRect();
+      pop(bad ? d.bad! : d.good!, box.left - field.left + box.width / 2, box.top - field.top, bad);
+      sheep.classList.add(bad ? 'is-wrong' : 'is-counted');
+    };
+
+    const spawn = (kind: 'white' | 'black' | 'lamb', still = false, slot = 0) => {
+      const sheep = document.createElement('button');
+      sheep.type = 'button';
+      sheep.className = `sheep sheep--${kind}${still ? ' sheep--still' : ''}`;
+      sheep.dataset.kind = kind;
+      sheep.setAttribute('aria-label', kind === 'black' ? d.labelBlack! : d.labelWhite!);
+      const img = document.createElement('img');
+      img.src = kind === 'black' ? d.black! : kind === 'lamb' ? d.lamb! : Math.random() < 0.5 ? d.white! : d.flying!;
+      img.alt = '';
+      img.decoding = 'async';
+      sheep.append(img);
+      if (still) sheep.style.left = `${18 + slot * 26}%`;
+      else sheep.style.setProperty('--speed', `${4.2 + Math.random() * 1.6}s`);
+      sheep.addEventListener('click', () => count(sheep));
+      if (!still) sheep.addEventListener('animationend', (event) => event.animationName.startsWith('run') && sheep.remove());
+      flock.append(sheep);
+    };
+
+    const tick = () => {
+      if (!running || !visible) return;
+      const roll = Math.random();
+      spawn(roll < 0.22 ? 'black' : roll < 0.32 ? 'lamb' : 'white');
+      timer = window.setTimeout(tick, 900 + Math.random() * 900);
+    };
+    const start = () => {
+      window.clearTimeout(timer);
+      if (running && visible) tick();
+    };
+
+    if (calm) {
+      // No travel: three sheep stand still and can still be counted.
+      ['white', 'black', 'white'].forEach((kind, i) => spawn(kind as 'white' | 'black', true, i));
+      toggle.hidden = true;
+    }
+
+    toggle.addEventListener('click', () => {
+      running = !running;
+      toggle.textContent = running ? d.stop! : d.start!;
+      root.classList.toggle('is-paused', !running);
+      start();
+    });
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      root.classList.toggle('is-offscreen', !visible);
+      start();
+    }).observe(root);
+  }
+</script>
+
+<style>
+  .sheep-game {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    gap: var(--space-3);
+    align-items: stretch;
+  }
+
+  .sheep-game__field {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 8;
+    border-radius: var(--radius-l);
+    background: var(--night-800);
+    isolation: isolate;
+  }
+  .moon {
+    position: absolute;
+    top: 9%;
+    right: 9%;
+    width: 13%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--moon-100);
+    box-shadow: 0 0 0 0.6rem rgb(246 231 193 / 0.08), 0 0 4rem rgb(246 231 193 / 0.25);
+  }
+  .sheep-game__field :global(.sky) {
+    position: absolute;
+    height: auto;
+    animation: twinkle 4s ease-in-out infinite;
+  }
+  .sheep-game__field :global(.sky--a) {
+    top: 8%;
+    left: 8%;
+    width: 11%;
+  }
+  .sheep-game__field :global(.sky--b) {
+    top: 14%;
+    left: 44%;
+    width: 4.5%;
+    animation-delay: 1.3s;
+  }
+  .sheep-game__field :global(.sky--c) {
+    top: 30%;
+    left: 70%;
+    width: 3.5%;
+    animation-delay: 2.4s;
+  }
+  @keyframes twinkle {
+    50% {
+      opacity: 0.55;
+      transform: scale(0.9) rotate(-8deg);
+    }
+  }
+  .sheep-game__field :global(.meadow) {
+    position: absolute;
+    bottom: -9%;
+    width: 62%;
+    height: auto;
+  }
+  .sheep-game__field :global(.meadow--left) {
+    left: -8%;
+  }
+  .sheep-game__field :global(.meadow--right) {
+    right: -10%;
+    transform: scaleX(-1);
+  }
+  .sheep-game__field :global(.fence) {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: 10%;
+    width: 17%;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .flock {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+  }
+  .flock :global(.sheep) {
+    position: absolute;
+    left: 0;
+    bottom: 12%;
+    width: 16%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    animation: run var(--speed, 5s) linear forwards;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .flock :global(.sheep img) {
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 8px rgb(0 0 0 / 0.4));
+    animation: leap var(--speed, 5s) ease-in-out forwards;
+  }
+  .flock :global(.sheep--lamb) {
+    width: 11%;
+  }
+  .flock :global(.sheep--still) {
+    animation: none;
+  }
+  .flock :global(.sheep--still img) {
+    animation: none;
+  }
+  .flock :global(.sheep:focus-visible) {
+    outline-offset: 2px;
+  }
+  .flock :global(.is-counted img) {
+    animation:
+      leap var(--speed, 5s) ease-in-out forwards,
+      counted 0.5s var(--ease-puppet) forwards;
+  }
+  .flock :global(.is-wrong img) {
+    animation:
+      leap var(--speed, 5s) ease-in-out forwards,
+      wrong 0.5s ease-in-out forwards;
+  }
+  .is-paused .flock :global(.sheep),
+  .is-paused .flock :global(.sheep img),
+  .is-offscreen .flock :global(.sheep),
+  .is-offscreen .flock :global(.sheep img) {
+    animation-play-state: paused;
+  }
+  @keyframes run {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(calc(100cqw + 20%));
+    }
+  }
+  .sheep-game__field {
+    container-type: inline-size;
+  }
+  /* The jump peaks right above the fence in the middle of the run. */
+  @keyframes leap {
+    0%,
+    30% {
+      transform: translateY(0) rotate(0deg);
+    }
+    42% {
+      transform: translateY(-55%) rotate(-12deg);
+    }
+    50% {
+      transform: translateY(-85%) rotate(0deg);
+    }
+    58% {
+      transform: translateY(-55%) rotate(12deg);
+    }
+    70%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+  @keyframes counted {
+    to {
+      opacity: 0;
+      scale: 1.35;
+    }
+  }
+  @keyframes wrong {
+    25% {
+      rotate: -14deg;
+    }
+    75% {
+      rotate: 14deg;
+    }
+    100% {
+      opacity: 0.35;
+    }
+  }
+
+  .burst-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    margin: 0;
+    pointer-events: none;
+  }
+  .burst-layer :global(.burst) {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--lantern-400);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    white-space: nowrap;
+    animation: float-up 1s var(--ease-out) forwards;
+  }
+  .burst-layer :global(.burst--bad) {
+    background: var(--curtain-600);
+    color: var(--moon-100);
+  }
+  @keyframes float-up {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -20%) scale(0.8);
+    }
+    20% {
+      opacity: 1;
+      transform: translate(-50%, -60%) scale(1.05);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -160%) scale(1);
+    }
+  }
+
+  .sheep-game__noscript {
+    position: absolute;
+    inset: auto 1rem 1rem;
+    z-index: 5;
+    padding: 0.6rem 0.9rem;
+    border-radius: var(--radius-s);
+    background: var(--paper);
+    color: var(--ink);
+    text-align: center;
+  }
+
+  /* The scoreboard is a slip of playbill paper. */
+  .sheep-game__board {
+    display: grid;
+    align-content: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-3);
+    border-radius: var(--radius-l);
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+    transform: rotate(1.2deg);
+  }
+  .tally {
+    display: grid;
+    gap: 0.1rem;
+  }
+  .tally__label {
+    font-size: var(--step-small);
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .tally__value {
+    font-family: var(--font-display);
+    font-size: 3.4rem;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .tally--best .tally__value {
+    font-size: 2rem;
+    color: var(--curtain-600);
+  }
+
+  @media (max-width: 820px) {
+    .sheep-game {
+      grid-template-columns: 1fr;
+    }
+    .sheep-game__field {
+      aspect-ratio: 4 / 3;
+    }
+    .flock :global(.sheep) {
+      width: 26%;
+    }
+    .flock :global(.sheep--lamb) {
+      width: 18%;
+    }
+    .sheep-game__field :global(.fence) {
+      width: 26%;
+    }
+    .sheep-game__board {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      transform: none;
+    }
+    .sheep-game__toggle {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sheep-game__field :global(.sky) {
+      animation: none;
+    }
+    .flock :global(.sheep--still) {
+      bottom: 14%;
+    }
+  }
+</style>

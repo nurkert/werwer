@@ -5,31 +5,61 @@ import '../styles/global.css';
 
 import { Picture } from 'astro:assets';
 
+import Icon from '../components/Icon.astro';
 import emblem from '../../../design/source/brand/emblem.png';
-import { repoUrl } from '../lib/docs';
+import { alternates, defaultLang, languages, langs, path, repoUrl, ui, type Lang, type Page } from '../i18n/ui';
 
 interface Props {
+  lang: Lang;
   title: string;
   description: string;
-  /** Header floats transparently over a hero image. */
+  /** Header floats over the hero image. */
   overlay?: boolean;
+  /** The localized page this is; omitted for single-language pages such as the German docs. */
+  page?: Page;
 }
 
-const { title, description, overlay = false } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
-const path = Astro.url.pathname;
+const { lang, title, description, overlay = false, page } = Astro.props;
+const t = ui[lang];
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site);
+const versions = alternates(page ?? 'home');
+const others = versions.filter((version) => version.lang !== lang);
+const home = path('home', lang);
 
 const nav = [
-  { href: '/#spiel', label: 'Spiel' },
-  { href: '/#rollen', label: 'Rollen' },
-  { href: '/#wolfsspur', label: 'Wolfsspur' },
-  { href: '/docs/', label: 'Docs' },
-  { href: '/download/', label: 'Download' },
+  { href: `${home}#spiel`, label: t.nav.play },
+  { href: `${home}#rollen`, label: t.nav.cast },
+  { href: `${home}#wolfsspur`, label: t.nav.trail },
+  { href: '/docs/', label: t.nav.docs },
+  { href: path('download', lang), label: t.nav.download },
 ];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'WebSite', '@id': `${site}#site`, url: site.toString(), name: 'Whowolf', inLanguage: langs },
+    {
+      '@type': 'VideoGame',
+      name: 'Whowolf',
+      url: site.toString(),
+      description: ui[lang].meta.description,
+      genre: ['Party game', 'Social deduction'],
+      gamePlatform: ['Android', 'iOS', 'macOS', 'Windows', 'Linux'],
+      playMode: 'MultiPlayer',
+      numberOfPlayers: { '@type': 'QuantitativeValue', minValue: 5, maxValue: 20 },
+      creativeWorkStatus: 'Concept in development',
+      license: 'https://www.apache.org/licenses/LICENSE-2.0',
+      codeRepository: repoUrl,
+      image: new URL('/og.jpg', site).toString(),
+      inLanguage: langs,
+    },
+  ],
+};
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -43,39 +73,80 @@ const nav = [
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {
+      page && (
+        <>
+          {versions.map((version) => (
+            <link rel="alternate" hreflang={version.lang} href={new URL(version.href, site)} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={new URL(path(page, defaultLang), site)} />
+        </>
+      )
+    }
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whowolf" />
+    <meta property="og:locale" content={languages[lang].og} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta property="og:image" content={new URL('/og.jpg', site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Whowolf: Werwolf, Seherin und Dorfbewohner als Pappfiguren vor einem nächtlichen Dorf" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
-    <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+    <a class="skip" href="#inhalt">{t.skip}</a>
+
     <header class:list={['site-header', { 'site-header--overlay': overlay }]}>
       <div class="site-header__inner">
-        <a class="brand" href="/" aria-label="Whowolf – Startseite">
+        <a class="brand" href={home} aria-label="Whowolf">
           <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[48, 96]} sizes="44px" loading="eager" />
           <span>Whowolf</span>
         </a>
-        <nav aria-label="Hauptnavigation">
+
+        <nav class="nav-desktop" aria-label={t.nav.menu}>
           <ul>
-            {
-              nav.map((item) => (
-                <li>
-                  <a href={item.href} aria-current={path.startsWith(item.href) && item.href !== '/' ? 'page' : undefined}>
-                    {item.label}
-                  </a>
-                </li>
-              ))
-            }
-            <li>
-              <a class="nav-github" href={repoUrl}>GitHub</a>
-            </li>
+            {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
           </ul>
         </nav>
+
+        <div class="header-actions">
+          {
+            others.map((version) => (
+              <a
+                class="lang-switch"
+                href={version.href}
+                hreflang={version.lang}
+                lang={version.lang}
+                aria-label={`${t.nav.language}: ${languages[version.lang].label}`}
+              >
+                {version.lang.toUpperCase()}
+              </a>
+            ))
+          }
+          <a class="github" href={repoUrl} aria-label="GitHub"><Icon name="github" /></a>
+
+          <details class="menu" data-menu>
+            <summary aria-label={t.nav.menu}>
+              <span class="menu__bars" aria-hidden="true"></span>
+              <span class="menu__label">{t.nav.menu}</span>
+            </summary>
+            <nav class="menu__panel" aria-label={t.nav.menu}>
+              <ul>
+                {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+                <li><a href={repoUrl}>GitHub</a></li>
+                {others.map((version) => (
+                  <li><a href={version.href} hreflang={version.lang} lang={version.lang}>{languages[version.lang].label}</a></li>
+                ))}
+              </ul>
+            </nav>
+          </details>
+        </div>
       </div>
     </header>
 
@@ -86,21 +157,32 @@ const nav = [
     <footer class="site-footer">
       <div class="container site-footer__inner">
         <div class="site-footer__brand">
-          <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[96, 192]} sizes="72px" />
-          <p><strong>Whowolf</strong><br />Werwolf am Tisch. Open Source unter Apache 2.0.</p>
+          <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[96, 192]} sizes="80px" />
+          <div>
+            <p class="site-footer__name">Whowolf</p>
+            <p>{t.footer.tagline}</p>
+            <p class="site-footer__status"><span class="stamp stamp--status">{t.status.badge}</span></p>
+          </div>
         </div>
-        <nav aria-label="Fußzeile">
+        <nav aria-label="Footer">
           <ul>
-            <li><a href="/docs/">Docs</a></li>
-            <li><a href="/download/">Download</a></li>
+            <li><a href="/docs/">{t.nav.docs}</a></li>
+            <li><a href={path('download', lang)}>{t.nav.download}</a></li>
             <li><a href={repoUrl}>GitHub</a></li>
-            <li><a href={`${repoUrl}/blob/main/SECURITY.md`}>Sicherheit</a></li>
-            <li><a href="/impressum/">Impressum</a></li>
-            <li><a href="/datenschutz/">Datenschutz</a></li>
+            <li><a href={`${repoUrl}/blob/main/SECURITY.md`}>{t.footer.security}</a></li>
+            <li><a href={path('imprint', lang)}>{t.footer.imprint}</a></li>
+            <li><a href={path('privacy', lang)}>{t.footer.privacy}</a></li>
+            {others.map((version) => (
+              <li><a href={version.href} hreflang={version.lang} lang={version.lang}>{languages[version.lang].label}</a></li>
+            ))}
           </ul>
         </nav>
       </div>
     </footer>
+
+    <script>
+      import '../scripts/site.ts';
+    </script>
   </body>
 </html>
 
@@ -108,13 +190,13 @@ const nav = [
   .skip {
     position: absolute;
     left: 1rem;
-    top: -4rem;
+    top: -5rem;
     z-index: 100;
     padding: 0.6rem 1rem;
     border-radius: var(--radius-s);
     background: var(--lantern-400);
-    color: var(--night-900);
-    font-weight: 700;
+    color: var(--ink);
+    font-weight: 800;
   }
   .skip:focus {
     top: 1rem;
@@ -122,114 +204,259 @@ const nav = [
 
   .site-header {
     position: relative;
-    z-index: 20;
+    z-index: 30;
     background: var(--night-900);
-    border-bottom: 1px solid var(--night-700);
   }
   .site-header--overlay {
     position: absolute;
     inset: 0 0 auto;
-    background: linear-gradient(180deg, rgb(10 13 30 / 0.75), transparent);
-    border-bottom: 0;
+    background: transparent;
   }
   .site-header__inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-3);
-    width: min(100% - 2rem, 80rem);
+    width: min(100% - 2 * var(--gutter), 84rem);
+    min-height: 4.75rem;
     margin-inline: auto;
-    min-height: 4.5rem;
   }
   .brand {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
+    margin-right: auto;
     color: var(--moon-100);
-    text-decoration: none;
     font-family: var(--font-display);
-    font-size: 1.45rem;
+    font-size: 1.5rem;
+    text-decoration: none;
+    text-shadow: 0 2px 10px rgb(5 8 20 / 0.6);
   }
   .brand :global(img) {
     width: 44px;
     height: auto;
   }
-  .site-header nav ul {
+
+  .nav-desktop ul {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+    gap: 0.15rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .site-header nav a {
+  .nav-desktop a,
+  .lang-switch,
+  .github {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 44px;
-    padding: 0 0.8rem;
+    padding: 0 0.85rem;
     border-radius: 999px;
     color: var(--moon-100);
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
+    text-shadow: 0 2px 10px rgb(5 8 20 / 0.6);
     transition: background-color 0.2s ease;
   }
-  .site-header nav a:hover,
-  .site-header nav a[aria-current='page'] {
-    background: rgb(246 231 193 / 0.1);
+  .nav-desktop a:hover,
+  .lang-switch:hover,
+  .github:hover {
+    color: var(--moon-100);
+    background: rgb(246 231 193 / 0.12);
   }
-  .site-header nav .nav-github {
-    border: 2px solid var(--night-500);
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .lang-switch {
+    min-width: 44px;
+    padding: 0 0.6rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    box-shadow: inset 0 0 0 2px rgb(246 231 193 / 0.35);
+  }
+  .github {
+    width: 44px;
+    padding: 0;
+  }
+  .github :global(svg) {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  /* Mobile menu: a details/summary disclosure, works without script. */
+  .menu {
+    display: none;
+    position: relative;
+  }
+  .menu summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 44px;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 800;
+    list-style: none;
+    cursor: pointer;
+  }
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .menu__bars,
+  .menu__bars::before,
+  .menu__bars::after {
+    display: block;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .menu__bars {
+    position: relative;
+  }
+  .menu__bars::before,
+  .menu__bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .menu__bars::before {
+    top: -6px;
+  }
+  .menu__bars::after {
+    top: 6px;
+  }
+  .menu[open] .menu__bars {
+    background: transparent;
+  }
+  .menu[open] .menu__bars::before {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .menu[open] .menu__bars::after {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+  .menu__panel {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    width: min(18rem, calc(100vw - 2 * var(--gutter)));
+    padding: 0.75rem;
+    border-radius: var(--radius-m);
+    background-color: var(--paper);
+    background-image: var(--fibre), var(--grain);
+    background-size: 600px, 220px;
+    background-blend-mode: multiply, soft-light;
+    box-shadow: 0 18px 40px rgb(5 8 20 / 0.5);
+    transform-origin: top right;
+    animation: menu-in 0.35s var(--ease-puppet);
+  }
+  .menu__panel ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .menu__panel a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 0.85rem;
+    border-radius: var(--radius-s);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    text-decoration: none;
+  }
+  .menu__panel a:hover {
+    color: var(--ink);
+    background: rgb(42 27 18 / 0.08);
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96) rotate(-1deg);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .nav-desktop,
+    .github {
+      display: none;
+    }
+    .menu {
+      display: block;
+    }
+  }
+  @media (max-width: 420px) {
+    .menu__label {
+      display: none;
+    }
+    .menu summary {
+      width: 44px;
+      padding: 0;
+      justify-content: center;
+    }
   }
 
   .site-footer {
     padding-block: var(--space-5) var(--space-4);
-    border-top: 1px solid var(--night-700);
+    background: var(--night-950);
     color: var(--moon-200);
-    font-size: 0.95rem;
+    font-size: var(--step-small);
   }
   .site-footer__inner {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
   .site-footer__brand {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
   }
   .site-footer__brand :global(img) {
-    width: 72px;
+    width: 80px;
     height: auto;
+  }
+  .site-footer__name {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--moon-100);
+  }
+  .site-footer__status {
+    margin-top: 0.6rem;
   }
   .site-footer ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-3);
+    justify-content: flex-end;
+    gap: 0 var(--space-3);
+    max-width: 30rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .site-footer a {
+  .site-footer ul a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
   }
-
   @media (max-width: 760px) {
-    .site-header__inner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0;
-      padding-block: 0.5rem;
+    .site-footer__inner {
+      grid-template-columns: 1fr;
     }
-    .site-header nav ul {
-      margin-left: -0.8rem;
+    .site-footer ul {
+      justify-content: flex-start;
     }
-    .site-header nav a {
-      padding: 0 0.6rem;
-      font-size: 0.95rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu__panel {
+      animation: none;
     }
   }
 </style>

@@ -1,0 +1,201 @@
+// English copy, key by key like de.ts.
+import type { Copy } from './de';
+
+const en: Copy = {
+  meta: {
+    title: 'Whowolf – Werewolf at the table, everyone on their own phone',
+    description:
+      'Whowolf is an open-source werewolf party game in the making: you sit together, everyone plays on their own phone, and the app is the narrator.',
+  },
+  skip: 'Skip to content',
+  nav: { play: 'Game', cast: 'Roles', sheep: 'Sheep', trail: 'Wolf trail', docs: 'Docs', download: 'Download', menu: 'Menu', close: 'Close', language: 'Language' },
+  status: {
+    badge: 'In development',
+    line: 'Whowolf is currently a concept in development. There is nothing to play yet.',
+  },
+  hero: {
+    statement: 'Werewolf at the table. Everyone on their own phone.',
+    sub: 'The app is the narrator: no game master, no paper slips, no telltale noises.',
+    primary: 'Follow the project',
+    secondary: 'How it will play',
+  },
+  playbill: {
+    title: 'No game master needed.',
+    intro:
+      'Werewolf lives on secrets. Whowolf puts them where they belong: on each player’s own phone. Everyone sits at the table, everyone plays.',
+    pillars: [
+      { icon: 'phone', title: 'Everyone has a phone', text: 'Scan the QR code, type your name, done. Only you see your role.' },
+      { icon: 'scroll', title: 'The app narrates', text: 'It leads you through night and day, counts the votes and never forgets a rule.' },
+      { icon: 'mask', title: 'Nobody gives it away', text: 'At night everyone taps something. From the outside you can’t tell who the werewolf is.' },
+    ],
+  },
+  evening: {
+    title: 'The programme.',
+    intro: 'This is how an evening with Whowolf is meant to go.',
+    acts: [
+      { icon: 'qr', act: 'Prologue', title: 'Open a room', text: 'One phone opens the room, everyone else scans the code. No account, no internet.' },
+      { icon: 'circle', act: 'Act one', title: 'Take your seats', text: 'The app shows the table circle from your point of view, so the seating is right at once.' },
+      { icon: 'moon', act: 'Act two', title: 'The night', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
+      { icon: 'sun', act: 'Act three', title: 'The morning', text: 'Every phone yawns. Then the app announces who was caught.' },
+      { icon: 'vote', act: 'Finale', title: 'The day', text: 'Phones down, read faces, accuse, lie. The vote is secret.' },
+    ],
+  },
+  sheep: {
+    title: 'Counting sheep.',
+    intro:
+      'What do villagers do at night while the wolves are hunting? They count sheep. That way everyone taps, and nobody stands out. Give it a try.',
+    rule: 'Tap the white sheep. Better let the black ones jump.',
+    score: 'Dream points',
+    best: 'Best dream',
+    sheep: 'Tap the sheep',
+    blackSheep: 'Black sheep',
+    good: '+1 dream point',
+    bad: 'Nightmare! −3',
+    paused: 'Paused',
+    start: 'Fall asleep',
+    stop: 'Wake up',
+    noScript: 'With JavaScript enabled you can count sheep here yourself.',
+  },
+  cast: {
+    title: 'The cast.',
+    intro: 'Every role a cardboard puppet, every puppet with its own character. We start small, the programme grows.',
+    swipe: 'Swipe to browse',
+    village: 'Village',
+    wolves: 'Werewolves',
+    groups: [
+      {
+        title: 'To begin with',
+        roles: [
+          { id: 'werwolf', name: 'Werewolf', side: 'wolf', text: 'Picks a victim with the pack at night. By day, plays the harmless neighbour.' },
+          { id: 'seherin', name: 'Seer', side: 'dorf', text: 'Looks into one player’s role every night. Whom will she tell?' },
+          { id: 'dorfbewohner', name: 'Villager', side: 'dorf', text: 'No gift but a knack for people. And a loud voice at the vote.' },
+          { id: 'magd', name: 'Villager', side: 'dorf', text: 'Hears the wolf trail if her phone is loud enough, and then has to convince the others.' },
+        ],
+      },
+      {
+        title: 'On the programme',
+        roles: [
+          { id: 'hexe', name: 'Witch', side: 'dorf', text: 'One healing potion, one poison, and a whole game to choose the right moment.' },
+          { id: 'jaeger', name: 'Hunter', side: 'dorf', text: 'Whoever takes him down doesn’t go alone. His last shot always hits.' },
+          { id: 'amor', name: 'Cupid', side: 'dorf', text: 'Pairs two players on the first night. If one dies, so does the other.' },
+          { id: 'beschuetzer', name: 'Protector', side: 'dorf', text: 'Guards one player each night, just never the same one twice in a row.' },
+        ],
+      },
+      {
+        title: 'Only in Whowolf',
+        roles: [
+          { id: 'faehrtenleger', name: 'Trail layer', side: 'wolf', text: 'Once per game, plants a false wolf trail on a phone of their choice.' },
+          { id: 'lauscherin', name: 'Listener', side: 'dorf', text: 'Hears trails from further away. Only nobody else knows that.' },
+          { id: 'stille_pfote', name: 'Silent Paw', side: 'wolf', text: 'Sneaks so quietly that she never leaves a trail.' },
+        ],
+      },
+    ],
+  },
+  trail: {
+    title: 'The wolf trail.',
+    intro: 'At night the phones on the table whisper: wind, footsteps, an owl. And sometimes a quiet growl.',
+    rule: 'If a wolf sound comes from the phone of X, a werewolf sits close by: at most one seat away, up to three in big groups.',
+    points: [
+      { title: 'A suspicion, never proof', text: 'Whoever hears it on their own phone learns a lot. To everyone else, they are now the suspect.' },
+      { title: 'Loud or quiet?', text: 'Villagers want to hear everything, werewolves would rather mute. But at dawn every phone yawns.' },
+      { title: 'Quiet and sparse', text: 'A few sounds per night, lots of silence in between. Atmosphere, not noise.' },
+    ],
+    diagramTitle: 'A wolf sound plays on the phone of X',
+    diagramNote: '→ a werewolf sits on X or next to X (8 players)',
+    diagramAlt: 'Table circle: a wolf sound plays on the phone of X, so a werewolf sits on X or directly next to X.',
+    more: 'The wolf trail in detail (German)',
+  },
+  rules: {
+    title: 'House rules.',
+    items: [
+      { title: 'No account', text: 'Open and play. No sign-up, no e-mail, no phone number.' },
+      { title: 'No ads', text: 'No subscription, no in-app purchases, no trackers. Not in the app, not here.' },
+      { title: 'Local Wi-Fi', text: 'One phone is the stage. Your game never leaves the table.' },
+      { title: 'Encrypted', text: 'Every connection is end-to-end encrypted. Eavesdroppers only hear noise.' },
+      { title: 'Open source', text: 'Apache 2.0. Anyone can look inside, contribute and self-host.' },
+      { title: 'Every device', text: 'Android, iOS, macOS, Windows and Linux from one codebase.' },
+    ],
+  },
+  progress: {
+    title: 'Where we are.',
+    intro: 'Whowolf is built in the open. This is where it stands, honestly and without promises.',
+    done: 'Done',
+    now: 'In progress',
+    next: 'Planned',
+    steps: [
+      { state: 'done', title: 'Idea and concept', text: 'Game design, wolf trail, security design and art direction are worked out.' },
+      { state: 'now', title: 'Game rules', text: 'The rules engine in Dart, fully tested.' },
+      { state: 'next', title: 'First playtest', text: 'A playable prototype over Wi-Fi, with friends at the table.' },
+      { state: 'next', title: 'Version 0.1', text: 'iPhone (TestFlight) and Mac first, plus Android, Windows and Linux.' },
+    ],
+    roadmap: 'See the roadmap',
+  },
+  open: {
+    title: 'Built in the open.',
+    intro: 'Every decision, every rule and the whole security design are public in the repository. The docs on this site are generated straight from it.',
+    docs: 'Read the docs',
+    github: 'Contribute on GitHub',
+    note: 'The docs are written in German.',
+  },
+  ticket: {
+    title: 'The curtain rises soon.',
+    text: 'There is nothing to download yet. Star the project on GitHub and you won’t miss the premiere.',
+    released: 'The curtain is up.',
+    releasedText: 'Get the app and invite your friends to game night.',
+    admit: 'Admission free',
+    seat: 'Seat: at the table',
+    cta: 'Download status',
+    ctaReleased: 'Download now',
+  },
+  footer: {
+    tagline: 'Werewolf at the table. An open-source project, Apache 2.0.',
+    security: 'Security',
+    imprint: 'Imprint',
+    privacy: 'Privacy',
+  },
+  download: {
+    title: 'Download',
+    metaDescription: 'Status and downloads of Whowolf for Android, iOS, macOS, Windows and Linux. Free and open source.',
+    none: 'There is no version to download yet. Whowolf is a concept in development. As soon as the first release is out, it appears here automatically.',
+    current: 'Current version',
+    from: 'from',
+    whatsNew: 'What’s new?',
+    soon: 'Coming soon',
+    notInRelease: 'Not part of this release yet',
+    checkTitle: 'Verify your download',
+    check1: 'Every release is built only by GitHub Actions from the public source code, with SHA-256 checksums and build provenance.',
+    checksums: 'Checksums for this version',
+    check2: 'Without a paid signature, macOS and Windows show a warning on first launch. The checksum tells you the file is genuine.',
+    older: 'Earlier versions',
+    prerelease: 'Pre-release',
+    source: 'Prefer to build it yourself? The complete source code is on GitHub.',
+    platforms: {
+      android: 'Install the APK directly, later also on Google Play.',
+      ios: 'Via TestFlight, later on the App Store.',
+      macos: 'For Apple silicon and Intel.',
+      windows: 'Windows 10 and 11.',
+      linux: 'AppImage for most distributions.',
+    },
+  },
+  legal: {
+    imprintTitle: 'Imprint',
+    privacyTitle: 'Privacy policy',
+    forkNote:
+      'This site was built from a copy (fork) of the Whowolf project. Whoever runs it publicly usually needs their own imprint. Operators set the repository variable IMPRINT_URL to the address of their imprint page.',
+  },
+  privacy: {
+    updated: 'Last updated: 25 October 2026',
+    sections: [
+      { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. Only your best score at counting sheep is stored locally in your browser, and it never leaves your device.' },
+      { title: 'Controller', html: 'The person named in the <a href="/en/imprint/">imprint</a> is responsible for this website.' },
+      { title: 'Hosting by GitHub Pages', html: 'The website is served by GitHub Pages, a service of GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, the Netherlands, and GitHub Inc., USA. When you visit, GitHub processes technically necessary data such as your IP address, date and time, the page requested and details about your browser and operating system, in order to deliver the site and protect it from abuse. The legal basis is our legitimate interest in providing the site securely and reliably (Art. 6(1)(f) GDPR). Data may be transferred to the USA; GitHub is certified under the EU-U.S. Data Privacy Framework. Details: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.' },
+      { title: 'External links', html: 'This site links to GitHub, among others. Only when you follow a link do the privacy terms of that provider apply.' },
+      { title: 'The app', html: 'The Whowolf app is being built so that it sends no personal data to us or anyone else: no account, no ads, no tracking. Games are played locally over your own Wi-Fi. A separate, detailed policy will accompany the app’s release.' },
+      { title: 'Your rights', html: 'You have the right of access, rectification, erasure and restriction of processing, the right to data portability and the right to object to processing based on legitimate interests (Art. 15 to 21 GDPR). You may also lodge a complaint with a data protection authority (Art. 77 GDPR). As we store no data about visitors ourselves, requests about server logs are usually a matter for GitHub.' },
+    ],
+  },
+  docsLabel: 'Documentation',
+  date: 'en-GB',
+};
+
+export default en;
