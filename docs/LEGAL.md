@@ -74,6 +74,13 @@ Wortspiel „Wer? Wer?“ + Werwolf. Verworfen, weil der Witz nur auf Deutsch fu
 
 Einschätzung: „Lycan“ allein ist nicht verbrannt, aber im Werwolf-Genre schon angekratzt. Mit einem Zusatz (z. B. „Lycan – Werewolf Party“) und eigener Optik ist es vermutlich vertretbar. Vor der Store-Veröffentlichung müssen DPMA/EUIPO/USPTO trotzdem richtig geprüft werden.
 
+## KI-generierte Assets
+
+- Grafiken werden mit Codex (Bildgenerierung) erzeugt, **ausschließlich als eigene Designs**: keine Namen, Figuren oder Stile bestimmter Serien, Spiele oder Künstler in den Prompts.
+- Jedes Asset wird mit Werkzeug, Datum und Prompt in `design/CREDITS.md` dokumentiert.
+- Hinweis: Rein KI-generierte Bilder sind in vielen Ländern urheberrechtlich nicht oder nur eingeschränkt geschützt. Für uns ist das in Ordnung (Open Source). Den Schutz von Name und Logo regelt eher das Markenrecht.
+- Die Nutzungsbedingungen des Bildgenerators werden vor dem Release geprüft (kommerzielle Nutzung, Kennzeichnungspflichten).
+
 ## Lizenz: Apache 2.0
 
 Gewählt wurde die **Apache License 2.0** für das gesamte Repo:

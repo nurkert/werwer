@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Stil „Mondbühne“** für App, Website und alles Weitere: Puppentheater bei Mondlicht, flache Pappfiguren mit Kartonrand an Stäben auf gestaffelten Ebenen (2,5D), Cartoon der 2000er, edel ausgeleuchtet. Assets per Codex-Bildgenerierung, Prompts versioniert (siehe DESIGN.md) | Eigenständig und wiedererkennbar; passt technisch ideal zu Parallaxe und Puppen-Animation; laute Illustration + leise Oberfläche wirkt wertig |
 | 2026-10-25 | **Offizieller Server** auf dem VPS des Eigentümers unter einer Subdomain von `whowolf.de` (Arbeitsname `game.whowolf.de`), betrieben mit **genau dem Container aus dem Repo** | Kein Sonderweg: offizieller Server = Self-Host, Self-Hosting bleibt dadurch erprobt |
 | 2026-10-25 | **Secure by Design** (Bedrohungsmodell in SECURITY_DESIGN.md): Ende-zu-Ende-Verschlüsselung per Noise-Handshake mit Schlüssel + Raumgeheimnis aus dem QR-Code, Identität nur aus der Sitzung, gleicher Nachrichtentakt in geheimen Phasen, abgesicherte Lieferkette und nachprüfbare Releases | Realistischster Angreifer ist der schummelnde Mitspieler im selben WLAN; TLS scheidet aus, weil Browser selbst signierte Zertifikate ablehnen und das Relay später nur Chiffretext sehen soll |
 | 2026-10-25 | **Tooling „It just works“** (TOOLING.md): ein Befehl pro Aufgabe, `tool/check.sh` = CI, gepinnte Flutter-Version, verständliche Fehlermeldungen | Lokal und CI verhalten sich identisch; kein Wissen nur im Kopf |

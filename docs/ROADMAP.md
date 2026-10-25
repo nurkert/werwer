@@ -26,6 +26,18 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ---
 
+## Spur D – Design & Website (parallel zum MVP)
+
+**Ziel:** Ein unverwechselbarer, wertiger Auftritt im Stil **Mondbühne** ([DESIGN.md](DESIGN.md)), zuerst auf der Website, dann in der App.
+
+- [x] Stilrichtung festlegen: **Mondbühne** (Referenz `design/reference/mondbuehne.jpg`)
+- [ ] D1 – Stil-Bibel schärfen: Referenzblätter für Werwolf, Seherin, Dorfbewohner; endgültige Farben und Schriften
+- [ ] D2 – Bühne in freigestellten Ebenen erzeugen (Prospekt, Kulissen, Figuren in Teilen, Vordergrund, Rahmen, Licht)
+- [ ] D3 – Design-Tokens als eine Quelle für Website (CSS-Variablen) und App (Flutter-Theme)
+- [ ] D4 – Website v1 unter **whowolf.de**: Astro, statisch, Bühnen-Hero mit Parallaxe, „Bald verfügbar“, Idee, Wolfsspur, Open Source; Lighthouse 100, keine Tracker
+- [ ] D5 – Logo und App-Icon im Mondbühnen-Stil
+- [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente) für M3
+
 ## M0 – Fundament
 
 **Ziel:** Das Repo ist bereit für die Entwicklung, und Entscheidungen, die man später nur schwer ändern kann, sind getroffen.
@@ -125,11 +137,11 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Whowolf ist öffentlich herunterladbar und verständlich präsentiert.
 
-- [ ] Minimale visuelle Identität: Logo, App-Icon, Farben, Schrift (alles eigen bzw. frei lizenziert)
+- [ ] Visuelle Identität aus Spur D in der App angekommen
 - [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
 - [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
 - [ ] iOS über **TestFlight**. Dafür braucht es den Apple Developer Account (99 $/Jahr), alternativ iOS erst nach 0.1.
-- [ ] **Website** auf GitHub Pages unter **whowolf.de** (eigene Domain): Was ist Whowolf, Downloads, Spielregeln, Wolfsspur erklärt, Mitmachen
+- [ ] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
 - [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren (`SECURITY.md` existiert bereits)
 - [ ] Release-Hinweise: unsignierte Builds (Warnung unter macOS und Windows) erklären

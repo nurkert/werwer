@@ -14,7 +14,8 @@ whowolf/
 │   ├── protocol/           Reines Dart: versionierte Nachrichten (JSON) zwischen Host und Clients
 │   └── game_host/          Reines Dart: Host-Logik (Raum, Sitzungen, Timer), Transport-Schnittstelle
 ├── server/                 (nach dem MVP) Relay-Server + Auslieferung der Web-App, keine Spiellogik
-├── website/                GitHub-Pages-Seite + Doku/Wiki
+├── design/                 Stilreferenzen, Figuren-Referenzblätter, Prompts, Credits
+├── website/                GitHub-Pages-Seite (Astro) + Doku/Wiki
 ├── docker-compose.yml      Self-Hosting mit einem Befehl
 ├── docs/                   Planungsdokumente
 └── .github/workflows/      CI + automatische Release-Builds
