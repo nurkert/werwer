@@ -45,7 +45,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 - [x] Vision, Name (**Whowolf**), Lizenz (Apache 2.0), Repo, [Marktanalyse](MARKET.md)
 - [ ] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
-- [x] Tooling: `.flutter-version`, `tool/check.sh` (= CI), `tool/deploy_ios.sh`, Signier-Sperre `tool/check_no_personal_ids.sh`
+- [x] Tooling: `tool/check.sh` (= CI), `tool/deploy_ios.sh`, Signier-Sperre `tool/check_no_personal_ids.sh`
 - [ ] `tool/doctor.sh`
 - [x] **Walking Skeleton:** Flutter-App (`app/`, Startbildschirm mit Logo und Versionsstempel) läuft auf iPhone und Mac; Pre-Release-Pipeline baut bei Tag `v0.0.X` iOS (Compile-Check), macOS, Android, Windows, Linux mit Prüfsummen und Provenance
 - [ ] CI von Anfang an: GitHub Actions ruft `tool/check.sh` auf (Format, Analyse, Tests, Secret-Scan, `osv-scanner`); Actions auf Commit-SHA gepinnt, minimale `permissions`

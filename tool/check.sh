@@ -6,8 +6,11 @@ cd "$(dirname "$0")/.."
 echo "→ Personal signing data"
 tool/check_no_personal_ids.sh
 
+echo "→ Toolchain"
+flutter --version | head -1
+
 echo "→ Dependencies"
-flutter pub get >/dev/null
+flutter pub get
 
 echo "→ Format"
 dart format --output=none --set-exit-if-changed app/lib app/test

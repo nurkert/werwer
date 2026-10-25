@@ -18,6 +18,6 @@ jobs:
           persist-credentials: false
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
-          flutter-version-file: .flutter-version
+          flutter-version-file: app/pubspec.yaml
           cache: true
       - run: tool/check.sh
