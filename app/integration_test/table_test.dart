@@ -156,6 +156,7 @@ void main() {
     // Villagers' decoy pick goes out by itself after a few seconds.
     await until(tester, () => session.view!.phase != Phase.night, seconds: 40);
 
+    // Shows in the test log which path (role) this run took.
     // ignore: avoid_print
     print('host was ${me.yourRole?.name}, now ${session.view!.phase.name}');
     if (session.view!.phase == Phase.day) {
