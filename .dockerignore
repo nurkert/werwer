@@ -1,0 +1,8 @@
+# Only what the relay image needs.
+**
+!pubspec.yaml
+!pubspec.lock
+!packages/**
+!server/**
+**/.dart_tool
+**/build

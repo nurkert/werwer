@@ -13,14 +13,14 @@ echo "→ Dependencies"
 flutter pub get
 
 echo "→ Format"
-dart format --output=none --set-exit-if-changed app/lib app/test packages
+dart format --output=none --set-exit-if-changed app/lib app/test packages server
 
 echo "→ Analyze"
-dart analyze --fatal-infos packages
+dart analyze --fatal-infos packages server
 (cd app && flutter analyze --fatal-infos)
 
 echo "→ Test"
-for package in packages/*/; do
+for package in packages/*/ server/; do
   echo "  $package"
   (cd "$package" && dart test --reporter=compact)
 done

@@ -1,0 +1,125 @@
+import 'package:protocol/src/messages.dart';
+import 'package:protocol/src/relay.dart';
+
+/// Default port of a host on the local network.
+const defaultLanPort = 47470;
+
+/// Everything needed to join a room, as carried by the QR code:
+/// `https://whowolf.de/join?room=1234&lan=192.168.1.5:47470&relay=abcd2345&srv=wss://relay.example.org`.
+///
+/// Secrets (later the host key for the Noise handshake) will go into the
+/// fragment, which browsers never send to a server.
+class JoinLink {
+  /// Creates a link; at least one of [lan] or [relayRoom] must be set.
+  const JoinLink({required this.room, this.lan, this.relayRoom, this.server});
+
+  /// Parses a scanned link strictly; returns `null` for anything else.
+  static JoinLink? tryParse(String raw) {
+    if (raw.length > 512) return null;
+    final uri = Uri.tryParse(raw.trim());
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host != linkHost ||
+        uri.path != '/join' ||
+        uri.hasPort ||
+        uri.userInfo.isNotEmpty) {
+      return null;
+    }
+    final q = uri.queryParameters;
+    final allowed = {'room', 'lan', 'relay', 'srv'};
+    if (q.keys.any((k) => !allowed.contains(k))) return null;
+    final room = q['room'] ?? '';
+    if (!RegExp('^[0-9]{$roomCodeLength}\$').hasMatch(room)) return null;
+    final lan = q['lan'] == null ? null : LanAddress.tryParse(q['lan']!);
+    if (q['lan'] != null && lan == null) return null;
+    final relay = q['relay'];
+    if (relay != null && !isRelayRoomId(relay)) return null;
+    final server = q['srv'] == null ? null : parseRelayServer(q['srv']!);
+    if (q['srv'] != null && server == null) return null;
+    if (lan == null && relay == null) return null;
+    if ((relay == null) != (server == null)) return null;
+    return JoinLink(room: room, lan: lan, relayRoom: relay, server: server);
+  }
+
+  /// Host name of join links.
+  static const linkHost = 'whowolf.de';
+
+  /// The 4-digit room code.
+  final String room;
+
+  /// The host on the local network.
+  final LanAddress? lan;
+
+  /// The room on the relay server.
+  final String? relayRoom;
+
+  /// The relay server (`ws://` or `wss://` origin).
+  final Uri? server;
+
+  /// The link as text for the QR code.
+  String encode() => Uri(
+    scheme: 'https',
+    host: linkHost,
+    path: '/join',
+    queryParameters: {
+      'room': room,
+      'lan': ?lan?.toString(),
+      'relay': ?relayRoom,
+      'srv': ?server?.toString(),
+    },
+  ).toString();
+}
+
+/// A host address on the local network: a private IPv4 address and a port.
+class LanAddress {
+  /// Creates an address.
+  const LanAddress(this.ip, this.port);
+
+  /// Parses `ip` or `ip:port`; only private IPv4 addresses are accepted.
+  static LanAddress? tryParse(String input) {
+    final parts = input.trim().split(':');
+    if (parts.isEmpty || parts.length > 2) return null;
+    final port = parts.length == 2 ? int.tryParse(parts[1]) : defaultLanPort;
+    final octets = parts.first.split('.').map(int.tryParse).toList();
+    final valid =
+        octets.length == 4 &&
+        octets.every((o) => o != null && o >= 0 && o < 256);
+    if (!valid || port == null || port <= 0 || port > 65535) return null;
+    final a = octets[0]!;
+    final b = octets[1]!;
+    final private =
+        a == 10 || (a == 172 && b >= 16 && b <= 31) || (a == 192 && b == 168);
+    return private ? LanAddress(octets.join('.'), port) : null;
+  }
+
+  /// The IPv4 address.
+  final String ip;
+
+  /// The port.
+  final int port;
+
+  @override
+  String toString() => '$ip:$port';
+}
+
+/// Parses a relay server origin such as `wss://relay.example.org` or
+/// `ws://192.168.1.5:8080`; returns `null` for anything with a path, query,
+/// user info or another scheme.
+Uri? parseRelayServer(String input) {
+  final uri = Uri.tryParse(input.trim());
+  if (uri == null ||
+      !(uri.scheme == 'ws' || uri.scheme == 'wss') ||
+      uri.host.isEmpty ||
+      uri.userInfo.isNotEmpty ||
+      (uri.path.isNotEmpty && uri.path != '/') ||
+      uri.hasQuery ||
+      uri.hasFragment ||
+      input.length > 200) {
+    return null;
+  }
+  return Uri(
+    scheme: uri.scheme,
+    host: uri.host,
+    port: uri.hasPort ? uri.port : null,
+  );
+}

@@ -9,3 +9,4 @@ workspace:
   - packages/game_core
   - packages/protocol
   - packages/game_host
+  - server

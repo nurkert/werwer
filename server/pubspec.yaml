@@ -1,0 +1,19 @@
+name: whowolf_server
+description: Whowolf relay server. Forwards messages between remote players and a host; no game logic, no game state.
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  protocol:
+    path: ../packages/protocol
+
+dev_dependencies:
+  game_core:
+    path: ../packages/game_core
+  game_host:
+    path: ../packages/game_host
+  test: ^1.31.0
+  very_good_analysis: 10.3.0
