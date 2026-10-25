@@ -32,9 +32,9 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 - [x] Stilrichtung festlegen: **Mondbühne** (Referenz `design/reference/mondbuehne.jpg`)
 - [ ] D1 – Stil-Bibel schärfen: Referenzblätter für Werwolf, Seherin, Dorfbewohner; endgültige Farben und Schriften
-- [ ] D2 – Bühne in freigestellten Ebenen erzeugen (Prospekt, Kulissen, Figuren in Teilen, Vordergrund, Rahmen, Licht)
+- [x] D2 – Bühne in freigestellten Ebenen erzeugen (Prospekt, Kulissen, Figuren, Vordergrund, Rahmen); Figuren in Teilen für Gelenk-Animation folgt mit der App
 - [ ] D3 – Design-Tokens als eine Quelle für Website (CSS-Variablen) und App (Flutter-Theme)
-- [ ] D4 – Website v1 unter **whowolf.de**: Astro, statisch, Bühnen-Hero mit Parallaxe, „Bald verfügbar“, Idee, Wolfsspur, Open Source; Lighthouse 100, keine Tracker
+- [x] D4 – Website v1 gebaut (Deploy-Workflow steht; live, sobald DNS/Pages eingerichtet sind) unter **whowolf.de**: Astro, statisch, Bühnen-Hero mit Parallaxe, „Bald verfügbar“, Idee, Wolfsspur, Open Source; Lighthouse 100, keine Tracker
 - [ ] D5 – Logo und App-Icon im Mondbühnen-Stil
 - [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente) für M3
 

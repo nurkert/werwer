@@ -1,0 +1,516 @@
+---
+import { Picture } from 'astro:assets';
+
+import Stage from '../components/Stage.astro';
+import Base from '../layouts/Base.astro';
+import werwolf from '../../../design/source/figures/werwolf.png';
+import seherin from '../../../design/source/figures/seherin.png';
+import dorfbewohner from '../../../design/source/figures/dorfbewohner.png';
+
+const repo = 'https://github.com/nurkert/whowolf';
+const formats = ['avif', 'webp'] as const;
+
+const ensemble = [
+  {
+    figure: dorfbewohner,
+    title: 'Jeder hat sein Handy',
+    text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du, auf deinem eigenen Gerät.',
+  },
+  {
+    figure: seherin,
+    title: 'Die App erzählt',
+    text: 'Niemand muss Spielleiter sein. Die App führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.',
+  },
+  {
+    figure: werwolf,
+    title: 'Niemand verrät sich',
+    text: 'Nachts tippen alle etwas. Wer Werwolf ist und wer nur so tut, hört und sieht man nicht.',
+  },
+];
+
+const promises = [
+  { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail.' },
+  { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker.' },
+  { title: 'Lokal im WLAN', text: 'Ein Handy ist die Bühne. Eure Partie verlässt den Tisch nicht.' },
+  { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
+];
+---
+
+<Base
+  title="Whowolf – Werwolf am Tisch, jeder mit seinem Handy"
+  description="Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, die App ist der Erzähler."
+>
+  <header class="hero">
+    <div class="hero__stage">
+      <Stage>
+        <div class="sign">
+          <h1 class="sign__board">Who<span>wolf</span></h1>
+        </div>
+      </Stage>
+    </div>
+    <div class="apron">
+      <div class="container apron__inner">
+        <p class="lede">Werwolf am Tisch. Jeder spielt auf seinem Handy, die App ist der Erzähler.</p>
+        <div class="actions">
+          <a class="button button--primary" href={repo}>Auf GitHub verfolgen</a>
+          <a class="button button--ghost" href="#wolfsspur">Was ist die Wolfsspur?</a>
+        </div>
+        <p class="meta">Bald für Android, iOS und Desktop · kostenlos · Open Source</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section container" aria-labelledby="how">
+      <h2 id="how" class="section__title">Ein Spieleabend wie früher, nur ohne Zettel und Spielleiter.</h2>
+      <ul class="ensemble">
+        {
+          ensemble.map((e) => (
+            <li class="role">
+              <div class="role__figure">
+                <Picture src={e.figure} alt="" formats={formats} widths={[200, 400]} sizes="200px" />
+              </div>
+              <h3>{e.title}</h3>
+              <p>{e.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="wolfsspur" class="spur" aria-labelledby="spur-title">
+      <div class="container spur__inner">
+        <div class="spur__copy">
+          <h2 id="spur-title">Die Wolfsspur</h2>
+          <p class="spur__lede">
+            Nachts flüstern die Handys auf dem Tisch: Wind, Schritte, ein Käuzchen. Und manchmal ein leises Knurren.
+          </p>
+          <blockquote class="spur__rule">
+            Kommt ein Wolfsgeräusch aus dem Handy von <strong>X</strong>, sitzt auf <strong>X</strong> oder direkt daneben ein
+            Werwolf.
+          </blockquote>
+          <dl class="spur__points">
+            <div>
+              <dt>Ein Verdacht, kein Beweis</dt>
+              <dd>Wer es auf dem eigenen Handy hört, weiß viel. Für alle anderen ist er aber selbst verdächtig.</dd>
+            </div>
+            <div>
+              <dt>Laut oder leise?</dt>
+              <dd>Dorfbewohner wollen alles hören, Werwölfe würden lieber stummschalten. Doch am Morgen gähnt jedes Handy.</dd>
+            </div>
+            <div>
+              <dt>Leise und dosiert</dt>
+              <dd>Ein paar Geräusche pro Nacht, viel Stille dazwischen. Atmosphäre statt Lärm.</dd>
+            </div>
+          </dl>
+        </div>
+        <div class="spur__wolf" aria-hidden="true">
+          <Picture src={werwolf} alt="" formats={formats} widths={[400, 800]} sizes="(max-width: 900px) 0px, 32vw" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" aria-labelledby="fair">
+      <h2 id="fair" class="section__title">Fair gespielt.</h2>
+      <dl class="promises">
+        {
+          promises.map((p) => (
+            <div>
+              <dt>{p.title}</dt>
+              <dd>{p.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section class="finale" aria-labelledby="soon">
+      <div class="container">
+        <h2 id="soon">Der Vorhang hebt sich bald.</h2>
+        <p>Whowolf entsteht gerade offen auf GitHub. Schau vorbei, gib einen Stern oder bau mit.</p>
+        <a class="button button--primary" href={repo}>Zum Projekt auf GitHub</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p><strong>Whowolf</strong> · Open Source unter Apache 2.0</p>
+      <nav aria-label="Fußzeile">
+        <a href={repo}>GitHub</a>
+        <a href={`${repo}/blob/main/SECURITY.md`}>Sicherheit</a>
+      </nav>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--night-900);
+  }
+  .hero__stage {
+    position: relative;
+    max-width: 120rem;
+    margin-inline: auto;
+  }
+
+  /* The title hangs from the proscenium on two strings, like a painted board. */
+  .sign {
+    position: absolute;
+    z-index: 2;
+    top: 19%;
+    left: 50%;
+    width: clamp(15rem, 32%, 36rem);
+    transform: translateX(-50%);
+  }
+  .sign::before,
+  .sign::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    width: 2px;
+    height: 120%;
+    background: linear-gradient(var(--card-200), #8a6a3e);
+    opacity: 0.85;
+  }
+  .sign::before {
+    left: 16%;
+  }
+  .sign::after {
+    right: 16%;
+  }
+  .sign__board {
+    margin: 0;
+    padding: 0.32em 0.5em 0.38em;
+    text-align: center;
+    font-size: clamp(2.4rem, 6.4vw, 6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--wood-700);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgb(255 246 220 / 0.9), transparent 70%),
+      var(--card-200);
+    border-radius: 0.28em;
+    box-shadow:
+      0 0 0 0.08em #f3e3bd,
+      0 0 0 0.13em var(--wood-700),
+      0 0.25em 0.6em rgb(5 8 20 / 0.55);
+    transform-origin: 50% -60%;
+  }
+  .sign__board span {
+    color: var(--curtain-600);
+  }
+  :global(.is-lit) .sign__board {
+    animation: swing 7s ease-in-out 1.6s infinite;
+  }
+  @keyframes swing {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    40% {
+      transform: rotate(-1.3deg);
+    }
+    75% {
+      transform: rotate(0.9deg);
+    }
+  }
+
+  .apron {
+    position: relative;
+    padding-block: var(--space-4) var(--space-5);
+    background:
+      linear-gradient(180deg, #2b1a0f 0, var(--night-900) 5rem),
+      var(--night-900);
+    text-align: center;
+  }
+  .lede {
+    margin-inline: auto;
+    max-width: 30ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+    line-height: 1.35;
+    color: var(--moon-100);
+    text-wrap: balance;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+  .meta {
+    margin-top: var(--space-3);
+    font-size: 0.95rem;
+    color: var(--moon-200);
+    opacity: 0.85;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0 1.5rem;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      transform 0.35s var(--ease-puppet),
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .button:hover {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  .button:active {
+    transform: translateY(1px);
+  }
+  .button--primary {
+    color: var(--night-900);
+    background: var(--lantern-400);
+    box-shadow:
+      0 0 0 3px var(--wood-700),
+      0 8px 20px rgb(242 169 59 / 0.25);
+  }
+  .button--primary:hover {
+    background: var(--lantern-300);
+    box-shadow:
+      0 0 0 3px var(--wood-700),
+      0 12px 28px rgb(242 169 59 / 0.35);
+  }
+  .button--ghost {
+    color: var(--moon-100);
+    border: 2px solid var(--night-500);
+  }
+  .button--ghost:hover {
+    border-color: var(--gold-500);
+  }
+
+  .section {
+    padding-block: var(--space-6);
+  }
+  .section__title {
+    max-width: 22ch;
+    font-size: clamp(2rem, 4.5vw, 3.4rem);
+    text-wrap: balance;
+  }
+
+  /* The ensemble stands on one wooden ledge instead of sitting in cards. */
+  .ensemble {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .role__figure {
+    position: relative;
+    height: 17rem;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.9rem;
+    margin-bottom: var(--space-3);
+  }
+  .role__figure::after {
+    content: '';
+    position: absolute;
+    inset: auto -1rem 0;
+    height: 0.9rem;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #7a5233, var(--wood-700) 60%, #3b2414);
+    box-shadow: 0 10px 18px rgb(0 0 0 / 0.35);
+  }
+  .role__figure :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .role__figure :global(img) {
+    height: 100%;
+    width: auto;
+    filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.45));
+  }
+  .role h3 {
+    font-size: 1.5rem;
+  }
+  .role p {
+    margin-top: var(--space-1);
+    max-width: 34ch;
+    color: var(--moon-200);
+  }
+
+  .spur {
+    padding-block: var(--space-6);
+    background:
+      radial-gradient(ellipse 50% 60% at 85% 30%, rgb(242 169 59 / 0.1), transparent 70%),
+      linear-gradient(180deg, var(--night-900), #0e1226 55%, var(--night-900));
+    border-block: 1px solid rgb(201 151 63 / 0.2);
+    overflow: hidden;
+  }
+  .spur__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .spur h2 {
+    font-size: clamp(2.8rem, 6vw, 5rem);
+  }
+  .spur__lede {
+    margin-top: var(--space-3);
+    max-width: 36ch;
+    font-size: 1.25rem;
+    color: var(--moon-200);
+  }
+  .spur__rule {
+    margin: var(--space-4) 0 0;
+    max-width: 40ch;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-m);
+    background: var(--card-200);
+    color: var(--wood-700);
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    line-height: 1.4;
+    box-shadow:
+      0 0 0 3px var(--wood-700),
+      0 16px 40px rgb(0 0 0 / 0.45);
+    transform: rotate(-0.6deg);
+  }
+  .spur__points {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-5) 0 0;
+  }
+  .spur__points dt {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--lantern-300);
+  }
+  .spur__points dd {
+    margin: 0.25rem 0 0;
+    max-width: 52ch;
+    color: var(--moon-200);
+  }
+  .spur__wolf {
+    justify-self: center;
+    width: min(100%, 26rem);
+    transform: rotate(4deg);
+    filter: drop-shadow(0 20px 30px rgb(0 0 0 / 0.5));
+  }
+
+  .promises {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    margin: var(--space-4) 0 0;
+  }
+  .promises div {
+    padding-block: var(--space-3);
+    border-top: 1px solid rgb(201 151 63 / 0.35);
+  }
+  .promises dt {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+  .promises dd {
+    margin: 0.3rem 0 0;
+    max-width: 44ch;
+    color: var(--moon-200);
+  }
+
+  .finale {
+    padding-block: var(--space-6);
+    text-align: center;
+    background:
+      linear-gradient(90deg, rgb(158 31 36 / 0.55), transparent 22%, transparent 78%, rgb(158 31 36 / 0.55)),
+      var(--night-800);
+  }
+  .finale h2 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    text-wrap: balance;
+  }
+  .finale p {
+    margin: var(--space-2) auto var(--space-4);
+    max-width: 40ch;
+    color: var(--moon-200);
+  }
+
+  .footer {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--night-700);
+    font-size: 0.95rem;
+    color: var(--moon-200);
+  }
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .footer nav {
+    display: flex;
+    gap: var(--space-3);
+  }
+  .footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  @media (max-width: 900px) {
+    .section {
+      padding-block: var(--space-5);
+    }
+    .ensemble {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+    .role {
+      display: grid;
+      grid-template-columns: 7.5rem 1fr;
+      column-gap: var(--space-3);
+      align-items: end;
+    }
+    .role__figure {
+      grid-row: span 2;
+      height: 11rem;
+      margin-bottom: 0;
+    }
+    .role__figure::after {
+      inset: auto -0.5rem 0;
+    }
+    .spur__inner {
+      grid-template-columns: 1fr;
+    }
+    .spur__wolf {
+      display: none;
+    }
+    .promises {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .sign {
+      top: 13%;
+      width: 58%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.is-lit) .sign__board {
+      animation: none;
+    }
+    .button:hover {
+      transform: none;
+    }
+  }
+</style>
