@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/sheep.dart';
+import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
@@ -37,7 +38,7 @@ class PhaseBody extends StatelessWidget {
   );
 }
 
-class LobbyPhase extends StatelessWidget {
+class LobbyPhase extends StatefulWidget {
   const LobbyPhase({
     required this.session,
     this.link,
@@ -50,6 +51,72 @@ class LobbyPhase extends StatelessWidget {
   /// How others reach this room (only on the host device).
   final JoinLink? link;
   final bool relayFailed;
+
+  @override
+  State<LobbyPhase> createState() => _LobbyPhaseState();
+}
+
+class _LobbyPhaseState extends State<LobbyPhase> {
+  /// The player whose seat is being swapped, waiting for the second tap.
+  PlayerId? _swapFrom;
+
+  GameSession get session => widget.session;
+
+  Future<void> _tapSeat(SeatView seat) async {
+    final from = _swapFrom;
+    if (from != null) {
+      if (from != seat.id) session.send(SwapSeatsIntent(from, seat.id));
+      setState(() => _swapFrom = null);
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final view = session.view!;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Palette.night800,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Portrait(persona: seat.persona),
+              title: Text(
+                seat.name,
+                style: const TextStyle(
+                  color: Palette.moon100,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.swap_horiz, color: Palette.lantern400),
+              title: Text(
+                l10n.swapSeat,
+                style: const TextStyle(color: Palette.moon100),
+              ),
+              onTap: () => Navigator.pop(context, 'swap'),
+            ),
+            if (seat.id != view.you)
+              ListTile(
+                leading: const Icon(Icons.close, color: Palette.curtain400),
+                title: Text(
+                  l10n.kick,
+                  style: const TextStyle(color: Palette.moon100),
+                ),
+                onTap: () => Navigator.pop(context, 'kick'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    switch (choice) {
+      case 'swap':
+        setState(() => _swapFrom = seat.id);
+      case 'kick':
+        session.send(KickIntent(seat.id));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,24 +135,24 @@ class LobbyPhase extends StatelessWidget {
       );
     }
 
+    final link = widget.link;
+    final swapFrom = _swapFrom;
     return PhaseBody(
       children: [
-        if (session.isOwner && link != null) _Invite(link: link!),
-        if (relayFailed) Body(l10n.relayFailed, muted: true),
+        if (session.isOwner && link != null) _Invite(link: link),
+        if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
         _PersonaPicker(session: session),
         Headline(l10n.players(count)),
-        SeatGrid(
+        if (count > 1) Body(l10n.tableHint, muted: true),
+        if (swapFrom != null)
+          Panel(
+            highlight: true,
+            child: Body(l10n.swapHint(view.nameOf(swapFrom))),
+          ),
+        TableCircle(
           view: view,
-          trailing: session.isOwner
-              ? (seat) => seat.id == view.you
-                    ? null
-                    : IconButton(
-                        tooltip: l10n.kick,
-                        icon: const Icon(Icons.close, size: 18),
-                        color: Palette.moon200,
-                        onPressed: () => session.send(KickIntent(seat.id)),
-                      )
-              : null,
+          selected: swapFrom,
+          onTap: session.isOwner ? _tapSeat : null,
         ),
         if (session.isOwner) ...[
           if (canStart) Body(rolesLine()),
@@ -638,17 +705,14 @@ class DayPhase extends StatelessWidget {
         if (!view.yourSeat.isAlive) Body(l10n.youAreDead),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
-        if (view.lastNightSheep.isNotEmpty) ...[
-          Headline(l10n.sleepTitle),
-          SeatGrid(
-            view: view,
-            badges: {
-              for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
-                key: l10n.sheepCount(value),
-            },
-          ),
-        ] else
-          SeatGrid(view: view),
+        if (view.lastNightSheep.isNotEmpty) Headline(l10n.sleepTitle),
+        TableCircle(
+          view: view,
+          badges: {
+            for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
+              key: l10n.sheepCount(value),
+          },
+        ),
         if (session.isOwner)
           PrimaryButton(
             label: l10n.startVote,

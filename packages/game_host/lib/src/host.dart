@@ -303,6 +303,9 @@ class GameHost {
           final update = apply(_state, RemovePlayer(me));
           _endSession(me, ByeReason.left);
           _commit(update);
+        case SwapSeatsIntent(:final first, :final second):
+          _ownerOnly(session);
+          _commit(apply(_state, SwapSeats(first, second)));
         case PersonaIntent(:final persona):
           _commit(apply(_state, ChoosePersona(me, persona)));
         case SheepIntent(:final count):

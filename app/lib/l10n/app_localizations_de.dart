@@ -511,4 +511,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get manualJoin => 'Von Hand verbinden';
+
+  @override
+  String get tableHint =>
+      'So sitzt ihr am Tisch, von deinem Platz aus gesehen. Stimmt die Reihenfolge? Der Gastgeber kann Plätze tauschen.';
+
+  @override
+  String get swapSeat => 'Platz tauschen';
+
+  @override
+  String swapHint(String name) {
+    return 'Tippe jetzt auf den Platz, mit dem $name tauschen soll.';
+  }
 }

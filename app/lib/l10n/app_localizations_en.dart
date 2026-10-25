@@ -505,4 +505,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualJoin => 'Connect by hand';
+
+  @override
+  String get tableHint =>
+      'This is how you sit at the table, seen from your seat. Is the order right? The host can swap seats.';
+
+  @override
+  String get swapSeat => 'Swap seats';
+
+  @override
+  String swapHint(String name) {
+    return 'Now tap the seat $name should swap with.';
+  }
 }

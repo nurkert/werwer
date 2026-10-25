@@ -219,6 +219,18 @@ void main() {
       expect(state.player(id(12))!.persona, Persona.maid);
     });
 
+    test('seats can be swapped in the lobby only', () {
+      var state = lobby(3);
+      state = apply(state, SwapSeats(id(0), id(2))).state;
+      expect(state.players.map((p) => p.name), ['Cem', 'Bo', 'Ada']);
+      expect(viewFor(state, id(1)).seats.first.name, 'Cem');
+      final started = apply(lobby(5), StartGame(random: Random(1))).state;
+      expect(
+        () => apply(started, SwapSeats(id(0), id(1))),
+        refuses(Violation.wrongPhase),
+      );
+    });
+
     test('personas are only chosen in the lobby', () {
       final started = apply(lobby(5), StartGame(random: Random(1))).state;
       expect(

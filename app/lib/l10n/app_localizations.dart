@@ -937,6 +937,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect by hand'**
   String get manualJoin;
+
+  /// No description provided for @tableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This is how you sit at the table, seen from your seat. Is the order right? The host can swap seats.'**
+  String get tableHint;
+
+  /// No description provided for @swapSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap seats'**
+  String get swapSeat;
+
+  /// No description provided for @swapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Now tap the seat {name} should swap with.'**
+  String swapHint(String name);
 }
 
 class _AppLocalizationsDelegate

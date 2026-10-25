@@ -320,5 +320,15 @@
     }
   },
   "noDiscovery": "Searching does not work on this device. Scan the QR code instead.",
-  "manualJoin": "Connect by hand"
+  "manualJoin": "Connect by hand",
+  "tableHint": "This is how you sit at the table, seen from your seat. Is the order right? The host can swap seats.",
+  "swapSeat": "Swap seats",
+  "swapHint": "Now tap the seat {name} should swap with.",
+  "@swapHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -67,6 +67,10 @@ sealed class ClientMessage {
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
       'persona' => PersonaIntent(json.enumValue('persona', Persona.values)),
+      'swap' => SwapSeatsIntent(
+        _readPlayerId(json, 'a'),
+        _readPlayerId(json, 'b'),
+      ),
       'sheep' => SheepIntent(
         json.integer('count', min: -maxSheepPerNight, max: maxSheepPerNight),
       ),
@@ -218,6 +222,24 @@ final class PersonaIntent extends ClientMessage {
 
   @override
   Map<String, Object?> get _fields => {'persona': persona.name};
+}
+
+/// Room owner: swap the seats of two players in the lobby.
+final class SwapSeatsIntent extends ClientMessage {
+  /// Creates the message.
+  const SwapSeatsIntent(this.first, this.second);
+
+  /// One player.
+  final PlayerId first;
+
+  /// The other player.
+  final PlayerId second;
+
+  @override
+  String get _type => 'swap';
+
+  @override
+  Map<String, Object?> get _fields => {'a': first.value, 'b': second.value};
 }
 
 /// How many sheep I have counted tonight (running total).

@@ -46,6 +46,19 @@ final class ChoosePersona extends GameAction {
   final Persona persona;
 }
 
+/// Two players swap seats in the lobby (the seating order is the order
+/// around the real table, needed for the wolf trail later).
+final class SwapSeats extends GameAction {
+  /// Creates the action.
+  const SwapSeats(this.first, this.second);
+
+  /// One player.
+  final PlayerId first;
+
+  /// The other player.
+  final PlayerId second;
+}
+
 /// Deals the roles and starts the game.
 final class StartGame extends GameAction {
   /// Creates the action. Without [roles], [suggestRoles] is used.

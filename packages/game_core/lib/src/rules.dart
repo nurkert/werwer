@@ -27,6 +27,7 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
   AddPlayer() => _addPlayer(state, action),
   RemovePlayer() => _removePlayer(state, action),
   ChoosePersona() => _choosePersona(state, action),
+  SwapSeats() => _swapSeats(state, action),
   StartGame() => _startGame(state, action),
   ConfirmRole() => _confirmRole(state, action),
   WerewolfVote(:final wolf, :final target) => _night(
@@ -114,6 +115,24 @@ GameUpdate _choosePersona(GameState state, ChoosePersona action) {
       players: [
         for (final p in state.players)
           p.id == action.player ? p.copyWith(persona: persona) : p,
+      ],
+    ),
+  );
+}
+
+GameUpdate _swapSeats(GameState state, SwapSeats action) {
+  _expectPhase(state, Phase.lobby);
+  final a = state.player(action.first) ?? _refuse(Violation.unknownPlayer);
+  final b = state.player(action.second) ?? _refuse(Violation.unknownPlayer);
+  return GameUpdate(
+    state.copyWith(
+      players: [
+        for (final p in state.players)
+          p.id == a.id
+              ? b
+              : p.id == b.id
+              ? a
+              : p,
       ],
     ),
   );
