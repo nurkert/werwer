@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Wolfsspur** ersetzt „Knurren nur auf Werwolf-Handys“: Spur kommt auf dem Werwolf-Handy **oder beim Sitznachbarn**. Öffentliche Regel „Spur bei X → Werwolf auf X oder daneben“. Sitzordnung nötig. Spursystem allgemein für alle Nachtaktionen (z. B. Eulenspur der Seherin). Details in NIGHT_SOUNDS.md | Dorfbewohner bekommen private Hinweise und wollen laut spielen, Werwölfe können sich durch Stummschalten nicht ganz schützen; wer die Spur hört, ist selbst verdächtig, also Diskussion statt Auflösung |
 | 2026-10-25 | **Positionierung über die Kombination**, nicht „erste App mit eigenem Handy“ (siehe MARKET.md); keine Werbung, kein Abo, kein Konto | Marktanalyse: Die Nische ist besetzt, aber nur von kleinen Apps mit Lücken. Realistisches Ziel 10K–100K Downloads über einige Jahre |
 | 2026-10-25 | **Idee aufgenommen: verräterische Wolfsgeräusche** + Morgen-Gähnen auf jedem Handy (optionaler Modus, bewusste Ausnahme von der Anti-Tell-Regel) | Neue, physische Deduktionsebene am Tisch, die es so nur mit „jeder hat sein Handy“ gibt |
 | 2026-10-25 | **Tag-Bildschirm** zeigt nur, wer lebt (und ob man selbst lebt), dann dimmen | Handys weg, Gesichter lesen ist der Kern des Spiels |

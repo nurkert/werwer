@@ -69,31 +69,14 @@ Nachts spielen **alle Geräte** Geräusche ab, verteilt im Raum: Wind, Schritte,
 - **Anti-Tell-Regel:** Welches Gerät welches Geräusch spielt, wird vom Host zufällig bzw. nach der Hinweis-Mechanik bestimmt, **nie** direkt durch die Rolle oder Aktion des Besitzers. Ein Hinweis ist eine bewusste Spielmechanik mit Unschärfe, kein Leck.
 - Die Mechanik gehört in `game_core` (welche Hinweise entstehen), das Abspielen in die App.
 
-### Verräterische Wolfsgeräusche (Idee, optionaler Modus)
+### Wolfsspur (optionaler Modus)
 
-Die Handys der Werwölfe geben nachts **leise Geräusche** von sich (Knurren, Schnüffeln, Krallen …). Das ist eine **bewusste Ausnahme** von der Anti-Tell-Regel und eine eigene Spielebene am Tisch.
-
-- **Gegenmittel der Wölfe:** Handy leise oder stumm stellen.
-- **Gegen-Gegenmittel:** Am **Morgen gähnt jedes Handy** laut (gleiche Lautstärke für alle). Ein stummes oder auffällig leises Handy fällt auf. Die Wölfe müssen also rechtzeitig wieder laut stellen, und ständiges Herumdrücken an der Lautstärke ist selbst verdächtig.
-- Daraus entstehen Gespräche wie: „Bei dir war es nachts total ruhig. Hattest du dein Handy stumm?“
-- **Balance – ein Verdacht, kein Beweis.** „Leises Handy“ oder „knurrendes Handy“ soll ein guter Grund für Verdacht sein, aber **nie sicher**. Stellschrauben:
-  - Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, nicht jede Nacht.
-  - **Knurren kommt ausschließlich von Werwolf-Handys** und ist **sehr leise**: Hören sollen es höchstens die direkten Sitznachbarn, nicht der ganze Raum. Für den, der es sicher hört, ist es ein **privater Beweis**. Die anderen müssen ihm aber erst glauben (er könnte ja selbst lügen). Daraus entsteht Diskussion statt Auflösung.
-  - Oft hört es sogar nur **ein** Nachbar, weil auf dem Handy des anderen Nachbarn im selben Moment ein ähnliches, mehrdeutiges Geräusch läuft und das Knurren überdeckt.
-  - Dorfbewohner-Handys machen andere, mehrdeutige Geräusche (nie Knurren), die das Orten erschweren.
-  - Manche Nächte sind für zufällige Handys einfach ruhig, also ist „bei dir war es still“ auch bei Unschuldigen normal.
-  - Stärke einstellbar (aus / subtil / deutlich); Werte durch Testrunden austarieren.
-  - Ziel: Die Werwölfe gewinnen mit Wolfsgeräuschen ungefähr genauso oft wie ohne.
-- **Tischregel:** Handys liegen nachts sichtbar vor einem auf dem Tisch (Display nach unten).
-- **Sitzordnung (optional):** Damit die App gezielt auf Nachbar-Handys überdecken kann, kann man in der Lobby die Reihenfolge am Tisch festlegen. Ohne Sitzordnung werden die Überdeckungsgeräusche zufällig verteilt.
-- **Dosiert, nicht nervig:** Nachts nur **ein paar** Geräusche mit Pausen dazwischen, kein Dauerrauschen. Insgesamt leise; Atmosphäre statt Lärm.
-- **Technik klären:** Kopfhörer/Bluetooth würden die Mechanik aushebeln (Audio-Ausgang erkennen und z. B. öffentlich melden?). iOS-Stummschalter umgehen wir mit der passenden Audio-Kategorie, die Lautstärke selbst kann die App auf iOS nicht setzen, nur auslesen. Das ist auch gut so: Das Katz-und-Maus-Spiel mit der Lautstärke **ist** die Mechanik.
-- Barrierefreiheit: Für Runden mit hörgeschädigten Spielern abschaltbar.
+Ausgearbeitet in **[NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)**. Kurz: Wählen die Werwölfe ihr Opfer, kann eine leise **Wolfsspur** auf dem Handy eines Werwolfs **oder seines Sitznachbarn** erklingen. Öffentliche Regel: *Spur bei X → auf X oder direkt daneben sitzt ein Werwolf.* Dorfbewohner wollen ihr Handy laut haben, Werwölfe leise. Das **Morgen-Gähnen** aller Handys entlarvt stumm gestellte Geräte. Weitere Spuren (z. B. Eulenspur der Seherin) halten die Balance.
 
 ## Offene Fragen
 
 - **Später dazukommen während einer Partie:** Vorschlag: Wer mitten im Spiel beitritt, ist erst **Zuschauer** und wird zu Beginn der nächsten Nacht mit einer Rolle eingemischt (Host bestätigt), oder spielt erst die nächste Partie mit. Was ist fair?
-- Wie stark dürfen Hinweis-Geräusche helfen, ohne das Spiel kaputt zu machen?
+- Wolfsspur: offene Fragen siehe [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md).
 - Rollen beim Tod aufdecken: Standard ja oder nein?
 - Eigene Rollennamen und eine eigene Welt (Lore) für Whowolf?
 - Mindest- und Maximalspielerzahl (Vorschlag: 5–20)?
