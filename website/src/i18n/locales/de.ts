@@ -166,7 +166,7 @@ const de = {
     checksums: 'Prüfsummen dieser Version',
     check2: 'Ohne kostenpflichtige Signatur zeigen macOS und Windows beim ersten Start eine Warnung. Die Prüfsumme zeigt dir, dass die Datei echt ist.',
     older: 'Frühere Versionen',
-    prerelease: 'Vorabversion',
+    prerelease: 'Testversion',
     source: 'Lieber selbst bauen? Der komplette Quellcode liegt auf GitHub.',
     platforms: {
       android: 'APK direkt installieren, später auch bei Google Play.',
@@ -250,7 +250,7 @@ const de = {
     getIt: 'Herunterladen',
     platforms: {
       ios: { req: 'iOS 15 oder neuer', steps: ['TestFlight aus dem App Store laden.', 'Einladungslink öffnen, sobald er veröffentlicht ist.', 'Whowolf in TestFlight installieren.'] },
-      macos: { req: 'macOS 12 oder neuer, Apple Silicon oder Intel', steps: ['ZIP herunterladen und doppelklicken.', 'Whowolf in den Programme-Ordner ziehen.', 'Beim ersten Start: Rechtsklick → Öffnen (die Vorabversion ist noch nicht notarisiert).'] },
+      macos: { req: 'macOS 12 oder neuer, Apple Silicon oder Intel', steps: ['ZIP herunterladen und doppelklicken.', 'Whowolf in den Programme-Ordner ziehen.', 'Beim ersten Start: Rechtsklick → Öffnen (die Testversion ist noch nicht notarisiert).'] },
       android: { req: 'Android 7 oder neuer', steps: ['APK auf dem Handy herunterladen.', 'Installation aus dieser Quelle erlauben, wenn Android fragt.', 'Whowolf öffnen.'] },
       windows: { req: 'Windows 10 oder 11, 64 Bit', steps: ['ZIP herunterladen und entpacken.', 'whowolf.exe starten.', 'Bei der SmartScreen-Warnung: „Weitere Informationen“ → „Trotzdem ausführen“.'] },
       linux: { req: 'Debian, Ubuntu oder verwandt, 64 Bit', steps: ['.deb herunterladen.', 'Im Terminal: sudo apt install ./whowolf-*.deb', 'Whowolf aus dem Startmenü öffnen.'] },

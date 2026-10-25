@@ -167,7 +167,7 @@ const en: Copy = {
     checksums: 'Checksums for this version',
     check2: 'Without a paid signature, macOS and Windows show a warning on first launch. The checksum tells you the file is genuine.',
     older: 'Earlier versions',
-    prerelease: 'Pre-release',
+    prerelease: 'Test version',
     source: 'Prefer to build it yourself? The complete source code is on GitHub.',
     platforms: {
       android: 'Install the APK directly, later also on Google Play.',
@@ -251,7 +251,7 @@ const en: Copy = {
     getIt: 'Download',
     platforms: {
       ios: { req: 'iOS 15 or later', steps: ['Get TestFlight from the App Store.', 'Open the invite link once it is published.', 'Install Whowolf in TestFlight.'] },
-      macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the pre-release is not notarized yet).'] },
+      macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the test version is not notarized yet).'] },
       android: { req: 'Android 7 or later', steps: ['Download the APK on your phone.', 'Allow installs from this source when Android asks.', 'Open Whowolf.'] },
       windows: { req: 'Windows 10 or 11, 64-bit', steps: ['Download and unzip.', 'Run whowolf.exe.', 'On the SmartScreen warning: “More info” → “Run anyway”.'] },
       linux: { req: 'Debian, Ubuntu or related, 64-bit', steps: ['Download the .deb.', 'In a terminal: sudo apt install ./whowolf-*.deb', 'Open Whowolf from your app menu.'] },
