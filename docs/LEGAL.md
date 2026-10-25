@@ -34,7 +34,8 @@ Noch offiziell zu prüfen:
 - [ ] EUIPO (EU-Marken): https://euipo.europa.eu/eSearch bzw. TMview: https://www.tmdn.org/tmview/
 - [ ] USPTO (USA), falls die App international vermarktet wird
 - [ ] App Store und Google Play nach „Whowolf“ durchsuchen
-- [ ] Domain und GitHub-Organisation sichern
+- [x] Domain `whowolf.de` gesichert (2026-10-25)
+- [ ] GitHub-Organisation prüfen
 
 ### Erste Recherche (2026-10-25, kurze Websuche, keine Registerprüfung)
 
@@ -42,7 +43,8 @@ Noch offiziell zu prüfen:
 |---|---|
 | Apps / Spiele namens „Whowolf“ | keine gefunden ✅ |
 | Markenregister | ungeprüft |
-| Domains / GitHub | ungeprüft |
+| Domains | `whowolf.de` gesichert ✅ |
+| GitHub | ungeprüft |
 
 ## Verworfener Name „Werwer“
 

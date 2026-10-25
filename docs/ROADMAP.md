@@ -32,8 +32,8 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
 - [ ] CI von Anfang an: GitHub Actions mit `dart analyze`, `dart format --set-exit-if-changed` und Tests bei jedem Push
 - [ ] **Früh festlegen, später teuer:**
-  - [ ] App-ID / Bundle-Identifier (z. B. `io.github.nurkert.whowolf`). Lässt sich nach einem Store-Release nicht mehr ändern.
-  - [ ] Format des QR-Links (siehe [unten](#von-anfang-an-mitdenken)) und die Domain dafür. Anfangs reicht die GitHub-Pages-Adresse.
+  - [x] App-ID / Bundle-Identifier: **`de.nurkert.whowolf`** (lässt sich nach einem Store-Release nicht mehr ändern)
+  - [x] Domain **`whowolf.de`** gesichert; QR-Link-Format siehe [unten](#von-anfang-an-mitdenken)
   - [ ] Versionierung: SemVer + `CHANGELOG.md`
 - [ ] Namen „Whowolf“ offiziell prüfen: DPMA/EUIPO (TMview), Stores, Domain, GitHub-Organisation
 
@@ -116,7 +116,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Minimale visuelle Identität: Logo, App-Icon, Farben, Schrift (alles eigen bzw. frei lizenziert)
 - [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK, macOS, Windows, Linux → **GitHub-Release** mit Changelog
 - [ ] iOS über **TestFlight**. Dafür braucht es den Apple Developer Account (99 $/Jahr), alternativ iOS erst nach 0.1.
-- [ ] **Website** auf GitHub Pages: Was ist Whowolf, Downloads, Spielregeln, Wolfsspur erklärt, Mitmachen
+- [ ] **Website** auf GitHub Pages unter **whowolf.de** (eigene Domain): Was ist Whowolf, Downloads, Spielregeln, Wolfsspur erklärt, Mitmachen
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
 - [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren
 - [ ] Release-Hinweise: unsignierte Builds (Warnung unter macOS und Windows) erklären
@@ -158,7 +158,7 @@ Damit der Server später ohne viel Arbeit andockt. Nichts davon wird für das MV
 - **Ein versioniertes Protokoll** für lokal und Server. Die Pakete `protocol` und `game_host` sind schon so geschnitten, dass ein `server/` sie einfach importiert.
 - **Spieler über Sitzungstoken identifizieren**, nicht über die Verbindung.
 - **Spielzustand serialisierbar.**
-- **Der QR-Code ist von Anfang an ein Link** auf eine Domain, die wir kontrollieren, z. B. `https://<domain>/join?room=ABCD&lan=192.168.0.5:4040`:
+- **Der QR-Code ist von Anfang an ein Link** auf eine Domain, die wir kontrollieren, z. B. `https://whowolf.de/join?room=ABCD&lan=192.168.0.5:4040`:
   - Im MVP liest nur die App den `lan`-Teil.
   - Später kommt die Server-Adresse dazu, und dieselbe URL wird zur Beitrittsseite im Browser.
   - Alte Apps verstehen neue Codes weiterhin.

@@ -38,7 +38,7 @@ Dart-Workspaces (`pub workspace`) verbinden die Pakete im Monorepo.
 - Der Host baut eine **ausgehende Verbindung zum Server** auf (funktioniert hinter jedem Router/NAT). Spieler, die nicht im WLAN sind, verbinden sich mit dem Server, der ihre Nachrichten **nur durchreicht**.
 - **Gemischt:** Spieler im WLAN hängen direkt am Host, Spieler von außen kommen über den Server. Für die Host-Logik ist das egal, es sind einfach zwei Transporte gleichzeitig.
 - Der Server kennt **keine Spielregeln und keinen Spielzustand**. Er verwaltet nur Raumcodes und leitet weiter. Billig zu betreiben, leicht selbst zu hosten, keine Spieldaten auf dem Server.
-- **Beitritt per QR-Code vom Spielleiter:** Der Code zeigt auf die Server-Webseite, z. B. `https://play.whowolf.app/r/ABCD`. Dort: **„Im Browser mitspielen“** (Flutter Web) oder **„App installieren“**. Wer die App schon hat, landet per Deep Link (Universal Links / App Links) direkt im Raum.
+- **Beitritt per QR-Code vom Spielleiter:** Der Code zeigt auf die Server-Webseite, z. B. `https://whowolf.de/join?room=ABCD`. Dort: **„Im Browser mitspielen“** (Flutter Web) oder **„App installieren“**. Wer die App schon hat, landet per Deep Link (Universal Links / App Links) direkt im Raum.
 - **Scan in der App:** Die App hat einen eigenen QR-Scanner. Scannt man den Code dort (oder öffnet den Link per Kamera), erkennt die App den Raum und tritt **direkt** bei, ohne Umweg über die Webseite. Der QR-Code ist also ein Link für alle Fälle: Browser, App-Installation oder direkter Beitritt.
 - Der Code kann zusätzlich die lokale Adresse des Hosts enthalten. Die App versucht dann zuerst die direkte WLAN-Verbindung und nimmt den Server nur, wenn das nicht klappt.
 - **Ohne Internet** zeigt der QR-Code auf die lokale Adresse des Hosts, der die Web-App dann selbst im WLAN ausliefert.
@@ -90,7 +90,8 @@ Dart-Workspaces (`pub workspace`) verbinden die Pakete im Monorepo.
 - Statische Seite auf GitHub Pages, im Look der App.
 - Download-Seite für alle Betriebssysteme (Links zu GitHub Releases + App Store/Play Store).
 - Doku/Wiki im Repo, z. B. mit **Astro + Starlight**. Damit ist sie versioniert und Teil von Pull Requests (statt GitHub-Wiki).
-- Später eventuell die Flutter-Web-App unter derselben Domain.
+- Erreichbar unter **whowolf.de** (GitHub Pages mit eigener Domain).
+- Später eventuell die Flutter-Web-App unter derselben Domain. Für Deep Links (Universal Links / App Links) muss `whowolf.de` die Dateien unter `/.well-known/` ausliefern (`apple-app-site-association`, `assetlinks.json`).
 
 ## Netzwerk
 
