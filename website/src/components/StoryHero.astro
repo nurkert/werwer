@@ -2,9 +2,11 @@
 // The opening as a small puppet show on a painted stage. The stage stays pinned while the
 // section scrolls by; each story beat brings cardboard puppets in on their sticks, from the
 // sides and from below, while a caption tells what is happening.
-import { getImage, Picture } from 'astro:assets';
+import { Picture } from 'astro:assets';
 
 import { path, repoUrl, ui, type Lang } from '../i18n/ui';
+import { storyPhones } from '../lib/phone-screens';
+import PuppetPhone from './phone/PuppetPhone.astro';
 import prospekt from '../../../design/source/stage/prospekt.png';
 import wordmark from '../assets/plates/nav-wordmark.png';
 import busch from '../../../design/source/props/busch.png';
@@ -18,20 +20,15 @@ import werwolf from '../../../design/source/figures/werwolf.png';
 import seherin from '../../../design/source/figures/seherin.png';
 import dorfbewohner from '../../../design/source/figures/dorfbewohner.png';
 import magd from '../../../design/source/figures/magd.png';
-import hexe from '../../../design/source/figures/hexe.png';
-import phoneIsland from '../../../design/source/brand/phone-island.png';
-import phoneEdge from '../../../design/source/brand/phone-edge.png';
-import schaf from '../../../design/source/sheep/schaf_2.png';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = ui[lang];
-const u = t.unbox;
 const beats = t.story.beats;
+const [phoneA, phoneB] = storyPhones(t);
 const formats = ['avif', 'webp'] as const;
-const votePortraits = [dorfbewohner, magd, hexe, seherin];
 ---
 
 <section class="story" aria-labelledby="story-title" data-story data-beat="0">
@@ -48,7 +45,6 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
         <Picture class="c c-pine2" src={tanne2} alt="" formats={formats} widths={[200, 400]} sizes="8vw" loading="eager" />
       </div>
 
-      <!-- the puppets, each held in from off-stage -->
       <!-- middle ground: the puppets are held up in front of it -->
       <div class="set set--near">
         <Picture class="c c-stones" src={steine} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
@@ -56,65 +52,15 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
         <Picture class="c c-fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
         <Picture class="c c-bush2" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
       </div>
+      <!-- the puppets, each held in from off-stage -->
       <div class="cast" aria-hidden="true">
         <div class="pp pp--villager"><div class="flip"><Picture class="face" src={dorfbewohner} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
         <div class="pp pp--maid"><div class="flip"><Picture class="face" src={magd} alt="" formats={formats} widths={[220, 440]} sizes="12vw" loading="eager" /></div></div>
         <div class="pp pp--wolf"><div class="flip"><Picture class="face" src={werwolf} alt="" formats={formats} widths={[320, 640]} sizes="18vw" loading="eager" /></div></div>
         <div class="pp pp--seer"><div class="flip"><Picture class="face" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
-        <div class="pp pp--phone pp--phone-a">
-          <Picture src={phoneIsland} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-          <div class="pscreen pscreen--island">
-            <p class="sb"><span>23:47</span><span class="sb__icons"><i></i><i></i><i></i></span></p>
-            <div class="ps ps--role">
-              <p class="ps__label">{u.youAre}</p>
-              <div class="ps__medal"><Picture src={seherin} alt="" formats={formats} widths={[160, 320]} sizes="8vw" /></div>
-              <p class="ps__title">{u.role}</p>
-              <span class="ps__chip">{t.cast.village}</span>
-              <p class="ps__hint">{u.roleHint}</p>
-              <span class="ps__btn">{u.next}</span>
-            </div>
-            <div class="ps ps--night">
-              <span class="ps__moon"></span>
-              <p class="ps__title">{u.night}</p>
-              <p class="ps__hint">{u.nightHint}</p>
-            </div>
-            <div class="ps ps--vote">
-              <p class="ps__title ps__title--small">{u.vote}</p>
-              <div class="ps__grid">
-                {votePortraits.map((src, i) => (
-                  <span class:list={['ps__face', { 'is-picked': i === 1 }]}>
-                    <Picture src={src} alt="" formats={formats} widths={[80, 160]} sizes="3vw" />
-                  </span>
-                ))}
-              </div>
-              <span class="ps__btn">{u.voteButton}</span>
-            </div>
-          </div>
-        </div>
-        <div class="pp pp--phone pp--phone-b">
-          <Picture src={phoneEdge} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-          <div class="pscreen">
-            <p class="sb"><span>23:47</span><span class="sb__icons"><i></i><i></i><i></i></span></p>
-            <div class="ps ps--sheep">
-              <p class="ps__title ps__title--small">{t.sheep.title}</p>
-              <div class="ps__meadow"><Picture src={schaf} alt="" formats={formats} widths={[120, 240]} sizes="5vw" /></div>
-              <p class="ps__count"><strong>7</strong> {t.sheep.score}</p>
-            </div>
-            <div class="ps ps--vote">
-              <p class="ps__title ps__title--small">{u.vote}</p>
-              <div class="ps__grid">
-                {votePortraits.map((src, i) => (
-                  <span class:list={['ps__face', { 'is-picked': i === 1 }]}>
-                    <Picture src={src} alt="" formats={formats} widths={[80, 160]} sizes="3vw" />
-                  </span>
-                ))}
-              </div>
-              <span class="ps__btn">{u.voteButton}</span>
-            </div>
-          </div>
-        </div>
+        <div class="pp pp--phone pp--phone-a"><PuppetPhone phone={phoneA} /></div>
+        <div class="pp pp--phone pp--phone-b"><PuppetPhone phone={phoneB} /></div>
       </div>
-
 
       <div class="sky" aria-hidden="true">
         {Array.from({ length: 22 }, (_, i) => (
@@ -148,65 +94,72 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
         <a class="button button--primary" href={repoUrl}>{t.box.cta}</a>
         <span class="stamp stamp--status">{t.box.stamp}</span>
       </div>
+      <p class="copy__app"><span class="copy__app-icon" aria-hidden="true"></span>{t.box.app}</p>
     </div>
-    <p class="story__hint" aria-hidden="true"><span></span>{u.scroll}</p>
   </div>
 </section>
 
 <script>
-  // The story plays itself on load (beats 1–4); scrolling only brings the last beat, the vote.
-  // Scrolling early simply jumps ahead.
+  // The story plays once on load, on its own; scrolling just moves on, with the layers of the
+  // stage drifting at different speeds.
   const story = document.querySelector<HTMLElement>('[data-story]');
-  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (story && calm.matches) {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const phones = story ? [...story.querySelectorAll<HTMLElement>('[data-phone]')] : [];
+  const last = story ? story.querySelectorAll('.copy__beats li').length : 0;
+
+  const show = (beat: number) => {
+    if (!story) return;
+    story.dataset.beat = String(beat);
+    for (const phone of phones) {
+      const screens = [...phone.querySelectorAll<HTMLElement>('[data-from]')];
+      const current = screens.filter((screen) => Number(screen.dataset.from) <= beat).at(-1);
+      for (const screen of screens) screen.classList.toggle('is-on', screen === current);
+    }
+  };
+
+  if (story && calm) {
     story.classList.add('is-static');
-    story.dataset.beat = '5';
+    show(last);
   } else if (story) {
-    let auto = 0;
-    let scrolled = 0;
-    const show = () => {
-      story.dataset.beat = String(Math.max(auto, scrolled));
+    let beat = 0;
+    const next = () => {
+      beat += 1;
+      show(beat);
+      if (beat < last) window.setTimeout(next, 950);
     };
-    const timer = window.setInterval(() => {
-      auto = Math.min(auto + 1, 4);
-      show();
-      if (auto >= 4) window.clearInterval(timer);
-    }, 1600);
+    window.setTimeout(next, 350);
+
     let queued = false;
-    const update = () => {
+    const drift = () => {
       queued = false;
-      const rect = story.getBoundingClientRect();
-      const range = Math.max(rect.height - window.innerHeight, 1);
-      const p = Math.min(Math.max(-rect.top / range, 0), 1);
-      scrolled = p > 0.55 ? 5 : p > 0.08 ? 4 : 0;
-      show();
+      const y = Math.min(window.scrollY, story.offsetHeight);
+      story.style.setProperty('--drift', `${y}px`);
     };
     window.addEventListener(
       'scroll',
       () => {
         if (!queued) {
           queued = true;
-          requestAnimationFrame(update);
+          requestAnimationFrame(drift);
         }
       },
       { passive: true },
     );
-    window.setTimeout(() => story.classList.add('is-playing'), 400);
   }
 </script>
 
 <style>
   .story {
     position: relative;
-    height: 150vh;
+    height: 100svh;
+    min-height: 34rem;
     overflow: clip;
     background: var(--night-900);
     color: #f6e8c6;
   }
   .story__stage {
-    position: sticky;
-    top: 0;
-    height: 100svh;
+    position: relative;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -216,8 +169,25 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     inset: 0;
     container-type: size;
   }
-  .scene :global(picture) {
+  .backdrop :global(picture),
+  .set :global(picture),
+  .flip :global(picture),
+  .pp--phone > :global(picture) {
     display: contents;
+  }
+  /* parallax: when scrolling on, far layers lag behind near ones */
+  .backdrop,
+  .sky {
+    translate: 0 calc(var(--drift, 0px) * 0.45);
+  }
+  .set--far {
+    translate: 0 calc(var(--drift, 0px) * 0.3);
+  }
+  .set--near {
+    translate: 0 calc(var(--drift, 0px) * 0.18);
+  }
+  .cast {
+    translate: 0 calc(var(--drift, 0px) * 0.07);
   }
   .scene :global(.c) {
     position: absolute;
@@ -298,11 +268,13 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     bottom: -3%;
     transform-origin: 50% 100%;
     transition:
-      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.5s ease;
+      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.4s ease;
     animation: hold 5s ease-in-out infinite;
   }
-  .pp :global(img) {
+  .pp :global(.face),
+  .pp :global(.frame) {
+    display: block;
     width: 100%;
     height: auto;
   }
@@ -321,8 +293,8 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     transform: translateX(-60cqw) rotate(-8deg);
   }
   .pp--maid {
-    left: 85%;
-    width: 12%;
+    left: 88.5%;
+    width: 11%;
     transform: translateX(60cqw) rotate(8deg);
     animation-delay: -1.5s;
   }
@@ -333,7 +305,7 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     animation-delay: -3s;
   }
   .pp--seer {
-    left: 43%;
+    left: 40.5%;
     width: 15%;
     transform: translateY(70cqh);
     animation-delay: -2s;
@@ -343,14 +315,14 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     animation-delay: -4s;
   }
   .pp--phone-a {
-    left: 57%;
-    width: 14%;
+    left: 55%;
+    width: 18.5%;
     transform: translateX(70cqw) rotate(12deg);
   }
   .pp--phone-b {
-    left: 71%;
-    width: 13%;
-    bottom: -7%;
+    left: 72%;
+    width: 16.5%;
+    bottom: -9%;
     transform: translateY(80cqh) rotate(-6deg);
     animation-delay: -1s;
   }
@@ -407,7 +379,7 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
   }
   .flip {
     position: relative;
-    transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
+    transition: transform 0.75s cubic-bezier(0.45, 0, 0.2, 1);
   }
   .flip :global(.face) {
     display: block;
@@ -424,237 +396,6 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
   [data-beat='5'] .pp--wolf .flip,
   [data-beat='5'] .pp--maid .flip {
     transform: rotateY(180deg);
-  }
-
-  /* ---------- Phone screens: a small, real-looking app ---------- */
-  .pscreen {
-    position: absolute;
-    left: 10.8%;
-    top: 3.8%;
-    width: 78%;
-    height: 61.8%;
-    overflow: hidden;
-    border-radius: 14% / 6.6%;
-    container-type: inline-size;
-    background:
-      radial-gradient(ellipse 120% 60% at 50% 0%, #2b3a6e, transparent 70%),
-      linear-gradient(180deg, #18213f, #0f1530);
-    color: #f6e8c6;
-    font-family: 'Manrope Variable', system-ui, sans-serif;
-  }
-  .sb {
-    position: absolute;
-    inset: 0 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 5cqw 9cqw 0 10cqw;
-    font-size: 6.5cqw;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-  .pscreen--island .sb {
-    padding-top: 4.2cqw;
-  }
-  .sb__icons {
-    display: flex;
-    gap: 1.6cqw;
-    align-items: flex-end;
-  }
-  .sb__icons i {
-    display: block;
-    width: 2.2cqw;
-    border-radius: 1cqw;
-    background: currentColor;
-  }
-  .sb__icons i:nth-child(1) {
-    height: 3cqw;
-  }
-  .sb__icons i:nth-child(2) {
-    height: 4.4cqw;
-  }
-  .sb__icons i:nth-child(3) {
-    width: 7cqw;
-    height: 4cqw;
-    border-radius: 1.2cqw;
-    background: none;
-    box-shadow: inset 0 0 0 0.9cqw currentColor;
-  }
-  .ps {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: 4.5cqw;
-    padding: 18cqw 9cqw 10cqw;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(4cqw) scale(0.98);
-    transition:
-      opacity 0.5s ease,
-      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .pp--phone-a .ps--role,
-  [data-beat='4'] .pp--phone-a .ps--role,
-  [data-beat='5'] .pp--phone-a .ps--role {
-    opacity: 0;
-  }
-  [data-beat='0'] .pp--phone-a .ps--role,
-  [data-beat='1'] .pp--phone-a .ps--role,
-  [data-beat='2'] .pp--phone-a .ps--role,
-  [data-beat='3'] .pp--phone-a .ps--role,
-  [data-beat='4'] .pp--phone-a .ps--night,
-  [data-beat='5'] .pp--phone-a .ps--vote,
-  .pp--phone-b .ps--sheep,
-  [data-beat='5'] .pp--phone-b .ps--vote {
-    opacity: 1;
-    transform: none;
-  }
-  [data-beat='5'] .pp--phone-b .ps--sheep {
-    opacity: 0;
-  }
-  .ps__label {
-    margin: 0;
-    font-size: 6.5cqw;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.7;
-  }
-  .ps__medal {
-    width: 56cqw;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    overflow: hidden;
-    background: radial-gradient(circle at 50% 35%, #3a4677, #141d30);
-    box-shadow:
-      0 0 0 1.8cqw #c9973f,
-      0 0 8cqw rgb(245 170 66 / 0.35);
-  }
-  .ps__medal :global(picture) {
-    display: block;
-  }
-  .ps__medal :global(img) {
-    width: 100%;
-    height: 140%;
-    object-fit: cover;
-    object-position: 50% 6%;
-  }
-  .ps__title {
-    margin: 0;
-    font-family: 'Ancizar Serif', Georgia, serif;
-    font-size: 13cqw;
-    font-weight: 700;
-    line-height: 1.05;
-    color: #f5aa42;
-  }
-  .ps__title--small {
-    font-size: 10.5cqw;
-    color: #f6e8c6;
-  }
-  .ps--night .ps__title {
-    color: #f6e8c6;
-  }
-  .ps__chip {
-    padding: 1.2cqw 4cqw;
-    border-radius: 999px;
-    background: rgb(233 214 172 / 0.16);
-    font-size: 6cqw;
-    font-weight: 700;
-  }
-  .ps__hint {
-    margin: 0;
-    font-size: 6.5cqw;
-    line-height: 1.35;
-    opacity: 0.8;
-  }
-  .ps__btn {
-    width: 100%;
-    padding: 4cqw 0;
-    border-radius: 999px;
-    background: #f5aa42;
-    color: #2a1b12;
-    font-size: 7.5cqw;
-    font-weight: 800;
-  }
-  .ps__moon {
-    width: 42cqw;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    box-shadow:
-      inset 10cqw -6cqw 0 0 #f6e8c6,
-      0 0 12cqw rgb(246 232 198 / 0.15);
-    transform: rotate(-20deg);
-  }
-  .ps__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6cqw;
-    width: 82%;
-  }
-  .ps__face {
-    position: relative;
-    display: block;
-    border-radius: 50%;
-    overflow: hidden;
-    aspect-ratio: 1;
-    background: #232c52;
-    box-shadow: 0 0 0 1.2cqw rgb(201 151 63 / 0.6);
-  }
-  .ps__face :global(picture) {
-    display: block;
-  }
-  .ps__face :global(img) {
-    width: 100%;
-    height: 150%;
-    object-fit: cover;
-    object-position: 50% 4%;
-  }
-  .ps__face.is-picked {
-    box-shadow:
-      0 0 0 1.8cqw #f5aa42,
-      0 0 6cqw rgb(245 170 66 / 0.6);
-  }
-  .ps__meadow {
-    width: 86%;
-    aspect-ratio: 1.2;
-    display: grid;
-    place-items: center;
-    border-radius: 8cqw;
-    background:
-      radial-gradient(ellipse 120% 50% at 50% 100%, #2f6b45 55%, transparent 56%),
-      radial-gradient(circle at 78% 22%, #f6e8c6 8%, transparent 9%),
-      #1a2546;
-  }
-  .ps__meadow :global(picture) {
-    display: block;
-    width: 62%;
-    animation: hop 1.4s ease-in-out infinite;
-  }
-  .ps__meadow :global(img) {
-    width: 100%;
-    height: auto;
-  }
-  @keyframes hop {
-    0%,
-    100% {
-      transform: translateY(0) rotate(-4deg);
-    }
-    50% {
-      transform: translateY(-18%) rotate(4deg);
-    }
-  }
-  .ps__count {
-    margin: 0;
-    font-size: 7cqw;
-    opacity: 0.85;
-  }
-  .ps__count strong {
-    font-family: 'Ancizar Serif', Georgia, serif;
-    font-size: 12cqw;
-    color: #f5aa42;
   }
 
   /* ---------- Sky life ---------- */
@@ -787,61 +528,33 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
     opacity: 1;
     transform: none;
   }
+  .copy__app {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #f6e8c6;
+    text-shadow: 0 0.1rem 0.6rem rgb(8 10 28 / 0.9);
+  }
+  .copy__app-icon {
+    flex: none;
+    width: 0.8rem;
+    height: 1.3rem;
+    border: 2px solid #f5aa42;
+    border-radius: 0.25rem;
+    box-shadow: inset 0 -0.22rem 0 -0.1rem #f5aa42;
+  }
   .copy__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.8rem 1rem;
   }
-  .story__hint {
-    position: absolute;
-    left: 50%;
-    bottom: 3svh;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    margin: 0;
-    transform: translateX(-50%);
-    font-size: 0.85rem;
-    color: rgb(246 232 198 / 0.8);
-    transition: opacity 0.4s ease;
-  }
-  .story__hint span {
-    width: 1.1rem;
-    height: 1.75rem;
-    border: 2px solid currentColor;
-    border-radius: 999px;
-    position: relative;
-  }
-  .story__hint span::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 22%;
-    width: 3px;
-    height: 6px;
-    border-radius: 999px;
-    background: currentColor;
-    transform: translateX(-50%);
-    animation: wheel 1.6s ease-in-out infinite;
-  }
-  @keyframes wheel {
-    50% {
-      transform: translate(-50%, 0.5rem);
-      opacity: 0.2;
-    }
-  }
-  .story:not([data-beat='0']) .story__hint {
-    opacity: 0;
-  }
 
   /* ---------- Phones: scene below, words on top ---------- */
   @media (max-width: 760px) {
-    .story {
-      height: 140vh;
-    }
     .backdrop {
       top: 0;
       height: 100cqh;
@@ -880,12 +593,12 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
       width: 27%;
     }
     .pp--phone-a {
-      left: 50%;
-      width: 28%;
+      left: 45%;
+      width: 34%;
     }
     .pp--phone-b {
-      left: 74%;
-      width: 25%;
+      left: 71%;
+      width: 30%;
     }
     .pp--maid {
       display: none;
@@ -941,29 +654,25 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
   }
 
   /* ---------- Reduced motion: the final tableau, no pinning ---------- */
-  .is-static {
-    height: auto;
-  }
-  .is-static .story__stage {
-    position: relative;
-    height: 100svh;
-  }
   .is-static .copy__intro {
     opacity: 1 !important;
     visibility: visible !important;
     position: static !important;
     transform: none !important;
   }
-  .is-static .copy__beats,
-  .is-static .story__hint {
+  .is-static .copy__beats {
     display: none;
   }
   @media (prefers-reduced-motion: reduce) {
+    .backdrop,
+    .sky,
+    .set,
+    .cast {
+      translate: none;
+    }
     .pp,
     .star,
-    .fly,
-    .ps__meadow :global(picture),
-    .story__hint span::after {
+    .fly {
       animation: none;
     }
     .pp,

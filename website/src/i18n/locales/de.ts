@@ -198,6 +198,7 @@ const de = {
     lede: ['Das Werwolfspiel für eure Runde.', 'Jeder mit dem eigenen Handy. Die App erzählt,', 'ihr entscheidet.'],
     cta: 'Projekt verfolgen',
     stamp: 'In Entwicklung',
+    app: 'Kostenlose App für iPhone, Android, Mac, Windows und Linux',
     flap: '5–20 Spieler · jeder mit seinem Handy',
     footer: 'Open Source. Gemeinsam entwickelt.',
     boxAlt: 'Die Whowolf-Spielschachtel: Werwolf und Seherin als Pappfiguren vor einem nächtlichen Dorf',

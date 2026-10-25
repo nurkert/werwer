@@ -1,0 +1,223 @@
+---
+// One app screen, drawn in HTML close to the real app, or a real screenshot.
+// Sizes use container units of the surrounding `.pscreen`, so a screen fits any phone size.
+import { Picture } from 'astro:assets';
+
+import type { PhoneScreen } from '../../lib/phone-screens';
+
+interface Props {
+  screen: PhoneScreen;
+}
+const { screen } = Astro.props;
+const formats = ['avif', 'webp'] as const;
+---
+
+{
+  screen.kind === 'role' && (
+    <>
+      <p class="ps__label">{screen.label}</p>
+      <div class="ps__medal">
+        <Picture src={screen.portrait} alt="" formats={formats} widths={[160, 320]} sizes="8vw" />
+      </div>
+      <p class="ps__title">{screen.role}</p>
+      <span class="ps__chip">{screen.side}</span>
+      <p class="ps__hint">{screen.hint}</p>
+      <span class="ps__btn">{screen.button}</span>
+    </>
+  )
+}
+{
+  screen.kind === 'night' && (
+    <>
+      <span class="ps__moon" />
+      <p class="ps__title ps__title--plain">{screen.title}</p>
+      <p class="ps__hint">{screen.hint}</p>
+    </>
+  )
+}
+{
+  screen.kind === 'vote' && (
+    <>
+      <p class="ps__title ps__title--small">{screen.title}</p>
+      <div class="ps__grid">
+        {screen.faces.map((src, i) => (
+          <span class:list={['ps__face', { 'is-picked': i === screen.picked }]}>
+            <Picture src={src} alt="" formats={formats} widths={[80, 160]} sizes="3vw" />
+          </span>
+        ))}
+      </div>
+      <span class="ps__btn">{screen.button}</span>
+    </>
+  )
+}
+{
+  screen.kind === 'sheep' && (
+    <>
+      <p class="ps__title ps__title--small">{screen.title}</p>
+      <div class="ps__meadow">
+        <Picture src={screen.sheep} alt="" formats={formats} widths={[120, 240]} sizes="5vw" />
+      </div>
+      <p class="ps__count">
+        <strong>{screen.count}</strong> {screen.unit}
+      </p>
+    </>
+  )
+}
+{screen.kind === 'shot' && <Picture class="ps__shot" src={screen.src} alt={screen.alt} formats={formats} widths={[300, 600]} sizes="20vw" />}
+
+<style>
+  .ps__label {
+    margin: 0;
+    font-size: 6.5cqw;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .ps__medal {
+    width: 56cqw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 35%, #3a4677, #141d30);
+    box-shadow:
+      0 0 0 1.8cqw #c9973f,
+      0 0 8cqw rgb(245 170 66 / 0.35);
+  }
+  .ps__medal :global(picture) {
+    display: block;
+  }
+  .ps__medal :global(img) {
+    width: 100%;
+    height: 140%;
+    object-fit: cover;
+    object-position: 50% 6%;
+  }
+  .ps__title {
+    margin: 0;
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-size: 13cqw;
+    font-weight: 700;
+    line-height: 1.05;
+    color: #f5aa42;
+  }
+  .ps__title--small {
+    font-size: 10.5cqw;
+    color: #f6e8c6;
+  }
+  .ps__title--plain {
+    color: #f6e8c6;
+  }
+  .ps__chip {
+    padding: 1.2cqw 4cqw;
+    border-radius: 999px;
+    background: rgb(233 214 172 / 0.16);
+    font-size: 6cqw;
+    font-weight: 700;
+  }
+  .ps__hint {
+    margin: 0;
+    font-size: 6.5cqw;
+    line-height: 1.35;
+    opacity: 0.8;
+  }
+  .ps__btn {
+    width: 100%;
+    padding: 4cqw 0;
+    border-radius: 999px;
+    background: #f5aa42;
+    color: #2a1b12;
+    font-size: 7.5cqw;
+    font-weight: 800;
+  }
+  .ps__moon {
+    width: 42cqw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow:
+      inset 10cqw -6cqw 0 0 #f6e8c6,
+      0 0 12cqw rgb(246 232 198 / 0.15);
+    transform: rotate(-20deg);
+  }
+  .ps__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6cqw;
+    width: 82%;
+  }
+  .ps__face {
+    position: relative;
+    display: block;
+    border-radius: 50%;
+    overflow: hidden;
+    aspect-ratio: 1;
+    background: #232c52;
+    box-shadow: 0 0 0 1.2cqw rgb(201 151 63 / 0.6);
+  }
+  .ps__face :global(picture) {
+    display: block;
+  }
+  .ps__face :global(img) {
+    width: 100%;
+    height: 150%;
+    object-fit: cover;
+    object-position: 50% 4%;
+  }
+  .ps__face.is-picked {
+    box-shadow:
+      0 0 0 1.8cqw #f5aa42,
+      0 0 6cqw rgb(245 170 66 / 0.6);
+  }
+  .ps__meadow {
+    width: 86%;
+    aspect-ratio: 1.2;
+    display: grid;
+    place-items: center;
+    border-radius: 8cqw;
+    background:
+      radial-gradient(ellipse 120% 50% at 50% 100%, #2f6b45 55%, transparent 56%),
+      radial-gradient(circle at 78% 22%, #f6e8c6 8%, transparent 9%),
+      #1a2546;
+  }
+  .ps__meadow :global(picture) {
+    display: block;
+    width: 62%;
+    animation: hop 1.4s ease-in-out infinite;
+  }
+  .ps__meadow :global(img) {
+    width: 100%;
+    height: auto;
+  }
+  @keyframes hop {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-4deg);
+    }
+    50% {
+      transform: translateY(-18%) rotate(4deg);
+    }
+  }
+  .ps__count {
+    margin: 0;
+    font-size: 7cqw;
+    opacity: 0.85;
+  }
+  .ps__count strong {
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-size: 12cqw;
+    color: #f5aa42;
+  }
+
+  .ps__shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ps__meadow :global(picture) {
+      animation: none;
+    }
+  }
+</style>

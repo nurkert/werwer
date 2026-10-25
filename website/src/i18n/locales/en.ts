@@ -199,6 +199,7 @@ const en: Copy = {
     lede: ['The werewolf game for your group.', 'Everyone on their own phone. The app narrates,', 'you decide.'],
     cta: 'Follow the project',
     stamp: 'In development',
+    app: 'Free app for iPhone, Android, Mac, Windows and Linux',
     flap: '5–20 players · everyone on their own phone',
     footer: 'Open source. Built together.',
     boxAlt: 'The Whowolf game box: werewolf and seer as cardboard puppets in front of a village at night',
