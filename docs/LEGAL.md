@@ -74,6 +74,12 @@ Wortspiel „Wer? Wer?“ + Werwolf. Verworfen, weil der Witz nur auf Deutsch fu
 
 Einschätzung: „Lycan“ allein ist nicht verbrannt, aber im Werwolf-Genre schon angekratzt. Mit einem Zusatz (z. B. „Lycan – Werewolf Party“) und eigener Optik ist es vermutlich vertretbar. Vor der Store-Veröffentlichung müssen DPMA/EUIPO/USPTO trotzdem richtig geprüft werden.
 
+## Impressum und Datenschutz der Website
+
+- Das Impressum steht **nicht im Repo**. Der offizielle Build liest es aus `https://nurkert.de/impressum` (Details in DECISIONS.md). Forks brauchen ein eigenes.
+- Die Datenschutzerklärung liegt unter `website/src/pages/datenschutz/`: keine Cookies, kein Tracking, keine Dritt-Inhalte, Hosting über GitHub Pages.
+- Vor einer breiten Bekanntmachung beide Texte rechtlich prüfen lassen.
+
 ## KI-generierte Assets
 
 - Grafiken werden mit Codex (Bildgenerierung) erzeugt, **ausschließlich als eigene Designs**: keine Namen, Figuren oder Stile bestimmter Serien, Spiele oder Künstler in den Prompts.

@@ -38,11 +38,11 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0.005em;
   margin: 0;
-  font-variation-settings: 'SOFT' 50, 'WONK' 1;
+  text-wrap: balance;
 }
 
 p {
@@ -78,4 +78,56 @@ html {
   scrollbar-color: var(--night-500) var(--night-900);
   accent-color: var(--lantern-400);
   caret-color: var(--lantern-400);
+}
+
+/* Buttons are shared by every page. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.35s var(--ease-puppet),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.button:hover {
+  transform: translateY(-2px) rotate(-1deg);
+}
+.button:active {
+  transform: translateY(1px);
+}
+.button--primary {
+  color: var(--night-900);
+  background: var(--lantern-400);
+  box-shadow:
+    0 0 0 3px var(--wood-700),
+    0 8px 20px rgb(242 169 59 / 0.25);
+}
+.button--primary:hover {
+  background: var(--lantern-300);
+  box-shadow:
+    0 0 0 3px var(--wood-700),
+    0 12px 28px rgb(242 169 59 / 0.35);
+}
+.button--ghost {
+  color: var(--moon-100);
+  border: 2px solid var(--night-500);
+}
+.button--ghost:hover {
+  border-color: var(--gold-500);
+}
+.button svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .button:hover {
+    transform: none;
+  }
 }

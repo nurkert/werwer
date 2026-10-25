@@ -1,0 +1,254 @@
+---
+import { Picture } from 'astro:assets';
+
+import Icon from '../../components/Icon.astro';
+import Base from '../../layouts/Base.astro';
+import { repoUrl } from '../../lib/docs';
+import { loadReleases, type Platform } from '../../lib/releases';
+import seherin from '../../../../design/source/figures/seherin.png';
+
+const releases = await loadReleases();
+const latest = releases.find((release) => !release.prerelease) ?? releases[0];
+
+const platforms: { id: Platform; name: string; icon: 'phone' | 'laptop' | 'terminal'; note: string }[] = [
+  { id: 'android', name: 'Android', icon: 'phone', note: 'APK direkt installieren. Später auch bei Google Play.' },
+  { id: 'ios', name: 'iPhone & iPad', icon: 'phone', note: 'Über TestFlight bzw. später im App Store.' },
+  { id: 'macos', name: 'macOS', icon: 'laptop', note: 'Für Apple Silicon und Intel.' },
+  { id: 'windows', name: 'Windows', icon: 'laptop', note: 'Windows 10 und 11.' },
+  { id: 'linux', name: 'Linux', icon: 'terminal', note: 'AppImage, läuft auf den meisten Distributionen.' },
+];
+
+const date = (value: Date) => value.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<Base title="Download – Whowolf" description="Whowolf für Android, iOS, macOS, Windows und Linux herunterladen. Kostenlos und Open Source.">
+  <main class="container download">
+    <header class="download__head">
+      <div>
+        <h1>Download</h1>
+        {
+          latest ? (
+            <p class="lede">
+              Aktuelle Version <strong>{latest.version}</strong> vom {date(latest.publishedAt)}.{' '}
+              <a href={latest.url}>Was ist neu?</a>
+            </p>
+          ) : (
+            <p class="lede">
+              Noch gibt es keine Version zum Herunterladen. Whowolf ist mitten in der Entwicklung. Sobald das erste Release erscheint, steht es
+              automatisch hier.
+            </p>
+          )
+        }
+      </div>
+      <Picture class="download__figure" src={seherin} alt="" formats={['avif', 'webp']} widths={[220, 440]} sizes="200px" />
+    </header>
+
+    <ul class="platforms">
+      {
+        platforms.map((platform) => {
+          const files = latest?.downloads.filter((file) => file.platform === platform.id) ?? [];
+          return (
+            <li class:list={['platform', { 'platform--ready': files.length > 0 }]}>
+              <Icon name={platform.icon} />
+              <h2>{platform.name}</h2>
+              <p>{platform.note}</p>
+              {files.length > 0 ? (
+                <div class="platform__files">
+                  {files.map((file) => (
+                    <a class="button button--primary" href={file.url}>
+                      <Icon name="download" />
+                      {file.name.split('.').pop()?.toUpperCase()} · {file.sizeMb} MB
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <span class="platform__soon">{latest ? 'In dieser Version noch nicht dabei' : 'Bald verfügbar'}</span>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <section class="trust" aria-labelledby="trust-title">
+      <Icon name="shield" />
+      <div>
+        <h2 id="trust-title">Downloads prüfen</h2>
+        <p>
+          Jedes Release wird ausschließlich von GitHub Actions aus dem öffentlichen Quellcode gebaut, mit SHA-256-Prüfsummen und einem
+          Herkunftsnachweis (Build-Provenance).
+          {latest?.checksumsUrl && (
+            <>
+              {' '}
+              <a href={latest.checksumsUrl}>Prüfsummen dieser Version</a>.
+            </>
+          )}
+        </p>
+        <p>
+          Ohne kostenpflichtige Signatur zeigen macOS und Windows beim ersten Start eine Warnung. Das ist bei Open-Source-Apps normal; die
+          Prüfsumme zeigt dir, dass die Datei echt ist.
+        </p>
+      </div>
+    </section>
+
+    {
+      releases.length > 1 && (
+        <section class="history" aria-labelledby="history-title">
+          <h2 id="history-title">Frühere Versionen</h2>
+          <ul>
+            {releases
+              .filter((release) => release !== latest)
+              .map((release) => (
+                <li>
+                  <a href={release.url}>{release.name}</a>
+                  <span>
+                    {date(release.publishedAt)}
+                    {release.prerelease ? ' · Vorabversion' : ''}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <p class="source">
+      Lieber selbst bauen? Der komplette Quellcode liegt auf <a href={repoUrl}>GitHub</a>.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .download {
+    padding-block: var(--space-5) var(--space-6);
+  }
+  .download__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .download__head h1 {
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+  }
+  .lede {
+    margin-top: var(--space-2);
+    max-width: 52ch;
+    font-size: 1.15rem;
+    color: var(--moon-200);
+  }
+  .download__head :global(.download__figure) {
+    width: 9rem;
+    height: auto;
+    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.45));
+    transform: rotate(3deg);
+  }
+
+  .platforms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--space-3);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .platform {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--space-3);
+    border-radius: var(--radius-l);
+    border: 1px solid var(--night-500);
+    background: linear-gradient(180deg, var(--night-800), var(--night-900));
+  }
+  .platform--ready {
+    border-color: var(--gold-500);
+  }
+  .platform :global(svg) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--lantern-400);
+  }
+  .platform h2 {
+    font-size: 1.5rem;
+  }
+  .platform p {
+    flex: 1;
+    color: var(--moon-200);
+    font-size: 0.95rem;
+  }
+  .platform__files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: var(--space-1);
+  }
+  .platform__soon {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: var(--night-700);
+    color: var(--moon-200);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .trust {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+    border-radius: var(--radius-l);
+    background: rgb(233 214 172 / 0.06);
+    box-shadow: inset 0 0 0 1px rgb(201 151 63 / 0.3);
+  }
+  .trust > :global(svg) {
+    width: 2.4rem;
+    height: 2.4rem;
+    color: var(--gold-500);
+  }
+  .trust h2 {
+    font-size: 1.6rem;
+  }
+  .trust p {
+    margin-top: var(--space-1);
+    max-width: 70ch;
+    color: var(--moon-200);
+  }
+
+  .history {
+    margin-top: var(--space-5);
+  }
+  .history h2 {
+    font-size: 1.6rem;
+  }
+  .history ul {
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .history li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--night-700);
+    color: var(--moon-200);
+  }
+
+  .source {
+    margin-top: var(--space-5);
+    color: var(--moon-200);
+  }
+
+  @media (max-width: 640px) {
+    .download__head :global(.download__figure) {
+      display: none;
+    }
+    .trust {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

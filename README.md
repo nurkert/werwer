@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="https://whowolf.de">whowolf.de</a> ·
+  <a href="https://whowolf.de/docs/">Docs</a> ·
   <a href="docs/ROADMAP.md">Roadmap</a> ·
   <a href="docs/GAME_DESIGN.md">Game design</a> ·
   <a href="SECURITY.md">Security</a>

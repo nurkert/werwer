@@ -1,0 +1,114 @@
+/* Rendered markdown from docs/ – long-form reading on the night palette. */
+.prose {
+  max-width: 72ch;
+  font-size: 1.05rem;
+  color: var(--moon-100);
+}
+.prose > * + * {
+  margin-top: 1.1em;
+}
+.prose h1 {
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+}
+.prose h2 {
+  margin-top: 2.2em;
+  font-size: 1.9rem;
+  scroll-margin-top: 1.5rem;
+}
+.prose h3 {
+  margin-top: 1.8em;
+  font-size: 1.4rem;
+  color: var(--lantern-300);
+  scroll-margin-top: 1.5rem;
+}
+.prose h4 {
+  margin-top: 1.5em;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.prose p,
+.prose li {
+  color: var(--moon-200);
+}
+.prose strong {
+  color: var(--moon-100);
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.3em;
+}
+.prose li + li {
+  margin-top: 0.35em;
+}
+.prose li::marker {
+  color: var(--gold-500);
+}
+.prose hr {
+  border: 0;
+  height: 1px;
+  background: var(--night-500);
+  margin-block: 2.5em;
+}
+.prose blockquote {
+  margin-inline: 0;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-m);
+  background: rgb(233 214 172 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(201 151 63 / 0.35);
+}
+.prose blockquote p {
+  color: var(--moon-100);
+}
+.prose code {
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  background: var(--night-700);
+  font-size: 0.9em;
+}
+.prose pre {
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-m);
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  border: 1px solid var(--night-700);
+}
+.prose pre code {
+  padding: 0;
+  background: none;
+}
+.prose img {
+  border-radius: var(--radius-m);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.4);
+}
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--night-700);
+}
+.prose th {
+  font-weight: 700;
+  color: var(--moon-100);
+  border-bottom-color: var(--gold-500);
+  white-space: nowrap;
+}
+.prose td {
+  color: var(--moon-200);
+  min-width: 8rem;
+}
+.prose input[type='checkbox'] {
+  margin-right: 0.4em;
+}
+.prose a {
+  overflow-wrap: anywhere;
+}

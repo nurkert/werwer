@@ -1,81 +1,176 @@
 ---
 import { Picture } from 'astro:assets';
+import { getCollection } from 'astro:content';
 
-import Stage from '../components/Stage.astro';
+import Hero from '../components/Hero.astro';
+import Icon from '../components/Icon.astro';
 import Base from '../layouts/Base.astro';
+import { docSummary, docTitle, repoUrl } from '../lib/docs';
+import { loadReleases } from '../lib/releases';
+
 import werwolf from '../../../design/source/figures/werwolf.png';
 import seherin from '../../../design/source/figures/seherin.png';
 import dorfbewohner from '../../../design/source/figures/dorfbewohner.png';
+import magd from '../../../design/source/figures/magd.png';
+import hexe from '../../../design/source/figures/hexe.png';
+import jaeger from '../../../design/source/figures/jaeger.png';
+import amor from '../../../design/source/figures/amor.png';
+import beschuetzer from '../../../design/source/figures/beschuetzer.png';
+import faehrtenleger from '../../../design/source/figures/faehrtenleger.png';
+import lauscherin from '../../../design/source/figures/lauscherin.png';
+import stillePfote from '../../../design/source/figures/stille_pfote.png';
 
-const repo = 'https://github.com/nurkert/whowolf';
 const formats = ['avif', 'webp'] as const;
+const releases = await loadReleases();
+const latest = releases.find((release) => !release.prerelease) ?? releases[0];
 
-const ensemble = [
+const docs = await getCollection('docs');
+const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design']
+  .map((id) => docs.find((entry) => entry.id === id))
+  .filter((entry) => entry !== undefined);
+
+const pillars = [
   {
-    figure: dorfbewohner,
+    icon: 'phone',
     title: 'Jeder hat sein Handy',
     text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du, auf deinem eigenen Gerät.',
   },
   {
-    figure: seherin,
+    icon: 'scroll',
     title: 'Die App erzählt',
     text: 'Niemand muss Spielleiter sein. Die App führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.',
   },
   {
-    figure: werwolf,
+    icon: 'mask',
     title: 'Niemand verrät sich',
     text: 'Nachts tippen alle etwas. Wer Werwolf ist und wer nur so tut, hört und sieht man nicht.',
   },
-];
+] as const;
+
+const evening = [
+  { icon: 'qr', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Kein Konto, kein Internet nötig.' },
+  { icon: 'circle', title: 'Platz nehmen', text: 'Die App zeigt den Tischkreis aus deiner Sicht. So stimmt die Sitzordnung auf Anhieb.' },
+  { icon: 'moon', title: 'Die Nacht', text: 'Alle tippen leise. Die Wölfe wählen ihr Opfer, die Seherin blickt in eine Seele – und die Handys flüstern.' },
+  { icon: 'sun', title: 'Der Morgen', text: 'Jedes Handy gähnt. Dann verkündet die App, wen es erwischt hat.' },
+  { icon: 'vote', title: 'Der Tag', text: 'Handys weg, Gesichter lesen, anklagen, lügen. Abgestimmt wird geheim in der App.' },
+] as const;
+
+const casts = [
+  {
+    title: 'Im ersten Release',
+    roles: [
+      { src: werwolf, name: 'Werwolf', side: 'wolf', text: 'Wählt nachts mit seinem Rudel ein Opfer. Tagsüber spielt er den Harmlosen.' },
+      { src: seherin, name: 'Seherin', side: 'dorf', text: 'Blickt jede Nacht in die Rolle eines Mitspielers. Wem verrät sie, was sie weiß?' },
+      { src: dorfbewohner, name: 'Dorfbewohner', side: 'dorf', text: 'Keine Gabe außer Menschenkenntnis. Und einer lauten Stimme bei der Abstimmung.' },
+      { src: magd, name: 'Dorfbewohnerin', side: 'dorf', text: 'Hört die Wolfsspur, wenn ihr Handy laut genug ist – und muss dann überzeugen.' },
+    ],
+  },
+  {
+    title: 'Auf dem Spielplan',
+    roles: [
+      { src: hexe, name: 'Hexe', side: 'dorf', text: 'Ein Heiltrank, ein Gifttrank, ein ganzes Spiel lang Zeit für die richtige Entscheidung.' },
+      { src: jaeger, name: 'Jäger', side: 'dorf', text: 'Wer ihn erwischt, nimmt ihn nicht allein mit. Sein letzter Schuss trifft immer.' },
+      { src: amor, name: 'Amor', side: 'dorf', text: 'Verkuppelt in der ersten Nacht zwei Spieler. Stirbt einer, stirbt der andere.' },
+      { src: beschuetzer, name: 'Beschützer', side: 'dorf', text: 'Wacht nachts über einen Spieler, nur nie zweimal hintereinander über denselben.' },
+    ],
+  },
+  {
+    title: 'Nur bei Whowolf',
+    roles: [
+      { src: faehrtenleger, name: 'Fährtenleger', side: 'wolf', text: 'Legt einmal pro Spiel eine falsche Wolfsspur auf ein Handy seiner Wahl.' },
+      { src: lauscherin, name: 'Lauscherin', side: 'dorf', text: 'Hört Spuren auch von weiter weg. Nur weiß das außer ihr niemand.' },
+      { src: stillePfote, name: 'Stille Pfote', side: 'wolf', text: 'Schleicht so leise, dass sie nie eine Spur hinterlässt.' },
+    ],
+  },
+] as const;
 
 const promises = [
-  { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail.' },
-  { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker.' },
+  { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail, keine Telefonnummer.' },
+  { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker. Weder in der App noch hier.' },
   { title: 'Lokal im WLAN', text: 'Ein Handy ist die Bühne. Eure Partie verlässt den Tisch nicht.' },
+  { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
   { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
+  { title: 'Für alle Geräte', text: 'Android, iOS, macOS, Windows und Linux aus einer Codebasis.' },
 ];
 ---
 
 <Base
+  overlay
   title="Whowolf – Werwolf am Tisch, jeder mit seinem Handy"
   description="Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, die App ist der Erzähler."
 >
-  <header class="hero">
-    <div class="hero__stage">
-      <Stage>
-        <div class="sign">
-          <h1 class="sign__board">Who<span>wolf</span></h1>
-        </div>
-      </Stage>
-    </div>
-    <div class="apron">
-      <div class="container apron__inner">
-        <p class="lede">Werwolf am Tisch. Jeder spielt auf seinem Handy, die App ist der Erzähler.</p>
-        <div class="actions">
-          <a class="button button--primary" href={repo}>Auf GitHub verfolgen</a>
-          <a class="button button--ghost" href="#wolfsspur">Was ist die Wolfsspur?</a>
-        </div>
-        <p class="meta">Bald für Android, iOS und Desktop · kostenlos · Open Source</p>
+  <Hero />
+
+  <section class="intro" aria-label="Kurz erklärt">
+    <div class="container intro__inner">
+      <p class="lede">Werwolf am Tisch. Jeder spielt auf seinem Handy, die App ist der Erzähler.</p>
+      <div class="actions">
+        <a class="button button--primary" href="/download/">{latest ? `Herunterladen · ${latest.version}` : 'Download & Status'}</a>
+        <a class="button button--ghost" href="#wolfsspur">Was ist die Wolfsspur?</a>
       </div>
+      <p class="meta">Kostenlos · Open Source · Android, iOS und Desktop</p>
     </div>
-  </header>
+  </section>
 
   <main>
-    <section class="section container" aria-labelledby="how">
-      <h2 id="how" class="section__title">Ein Spieleabend wie früher, nur ohne Zettel und Spielleiter.</h2>
-      <ul class="ensemble">
+    <section id="spiel" class="section container" aria-labelledby="spiel-title">
+      <h2 id="spiel-title" class="section__title">Ein Spieleabend wie früher, nur ohne Zettel und Spielleiter.</h2>
+      <ul class="pillars">
         {
-          ensemble.map((e) => (
-            <li class="role">
-              <div class="role__figure">
-                <Picture src={e.figure} alt="" formats={formats} widths={[200, 400]} sizes="200px" />
-              </div>
-              <h3>{e.title}</h3>
-              <p>{e.text}</p>
+          pillars.map((p) => (
+            <li>
+              <Icon name={p.icon} />
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
             </li>
           ))
         }
       </ul>
+    </section>
+
+    <section class="evening" aria-labelledby="abend-title">
+      <div class="container">
+        <h2 id="abend-title" class="section__title">So läuft ein Abend.</h2>
+        <ol class="timeline">
+          {
+            evening.map((step) => (
+              <li>
+                <span class="timeline__icon">
+                  <Icon name={step.icon} />
+                </span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section id="rollen" class="section container" aria-labelledby="rollen-title">
+      <h2 id="rollen-title" class="section__title">Das Ensemble.</h2>
+      <p class="section__lede">Jede Rolle eine Pappfigur, jede Figur mit eigenem Charakter. Das erste Release startet klein, der Spielplan wächst.</p>
+      {
+        casts.map((cast) => (
+          <div class="cast">
+            <h3 class="cast__title">{cast.title}</h3>
+            <ul class="cast__roles">
+              {cast.roles.map((role) => (
+                <li class="role">
+                  <div class="role__figure">
+                    <Picture src={role.src} alt="" formats={formats} widths={[220, 440]} sizes="220px" />
+                  </div>
+                  <div class="role__plate">
+                    <h4>{role.name}</h4>
+                    <span class:list={['side', `side--${role.side}`]}>{role.side === 'wolf' ? 'Werwölfe' : 'Dorf'}</span>
+                  </div>
+                  <p>{role.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
     </section>
 
     <section id="wolfsspur" class="spur" aria-labelledby="spur-title">
@@ -86,8 +181,7 @@ const promises = [
             Nachts flüstern die Handys auf dem Tisch: Wind, Schritte, ein Käuzchen. Und manchmal ein leises Knurren.
           </p>
           <blockquote class="spur__rule">
-            Kommt ein Wolfsgeräusch aus dem Handy von <strong>X</strong>, sitzt auf <strong>X</strong> oder direkt daneben ein
-            Werwolf.
+            Kommt ein Wolfsgeräusch aus dem Handy von <strong>X</strong>, sitzt auf <strong>X</strong> oder direkt daneben ein Werwolf.
           </blockquote>
           <dl class="spur__points">
             <div>
@@ -103,15 +197,16 @@ const promises = [
               <dd>Ein paar Geräusche pro Nacht, viel Stille dazwischen. Atmosphäre statt Lärm.</dd>
             </div>
           </dl>
+          <a class="text-link" href="/docs/night_sounds/">Die Wolfsspur im Detail</a>
         </div>
-        <div class="spur__wolf" aria-hidden="true">
-          <Picture src={werwolf} alt="" formats={formats} widths={[400, 800]} sizes="(max-width: 900px) 0px, 32vw" />
-        </div>
+        <figure class="spur__diagram">
+          <img src="/wolf-trail.svg" width="600" height="430" alt="Tischkreis: Ein Wolfsgeräusch kommt aus dem Handy von X, also sitzt auf X oder direkt daneben ein Werwolf." loading="lazy" />
+        </figure>
       </div>
     </section>
 
-    <section class="section container" aria-labelledby="fair">
-      <h2 id="fair" class="section__title">Fair gespielt.</h2>
+    <section class="section container" aria-labelledby="fair-title">
+      <h2 id="fair-title" class="section__title">Fair gespielt.</h2>
       <dl class="promises">
         {
           promises.map((p) => (
@@ -124,114 +219,64 @@ const promises = [
       </dl>
     </section>
 
+    <section class="open" aria-labelledby="open-title">
+      <div class="container open__inner">
+        <div>
+          <h2 id="open-title" class="section__title">Offen gebaut.</h2>
+          <p class="section__lede">
+            Jede Entscheidung, jede Regel und das ganze Sicherheitskonzept stehen offen im Repository. Die Docs auf dieser Seite werden
+            direkt daraus erzeugt.
+          </p>
+          <div class="actions actions--start">
+            <a class="button button--primary" href="/docs/">Zu den Docs</a>
+            <a class="button button--ghost" href={repoUrl}>Auf GitHub mitbauen</a>
+          </div>
+        </div>
+        <ul class="doc-links">
+          {
+            featuredDocs.map((entry) => (
+              <li>
+                <a href={`/docs/${entry.id}/`}>
+                  <strong>{docTitle(entry)}</strong>
+                  <span>{docSummary(entry)}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
     <section class="finale" aria-labelledby="soon">
       <div class="container">
-        <h2 id="soon">Der Vorhang hebt sich bald.</h2>
-        <p>Whowolf entsteht gerade offen auf GitHub. Schau vorbei, gib einen Stern oder bau mit.</p>
-        <a class="button button--primary" href={repo}>Zum Projekt auf GitHub</a>
+        <h2 id="soon">{latest ? 'Der Vorhang ist offen.' : 'Der Vorhang hebt sich bald.'}</h2>
+        <p>
+          {
+            latest
+              ? `Version ${latest.version} ist da. Holt euch die App und ladet zum Spieleabend.`
+              : 'Whowolf entsteht gerade. Schau vorbei, gib einen Stern oder bau mit.'
+          }
+        </p>
+        <a class="button button--primary" href="/download/">{latest ? 'Jetzt herunterladen' : 'Zum Download-Status'}</a>
       </div>
     </section>
   </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <p><strong>Whowolf</strong> · Open Source unter Apache 2.0</p>
-      <nav aria-label="Fußzeile">
-        <a href={repo}>GitHub</a>
-        <a href={`${repo}/blob/main/SECURITY.md`}>Sicherheit</a>
-      </nav>
-    </div>
-  </footer>
 </Base>
 
 <style>
-  .hero {
+  .intro {
     position: relative;
-    overflow: hidden;
-    background: var(--night-900);
-  }
-  .hero__stage {
-    position: relative;
-    max-width: 120rem;
-    margin-inline: auto;
-  }
-
-  /* The title hangs from the proscenium on two strings, like a painted board. */
-  .sign {
-    position: absolute;
-    z-index: 2;
-    top: 19%;
-    left: 50%;
-    width: clamp(15rem, 32%, 36rem);
-    transform: translateX(-50%);
-  }
-  .sign::before,
-  .sign::after {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    width: 2px;
-    height: 120%;
-    background: linear-gradient(var(--card-200), #8a6a3e);
-    opacity: 0.85;
-  }
-  .sign::before {
-    left: 16%;
-  }
-  .sign::after {
-    right: 16%;
-  }
-  .sign__board {
-    margin: 0;
-    padding: 0.32em 0.5em 0.38em;
-    text-align: center;
-    font-size: clamp(2.4rem, 6.4vw, 6rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--wood-700);
-    background:
-      radial-gradient(ellipse at 50% 0%, rgb(255 246 220 / 0.9), transparent 70%),
-      var(--card-200);
-    border-radius: 0.28em;
-    box-shadow:
-      0 0 0 0.08em #f3e3bd,
-      0 0 0 0.13em var(--wood-700),
-      0 0.25em 0.6em rgb(5 8 20 / 0.55);
-    transform-origin: 50% -60%;
-  }
-  .sign__board span {
-    color: var(--curtain-600);
-  }
-  :global(.is-lit) .sign__board {
-    animation: swing 7s ease-in-out 1.6s infinite;
-  }
-  @keyframes swing {
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-    40% {
-      transform: rotate(-1.3deg);
-    }
-    75% {
-      transform: rotate(0.9deg);
-    }
-  }
-
-  .apron {
-    position: relative;
-    padding-block: var(--space-4) var(--space-5);
-    background:
-      linear-gradient(180deg, #2b1a0f 0, var(--night-900) 5rem),
-      var(--night-900);
+    z-index: 1;
+    margin-top: -2rem;
+    padding-bottom: var(--space-5);
     text-align: center;
   }
   .lede {
     margin-inline: auto;
-    max-width: 30ch;
+    max-width: 26ch;
     font-family: var(--font-display);
-    font-size: clamp(1.35rem, 2.6vw, 1.9rem);
-    line-height: 1.35;
+    font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+    line-height: 1.2;
     color: var(--moon-100);
     text-wrap: balance;
   }
@@ -242,86 +287,132 @@ const promises = [
     gap: var(--space-2);
     margin-top: var(--space-4);
   }
+  .actions--start {
+    justify-content: flex-start;
+  }
   .meta {
     margin-top: var(--space-3);
     font-size: 0.95rem;
     color: var(--moon-200);
-    opacity: 0.85;
-  }
-
-  .button {
-    display: inline-flex;
-    align-items: center;
-    min-height: 3rem;
-    padding: 0 1.5rem;
-    border-radius: 999px;
-    font-weight: 700;
-    text-decoration: none;
-    transition:
-      transform 0.35s var(--ease-puppet),
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  .button:hover {
-    transform: translateY(-2px) rotate(-1deg);
-  }
-  .button:active {
-    transform: translateY(1px);
-  }
-  .button--primary {
-    color: var(--night-900);
-    background: var(--lantern-400);
-    box-shadow:
-      0 0 0 3px var(--wood-700),
-      0 8px 20px rgb(242 169 59 / 0.25);
-  }
-  .button--primary:hover {
-    background: var(--lantern-300);
-    box-shadow:
-      0 0 0 3px var(--wood-700),
-      0 12px 28px rgb(242 169 59 / 0.35);
-  }
-  .button--ghost {
-    color: var(--moon-100);
-    border: 2px solid var(--night-500);
-  }
-  .button--ghost:hover {
-    border-color: var(--gold-500);
   }
 
   .section {
     padding-block: var(--space-6);
   }
   .section__title {
-    max-width: 22ch;
-    font-size: clamp(2rem, 4.5vw, 3.4rem);
-    text-wrap: balance;
+    max-width: 20ch;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+  }
+  .section__lede {
+    margin-top: var(--space-2);
+    max-width: 52ch;
+    font-size: 1.15rem;
+    color: var(--moon-200);
   }
 
-  /* The ensemble stands on one wooden ledge instead of sitting in cards. */
-  .ensemble {
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pillars :global(svg) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--lantern-400);
+  }
+  .pillars h3 {
+    margin-top: var(--space-2);
+    font-size: 1.6rem;
+  }
+  .pillars p {
+    margin-top: var(--space-1);
+    max-width: 36ch;
+    color: var(--moon-200);
+  }
+
+  .evening {
+    padding-block: var(--space-6);
+    background:
+      radial-gradient(ellipse 60% 80% at 15% 0%, rgb(58 70 119 / 0.45), transparent 70%),
+      linear-gradient(180deg, var(--night-800), var(--night-900));
+    border-block: 1px solid rgb(201 151 63 / 0.18);
+  }
+  .timeline {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-3);
     margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 1.75rem;
+    left: 1.75rem;
+    right: 1.75rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-500), rgb(201 151 63 / 0.15));
+  }
+  .timeline__icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--night-700);
+    box-shadow:
+      0 0 0 3px var(--card-200),
+      0 0 0 6px var(--wood-700);
+    color: var(--lantern-300);
+  }
+  .timeline__icon :global(svg) {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  .timeline h3 {
+    margin-top: var(--space-3);
+    font-size: 1.4rem;
+  }
+  .timeline p {
+    margin-top: var(--space-1);
+    color: var(--moon-200);
+    font-size: 0.98rem;
+  }
+
+  .cast {
+    margin-top: var(--space-5);
+  }
+  .cast__title {
+    font-size: 1.35rem;
+    color: var(--gold-500);
+  }
+  .cast__roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-4) var(--space-3);
+    margin: var(--space-3) 0 0;
     padding: 0;
     list-style: none;
   }
   .role__figure {
     position: relative;
-    height: 17rem;
     display: flex;
     align-items: flex-end;
-    padding-bottom: 0.9rem;
-    margin-bottom: var(--space-3);
+    justify-content: center;
+    height: 15rem;
+    padding-bottom: 0.8rem;
   }
   .role__figure::after {
     content: '';
     position: absolute;
-    inset: auto -1rem 0;
-    height: 0.9rem;
+    inset: auto 0 0;
+    height: 0.8rem;
     border-radius: 3px;
     background: linear-gradient(180deg, #7a5233, var(--wood-700) 60%, #3b2414);
     box-shadow: 0 10px 18px rgb(0 0 0 / 0.35);
@@ -334,14 +425,44 @@ const promises = [
     height: 100%;
     width: auto;
     filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.45));
+    transition: transform 0.45s var(--ease-puppet);
+    transform-origin: 50% 100%;
   }
-  .role h3 {
-    font-size: 1.5rem;
+  .role:hover .role__figure :global(img) {
+    transform: rotate(-2.5deg) translateY(-4px);
+  }
+  .role__plate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+  }
+  .role__plate h4 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.45rem;
+  }
+  .side {
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .side--dorf {
+    color: var(--night-900);
+    background: var(--card-200);
+  }
+  .side--wolf {
+    color: var(--moon-100);
+    background: var(--curtain-600);
   }
   .role p {
-    margin-top: var(--space-1);
-    max-width: 34ch;
+    margin-top: 0.4rem;
     color: var(--moon-200);
+    font-size: 0.98rem;
   }
 
   .spur {
@@ -350,11 +471,10 @@ const promises = [
       radial-gradient(ellipse 50% 60% at 85% 30%, rgb(242 169 59 / 0.1), transparent 70%),
       linear-gradient(180deg, var(--night-900), #0e1226 55%, var(--night-900));
     border-block: 1px solid rgb(201 151 63 / 0.2);
-    overflow: hidden;
   }
   .spur__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     align-items: center;
     gap: var(--space-5);
   }
@@ -364,7 +484,7 @@ const promises = [
   .spur__lede {
     margin-top: var(--space-3);
     max-width: 36ch;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     color: var(--moon-200);
   }
   .spur__rule {
@@ -375,22 +495,25 @@ const promises = [
     background: var(--card-200);
     color: var(--wood-700);
     font-family: var(--font-display);
-    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
-    line-height: 1.4;
+    font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+    line-height: 1.35;
     box-shadow:
       0 0 0 3px var(--wood-700),
       0 16px 40px rgb(0 0 0 / 0.45);
     transform: rotate(-0.6deg);
   }
+  .spur__rule strong {
+    font-weight: 400;
+    color: var(--curtain-600);
+  }
   .spur__points {
     display: grid;
     gap: var(--space-3);
-    margin: var(--space-5) 0 0;
+    margin: var(--space-5) 0 var(--space-4);
   }
   .spur__points dt {
     font-family: var(--font-display);
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.35rem;
     color: var(--lantern-300);
   }
   .spur__points dd {
@@ -398,16 +521,21 @@ const promises = [
     max-width: 52ch;
     color: var(--moon-200);
   }
-  .spur__wolf {
-    justify-self: center;
-    width: min(100%, 26rem);
-    transform: rotate(4deg);
-    filter: drop-shadow(0 20px 30px rgb(0 0 0 / 0.5));
+  .spur__diagram {
+    margin: 0;
+  }
+  .spur__diagram img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 20px 30px rgb(0 0 0 / 0.45));
+  }
+  .text-link {
+    font-weight: 700;
   }
 
   .promises {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: var(--space-5);
     margin: var(--space-4) 0 0;
   }
@@ -417,25 +545,67 @@ const promises = [
   }
   .promises dt {
     font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 700;
+    font-size: 1.4rem;
   }
   .promises dd {
     margin: 0.3rem 0 0;
-    max-width: 44ch;
+    max-width: 40ch;
     color: var(--moon-200);
+  }
+
+  .open {
+    padding-block: var(--space-6);
+    background: var(--night-800);
+    border-block: 1px solid var(--night-700);
+  }
+  .open__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: center;
+  }
+  .doc-links {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .doc-links a {
+    display: grid;
+    gap: 0.2rem;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-m);
+    border: 1px solid var(--night-500);
+    color: var(--moon-100);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease,
+      transform 0.35s var(--ease-puppet);
+  }
+  .doc-links a:hover {
+    border-color: var(--gold-500);
+    transform: translateX(4px);
+  }
+  .doc-links strong {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.25rem;
+  }
+  .doc-links span {
+    color: var(--moon-200);
+    font-size: 0.95rem;
   }
 
   .finale {
     padding-block: var(--space-6);
     text-align: center;
     background:
-      linear-gradient(90deg, rgb(158 31 36 / 0.55), transparent 22%, transparent 78%, rgb(158 31 36 / 0.55)),
-      var(--night-800);
+      linear-gradient(90deg, rgb(158 31 36 / 0.5), transparent 20%, transparent 80%, rgb(158 31 36 / 0.5)),
+      var(--night-900);
   }
   .finale h2 {
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
-    text-wrap: balance;
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
   }
   .finale p {
     margin: var(--space-2) auto var(--space-4);
@@ -443,73 +613,62 @@ const promises = [
     color: var(--moon-200);
   }
 
-  .footer {
-    padding-block: var(--space-4);
-    border-top: 1px solid var(--night-700);
-    font-size: 0.95rem;
-    color: var(--moon-200);
-  }
-  .footer__inner {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-  .footer nav {
-    display: flex;
-    gap: var(--space-3);
-  }
-  .footer a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
-
-  @media (max-width: 900px) {
-    .section {
-      padding-block: var(--space-5);
-    }
-    .ensemble {
+  @media (max-width: 1000px) {
+    .timeline {
       grid-template-columns: 1fr;
       gap: var(--space-4);
     }
-    .role {
+    .timeline::before {
+      top: 1.75rem;
+      bottom: 1.75rem;
+      left: 1.75rem;
+      right: auto;
+      width: 2px;
+      height: auto;
+      background: linear-gradient(180deg, var(--gold-500), rgb(201 151 63 / 0.15));
+    }
+    .timeline li {
       display: grid;
-      grid-template-columns: 7.5rem 1fr;
+      grid-template-columns: 3.5rem 1fr;
       column-gap: var(--space-3);
-      align-items: end;
     }
-    .role__figure {
+    .timeline__icon {
       grid-row: span 2;
-      height: 11rem;
-      margin-bottom: 0;
     }
-    .role__figure::after {
-      inset: auto -0.5rem 0;
+    .timeline h3 {
+      margin-top: 0.6rem;
     }
-    .spur__inner {
+    .spur__inner,
+    .open__inner {
       grid-template-columns: 1fr;
     }
-    .spur__wolf {
-      display: none;
+    .promises {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .section {
+      padding-block: var(--space-5);
+    }
+    .pillars {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
     }
     .promises {
       grid-template-columns: 1fr;
     }
-  }
-
-  @media (max-width: 700px) {
-    .sign {
-      top: 13%;
-      width: 58%;
+    .cast__roles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .role__figure {
+      height: 11rem;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(.is-lit) .sign__board {
-      animation: none;
-    }
-    .button:hover {
+    .role:hover .role__figure :global(img),
+    .doc-links a:hover {
       transform: none;
     }
   }

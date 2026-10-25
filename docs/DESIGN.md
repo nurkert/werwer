@@ -64,11 +64,16 @@ Abgeleitet aus der Referenz. Später als Design-Tokens (eine Quelle für Website
 - `curtain` ist für Tod und Gefahr reserviert.
 - Kontraste nach WCAG AA für alle Texte.
 
-## Schrift (Entwurf)
+## Logo und Schrift
 
-- **Überschriften:** eine charaktervolle Serifenschrift mit Theater-Anmutung, z. B. **Fraunces** (variabel, SIL OFL).
-- **Oberfläche und Text:** eine klare, gut lesbare Sans, z. B. **Manrope** oder **Inter** (SIL OFL).
+- **Logo:** handgeletterter Schriftzug „Whowolf“ als Pappfigur (Wolfsohren am „W“, Mondsichel im „o“, „wolf“ in Vorhangrot) plus rundes **Emblem** (Werwolfkopf vor dem Vollmond) für App-Icon, Favicon und kleine Flächen. Dateien: `design/source/brand/`.
+- **CI-Schrift für Überschriften:** **Lilita One** (SIL OFL), kräftig und rund, passend zum Logo.
+- **Oberfläche und Text:** **Manrope** (SIL OFL).
 - Nur frei lizenzierte Schriften (OFL); die Dateien werden mitgeliefert, nichts von Google-Servern nachgeladen (Datenschutz).
+
+## Website: Szene statt Bühne
+
+Auf der Website gibt es **keinen Bühnenrahmen**. Der Hero ist die nächtliche Szene (Prospekt + Kulissen + Figuren auf Ebenen). Die Figuren werden **von unten gehalten**: Ihre Stäbe laufen aus dem Bild und verschwinden in einem Verlauf ins Nachtblau. Der Vorhang bleibt ein **gelegentliches Stilmittel** (z. B. für Übergänge), nicht der Dauerrahmen.
 
 ## Oberfläche: Wie es wertig wirkt
 

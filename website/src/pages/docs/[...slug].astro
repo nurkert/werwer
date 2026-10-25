@@ -1,0 +1,40 @@
+---
+import { getCollection, render } from 'astro:content';
+
+import Docs from '../../layouts/Docs.astro';
+import { docSummary, docTitle, repoUrl, sourcePath } from '../../lib/docs';
+import '../../styles/prose.css';
+
+export async function getStaticPaths() {
+  const docs = await getCollection('docs');
+  return docs.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const title = docTitle(entry);
+const source = sourcePath(entry);
+---
+
+<Docs title={`${title} – Whowolf Docs`} description={docSummary(entry) || title} current={entry} headings={headings}>
+  <article class="prose">
+    <Content />
+  </article>
+  <p class="doc-source">
+    Diese Seite wird automatisch aus <a href={`${repoUrl}/blob/main/${source}`}>{source}</a> erzeugt.
+    <a href={`${repoUrl}/edit/main/${source}`}>Auf GitHub bearbeiten</a>
+  </p>
+</Docs>
+
+<style>
+  .doc-source {
+    margin-top: var(--space-5);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--night-700);
+    font-size: 0.9rem;
+    color: var(--moon-200);
+  }
+  .doc-source a + a {
+    margin-left: var(--space-2);
+  }
+</style>

@@ -1,15 +1,31 @@
 ---
-import '@fontsource-variable/fraunces/full.css';
+import '@fontsource/lilita-one';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
+
+import { Picture } from 'astro:assets';
+
+import emblem from '../../../design/source/brand/emblem.png';
+import { repoUrl } from '../lib/docs';
 
 interface Props {
   title: string;
   description: string;
+  /** Header floats transparently over a hero image. */
+  overlay?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, overlay = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const path = Astro.url.pathname;
+
+const nav = [
+  { href: '/#spiel', label: 'Spiel' },
+  { href: '/#rollen', label: 'Rollen' },
+  { href: '/#wolfsspur', label: 'Wolfsspur' },
+  { href: '/docs/', label: 'Docs' },
+  { href: '/download/', label: 'Download' },
+];
 ---
 
 <!doctype html>
@@ -27,13 +43,193 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
-    <slot />
+    <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+    <header class:list={['site-header', { 'site-header--overlay': overlay }]}>
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="Whowolf – Startseite">
+          <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[48, 96]} sizes="44px" loading="eager" />
+          <span>Whowolf</span>
+        </a>
+        <nav aria-label="Hauptnavigation">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={path.startsWith(item.href) && item.href !== '/' ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+            <li>
+              <a class="nav-github" href={repoUrl}>GitHub</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div id="inhalt">
+      <slot />
+    </div>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div class="site-footer__brand">
+          <Picture src={emblem} alt="" formats={['avif', 'webp']} widths={[96, 192]} sizes="72px" />
+          <p><strong>Whowolf</strong><br />Werwolf am Tisch. Open Source unter Apache 2.0.</p>
+        </div>
+        <nav aria-label="Fußzeile">
+          <ul>
+            <li><a href="/docs/">Docs</a></li>
+            <li><a href="/download/">Download</a></li>
+            <li><a href={repoUrl}>GitHub</a></li>
+            <li><a href={`${repoUrl}/blob/main/SECURITY.md`}>Sicherheit</a></li>
+            <li><a href="/impressum/">Impressum</a></li>
+            <li><a href="/datenschutz/">Datenschutz</a></li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
   </body>
 </html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-s);
+    background: var(--lantern-400);
+    color: var(--night-900);
+    font-weight: 700;
+  }
+  .skip:focus {
+    top: 1rem;
+  }
+
+  .site-header {
+    position: relative;
+    z-index: 20;
+    background: var(--night-900);
+    border-bottom: 1px solid var(--night-700);
+  }
+  .site-header--overlay {
+    position: absolute;
+    inset: 0 0 auto;
+    background: linear-gradient(180deg, rgb(10 13 30 / 0.75), transparent);
+    border-bottom: 0;
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: min(100% - 2rem, 80rem);
+    margin-inline: auto;
+    min-height: 4.5rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--moon-100);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+  }
+  .brand :global(img) {
+    width: 44px;
+    height: auto;
+  }
+  .site-header nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-header nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    color: var(--moon-100);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  .site-header nav a:hover,
+  .site-header nav a[aria-current='page'] {
+    background: rgb(246 231 193 / 0.1);
+  }
+  .site-header nav .nav-github {
+    border: 2px solid var(--night-500);
+  }
+
+  .site-footer {
+    padding-block: var(--space-5) var(--space-4);
+    border-top: 1px solid var(--night-700);
+    color: var(--moon-200);
+    font-size: 0.95rem;
+  }
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+  .site-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .site-footer__brand :global(img) {
+    width: 72px;
+    height: auto;
+  }
+  .site-footer ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  @media (max-width: 760px) {
+    .site-header__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      padding-block: 0.5rem;
+    }
+    .site-header nav ul {
+      margin-left: -0.8rem;
+    }
+    .site-header nav a {
+      padding: 0 0.6rem;
+      font-size: 0.95rem;
+    }
+  }
+</style>
