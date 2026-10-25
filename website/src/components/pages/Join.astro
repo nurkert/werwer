@@ -1,0 +1,190 @@
+---
+// Landing page of the room QR code (https://whowolf.de/join?room=…). Someone who scans the
+// code with the plain camera lands here: it explains how to join with the app and shows the
+// codes from the link. Nothing is sent anywhere; the values are read and shown in the browser.
+import { Picture } from 'astro:assets';
+
+import Base from '../../layouts/Base.astro';
+import { path, ui, type Lang } from '../../i18n/ui';
+import werwolf from '../../../../design/source/figures/werwolf.png';
+import seherin from '../../../../design/source/figures/seherin.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const j = t.join;
+const formats = ['avif', 'webp'] as const;
+---
+
+<Base lang={lang} page="join" noindex title={`${j.metaTitle} – Whowolf`} description={j.metaDescription}>
+  <main class="join">
+    <section class="paper join__card" data-join>
+      <div class="join__figures" aria-hidden="true">
+        <Picture src={seherin} alt="" formats={formats} widths={[200, 400]} sizes="9rem" />
+        <Picture src={werwolf} alt="" formats={formats} widths={[240, 480]} sizes="11rem" />
+      </div>
+      <h1>{j.title}</h1>
+      <p class="join__lead">{j.lead}</p>
+      <ol class="join__steps">
+        {j.steps.map((step) => <li>{step}</li>)}
+      </ol>
+      <a class="button button--primary" href={path('download', lang)}>{j.cta}</a>
+
+      <div class="join__codes" data-join-codes hidden>
+        <p>{j.manual}</p>
+        <dl>
+          <div data-field="room"><dt>{j.room}</dt><dd></dd></div>
+          <div data-field="lan" hidden><dt>{j.address}</dt><dd></dd></div>
+          <div data-field="relay" hidden><dt>{j.online}</dt><dd></dd></div>
+        </dl>
+      </div>
+      <p class="join__invalid" data-join-invalid hidden>{j.invalid}</p>
+      <p class="join__privacy">{j.privacy}</p>
+    </section>
+  </main>
+</Base>
+
+<script>
+  // Shows the codes from the link, validated as strictly as the app does. Only text is set
+  // (textContent), never HTML, and nothing leaves the browser.
+  const root = document.querySelector<HTMLElement>('[data-join]');
+  if (root) {
+    const q = new URLSearchParams(location.search);
+    const room = q.get('room') ?? '';
+    const lan = q.get('lan');
+    const relay = q.get('relay');
+    const privateIp = (value: string) => {
+      const [ip, port = '47470'] = value.split(':');
+      const o = ip.split('.').map(Number);
+      const okIp =
+        o.length === 4 &&
+        o.every((n) => Number.isInteger(n) && n >= 0 && n < 256) &&
+        (o[0] === 10 || (o[0] === 172 && o[1] >= 16 && o[1] <= 31) || (o[0] === 192 && o[1] === 168));
+      const p = Number(port);
+      return okIp && Number.isInteger(p) && p > 0 && p < 65536;
+    };
+    const valid =
+      /^[0-9]{4}$/.test(room) &&
+      (lan === null || privateIp(lan)) &&
+      (relay === null || /^[a-hjkmnp-z2-9]{8}$/.test(relay)) &&
+      (lan !== null || relay !== null);
+    const show = (field: string, value: string | null) => {
+      const row = root.querySelector<HTMLElement>(`[data-field="${field}"]`);
+      if (!row || value === null) return;
+      row.hidden = false;
+      row.querySelector('dd')!.textContent = value;
+    };
+    if (valid) {
+      show('room', room);
+      show('lan', lan);
+      show('relay', relay);
+      root.querySelector<HTMLElement>('[data-join-codes]')!.hidden = false;
+    } else if (location.search) {
+      root.querySelector<HTMLElement>('[data-join-invalid]')!.hidden = false;
+    }
+  }
+</script>
+
+<style>
+  .join {
+    padding: 4.5rem var(--gutter) var(--space-6);
+  }
+  .join__card {
+    max-width: 40rem;
+    margin-inline: auto;
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-l);
+    text-align: center;
+  }
+  .join__figures {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-top: -6rem;
+    margin-bottom: var(--space-2);
+  }
+  .join__figures :global(img) {
+    width: auto;
+    height: 9rem;
+    filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.35));
+  }
+  .join__figures :global(picture:last-child img) {
+    height: 10.5rem;
+  }
+  .join h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    color: var(--ink);
+  }
+  .join__lead {
+    margin-top: var(--space-2);
+    font-size: 1.1rem;
+  }
+  .join__steps {
+    display: grid;
+    gap: 0.7rem;
+    max-width: 30rem;
+    margin: var(--space-3) auto;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    text-align: left;
+  }
+  .join__steps li {
+    position: relative;
+    padding-left: 2.4rem;
+    counter-increment: step;
+  }
+  .join__steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -0.05rem;
+    display: grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #f5aa42;
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .join__codes {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px dashed rgb(42 27 18 / 0.3);
+  }
+  .join__codes dl {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-2) 0 0;
+  }
+  .join__codes dt {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--curtain-600);
+  }
+  .join__codes dd {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--ink);
+  }
+  .join__invalid {
+    margin-top: var(--space-3);
+    font-weight: 700;
+    color: var(--curtain-600) !important;
+  }
+  .join__privacy {
+    margin-top: var(--space-4);
+    font-size: 0.85rem;
+  }
+</style>

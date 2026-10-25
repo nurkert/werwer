@@ -22,6 +22,7 @@ export const pages = {
   download: { de: 'download', en: 'download' },
   privacy: { de: 'datenschutz', en: 'privacy' },
   imprint: { de: 'impressum', en: 'imprint' },
+  join: { de: 'join', en: 'join' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type Page = keyof typeof pages;

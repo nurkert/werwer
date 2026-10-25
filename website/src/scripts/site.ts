@@ -13,7 +13,7 @@ document.documentElement.classList.add('js');
   const wantsGerman = (navigator.languages ?? [navigator.language]).some((l) => l.toLowerCase().startsWith('de'));
   if (wantsGerman) return;
   const english = document.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="en"]');
-  if (english) location.replace(new URL(english.href).pathname + location.hash);
+  if (english) location.replace(new URL(english.href).pathname + location.search + location.hash);
 })();
 
 // Cookie notice: shown once; the dismissal is the only thing stored (strictly necessary).

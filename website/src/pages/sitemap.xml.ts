@@ -6,7 +6,9 @@ import { alternates, defaultLang, pages, path, type Page } from '../i18n/ui';
 
 export const GET: APIRoute = async ({ site }) => {
   const url = (href: string) => new URL(href, site).toString();
-  const localized = (Object.keys(pages) as Page[]).flatMap((page) => {
+  // The join page only makes sense with a room in the link, so it is not listed.
+  const listed = (Object.keys(pages) as Page[]).filter((page) => page !== 'join');
+  const localized = listed.flatMap((page) => {
     const versions = alternates(page);
     const links = [
       ...versions.map((v) => `<xhtml:link rel="alternate" hreflang="${v.lang}" href="${url(v.href)}"/>`),
