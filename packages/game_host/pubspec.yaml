@@ -1,0 +1,17 @@
+name: game_host
+description: Whowolf host logic (rooms, sessions, timers) behind a transport interface. Pure Dart; the LAN transport lives in lan.dart.
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  game_core:
+    path: ../game_core
+  protocol:
+    path: ../protocol
+
+dev_dependencies:
+  test: ^1.31.0
+  very_good_analysis: 10.3.0
