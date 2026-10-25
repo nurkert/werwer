@@ -73,7 +73,9 @@ export async function loadReleases(): Promise<Release[]> {
               ]
             : [];
         }),
-      }));
+      }))
+      // Newest first, whatever order the API returns.
+      .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   } catch {
     // Offline build or API hiccup: the page shows the "coming soon" state.
     return [];
