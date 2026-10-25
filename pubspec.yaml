@@ -6,3 +6,4 @@ environment:
 
 workspace:
   - app
+  - packages/game_core

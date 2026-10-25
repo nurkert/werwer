@@ -1,0 +1,11 @@
+name: game_core
+description: Whowolf game rules as a pure Dart state machine. No Flutter, no I/O.
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dev_dependencies:
+  test: ^1.31.0
+  very_good_analysis: 10.3.0
