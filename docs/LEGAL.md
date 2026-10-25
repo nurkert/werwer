@@ -68,7 +68,7 @@ Wortspiel „Wer? Wer?“ + Werwolf. Verworfen, weil der Witz nur auf Deutsch fu
 | Kleine itch.io-Projekte („Lycan“, „Lycan Trickery“) | gering |
 | Markenregister | ungeprüft, die Websuche fand keinen Eintrag „LYCAN“ in Klasse 9/28/41 |
 | Domains | `lycan.app`, `lycan.io`, `lycangame.com` vergeben; `getlycan.app` und `lycanparty.com` vermutlich frei |
-| GitHub | `github.com/lycan` ist vergeben (Projekt-Repo inzwischen `nurkert/werwer`) |
+| GitHub | `github.com/lycan` ist vergeben (Projekt-Repo inzwischen `nurkert/whowolf`) |
 
 Einschätzung: „Lycan“ allein ist nicht verbrannt, aber im Werwolf-Genre schon angekratzt. Mit einem Zusatz (z. B. „Lycan – Werewolf Party“) und eigener Optik ist es vermutlich vertretbar. Vor der Store-Veröffentlichung müssen DPMA/EUIPO/USPTO trotzdem richtig geprüft werden.
 
