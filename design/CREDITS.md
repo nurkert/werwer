@@ -13,3 +13,4 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 | `sheets/sheep_sheet.png` → `source/sheep/*` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | four sheep in a jump cycle, black sheep, lamb, meadow stile, meadow mound, dream stars; transparent sheet cut with `tool/assets/slice_sheet.py` |
 | `sheets/logo_sheet.png`… see above; `.impeccable/mocks/*` (direction comps, not shipped) | Codex CLI 0.164.0 | 2026-10-25 | prompts embedded in the PNG files |
 | `assets/plates/*`, `website/src/assets/plates/*` (game-box world: box, table cluster, lantern, decor, felt) | Codex CLI 0.164.0 (image generation from comp region crops) | 2026-10-25 | prompt embedded in each PNG (`impeccable embed-prompt --read`) |
+| `source/stage/box-tray.png` (open box interior for the unboxing animation) | Codex CLI 0.164.0 | 2026-10-25 | prompt embedded in the PNG |

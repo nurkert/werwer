@@ -280,3 +280,32 @@ p {
     transition: none;
   }
 }
+
+/* Phones: cards use nearly the full width, sections breathe less so there is less to scroll. */
+@media (max-width: 760px) {
+  :root {
+    --gutter: 0.75rem;
+    --space-5: 2.5rem;
+    --space-6: 3.5rem;
+  }
+  .paper,
+  .night--deep {
+    width: calc(100% - 1rem);
+    margin-block: 1.25rem;
+    border-radius: 1rem;
+    padding-block: 2.25rem;
+  }
+  .paper .container,
+  .night--deep .container {
+    width: calc(100% - 2rem);
+  }
+  .section-head {
+    margin-bottom: 1.75rem;
+  }
+  .display {
+    font-size: clamp(2.1rem, 9vw, 2.8rem);
+  }
+  .lead {
+    font-size: 1.08rem;
+  }
+}

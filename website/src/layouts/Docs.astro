@@ -61,13 +61,27 @@ const toc = headings.filter((heading) => heading.depth === 2);
 </Base>
 
 <style>
+  /* The docs are the rule booklet: a contents column on the felt, the page itself on paper. */
   .docs {
     display: grid;
-    grid-template-columns: 14rem minmax(0, 1fr) 13rem;
-    gap: var(--space-5);
+    grid-template-columns: 15rem minmax(0, 1fr) 13rem;
+    gap: var(--space-4);
     align-items: start;
-    width: min(100% - 2rem, 84rem);
-    padding-block: var(--space-4) var(--space-6);
+    width: min(100% - 2rem, 88rem);
+    padding-block: var(--space-4) var(--space-5);
+  }
+  .docs__main {
+    min-width: 0;
+    padding: clamp(1.5rem, 1rem + 3vw, 4rem);
+    border-radius: 0.6rem;
+    color: var(--ink);
+    background: #f7ecd2;
+    box-shadow:
+      inset 0 0 0 0.55rem #f7ecd2,
+      inset 0 0 0 0.65rem #b98a43,
+      inset 0 0 0 0.85rem #f7ecd2,
+      inset 0 0 0 0.92rem #b98a43,
+      0 1.4rem 2.6rem rgb(0 0 0 / 0.45);
   }
   .docs__nav,
   .docs__toc {
@@ -78,23 +92,33 @@ const toc = headings.filter((heading) => heading.depth === 2);
     font-size: 0.95rem;
   }
   .docs__home {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     margin-bottom: var(--space-3);
     font-family: var(--font-display);
-    font-size: 1.25rem;
+    font-weight: 700;
+    font-size: 1.4rem;
     color: var(--moon-100);
     text-decoration: none;
+  }
+  .docs__home::before {
+    content: '';
+    width: 1.6rem;
+    height: 2rem;
+    border-radius: 0.2rem;
+    background: #141d30;
+    box-shadow: inset 0 0 0 0.15rem #b98a43;
   }
   .docs__group + .docs__group {
     margin-top: var(--space-3);
   }
   .docs__group-title {
     margin-bottom: 0.4rem;
-    font-size: 0.8rem;
+    font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--gold-500);
+    font-size: 1.05rem;
+    color: var(--lantern-300);
   }
   .docs__nav ul,
   .docs__toc ul {
@@ -104,8 +128,10 @@ const toc = headings.filter((heading) => heading.depth === 2);
   }
   .docs__nav li a,
   .docs__toc li a {
-    display: block;
-    padding: 0.35rem 0.7rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem;
     border-radius: var(--radius-s);
     color: var(--moon-200);
     text-decoration: none;
@@ -114,15 +140,19 @@ const toc = headings.filter((heading) => heading.depth === 2);
   .docs__nav li a:hover,
   .docs__toc li a:hover {
     color: var(--moon-100);
-    background: rgb(246 231 193 / 0.06);
+    background: rgb(246 232 198 / 0.07);
   }
   .docs__nav a[aria-current='page'] {
-    color: var(--night-900);
-    background: var(--lantern-400);
+    color: var(--ink);
+    background: var(--paper);
+    font-weight: 700;
   }
   .docs__home[aria-current='page'] {
-    color: var(--lantern-400);
-    background: none;
+    color: var(--lantern-300);
+  }
+  .docs__toc {
+    padding-left: 0.9rem;
+    border-left: 1px dotted rgb(246 232 198 / 0.3);
   }
 
   @media (max-width: 1180px) {
@@ -137,15 +167,18 @@ const toc = headings.filter((heading) => heading.depth === 2);
     .docs {
       grid-template-columns: 1fr;
       gap: var(--space-3);
+      width: calc(100% - 1rem);
+      padding-top: var(--space-3);
     }
     .docs__nav {
       position: static;
       max-height: none;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.25rem;
-      padding-bottom: var(--space-2);
-      border-bottom: 1px solid var(--night-700);
+      gap: 0.4rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 0.4rem;
+      scrollbar-width: none;
     }
     .docs__home,
     .docs__group-title {
@@ -158,9 +191,17 @@ const toc = headings.filter((heading) => heading.depth === 2);
       margin: 0;
     }
     .docs__nav li a {
-      padding: 0.4rem 0.75rem;
-      border: 1px solid var(--night-500);
+      white-space: nowrap;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid rgb(246 232 198 / 0.3);
       border-radius: 999px;
+    }
+    .docs__main {
+      padding: 1.6rem 1.2rem;
+      box-shadow:
+        inset 0 0 0 0.4rem #f7ecd2,
+        inset 0 0 0 0.48rem #b98a43,
+        0 1rem 2rem rgb(0 0 0 / 0.4);
     }
   }
 </style>

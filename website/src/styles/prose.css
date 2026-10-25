@@ -2,7 +2,7 @@
 .prose {
   max-width: 72ch;
   font-size: 1.05rem;
-  color: var(--moon-100);
+  color: var(--ink);
 }
 .prose > * + * {
   margin-top: 1.1em;
@@ -18,7 +18,7 @@
 .prose h3 {
   margin-top: 1.8em;
   font-size: 1.4rem;
-  color: var(--lantern-300);
+  color: var(--curtain-600);
   scroll-margin-top: 1.5rem;
 }
 .prose h4 {
@@ -27,12 +27,23 @@
   font-weight: 700;
   font-size: 1.05rem;
 }
+.prose h1,
+.prose h2,
+.prose h4 {
+  color: var(--ink);
+}
 .prose p,
 .prose li {
-  color: var(--moon-200);
+  color: var(--ink-soft);
 }
 .prose strong {
-  color: var(--moon-100);
+  color: var(--ink);
+}
+.prose a {
+  color: var(--curtain-600);
+}
+.prose a:hover {
+  color: var(--ink);
 }
 .prose ul,
 .prose ol {
@@ -42,28 +53,29 @@
   margin-top: 0.35em;
 }
 .prose li::marker {
-  color: var(--gold-500);
+  color: #b98a43;
 }
 .prose hr {
   border: 0;
   height: 1px;
-  background: var(--night-500);
+  background: #b98a43;
   margin-block: 2.5em;
 }
 .prose blockquote {
   margin-inline: 0;
   padding: 1rem 1.25rem;
-  border-radius: var(--radius-m);
-  background: rgb(233 214 172 / 0.08);
-  box-shadow: inset 0 0 0 1px rgb(201 151 63 / 0.35);
+  border-radius: 0.5rem;
+  background: rgb(185 138 67 / 0.12);
+  border-left: 0.3rem solid #b98a43;
 }
 .prose blockquote p {
-  color: var(--moon-100);
+  color: var(--ink);
 }
 .prose code {
   padding: 0.12em 0.4em;
   border-radius: 6px;
-  background: var(--night-700);
+  background: rgb(42 27 18 / 0.08);
+  color: var(--ink);
   font-size: 0.9em;
 }
 .prose pre {
@@ -74,9 +86,13 @@
   line-height: 1.55;
   border: 1px solid var(--night-700);
 }
+.prose pre {
+  background: #2a1b12 !important;
+}
 .prose pre code {
   padding: 0;
   background: none;
+  color: #f6e8c6;
 }
 .prose img {
   border-radius: var(--radius-m);
@@ -94,16 +110,16 @@
   padding: 0.6rem 0.8rem;
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--night-700);
+  border-bottom: 1px solid rgb(42 27 18 / 0.15);
 }
 .prose th {
   font-weight: 700;
-  color: var(--moon-100);
-  border-bottom-color: var(--gold-500);
+  color: var(--ink);
+  border-bottom-color: #b98a43;
   white-space: nowrap;
 }
 .prose td {
-  color: var(--moon-200);
+  color: var(--ink-soft);
   min-width: 8rem;
 }
 .prose input[type='checkbox'] {

@@ -39,18 +39,22 @@ const groups = groupDocs(await getCollection('docs'));
 <style>
   .intro h1 {
     font-size: clamp(2.6rem, 6vw, 4rem);
+    color: var(--ink);
   }
   .intro p {
     margin-top: var(--space-2);
     max-width: 62ch;
-    color: var(--moon-200);
+    color: var(--ink-soft);
+  }
+  .intro a {
+    color: var(--curtain-600);
   }
   .group {
     margin-top: var(--space-5);
   }
   .group h2 {
     font-size: 1.6rem;
-    color: var(--gold-500);
+    color: var(--curtain-600);
   }
   .group ul {
     display: grid;
@@ -65,16 +69,16 @@ const groups = groupDocs(await getCollection('docs'));
     gap: 0.3rem;
     height: 100%;
     padding: var(--space-3);
-    border-radius: var(--radius-m);
-    border: 1px solid var(--night-500);
-    color: var(--moon-100);
+    border-radius: 0.8rem;
+    background: rgb(42 27 18 / 0.05);
+    color: var(--ink);
     text-decoration: none;
     transition:
       border-color 0.2s ease,
       transform 0.35s var(--ease-puppet);
   }
   .group a:hover {
-    border-color: var(--gold-500);
+    background: rgb(185 138 67 / 0.18);
     transform: translateY(-3px);
   }
   .group strong {
@@ -84,7 +88,7 @@ const groups = groupDocs(await getCollection('docs'));
   }
   .group span {
     font-size: 0.95rem;
-    color: var(--moon-200);
+    color: var(--ink-soft);
   }
   @media (prefers-reduced-motion: reduce) {
     .group a:hover {

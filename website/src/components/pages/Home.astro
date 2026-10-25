@@ -23,6 +23,7 @@ import faehrtenleger from '../../../../design/source/figures/faehrtenleger.png';
 import lauscherin from '../../../../design/source/figures/lauscherin.png';
 import stillePfote from '../../../../design/source/figures/stille_pfote.png';
 import emblem from '../../../../design/source/brand/emblem.png';
+import tray from '../../../../design/source/stage/box-tray.png';
 
 interface Props {
   lang: Lang;
@@ -62,6 +63,8 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     <!-- The playbill: what this is, on paper. -->
     <section id="spiel" class="paper" aria-labelledby="spiel-title">
       <div class="container playbill">
+        <div class="playbill__intro">
+          <div>
         <div class="section-head">
           <h2 id="spiel-title" class="display" data-reveal>{t.playbill.title}</h2>
           <p class="lead" data-reveal style="--i: 1">{t.playbill.intro}</p>
@@ -74,6 +77,9 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
               </p>
             ))
           }
+        </div>
+          </div>
+          <Picture class="playbill__tray" src={tray} alt={t.box.boxAlt} formats={formats} widths={[480, 960, 1400]} sizes="(max-width: 900px) 92vw, 40vw" />
         </div>
 
         <div class="programme">
@@ -706,7 +712,10 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
       gap: var(--space-3);
       width: 100%;
       overflow-x: auto;
-      overscroll-behavior-x: contain;
+      overflow-y: hidden;
+      overscroll-behavior: contain;
+      touch-action: pan-x pan-y pinch-zoom;
+      -webkit-overflow-scrolling: touch;
       scroll-snap-type: x mandatory;
       scroll-padding-inline: var(--gutter);
       padding: 0 var(--gutter) var(--space-2);
@@ -719,7 +728,14 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
       scroll-snap-align: start;
     }
     .role__stage {
-      height: 22rem;
+      height: 17rem;
+      margin-bottom: -2.4rem;
+    }
+    .role__card {
+      padding: 2.8rem 1.1rem 1.1rem;
+    }
+    .role__plate h4 {
+      font-size: 1.45rem;
     }
     .ticket {
       grid-template-columns: 1fr;
@@ -875,6 +891,35 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     }
     .booklet-page {
       padding: var(--space-4) var(--space-3) var(--space-3);
+      transform: none;
+    }
+  }
+
+  .playbill__intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: center;
+  }
+  .playbill__intro :global(picture) {
+    display: contents;
+  }
+  .playbill__intro :global(.playbill__tray) {
+    width: 100%;
+    height: auto;
+    border-radius: 0.8rem;
+    transform: rotate(2deg);
+    box-shadow: 0 1.4rem 2.6rem rgb(42 27 18 / 0.35);
+  }
+  .playbill__intro .rulebook {
+    columns: 1;
+  }
+  @media (max-width: 900px) {
+    .playbill__intro {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+    .playbill__intro :global(.playbill__tray) {
       transform: none;
     }
   }

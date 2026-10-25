@@ -48,8 +48,7 @@ const formats = ['avif', 'webp'] as const;
     <Picture class="sky sky--b" src={stern} alt="" formats={formats} widths={[120, 240]} sizes="6vw" />
     <Picture class="sky sky--c" src={stern} alt="" formats={formats} widths={[120, 240]} sizes="5vw" />
     <div class="moon" aria-hidden="true"></div>
-    <Picture class="meadow meadow--left" src={wiese} alt="" formats={formats} widths={[400, 800]} sizes="40vw" />
-    <Picture class="meadow meadow--right" src={wiese} alt="" formats={formats} widths={[400, 800]} sizes="40vw" />
+    <Picture class="meadow" src={wiese} alt="" formats={formats} widths={[800, 1600, 2172]} sizes="80vw" />
     <Picture class="fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="20vw" />
     <div class="flock" data-flock aria-label={t.sheep}></div>
     <p class="burst-layer" data-bursts aria-hidden="true"></p>
@@ -220,16 +219,12 @@ const formats = ['avif', 'webp'] as const;
   }
   .sheep-game__field :global(.meadow) {
     position: absolute;
-    bottom: -9%;
-    width: 62%;
-    height: auto;
-  }
-  .sheep-game__field :global(.meadow--left) {
-    left: -8%;
-  }
-  .sheep-game__field :global(.meadow--right) {
-    right: -10%;
-    transform: scaleX(-1);
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 46%;
+    object-fit: cover;
+    object-position: 50% 100%;
   }
   .sheep-game__field :global(.fence) {
     position: absolute;
