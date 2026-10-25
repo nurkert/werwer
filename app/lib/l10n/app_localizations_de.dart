@@ -483,4 +483,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get persona_quietPaw => 'Stille Pfote';
+
+  @override
+  String get inviteTitle => 'Holt die anderen dazu';
+
+  @override
+  String get inviteHint =>
+      'Die anderen öffnen Whowolf und tippen auf „Raum beitreten“: Dein Raum erscheint dort von selbst. Oder sie scannen diesen Code.';
+
+  @override
+  String get connectionDetails => 'Verbindungsdetails';
+
+  @override
+  String get nearbyTitle => 'Räume in der Nähe';
+
+  @override
+  String get searching => 'Suche nach Räumen in deinem WLAN …';
+
+  @override
+  String roomOf(String host) {
+    return 'Raum von $host';
+  }
+
+  @override
+  String get noDiscovery =>
+      'Die Suche geht auf diesem Gerät nicht. Scanne stattdessen den QR-Code.';
+
+  @override
+  String get manualJoin => 'Von Hand verbinden';
 }

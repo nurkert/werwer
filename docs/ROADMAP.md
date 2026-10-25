@@ -113,6 +113,10 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Läuft auf iPhone und Mac (Hauptplattformen, dort wird getestet), Android (im Emulator auf dem Mac), Windows und Linux (CI-Builds, Linux-Test in einer VM)
 - [ ] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
 
+- [ ] **Beitritt ohne Technik:** Räume im WLAN werden automatisch gefunden (mDNS/Bonjour), QR-Code als zweiter Weg; IP, Port und Codes nur klein unter „Details“
+- [ ] **Website-Startbild aus Pappebenen:** auch der Hintergrund (Himmel, Mond, Berge, Hügel, Wiese) als gestaffelte Pappstücke mit eigener Parallaxe statt einer flachen Fläche
+- [ ] **Docs für Spieler:** Was ist Whowolf, so spielt ihr, Rollen, was ihr braucht, Sicherheit, wie die App funktioniert, Herkunft; die Planungsdokumente getrennt unter „Für Entwickler“
+
 **Fertig, wenn:** Eine **erste Testrunde** mit 5+ Leuten ohne Wolfsspur von Anfang bis Ende funktioniert hat.
 
 ## M4 – Wolfsspur v1

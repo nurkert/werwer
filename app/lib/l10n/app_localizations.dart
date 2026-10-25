@@ -889,6 +889,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quiet paw'**
   String get persona_quietPaw;
+
+  /// No description provided for @inviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the others in'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The others open Whowolf and tap “Join a room”: your room shows up by itself. Or they scan this code.'**
+  String get inviteHint;
+
+  /// No description provided for @connectionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection details'**
+  String get connectionDetails;
+
+  /// No description provided for @nearbyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooms nearby'**
+  String get nearbyTitle;
+
+  /// No description provided for @searching.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for rooms in your Wi-Fi …'**
+  String get searching;
+
+  /// No description provided for @roomOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{host}’s room'**
+  String roomOf(String host);
+
+  /// No description provided for @noDiscovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching does not work on this device. Scan the QR code instead.'**
+  String get noDiscovery;
+
+  /// No description provided for @manualJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect by hand'**
+  String get manualJoin;
 }
 
 class _AppLocalizationsDelegate

@@ -8,6 +8,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/dial.dart';
+import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/scan_screen.dart';
@@ -68,6 +69,7 @@ class _JoinScreenState extends State<JoinScreen> {
   final _code = TextEditingController();
   bool _onlineMode = false;
   String? _error;
+  final _finder = RoomFinder();
 
   @override
   void initState() {
@@ -84,6 +86,7 @@ class _JoinScreenState extends State<JoinScreen> {
 
   @override
   void dispose() {
+    _finder.dispose();
     _address.dispose();
     _online.dispose();
     _code.dispose();
@@ -135,6 +138,11 @@ class _JoinScreenState extends State<JoinScreen> {
       ),
     );
   }
+
+  Future<void> _joinNearby(NearbyRoom room) => playSession(
+    context,
+    playerSession(name: widget.name, room: room.room, lan: room.lan),
+  );
 
   Future<void> _join() async {
     final l10n = AppLocalizations.of(context);
@@ -196,68 +204,187 @@ class _JoinScreenState extends State<JoinScreen> {
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 children: [
+                  _Nearby(finder: _finder, onJoin: _joinNearby),
+                  const SizedBox(height: 20),
                   if (canScan) ...[
                     PrimaryButton(label: l10n.scanQr, onPressed: _scan),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                   ],
-                  SegmentedButton<bool>(
-                    segments: [
-                      ButtonSegment(value: false, label: Text(l10n.joinLan)),
-                      ButtonSegment(value: true, label: Text(l10n.joinOnline)),
-                    ],
-                    selected: {_onlineMode},
-                    onSelectionChanged: (v) =>
-                        setState(() => _onlineMode = v.first),
-                  ),
-                  const SizedBox(height: 16),
-                  Body(l10n.joinHelp, muted: true),
-                  const SizedBox(height: 16),
-                  if (_onlineMode)
-                    TextField(
-                      controller: _online,
-                      maxLength: relayRoomIdLength,
-                      autocorrect: false,
-                      decoration: InputDecoration(labelText: l10n.onlineCode),
-                    )
-                  else
-                    TextField(
-                      controller: _address,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+                  // Typing addresses is the fallback, tucked away.
+                  Theme(
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      iconColor: Palette.moon200,
+                      collapsedIconColor: Palette.moon200,
+                      title: Text(
+                        l10n.manualJoin,
+                        style: const TextStyle(color: Palette.moon200),
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp('[0-9.:]')),
+                      children: [
+                        SegmentedButton<bool>(
+                          segments: [
+                            ButtonSegment(
+                              value: false,
+                              label: Text(l10n.joinLan),
+                            ),
+                            ButtonSegment(
+                              value: true,
+                              label: Text(l10n.joinOnline),
+                            ),
+                          ],
+                          selected: {_onlineMode},
+                          onSelectionChanged: (v) =>
+                              setState(() => _onlineMode = v.first),
+                        ),
+                        const SizedBox(height: 12),
+                        Body(l10n.joinHelp, muted: true),
+                        const SizedBox(height: 12),
+                        if (_onlineMode)
+                          TextField(
+                            controller: _online,
+                            maxLength: relayRoomIdLength,
+                            autocorrect: false,
+                            decoration: InputDecoration(
+                              labelText: l10n.onlineCode,
+                            ),
+                          )
+                        else
+                          TextField(
+                            controller: _address,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp('[0-9.:]'),
+                              ),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: l10n.hostAddress,
+                              hintText: '192.168.1.23',
+                            ),
+                          ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _code,
+                          keyboardType: TextInputType.number,
+                          maxLength: roomCodeLength,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(labelText: l10n.roomCode),
+                          onSubmitted: (_) => _join(),
+                        ),
+                        if (_error != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            _error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Palette.curtain400),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: _join,
+                          child: Text(l10n.connect),
+                        ),
+                        const SizedBox(height: 12),
                       ],
-                      decoration: InputDecoration(
-                        labelText: l10n.hostAddress,
-                        hintText: '192.168.1.23',
-                      ),
                     ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _code,
-                    keyboardType: TextInputType.number,
-                    maxLength: roomCodeLength,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.roomCode),
-                    onSubmitted: (_) => _join(),
                   ),
-                  if (_error != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      _error!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Palette.curtain400),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  PrimaryButton(label: l10n.connect, onPressed: _join),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Rooms found on the local network, one tap to join.
+class _Nearby extends StatelessWidget {
+  const _Nearby({required this.finder, required this.onJoin});
+
+  final RoomFinder finder;
+  final void Function(NearbyRoom room) onJoin;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: finder,
+      builder: (context, _) {
+        final rooms = finder.rooms;
+        return Column(
+          children: [
+            Headline(l10n.nearbyTitle),
+            const SizedBox(height: 12),
+            if (rooms.isEmpty)
+              Panel(
+                child: Row(
+                  children: [
+                    if (!finder.unavailable) ...[
+                      const SizedBox.square(
+                        dimension: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      ),
+                      const SizedBox(width: 14),
+                    ],
+                    Expanded(
+                      child: Text(
+                        finder.unavailable ? l10n.noDiscovery : l10n.searching,
+                        style: const TextStyle(color: Palette.moon200),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            for (final room in rooms)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Material(
+                  color: Palette.night700,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    side: const BorderSide(color: Palette.lantern400, width: 2),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 6,
+                    ),
+                    leading: const Icon(
+                      Icons.nightlight_round,
+                      color: Palette.lantern400,
+                    ),
+                    title: Text(
+                      room.hostName.isEmpty
+                          ? 'Whowolf'
+                          : l10n.roomOf(room.hostName),
+                      style: const TextStyle(
+                        color: Palette.moon100,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    trailing: Text(
+                      l10n.connect,
+                      style: const TextStyle(
+                        color: Palette.lantern400,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    onTap: () => onJoin(room),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

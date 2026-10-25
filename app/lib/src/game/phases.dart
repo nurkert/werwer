@@ -268,23 +268,10 @@ class _Invite extends StatelessWidget {
       highlight: true,
       child: Column(
         children: [
-          Body(l10n.lobbyJoinHint),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 28,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: [
-              _BigLabel(l10n.roomCode, link.room),
-              if (link.lan != null)
-                _BigLabel(l10n.hostAddress, link.lan.toString()),
-              if (link.relayRoom != null)
-                _BigLabel(l10n.onlineCode, link.relayRoom!),
-            ],
-          ),
+          Headline(l10n.inviteTitle),
+          const SizedBox(height: 8),
+          Body(l10n.inviteHint),
           const SizedBox(height: 14),
-          Body(l10n.scanHint, muted: true),
-          const SizedBox(height: 10),
           DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -294,8 +281,39 @@ class _Invite extends StatelessWidget {
               padding: const EdgeInsets.all(10),
               child: QrImageView(
                 data: link.encode(),
-                size: 200,
-                semanticsLabel: l10n.scanHint,
+                size: 210,
+                semanticsLabel: l10n.inviteHint,
+              ),
+            ),
+          ),
+          // The technical bits only for those who want them.
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                iconColor: Palette.moon200,
+                collapsedIconColor: Palette.moon200,
+                title: Text(
+                  l10n.connectionDetails,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Palette.moon200, fontSize: 13),
+                ),
+                children: [
+                  Wrap(
+                    spacing: 24,
+                    runSpacing: 6,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _SmallLabel(l10n.roomCode, link.room),
+                      if (link.lan != null)
+                        _SmallLabel(l10n.hostAddress, link.lan.toString()),
+                      if (link.relayRoom != null)
+                        _SmallLabel(l10n.onlineCode, link.relayRoom!),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -305,8 +323,8 @@ class _Invite extends StatelessWidget {
   }
 }
 
-class _BigLabel extends StatelessWidget {
-  const _BigLabel(this.label, this.value);
+class _SmallLabel extends StatelessWidget {
+  const _SmallLabel(this.label, this.value);
 
   final String label;
   final String value;
@@ -314,15 +332,13 @@ class _BigLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Text(label, style: const TextStyle(color: Palette.moon200, fontSize: 13)),
+      Text(label, style: const TextStyle(color: Palette.moon200, fontSize: 12)),
       SelectableText(
         value,
-        textAlign: TextAlign.center,
         style: const TextStyle(
-          fontFamily: displayFont,
-          fontSize: 32,
-          letterSpacing: 1.5,
-          color: Palette.lantern400,
+          color: Palette.moon100,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
         ),
       ),
     ],

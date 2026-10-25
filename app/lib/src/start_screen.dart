@@ -133,6 +133,7 @@ class _StartScreenState extends State<StartScreen> {
     final l10n = AppLocalizations.of(context);
     try {
       final room = await HostedRoom.open(
+        hostName: name,
         relayServer: await const Store().relayServer(),
       );
       final session = GameSession(

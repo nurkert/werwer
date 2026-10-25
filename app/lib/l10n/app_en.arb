@@ -305,5 +305,20 @@
   "persona_guard": "Guard",
   "persona_tracker": "Tracker",
   "persona_listener": "Listener",
-  "persona_quietPaw": "Quiet paw"
+  "persona_quietPaw": "Quiet paw",
+  "inviteTitle": "Get the others in",
+  "inviteHint": "The others open Whowolf and tap “Join a room”: your room shows up by itself. Or they scan this code.",
+  "connectionDetails": "Connection details",
+  "nearbyTitle": "Rooms nearby",
+  "searching": "Looking for rooms in your Wi-Fi …",
+  "roomOf": "{host}’s room",
+  "@roomOf": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "noDiscovery": "Searching does not work on this device. Scan the QR code instead.",
+  "manualJoin": "Connect by hand"
 }
