@@ -42,12 +42,21 @@ Dart-Workspaces (`pub workspace`) verbinden die Pakete im Monorepo.
 - **Ohne Internet** zeigt der QR-Code auf die lokale Adresse des Hosts, der die Web-App dann selbst im WLAN ausliefert.
 - **Server-Wahl:** Unser offizieller Server ist voreingestellt. Ein eigener Server lässt sich in den Einstellungen eintragen. **Keine Server-Abfrage im Onboarding** (widerspricht dem Schnellstart).
 
+**Stufe 3 (im Hinterkopf): Server als Spielleiter.**
+
+- Optional kann der Server selbst Host sein (ein „kopfloser“ Spielleiter ohne Spieler). Das ist dieselbe Host-Logik, nur auf dem Server statt in der App. Nützlich z. B. für reine Online-Runden oder wenn kein Gerät der Spielleiter sein soll.
+- Zunächst wird das **nicht gebaut**. Die Host-Logik muss aber so geschrieben sein, dass sie ohne Flutter auch auf dem Server läuft.
+
 **Damit das ohne Umbau klappt (von Anfang an einhalten):**
 
 - **Host-Logik ist reines Dart** (Räume, Spieler, Timer, Reconnect, Anwendung von `game_core`), ohne Flutter und ohne `dart:io`. Uhr und Zufall werden injiziert. Sie läuft in der App auf dem Host-Gerät.
 - **Transport ist eine Schnittstelle.** LAN-WebSocket, Relay über den Server und ein In-Memory-Transport für Tests sind austauschbare Implementierungen. Der Host kann **mehrere Transporte gleichzeitig** bedienen.
 - **Ein Protokoll für alles:** Dieselben JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), egal ob lokal oder über Server. Das Protokoll hat eine Versionsnummer.
 - Die App kennt nur „eine Verbindung zu einem Host“, nicht, wo dieser Host läuft.
+- **Spieler sind über eine Sitzung identifiziert, nicht über die Verbindung.** Jeder bekommt beim Beitritt ein Sitzungstoken (lokal gespeichert). Damit kommt er nach Abbruch, Absturz oder Netzwechsel mit genau seinem Status zurück.
+- **Spieler können jederzeit dazukommen** (Lobby und laufendes Spiel). Das Modell darf das nicht ausschließen.
+- **Der Host speichert den Spielstand laufend** (Zustand ist serialisierbar), damit er nach einem Absturz weitermachen kann. Das Host-Gerät bleibt während des Spiels wach.
+- **Medien werden vom Host gesteuert:** Der Host schickt „spiele Sound X um Zeitpunkt T“ an alle Geräte, damit Erzähler und Soundscape synchron laufen.
 
 ## Komponenten
 

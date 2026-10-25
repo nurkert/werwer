@@ -21,7 +21,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
    - Rollen mit Nachtaktion werden der Reihe nach (oder parallel) aufgerufen und wählen ihr Ziel.
    - **Anti-Tell:** Alle anderen Spieler bekommen gleichzeitig eine Dummy-Aufgabe (z. B. „Wähle, wem du am wenigsten traust“). So tippt nachts **jeder**.
 5. **Morgen:** Die App verkündet, wer gestorben ist (und ggf. dessen Rolle, je nach Einstellung).
-6. **Tag:** Freie Diskussion am Tisch, optional mit Timer.
+6. **Tag:** Freie Diskussion am Tisch, optional mit Timer. **Handys weg:** Der Bildschirm zeigt nur, wer noch lebt (und deutlich, ob man selbst noch lebt), und dimmt sich. Keine Ablenkung, man soll sich anschauen.
 7. **Abstimmung:** Jeder stimmt in der App ab. Bei Gleichstand gilt eine Regel (Stichwahl / niemand stirbt, einstellbar).
 8. Zurück zu **4**, bis ein Lager gewinnt.
 9. **Ende:** Siegerbildschirm + Story/Zusammenfassung der Partie.
@@ -48,13 +48,31 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 - **Der Host entscheidet** (das Gerät des Spielleiters). Alle bekommen nur, was sie wissen dürfen, auch der Spielleiter selbst.
 - **Timer pro Phase**, damit das Spiel nicht hängt, wenn jemand nicht reagiert. Dann gibt es eine Standardaktion oder einen Zufall.
-- **Keine Vibration, keine Töne** während der Nacht auf einzelnen Geräten. Der Erzähler läuft über ein Host-Gerät oder synchron über alle.
-- **Reconnect:** Wer kurz rausfliegt (Bildschirm aus, Netzwerk weg), muss wieder in dasselbe Spiel kommen.
+- **Keine Vibration und keine Töne, die etwas über den Besitzer verraten.** Kein Gerät darf nachts wegen der Rolle oder Aktion seines Besitzers anders klingen oder vibrieren.
+- **Erzähler und Nacht-Soundscape** (siehe unten) laufen synchron über **alle** Geräte, gesteuert vom Host.
+- **Reconnect:** Wer kurz rausfliegt (Bildschirm aus, Netzwerk weg, App abgestürzt), kommt mit **genau seinem Status** zurück ins Spiel (Rolle, lebendig/tot, offene Aktion).
+- **Später dazukommen:** Neue Spieler müssen auch während einer laufenden Partie beitreten können (Regel noch offen, siehe unten).
+- **Spielleiter = normaler Spieler,** der den Raum aufmacht. Er hat keinen Wissensvorteil. Später soll auch der Server Spielleiter sein können (siehe ARCHITECTURE).
 - **Tote Spieler** sehen optional alles (Geistermodus), dürfen aber nicht mehr abstimmen.
+
+## Erzähler
+
+- **Standard:** Die App erzählt (Text + Sprachausgabe, später Musik und Sounds).
+- **Optional: Mensch erzählt, App zählt.** Ein Spieler übernimmt die Erzählerrolle und spielt nicht mit. Er bekommt einen Erzähler-Bildschirm mit allen Infos (wer welche Rolle hat, Nachtaktionen, was er ansagen soll), die App macht Rollen, Aktionen und Abstimmungen.
+
+## Nacht-Soundscape (Idee)
+
+Nachts spielen **alle Geräte** Geräusche ab, verteilt im Raum: Wind, Schritte, Heulen, knarrende Türen … Der Klang kommt „von überall“.
+
+- Manche Geräusche bedeuten **nichts** (Atmosphäre, Ablenkung).
+- Manche geben **echte Hinweise**, z. B. „Ein Heulen aus der Nähe von …“. Ob und wie viele, ist eine Spieleinstellung.
+- **Anti-Tell-Regel:** Welches Gerät welches Geräusch spielt, wird vom Host zufällig bzw. nach der Hinweis-Mechanik bestimmt, **nie** direkt durch die Rolle oder Aktion des Besitzers. Ein Hinweis ist eine bewusste Spielmechanik mit Unschärfe, kein Leck.
+- Die Mechanik gehört in `game_core` (welche Hinweise entstehen), das Abspielen in die App.
 
 ## Offene Fragen
 
-- Erzähler nur auf dem Host-Gerät oder auf allen Geräten gleichzeitig?
+- **Später dazukommen während einer Partie:** Vorschlag: Wer mitten im Spiel beitritt, ist erst **Zuschauer** und wird zu Beginn der nächsten Nacht mit einer Rolle eingemischt (Host bestätigt), oder spielt erst die nächste Partie mit. Was ist fair?
+- Wie stark dürfen Hinweis-Geräusche helfen, ohne das Spiel kaputt zu machen?
 - Rollen beim Tod aufdecken: Standard ja oder nein?
 - Eigene Rollennamen und eine eigene Welt (Lore) für Whowolf?
 - Mindest- und Maximalspielerzahl (Vorschlag: 5–20)?

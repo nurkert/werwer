@@ -97,6 +97,12 @@ Zusätzlich eine öffentliche Sicht (`publicView`), z. B. für einen geteilten B
 - [ ] `suggestRoles` für 5–20 Spieler.
 - [ ] `dart analyze` ohne Meldungen, `dart format` sauber, alle Tests grün.
 
+## Für später mitdenken (nicht bauen, aber nicht verbauen)
+
+- **Beitritt während der Partie:** `AddPlayer` ist vorerst nur in der Lobby erlaubt, aber Modell und Zustandsmaschine dürfen späteres Dazukommen nicht ausschließen (z. B. Spielerstatus „Zuschauer“).
+- **Hinweis-Geräusche** und der **menschliche Erzähler** brauchen später zusätzliche Ereignisse bzw. eine Erzähler-Sicht. Events und Sichten so bauen, dass das ergänzbar ist.
+- **Zustand serialisierbar** halten (Host speichert den Spielstand laufend).
+
 ## Bewusst nicht in diesem Task
 
 - JSON-Serialisierung (kommt mit dem Server in Phase 2; Modelle aber so bauen, dass sie leicht serialisierbar sind)
