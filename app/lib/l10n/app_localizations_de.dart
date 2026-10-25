@@ -415,4 +415,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get unmute => 'Erzählerstimme an';
+
+  @override
+  String get nightSheep =>
+      'Zähl Schäfchen bis zum Morgen: Tipp die weißen an, lass die schwarzen springen.';
+
+  @override
+  String dreamPoints(int points) {
+    return '$points Traumpunkte';
+  }
+
+  @override
+  String get sheepWhileWaiting => 'Bis zum Morgen: Schäfchen zählen.';
+
+  @override
+  String yourDreamPoints(int points) {
+    return 'Deine Traumpunkte: $points';
+  }
 }

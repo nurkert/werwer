@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
+import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
@@ -296,10 +300,62 @@ class LastNews extends StatelessWidget {
   }
 }
 
-class NightPhase extends StatelessWidget {
+class NightPhase extends StatefulWidget {
   const NightPhase({required this.session, super.key});
 
   final GameSession session;
+
+  @override
+  State<NightPhase> createState() => _NightPhaseState();
+}
+
+class _NightPhaseState extends State<NightPhase> {
+  final _random = Random();
+  Timer? _decoy;
+
+  GameSession get session => widget.session;
+
+  @override
+  void initState() {
+    super.initState();
+    _planDecoy();
+  }
+
+  @override
+  void didUpdateWidget(NightPhase oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _planDecoy();
+  }
+
+  @override
+  void dispose() {
+    _decoy?.cancel();
+    super.dispose();
+  }
+
+  /// Without a night ability the player counts sheep; after a while the app
+  /// sends the (effectless) decoy pick, at a random moment like a real pick.
+  void _planDecoy() {
+    final view = session.view!;
+    final needed =
+        view.yourRole?.nightAbility == NightAbility.decoy &&
+        view.yourSeat.isAlive &&
+        view.yourNightChoice == null;
+    if (!needed || _decoy != null) return;
+    _decoy = Timer(Duration(milliseconds: 8000 + _random.nextInt(7000)), () {
+      final now = session.view;
+      if (now == null ||
+          now.phase != Phase.night ||
+          now.yourNightChoice != null) {
+        return;
+      }
+      final others = now.seats
+          .where((s) => s.isAlive && s.id != now.you)
+          .toList();
+      if (others.isEmpty) return;
+      session.send(NightIntent(others[_random.nextInt(others.length)].id));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -307,15 +363,19 @@ class NightPhase extends StatelessWidget {
     final view = session.view!;
     final role = view.yourRole!;
     final alive = view.yourSeat.isAlive;
+    final decoy = role.nightAbility == NightAbility.decoy;
     final prompt = switch (role.nightAbility) {
       NightAbility.hunt => l10n.nightHunt,
       NightAbility.inspect => l10n.nightInspect,
-      NightAbility.decoy => l10n.nightDecoy,
+      NightAbility.decoy => l10n.nightSheep,
     };
     final seen = view.seerResults.where((r) => r.round == view.round);
     final choice = view.yourNightChoice;
     final inspected =
         role.nightAbility == NightAbility.inspect && choice != null;
+    final meadow = SheepMeadow(
+      onPoints: (delta) => session.dreamPoints += delta,
+    );
     return PhaseBody(
       children: [
         Headline(l10n.nightTitle(view.round)),
@@ -325,31 +385,41 @@ class NightPhase extends StatelessWidget {
         else ...[
           Body(prompt),
           Countdown(endsAt: session.phaseEndsAt),
-          SeatGrid(
-            view: view,
-            selected: choice,
-            enabled: (seat) =>
-                seat.isAlive &&
-                seat.id != view.you &&
-                !inspected &&
-                !(role == Role.werewolf && seat.role == Role.werewolf),
-            badges: {
-              for (final MapEntry(:key, :value) in view.packChoices.entries)
-                if (key != view.you) value: l10n.packPick(view.nameOf(key)),
-            },
-            onTap: (seat) => session.send(NightIntent(seat.id)),
-          ),
-          if (choice != null) Body(l10n.picked(view.nameOf(choice))),
-          for (final r in seen)
-            Panel(
-              highlight: true,
-              child: Body(
-                l10n.seerSaw(
-                  view.nameOf(r.target),
-                  r.role != null ? l10n.role(r.role!) : l10n.faction(r.faction),
+          if (decoy)
+            meadow
+          else ...[
+            SeatGrid(
+              view: view,
+              selected: choice,
+              enabled: (seat) =>
+                  seat.isAlive &&
+                  seat.id != view.you &&
+                  !inspected &&
+                  !(role == Role.werewolf && seat.role == Role.werewolf),
+              badges: {
+                for (final MapEntry(:key, :value) in view.packChoices.entries)
+                  if (key != view.you) value: l10n.packPick(view.nameOf(key)),
+              },
+              onTap: (seat) => session.send(NightIntent(seat.id)),
+            ),
+            if (choice != null) Body(l10n.picked(view.nameOf(choice))),
+            for (final r in seen)
+              Panel(
+                highlight: true,
+                child: Body(
+                  l10n.seerSaw(
+                    view.nameOf(r.target),
+                    r.role != null
+                        ? l10n.role(r.role!)
+                        : l10n.faction(r.faction),
+                  ),
                 ),
               ),
-            ),
+            if (choice != null) ...[
+              Body(l10n.sheepWhileWaiting, muted: true),
+              meadow,
+            ],
+          ],
           Body(l10n.nightHint, muted: true),
         ],
       ],
@@ -455,6 +525,8 @@ class EndedPhase extends StatelessWidget {
           villageWon ? l10n.villageWins : l10n.werewolvesWin,
           color: villageWon ? Palette.lantern400 : Palette.curtain400,
         ),
+        if (session.dreamPoints != 0)
+          Body(l10n.yourDreamPoints(session.dreamPoints)),
         Body(l10n.everyRole),
         SeatGrid(view: view),
         if (session.isOwner)

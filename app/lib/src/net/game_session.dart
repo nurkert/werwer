@@ -68,6 +68,9 @@ class GameSession extends ChangeNotifier {
   /// When the current phase timer runs out, on this device's clock.
   DateTime? phaseEndsAt;
 
+  /// Dream points from counting sheep, kept on this device only.
+  int dreamPoints = 0;
+
   /// The last refused intent, cleared by the UI after showing it.
   Violation? refused;
 

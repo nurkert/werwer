@@ -261,5 +261,23 @@
     }
   },
   "mute": "Narrator voice off",
-  "unmute": "Narrator voice on"
+  "unmute": "Narrator voice on",
+  "nightSheep": "Count sheep until morning: tap the white ones, let the black ones jump.",
+  "dreamPoints": "{points} dream points",
+  "@dreamPoints": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "sheepWhileWaiting": "Until morning: count sheep.",
+  "yourDreamPoints": "Your dream points: {points}",
+  "@yourDreamPoints": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  }
 }

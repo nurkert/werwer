@@ -111,5 +111,9 @@
   "narrateVote": "Genug geredet. Stimmt jetzt ab.",
   "narrateRole": "Die Rolle war: {role}.",
   "mute": "Erzählerstimme aus",
-  "unmute": "Erzählerstimme an"
+  "unmute": "Erzählerstimme an",
+  "nightSheep": "Zähl Schäfchen bis zum Morgen: Tipp die weißen an, lass die schwarzen springen.",
+  "dreamPoints": "{points} Traumpunkte",
+  "sheepWhileWaiting": "Bis zum Morgen: Schäfchen zählen.",
+  "yourDreamPoints": "Deine Traumpunkte: {points}"
 }

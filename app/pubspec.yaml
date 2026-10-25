@@ -39,6 +39,7 @@ flutter:
   assets:
     - assets/brand/
     - assets/figures/
+    - assets/sheep/
   fonts:
     - family: LilitaOne
       fonts:

@@ -769,6 +769,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Narrator voice on'**
   String get unmute;
+
+  /// No description provided for @nightSheep.
+  ///
+  /// In en, this message translates to:
+  /// **'Count sheep until morning: tap the white ones, let the black ones jump.'**
+  String get nightSheep;
+
+  /// No description provided for @dreamPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} dream points'**
+  String dreamPoints(int points);
+
+  /// No description provided for @sheepWhileWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Until morning: count sheep.'**
+  String get sheepWhileWaiting;
+
+  /// No description provided for @yourDreamPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Your dream points: {points}'**
+  String yourDreamPoints(int points);
 }
 
 class _AppLocalizationsDelegate
