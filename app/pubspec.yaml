@@ -14,6 +14,14 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  game_core:
+    path: ../packages/game_core
+  game_host:
+    path: ../packages/game_host
+  intl: any
+  protocol:
+    path: ../packages/protocol
+  wakelock_plus: ^1.8.2
 
 dev_dependencies:
   flutter_launcher_icons: 0.14.4
@@ -23,6 +31,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/brand/
   fonts:

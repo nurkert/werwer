@@ -1,0 +1,203 @@
+{
+  "@@locale": "en",
+  "tagline": "Werewolf at the table. Everyone on their own phone.",
+  "devStamp": "Test version · {version}",
+  "@devStamp": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "testNote": "Early test version: play in your own Wi-Fi with people you trust.",
+  "nameLabel": "Your name",
+  "createRoom": "Open a room",
+  "joinRoom": "Join a room",
+  "nameRequired": "Enter your name first.",
+  "joinTitle": "Join a room",
+  "hostAddress": "Host address",
+  "roomCode": "Room code",
+  "connect": "Join",
+  "joinHelp": "The phone that opened the room shows its address and code. Everyone must be in the same Wi-Fi.",
+  "connectFailed": "Could not reach the host. Same Wi-Fi? Address right?",
+  "hostFailed": "Could not open a room on this device.",
+  "byeWrongRoom": "The room code is wrong.",
+  "byeGameRunning": "This game has already started.",
+  "byeUnknownSession": "The host no longer knows you.",
+  "byeRefused": "The host refused: name taken or room full.",
+  "byeKicked": "The host removed you from the room.",
+  "byeLeft": "You left the room.",
+  "byeReplaced": "You joined again from another device.",
+  "byeClosed": "The host closed the room.",
+  "byeMisbehaved": "The connection was ended.",
+  "byeLost": "The connection to the host is lost.",
+  "backToStart": "Back to start",
+  "reconnecting": "Connection lost, reconnecting …",
+  "lobbyTitle": "Lobby",
+  "lobbyJoinHint": "Others tap “Join a room” and enter:",
+  "players": "{count, plural, =1{1 player} other{{count} players}}",
+  "@players": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startGame": "Deal the roles",
+  "needPlayers": "At least {count} players needed.",
+  "@needPlayers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fewPlayersHint": "It really gets fun from 5 players.",
+  "rolesInGame": "In this game: {roles}",
+  "@rolesInGame": {
+    "placeholders": {
+      "roles": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingForOwner": "Waiting for the host to start …",
+  "kick": "Remove",
+  "you": "you",
+  "owner": "host",
+  "leave": "Leave",
+  "leaveTitle": "Leave the game?",
+  "leaveOwner": "You are the host: the room closes for everyone.",
+  "leavePlayer": "You can come back as long as the app stays open.",
+  "cancel": "Cancel",
+  "roleVillager": "Villager",
+  "roleWerewolf": "Werewolf",
+  "roleSeer": "Seer",
+  "roleVillagerText": "No special gift. Watch, listen, and vote the werewolves out.",
+  "roleWerewolfText": "At night you pick a victim with your pack. By day you look like everyone else.",
+  "roleSeerText": "Each night you look into one player and learn who they are.",
+  "factionVillage": "Village",
+  "factionWerewolves": "Werewolves",
+  "revealTitle": "Your role",
+  "revealTap": "Tap to see your role. Nobody may look.",
+  "pack": "Your pack: {names}",
+  "@pack": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmRole": "Got it",
+  "waitingFor": "{count, plural, =0{Everyone is ready.} =1{Waiting for 1 player …} other{Waiting for {count} players …}}",
+  "@waitingFor": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nightTitle": "Night {round}",
+  "@nightTitle": {
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "nightHunt": "Whom does the pack take tonight?",
+  "nightInspect": "Whose soul do you look into?",
+  "nightDecoy": "Whom do you trust the least?",
+  "nightHint": "Everyone taps at night, so nobody stands out.",
+  "picked": "You picked {name}.",
+  "@picked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "seerSaw": "{name} is: {what}",
+  "@seerSaw": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "packPick": "→ {name}",
+  "@packPick": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "youAreDead": "You are dead. Stay quiet and watch.",
+  "timeLeft": "{seconds} s left",
+  "@timeLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "dayTitle": "Day {round}",
+  "@dayTitle": {
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "killedAtNight": "{name} did not wake up.",
+  "@killedAtNight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nobodyDied": "Everyone woke up. Nobody died tonight.",
+  "roleWas": "Role: {role}",
+  "@roleWas": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "discuss": "Talk it out at the table. Phones down!",
+  "startVote": "Start the vote",
+  "ownerStartsVote": "The host starts the vote when you are done.",
+  "voteTitle": "Vote",
+  "votePrompt": "Who is a werewolf?",
+  "abstain": "Abstain",
+  "votedFor": "Your vote: {name}",
+  "@votedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "abstained": "You abstain.",
+  "eliminated": "The village voted out {name}.",
+  "@eliminated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nobodyEliminated": "Nobody was voted out.",
+  "villageWins": "The village wins!",
+  "werewolvesWin": "The werewolves win!",
+  "everyRole": "Who was who",
+  "playAgain": "Play again",
+  "dead": "dead",
+  "refused": "That is not possible right now."
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -18,7 +18,7 @@ class WhowolfApp extends StatelessWidget {
       title: 'Whowolf',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: supportedLocales,
       home: const StartScreen(version: appVersion),
     );

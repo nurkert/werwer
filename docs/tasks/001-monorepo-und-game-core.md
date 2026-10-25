@@ -1,6 +1,6 @@
 # Task 001 – Monorepo-Grundgerüst + `game_core`
 
-**Status:** offen
+**Status:** erledigt (2026-10-25). Abweichungen: Spielstart ab 3 Spielern (siehe DECISIONS.md); `PhaseTimeout` gilt auch am Tag; Sitzordnung = Reihenfolge der Spielerliste.
 **Roadmap:** M0 (Fundament) + M1 (Spielregeln)
 
 ## Ziel

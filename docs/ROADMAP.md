@@ -39,12 +39,14 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] D4b – Website ausgebaut: Theaterzettel-Look mit Papierstruktur, Schäfchen-Zählen zum Ausprobieren, Besetzung mit allen Rollen, Docs-Wiki, Download-Seite aus Releases, Impressum/Datenschutz, Deutsch + Englisch (weitere Sprachen per Datei), SEO (hreflang, Sitemap, JSON-LD)
 - [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente, Schäfchen-Zählen) für M3
 
+> **Stand 2026-10-25:** Eine minimal spielbare Testversion (LAN, ohne Verschlüsselung, Sitzordnung noch ohne Tischkreis) steht; siehe DECISIONS.md.
+
 ## M0 – Fundament
 
 **Ziel:** Das Repo ist bereit für die Entwicklung, und Entscheidungen, die man später nur schwer ändern kann, sind getroffen.
 
 - [x] Vision, Name (**Whowolf**), Lizenz (Apache 2.0), Repo, [Marktanalyse](MARKET.md)
-- [ ] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
+- [x] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
 - [x] Tooling: `tool/check.sh` (= CI), `tool/deploy_ios.sh`, Signier-Sperre `tool/check_no_personal_ids.sh`
 - [ ] `tool/doctor.sh`
 - [x] **Walking Skeleton:** Flutter-App (`app/`, Startbildschirm mit Logo und Versionsstempel) läuft auf iPhone und Mac; Pre-Release-Pipeline baut bei Tag `v0.0.X` iOS (Compile-Check), macOS, Android, Windows, Linux mit Prüfsummen und Provenance
@@ -62,15 +64,15 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Eine komplette Partie läuft regelkonform und getestet durch, ohne UI und ohne Netzwerk.
 
-- [ ] Datenmodell: Spieler, Rollen, Lager, Einstellungen, Spielzustand, **Sitzordnung**
-- [ ] Zustandsmaschine: Lobby → Rollen verteilen → Nacht → Morgen → Tag → Abstimmung → … → Ende
-- [ ] Rollen: Dorfbewohner, Werwolf, Seherin; Rollenvorschlag nach Spielerzahl
+- [x] Datenmodell: Spieler, Rollen, Lager, Einstellungen, Spielzustand, **Sitzordnung**
+- [x] Zustandsmaschine: Lobby → Rollen verteilen → Nacht → Morgen → Tag → Abstimmung → … → Ende
+- [x] Rollen: Dorfbewohner, Werwolf, Seherin; Rollenvorschlag nach Spielerzahl
 - [ ] Anti-Tell: Tarnaufgaben für alle ohne Nachtaktion
-- [ ] Siegbedingungen, Gleichstände, Phasen-Timeout
-- [ ] Ereignisse für den Erzähler (nur Daten, keine Texte), gefilterte Spieler-Sichten
+- [x] Siegbedingungen, Gleichstände, Phasen-Timeout
+- [x] Ereignisse für den Erzähler (nur Daten, keine Texte), gefilterte Spieler-Sichten
 - [ ] Zustand serialisierbar (JSON)
-- [ ] Sicherheit: Test für **jeden** Spieler, dass seine Sicht keine fremden Geheimnisse enthält; ungültige Aktionen ändern nie den Zustand
-- [ ] Tests: jede Regel, komplette Partien über die öffentliche API, kein Informationsleck in den Sichten
+- [x] Sicherheit: Test für **jeden** Spieler, dass seine Sicht keine fremden Geheimnisse enthält; ungültige Aktionen ändern nie den Zustand
+- [x] Tests: jede Regel, komplette Partien über die öffentliche API, kein Informationsleck in den Sichten
 
 **Fertig, wenn:** Die Akzeptanzkriterien aus Task 001 erfüllt sind und der Zustand verlustfrei in JSON und zurück geht.
 
@@ -78,9 +80,9 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Mehrere Geräte spielen über das WLAN eine Partie. Zum Testen reicht ein Kommandozeilen-Client, es braucht noch keine App.
 
-- [ ] **Host-Logik** in reinem Dart (eigenes Paket, z. B. `packages/game_host`): Raum, Raumcode, Spieler-Sitzungen, Timer. Uhr und Zufall werden injiziert.
-- [ ] **Protokoll:** versionierte JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), eigenes Paket `packages/protocol`
-- [ ] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
+- [x] **Host-Logik** in reinem Dart (eigenes Paket, z. B. `packages/game_host`): Raum, Raumcode, Spieler-Sitzungen, Timer. Uhr und Zufall werden injiziert.
+- [x] **Protokoll:** versionierte JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), eigenes Paket `packages/protocol`
+- [x] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
 - [ ] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
 - [ ] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
   - Ende-zu-Ende-Verschlüsselung per Noise-Handshake (Host-Schlüssel + Raumgeheimnis aus dem QR-Code), Bibliothek prüfen und auswählen
@@ -88,7 +90,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
   - Limits: Nachrichtengröße, Verbindungen, Handshake-Zeit, Rate; strenges Parsen
   - Gleicher Nachrichtentakt + Padding in geheimen Phasen (kein Seitenkanal)
   - Fuzz-/Property-Tests für Parser und Protokoll
-- [ ] Integrationstest: Host + mehrere Clients spielen über den In-Memory-Transport eine ganze Partie, inklusive Verbindungsabbruch und Rejoin
+- [x] Integrationstest: Host + mehrere Clients spielen über den In-Memory-Transport eine ganze Partie, inklusive Verbindungsabbruch und Rejoin
 
 **Fertig, wenn:** Zwei Rechner im selben WLAN über den Kommandozeilen-Client eine Partie spielen können und ein abgebrochener Client mit seinem Status zurückkommt.
 
@@ -96,12 +98,12 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Mit Freunden eine echte Runde spielen, mit der App auf jedem Handy.
 
-- [ ] Flutter-App im Workspace, Mehrsprachigkeit (Deutsch/Englisch) von Anfang an
-- [ ] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
+- [x] Flutter-App im Workspace, Mehrsprachigkeit (Deutsch/Englisch) von Anfang an
+- [x] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
 - [ ] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
 - [ ] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
 - [ ] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
-- [ ] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg
+- [x] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg
 - [ ] Erzähler: Text auf allen Geräten, Sprachausgabe auf dem Host-Gerät
 - [ ] Bildschirm bleibt an (Wakelock), sauberes Reconnect nach Sperren oder Netzwechsel
 - [ ] **Netzwerk-Fallstricke abfangen** und Hilfe anzeigen:
