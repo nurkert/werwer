@@ -95,6 +95,9 @@ Für die Wolfsspur **nötig**.
 
 - In der Lobby: „Tippt nacheinander im Uhrzeigersinn auf ‚Ich‘“. Das dauert etwa 10 Sekunden. Alternativ ordnet der Spielleiter per Drag & Drop.
 - Wer mitten im Spiel dazukommt oder den Platz wechselt, wird neu einsortiert.
+- **Tischkreis aus der eigenen Perspektive:** Jedes Gerät zeigt den Kreis der Spieler grafisch so, wie man selbst am Tisch sitzt: **man selbst unten**, Blick zur Tischmitte. Der linke Nachbar erscheint links, der rechte rechts, gegenüber sitzende oben. (Von oben gesehen läuft „im Uhrzeigersinn“ dann von unten nach links.) So sieht jeder sofort, ob die Reihenfolge stimmt, und meldet Fehler, bevor das Spiel startet.
+- Korrigieren: Der Spielleiter verschiebt Spieler per Drag & Drop, alle sehen die Änderung sofort.
+- Spiel startet erst, wenn die Sitzordnung steht (optional: jeder bestätigt kurz „passt“).
 
 ## Technik
 

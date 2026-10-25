@@ -13,7 +13,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 ## Ablauf einer Partie
 
-1. **Lobby:** Ein Spieler erstellt einen Raum und bekommt einen Raumcode + QR-Code. Die anderen treten bei (App oder Browser).
+1. **Lobby:** Ein Spieler erstellt einen Raum und bekommt einen Raumcode + QR-Code. Die anderen treten bei (App oder Browser). Dann wird die **Sitzordnung** festgelegt und als **Tischkreis aus der eigenen Perspektive** angezeigt (man selbst unten, Nachbarn links/rechts), damit Fehler sofort auffallen (siehe [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)).
 2. **Setup:** Der Host wählt die Rollen (oder einen Vorschlag passend zur Spielerzahl) und Optionen (Timer, Erzähler-Stimme …).
 3. **Rollen verteilen:** Jeder sieht seine Rolle geheim auf dem eigenen Gerät und bestätigt.
 4. **Nacht:**
@@ -21,7 +21,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
    - Rollen mit Nachtaktion werden der Reihe nach (oder parallel) aufgerufen und wählen ihr Ziel.
    - **Anti-Tell:** Alle anderen Spieler bekommen gleichzeitig eine Dummy-Aufgabe (z. B. „Wähle, wem du am wenigsten traust“). So tippt nachts **jeder**.
 5. **Morgen:** Die App verkündet, wer gestorben ist (und ggf. dessen Rolle, je nach Einstellung).
-6. **Tag:** Freie Diskussion am Tisch, optional mit Timer. **Handys weg:** Der Bildschirm zeigt nur, wer noch lebt (und deutlich, ob man selbst noch lebt), und dimmt sich. Keine Ablenkung, man soll sich anschauen.
+6. **Tag:** Freie Diskussion am Tisch, optional mit Timer. **Handys weg:** Der Bildschirm zeigt nur, wer noch lebt (und deutlich, ob man selbst noch lebt), am besten im selben **Tischkreis** wie in der Lobby, und dimmt sich. Keine Ablenkung, man soll sich anschauen.
 7. **Abstimmung:** Jeder stimmt in der App ab. Bei Gleichstand gilt eine Regel (Stichwahl / niemand stirbt, einstellbar).
 8. Zurück zu **4**, bis ein Lager gewinnt.
 9. **Ende:** Siegerbildschirm + Story/Zusammenfassung der Partie.
