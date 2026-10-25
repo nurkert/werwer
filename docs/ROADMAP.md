@@ -82,6 +82,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
   - Firewall-Freigabe auf dem Desktop
   - Gäste-WLAN mit Client-Isolation, Ausweg: Hotspot des Host-Handys
 - [ ] Läuft auf Android, iOS, macOS, Windows, Linux
+- [ ] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
 
 **Fertig, wenn:** Eine **erste Testrunde** mit 5+ Leuten ohne Wolfsspur von Anfang bis Ende funktioniert hat.
 

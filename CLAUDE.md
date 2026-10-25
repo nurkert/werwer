@@ -35,6 +35,13 @@ dart format .                       # format before committing
 dart test packages/game_core        # run game_core tests
 ```
 
+## Running on real devices
+
+- iOS: `tool/deploy_ios.sh` (to be added with the app in M3) builds a profile build and installs/launches it via `xcrun devicectl` without attaching a debugger (`flutter run` can leave the app paused in lldb on recent iOS). It finds the first connected or Wi-Fi-paired iPhone.
+- Android: install the APK via `flutter install` / `adb`; release signing via a git-ignored `android/key.properties`.
+- **Signing stays local:** the Apple team ID goes into a git-ignored `ios/Flutter/Signing.xcconfig` (`DEVELOPMENT_TEAM = …`), pulled in by `Debug.xcconfig`/`Release.xcconfig` via `#include? "Signing.xcconfig"`. Never commit team IDs, provisioning profiles, keystores, `key.properties` or device IDs; `project.pbxproj` must not contain `DEVELOPMENT_TEAM`.
+- **Public repo:** never copy code, assets, texts or identifiers from the owner's other (private) projects into this repo. Patterns may be reused, content not.
+
 ## Workflow
 
 - Work in small, logical steps; run `dart analyze` and the tests before each commit.
