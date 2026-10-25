@@ -37,6 +37,7 @@ flutter:
   generate: true
   assets:
     - assets/brand/
+    - assets/figures/
   fonts:
     - family: LilitaOne
       fonts:

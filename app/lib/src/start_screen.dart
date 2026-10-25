@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
@@ -191,7 +192,9 @@ class _StartScreenState extends State<StartScreen> {
                     'assets/brand/wordmark.png',
                     semanticLabel: 'Whowolf',
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
+                  const _Cast(),
+                  const SizedBox(height: 16),
                   Text(
                     l10n.tagline,
                     textAlign: TextAlign.center,
@@ -255,6 +258,32 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
   }
+}
+
+/// A row of cardboard figures, slightly overlapping.
+class _Cast extends StatelessWidget {
+  const _Cast();
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: SizedBox(
+      height: 120,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (final (i, asset) in castAssets.indexed)
+            Transform.translate(
+              offset: Offset((2 - i) * 8.0, 0),
+              child: Transform.rotate(
+                angle: (i - 2) * 0.03,
+                child: Figure(asset: asset, height: i == 2 ? 120 : 100),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _Stamp extends StatelessWidget {

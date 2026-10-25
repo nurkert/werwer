@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/theme.dart';
 
 extension RoleText on AppLocalizations {
@@ -177,11 +178,13 @@ class _SeatTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: enabled ? onTap : null,
           child: SizedBox(
-            width: 150,
+            width: 168,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               child: Row(
                 children: [
+                  Portrait(role: seat.role),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

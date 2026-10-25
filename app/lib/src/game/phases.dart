@@ -3,6 +3,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
@@ -203,12 +204,14 @@ class _RevealPhaseState extends State<RevealPhase> {
             highlight: _shown,
             child: SizedBox(
               width: double.infinity,
-              height: 220,
+              height: 430,
               child: Center(
                 child: _shown
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          RoleFigure(role: role, height: 220),
+                          const SizedBox(height: 8),
                           Headline(
                             l10n.role(role),
                             color: role.faction == Faction.werewolves
@@ -223,7 +226,20 @@ class _RevealPhaseState extends State<RevealPhase> {
                           ],
                         ],
                       )
-                    : Body(l10n.revealTap),
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Opacity(
+                            opacity: 0.8,
+                            child: Image.asset(
+                              'assets/brand/emblem.png',
+                              height: 160,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Body(l10n.revealTap),
+                        ],
+                      ),
               ),
             ),
           ),
@@ -431,6 +447,10 @@ class EndedPhase extends StatelessWidget {
     final villageWon = view.winner == Faction.village;
     return PhaseBody(
       children: [
+        RoleFigure(
+          role: villageWon ? Role.villager : Role.werewolf,
+          height: 200,
+        ),
         Headline(
           villageWon ? l10n.villageWins : l10n.werewolvesWin,
           color: villageWon ? Palette.lantern400 : Palette.curtain400,
