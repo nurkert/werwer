@@ -517,4 +517,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String swapHint(String name) {
     return 'Now tap the seat $name should swap with.';
   }
+
+  @override
+  String get helpTitle => 'Can’t find each other?';
+
+  @override
+  String get helpLink => 'Room not showing up? Help';
+
+  @override
+  String get helpSameWifi =>
+      'Everyone in the same Wi-Fi: check that no phone is on mobile data or a different network.';
+
+  @override
+  String get helpGuest =>
+      'Guest Wi-Fi or hotel networks often keep devices apart. Open a hotspot on the host phone and let everyone join it.';
+
+  @override
+  String get helpIos =>
+      'iPhone/iPad: Settings › Privacy & Security › Local Network: switch Whowolf on.';
+
+  @override
+  String get helpAndroid =>
+      'Android: turn off battery saving for Whowolf so it stays connected.';
+
+  @override
+  String get helpMac =>
+      'Mac: when asked “Accept incoming network connections?”, choose Allow (System Settings › Network › Firewall).';
+
+  @override
+  String get helpWindows =>
+      'Windows: when the firewall asks, allow Whowolf on private networks.';
+
+  @override
+  String get helpVpn =>
+      'Switch off VPNs and ad blockers that filter the local network.';
+
+  @override
+  String get helpQr =>
+      'Still nothing? Scan the QR code on the host phone instead.';
 }

@@ -523,4 +523,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String swapHint(String name) {
     return 'Tippe jetzt auf den Platz, mit dem $name tauschen soll.';
   }
+
+  @override
+  String get helpTitle => 'Ihr findet euch nicht?';
+
+  @override
+  String get helpLink => 'Raum nicht dabei? Hilfe';
+
+  @override
+  String get helpSameWifi =>
+      'Alle im selben WLAN: Prüft, dass kein Handy im Mobilfunk oder in einem anderen Netz hängt.';
+
+  @override
+  String get helpGuest =>
+      'Gäste- oder Hotel-WLANs halten Geräte oft voneinander fern. Öffnet einen Hotspot auf dem Gastgeber-Handy und verbindet euch alle damit.';
+
+  @override
+  String get helpIos =>
+      'iPhone/iPad: Einstellungen › Datenschutz & Sicherheit › Lokales Netzwerk: Whowolf einschalten.';
+
+  @override
+  String get helpAndroid =>
+      'Android: Akku-Sparmodus für Whowolf ausschalten, damit die Verbindung bleibt.';
+
+  @override
+  String get helpMac =>
+      'Mac: Bei „Eingehende Netzwerkverbindungen akzeptieren?“ auf Erlauben tippen (Systemeinstellungen › Netzwerk › Firewall).';
+
+  @override
+  String get helpWindows =>
+      'Windows: Wenn die Firewall fragt, Whowolf in privaten Netzwerken erlauben.';
+
+  @override
+  String get helpVpn =>
+      'VPNs und Werbeblocker ausschalten, die das lokale Netz filtern.';
+
+  @override
+  String get helpQr =>
+      'Immer noch nichts? Scannt stattdessen den QR-Code am Gastgeber-Handy.';
 }

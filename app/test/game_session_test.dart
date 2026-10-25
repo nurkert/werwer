@@ -75,6 +75,38 @@ void main() {
     await host.close();
   });
 
+  test(
+    'back in the foreground, a lost connection is retried at once',
+    () async {
+      final host = GameHost(roomCode: '1234', random: Random(4));
+      final lan = MemoryTransport();
+      host.serve(lan);
+      final dialed = <Connection>[];
+      final session = GameSession(
+        name: 'Ada',
+        roomCode: '1234',
+        reconnectDelay: const Duration(hours: 1),
+        dial: () async {
+          final connection = lan.connect();
+          dialed.add(connection);
+          return connection;
+        },
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(session.status, SessionStatus.connected);
+      await dialed.single.close();
+      await Future<void>.delayed(Duration.zero);
+      expect(session.status, SessionStatus.reconnecting);
+      session.reconnectNow();
+      await Future<void>.delayed(Duration.zero);
+      expect(dialed, hasLength(2));
+      expect(session.status, SessionStatus.connected);
+      expect(session.view!.seats.single.name, 'Ada');
+      session.dispose();
+      await host.close();
+    },
+  );
+
   test('a wrong room code ends the session with a reason', () async {
     final host = GameHost(roomCode: '1234', random: Random(4));
     final lan = MemoryTransport();

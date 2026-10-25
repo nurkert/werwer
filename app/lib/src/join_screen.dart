@@ -6,6 +6,7 @@ import 'package:game_host/lan.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/game_screen.dart';
+import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
@@ -205,7 +206,8 @@ class _JoinScreenState extends State<JoinScreen> {
               child: Column(
                 children: [
                   _Nearby(finder: _finder, onJoin: _joinNearby),
-                  const SizedBox(height: 20),
+                  const HelpLink(),
+                  const SizedBox(height: 12),
                   if (canScan) ...[
                     PrimaryButton(label: l10n.scanQr, onPressed: _scan),
                     const SizedBox(height: 12),

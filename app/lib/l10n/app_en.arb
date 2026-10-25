@@ -330,5 +330,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "helpTitle": "Can’t find each other?",
+  "helpLink": "Room not showing up? Help",
+  "helpSameWifi": "Everyone in the same Wi-Fi: check that no phone is on mobile data or a different network.",
+  "helpGuest": "Guest Wi-Fi or hotel networks often keep devices apart. Open a hotspot on the host phone and let everyone join it.",
+  "helpIos": "iPhone/iPad: Settings › Privacy & Security › Local Network: switch Whowolf on.",
+  "helpAndroid": "Android: turn off battery saving for Whowolf so it stays connected.",
+  "helpMac": "Mac: when asked “Accept incoming network connections?”, choose Allow (System Settings › Network › Firewall).",
+  "helpWindows": "Windows: when the firewall asks, allow Whowolf on private networks.",
+  "helpVpn": "Switch off VPNs and ad blockers that filter the local network.",
+  "helpQr": "Still nothing? Scan the QR code on the host phone instead."
 }

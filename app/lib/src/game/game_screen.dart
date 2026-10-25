@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -24,7 +25,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   GameSession get session => widget.session;
 
   /// Only the host device speaks, so the voice comes from one place.
@@ -38,10 +39,19 @@ class _GameScreenState extends State<GameScreen> {
     // The host must stay awake: a locked host phone ends the game for all.
     unawaited(WakelockPlus.enable());
     session.addListener(_changed);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Back from the lock screen or another app: reconnect right away
+  /// instead of waiting for the next retry.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) session.reconnectNow();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     session
       ..removeListener(_changed)
       ..dispose();
@@ -288,6 +298,7 @@ class _Ended extends StatelessWidget {
       children: [
         const SizedBox(height: 40),
         Body(text),
+        if (reason == null) const HelpLink(),
         PrimaryButton(
           label: l10n.backToStart,
           onPressed: () => Navigator.pop(context),

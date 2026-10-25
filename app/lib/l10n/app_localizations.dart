@@ -955,6 +955,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Now tap the seat {name} should swap with.'**
   String swapHint(String name);
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can’t find each other?'**
+  String get helpTitle;
+
+  /// No description provided for @helpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Room not showing up? Help'**
+  String get helpLink;
+
+  /// No description provided for @helpSameWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in the same Wi-Fi: check that no phone is on mobile data or a different network.'**
+  String get helpSameWifi;
+
+  /// No description provided for @helpGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Wi-Fi or hotel networks often keep devices apart. Open a hotspot on the host phone and let everyone join it.'**
+  String get helpGuest;
+
+  /// No description provided for @helpIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone/iPad: Settings › Privacy & Security › Local Network: switch Whowolf on.'**
+  String get helpIos;
+
+  /// No description provided for @helpAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android: turn off battery saving for Whowolf so it stays connected.'**
+  String get helpAndroid;
+
+  /// No description provided for @helpMac.
+  ///
+  /// In en, this message translates to:
+  /// **'Mac: when asked “Accept incoming network connections?”, choose Allow (System Settings › Network › Firewall).'**
+  String get helpMac;
+
+  /// No description provided for @helpWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows: when the firewall asks, allow Whowolf on private networks.'**
+  String get helpWindows;
+
+  /// No description provided for @helpVpn.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch off VPNs and ad blockers that filter the local network.'**
+  String get helpVpn;
+
+  /// No description provided for @helpQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Still nothing? Scan the QR code on the host phone instead.'**
+  String get helpQr;
 }
 
 class _AppLocalizationsDelegate

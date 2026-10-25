@@ -7,6 +7,7 @@ import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
+import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -141,6 +142,7 @@ class _LobbyPhaseState extends State<LobbyPhase> {
       children: [
         if (session.isOwner && link != null) _Invite(link: link),
         if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
+        if (session.isOwner && count < 2) const HelpLink(),
         _PersonaPicker(session: session),
         Headline(l10n.players(count)),
         if (count > 1) Body(l10n.tableHint, muted: true),

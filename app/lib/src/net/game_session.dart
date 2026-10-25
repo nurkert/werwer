@@ -144,7 +144,8 @@ class GameSession extends ChangeNotifier {
     if (status == SessionStatus.reconnecting) _failedReconnects++;
     status = SessionStatus.reconnecting;
     notifyListeners();
-    Timer(reconnectDelay, () {
+    _retry?.cancel();
+    _retry = Timer(reconnectDelay, () {
       if (!_disposed && status == SessionStatus.reconnecting) {
         unawaited(_connect());
       }
@@ -165,6 +166,16 @@ class GameSession extends ChangeNotifier {
     notifyListeners();
   }
 
+  Timer? _retry;
+
+  /// Reconnects immediately if the connection is down (e.g. the app just
+  /// came back to the foreground or the network changed).
+  void reconnectNow() {
+    if (_disposed || status != SessionStatus.reconnecting) return;
+    _retry?.cancel();
+    unawaited(_connect());
+  }
+
   void send(ClientMessage message) => _connection?.send(message.encode());
 
   /// Leaves for good: tells the host (in the lobby) and closes.
@@ -179,6 +190,7 @@ class GameSession extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _retry?.cancel();
     unawaited(_subscription?.cancel());
     unawaited(_connection?.close());
     super.dispose();
