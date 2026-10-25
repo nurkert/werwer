@@ -8,3 +8,4 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 | `characters/werwolf.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |
 | `characters/seherin.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |
 | `characters/dorfbewohner.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |
+| `sheets/*`, `source/**` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/stage.md`](prompts/stage.md) |

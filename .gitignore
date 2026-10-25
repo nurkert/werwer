@@ -29,3 +29,6 @@ ios/Flutter/Signing.xcconfig
 macos/Flutter/Signing.xcconfig
 *.mobileprovision
 *.p12
+
+# Asset tool environment
+.venv-assets/
