@@ -23,18 +23,21 @@ Beim klassischen Werwolf (Karten oder Erzähler-App auf einem Handy) gibt es ein
 
 ## Abgrenzung
 
-Bestehende Werwolf-Apps fallen grob in zwei Gruppen:
+Bestehende Werwolf-Apps fallen grob in drei Gruppen (Details in [MARKET.md](MARKET.md)):
 
-1. **Online-Werwolf mit Fremden** (Chat/Voice). Da sitzt man nicht zusammen.
+1. **Online-Werwolf mit Fremden** (Chat/Voice). Da sitzt man nicht zusammen. Hier sind die großen Downloadzahlen.
 2. **Erzähler-Apps für ein einzelnes Handy.** Ein Spielleiter bedient die App, die anderen nicht.
+3. **Apps mit eigenem Handy pro Spieler am Tisch.** Die gibt es schon (z. B. Mobile Werewolf, Awooo, werewolves_game), aber alle klein und jeweils mit Lücken.
 
-Whowolf liegt genau dazwischen: **gemeinsam vor Ort, jeder mit eigenem Gerät, die App als Erzähler.**
+Whowolf ist also **nicht die erste** App mit eigenem Handy pro Spieler. Das Besondere ist die **Kombination**: offline im WLAN, Beitritt im Browser ohne Installation, alle Plattformen, Open Source und selbst hostbar, Tarnaufgaben für alle, Atmosphäre auf allen Geräten (inkl. verräterischer Wolfsgeräusche) und später gemischtes Spiel lokal + remote.
 
 ## Was Whowolf besonders machen soll
 
 - **Beitritt ohne Installation:** QR-Code scannen, sofort im Browser dabei.
 - **Ein richtig guter Erzähler:** Atmosphäre, Sprachausgabe, Musik, verschiedene Stimmungen (gruselig, lustig, dramatisch).
-- **Keine Tells:** Alle haben nachts eine Aufgabe, Vibration und Töne sind aus.
+- **Keine Tells:** Alle haben nachts eine Aufgabe. Geräusche verraten nur dort etwas, wo es eine bewusste Spielmechanik ist.
+- **Zuverlässigkeit:** Verbindungsabbrüche und gesperrte Bildschirme sind laut Rezensionen die häufigste Kritik an Konkurrenz-Apps. Rejoin muss einfach funktionieren.
+- **Fair:** Keine Werbung, kein Abo, kein Konto.
 - **Schnellstart:** In unter 30 Sekunden vom Öffnen bis zur ersten Nacht.
 - **Story am Ende:** Eine Zusammenfassung, z. B. „In Nacht 2 hat die Hexe Max gerettet …“.
 - **Eigene Rollen-Sets und Themes** (später), z. B. Weltraum, Mittelalter, Zombies.
