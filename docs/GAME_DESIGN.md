@@ -69,6 +69,18 @@ Nachts spielen **alle Geräte** Geräusche ab, verteilt im Raum: Wind, Schritte,
 - **Anti-Tell-Regel:** Welches Gerät welches Geräusch spielt, wird vom Host zufällig bzw. nach der Hinweis-Mechanik bestimmt, **nie** direkt durch die Rolle oder Aktion des Besitzers. Ein Hinweis ist eine bewusste Spielmechanik mit Unschärfe, kein Leck.
 - Die Mechanik gehört in `game_core` (welche Hinweise entstehen), das Abspielen in die App.
 
+### Verräterische Wolfsgeräusche (Idee, optionaler Modus)
+
+Die Handys der Werwölfe geben nachts **leise Geräusche** von sich (Knurren, Schnüffeln, Krallen …). Das ist eine **bewusste Ausnahme** von der Anti-Tell-Regel und eine eigene Spielebene am Tisch.
+
+- **Gegenmittel der Wölfe:** Handy leise oder stumm stellen.
+- **Gegen-Gegenmittel:** Am **Morgen gähnt jedes Handy** laut (gleiche Lautstärke für alle). Ein stummes oder auffällig leises Handy fällt auf. Die Wölfe müssen also rechtzeitig wieder laut stellen, und ständiges Herumdrücken an der Lautstärke ist selbst verdächtig.
+- Daraus entstehen Gespräche wie: „Bei dir war es nachts total ruhig. Hattest du dein Handy stumm?“
+- **Nicht zu leicht machen:** Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, und auch Handys von Dorfbewohnern machen manchmal ähnliche oder mehrdeutige Geräusche. Stärke einstellbar (aus / subtil / deutlich).
+- **Tischregel:** Handys liegen nachts sichtbar vor einem auf dem Tisch (Display nach unten).
+- **Technik klären:** Kopfhörer/Bluetooth würden die Mechanik aushebeln (Audio-Ausgang erkennen und z. B. öffentlich melden?). iOS-Stummschalter umgehen wir mit der passenden Audio-Kategorie, die Lautstärke selbst kann die App auf iOS nicht setzen, nur auslesen. Das ist auch gut so: Das Katz-und-Maus-Spiel mit der Lautstärke **ist** die Mechanik.
+- Barrierefreiheit: Für Runden mit hörgeschädigten Spielern abschaltbar.
+
 ## Offene Fragen
 
 - **Später dazukommen während einer Partie:** Vorschlag: Wer mitten im Spiel beitritt, ist erst **Zuschauer** und wird zu Beginn der nächsten Nacht mit einer Rolle eingemischt (Host bestätigt), oder spielt erst die nächste Partie mit. Was ist fair?

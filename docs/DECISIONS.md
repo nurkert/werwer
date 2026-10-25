@@ -4,6 +4,7 @@ Log der Projektentscheidungen, neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-25 | **Idee aufgenommen: verräterische Wolfsgeräusche** + Morgen-Gähnen auf jedem Handy (optionaler Modus, bewusste Ausnahme von der Anti-Tell-Regel) | Neue, physische Deduktionsebene am Tisch, die es so nur mit „jeder hat sein Handy“ gibt |
 | 2026-10-25 | **Tag-Bildschirm** zeigt nur, wer lebt (und ob man selbst lebt), dann dimmen | Handys weg, Gesichter lesen ist der Kern des Spiels |
 | 2026-10-25 | **Erzähler optional:** App erzählt (Standard) oder Mensch erzählt, App zählt | Manche Gruppen lieben einen menschlichen Erzähler |
 | 2026-10-25 | **Nacht-Soundscape auf allen Geräten**, teils mit echten Hinweisen; Geräusche nie direkt an Rolle/Aktion des Besitzers gekoppelt | Atmosphäre „von überall“, neue Spielebene, ohne Tells |
