@@ -64,13 +64,19 @@ const formats = ['avif', 'webp'] as const;
     {shown?.prerelease && <p class="dl-note container">{x.prereleaseNote}</p>}
 
     <section class="container" aria-label={d.title}>
-      <ul class="cards">
+      <ul class="cards" data-cards>
         {
           platforms.map((platform, i) => {
             const files = shown?.downloads.filter((file) => file.platform === platform.id) ?? [];
             const info = x.platforms[platform.id];
             return (
-              <li class:list={['card', { 'card--ready': files.length > 0 }]} data-reveal style={`--i: ${i}`}>
+              <li
+                class:list={['card', { 'card--ready': files.length > 0 }]}
+                data-reveal
+                data-platform={platform.id}
+                style={`--i: ${i}`}
+              >
+                <p class="card__badge">{x.recommended}</p>
                 <div class="card__top">
                   <span class="card__token">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d={platformIcons[platform.icon]} /></svg>
@@ -109,6 +115,7 @@ const formats = ['avif', 'webp'] as const;
             );
           })
         }
+        <li class="cards__others" aria-hidden="true">{x.others}</li>
       </ul>
     </section>
 
@@ -163,6 +170,33 @@ const formats = ['avif', 'webp'] as const;
     }
   </main>
 </Base>
+
+
+<script>
+  // Put the visitor's own system first. Only the platform name is read, nothing is stored or sent.
+  const cards = document.querySelector<HTMLElement>('[data-cards]');
+  if (cards) {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const ua = `${nav.userAgentData?.platform ?? ''} ${navigator.userAgent}`.toLowerCase();
+    const touchMac = /mac/.test(ua) && navigator.maxTouchPoints > 1; // iPadOS asks for desktop pages
+    const os = /iphone|ipad|ipod/.test(ua) || touchMac
+      ? 'ios'
+      : /android/.test(ua)
+        ? 'android'
+        : /win/.test(ua)
+          ? 'windows'
+          : /mac/.test(ua)
+            ? 'macos'
+            : /linux|x11/.test(ua) && !/cros/.test(ua)
+              ? 'linux'
+              : null;
+    const card = os ? cards.querySelector<HTMLElement>(`[data-platform="${os}"]`) : null;
+    if (card) {
+      card.classList.add('is-yours');
+      cards.dataset.os = os!;
+    }
+  }
+</script>
 
 <style>
   .dl {
@@ -234,6 +268,58 @@ const formats = ['avif', 'webp'] as const;
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+  /* The visitor's own system comes first and large; see the script below.
+     Without script all cards simply stand side by side. */
+  .card__badge,
+  .cards__others {
+    display: none;
+  }
+  .card.is-yours {
+    order: -2;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-4);
+    align-items: start;
+    padding: 1.8rem 2rem;
+    outline: 3px solid #f5aa42;
+    outline-offset: 4px;
+  }
+  .card.is-yours > :not(.card__steps) {
+    grid-column: 1;
+  }
+  .card.is-yours .card__steps {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    margin-top: 0;
+    padding-top: 0;
+    padding-left: var(--space-4);
+    border-top: 0;
+    border-left: 1px dashed rgb(42 27 18 / 0.25);
+  }
+  .card.is-yours .card__badge {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--curtain-600);
+  }
+  .card.is-yours h2 {
+    font-size: 2rem;
+  }
+  .card.is-yours .card__download {
+    padding-block: 1.1rem;
+  }
+  [data-os] .cards__others {
+    display: block;
+    order: -1;
+    grid-column: 1 / -1;
+    margin-top: var(--space-3);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: #f6e8c6;
   }
   .card {
     display: flex;
@@ -471,6 +557,18 @@ const formats = ['avif', 'webp'] as const;
     margin-top: var(--space-3);
   }
 
+  @media (max-width: 700px) {
+    .card.is-yours {
+      display: flex;
+      padding: 1.4rem;
+    }
+    .card.is-yours .card__steps {
+      padding-left: 0;
+      padding-top: 0.9rem;
+      border-left: 0;
+      border-top: 1px dashed rgb(42 27 18 / 0.25);
+    }
+  }
   @media (max-width: 900px) {
     .dl-head,
     .booklet__page {

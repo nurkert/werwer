@@ -243,6 +243,8 @@ const en: Copy = {
     lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Versions 0.0.x are test versions: playable in your own Wi-Fi or through your own server, not encrypted yet.',
     prereleaseNote: 'Test version: playable with friends in your own Wi-Fi, not encrypted yet.',
     requirements: 'Requirements',
+    recommended: 'For your device',
+    others: 'Other systems',
     install: 'Installation',
     file: 'File',
     size: 'Size',
