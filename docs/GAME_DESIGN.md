@@ -78,7 +78,8 @@ Die Handys der Werwölfe geben nachts **leise Geräusche** von sich (Knurren, Sc
 - Daraus entstehen Gespräche wie: „Bei dir war es nachts total ruhig. Hattest du dein Handy stumm?“
 - **Balance – ein Verdacht, kein Beweis.** „Leises Handy“ oder „knurrendes Handy“ soll ein guter Grund für Verdacht sein, aber **nie sicher**. Stellschrauben:
   - Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, nicht jede Nacht.
-  - Auch Handys von Dorfbewohnern machen ähnliche oder mehrdeutige Geräusche (falsche Fährten).
+  - **Knurren kommt ausschließlich von Werwolf-Handys.** Ein eindeutig zugeordnetes Knurren wäre damit ein Beweis. Die Unschärfe entsteht deshalb über das **Wo**, nicht über das **Was**: Das Knurren ist kurz und leise und läuft **gleichzeitig** mit anderen Nachtgeräuschen (Wind, Schritte, Eule …) auf den übrigen Handys. Man hört „da links hat was geknurrt“, aber nicht sicher, welches Handy.
+  - Dorfbewohner-Handys machen andere, mehrdeutige Geräusche (nie Knurren), die das Orten erschweren.
   - Manche Nächte sind für zufällige Handys einfach ruhig, also ist „bei dir war es still“ auch bei Unschuldigen normal.
   - Stärke einstellbar (aus / subtil / deutlich); Werte durch Testrunden austarieren.
   - Ziel: Die Werwölfe gewinnen mit Wolfsgeräuschen ungefähr genauso oft wie ohne.
