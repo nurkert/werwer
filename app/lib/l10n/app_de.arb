@@ -102,5 +102,6 @@
   "save": "Speichern",
   "invalidServer": "Die Adresse muss mit ws:// oder wss:// beginnen.",
   "scanHint": "Oder scannt diesen Code mit der Whowolf-App:",
-  "relayFailed": "Online-Server nicht erreichbar: nur WLAN."
+  "relayFailed": "Online-Server nicht erreichbar: nur WLAN.",
+  "nameTaken": "Diesen Namen gibt es am Tisch schon. Nimm einen anderen:"
 }

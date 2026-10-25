@@ -28,7 +28,7 @@ GameSession playerSession({
     roomCode: room,
     token: token,
     dial: dialerFor(lan: lan, relayRoom: relayRoom, server: server),
-    onWelcome: (token) => unawaited(
+    onWelcome: (token, name) => unawaited(
       store.saveResume(
         ResumeInfo(
           name: name,

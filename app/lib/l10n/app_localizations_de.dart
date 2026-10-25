@@ -383,4 +383,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get relayFailed => 'Online-Server nicht erreichbar: nur WLAN.';
+
+  @override
+  String get nameTaken =>
+      'Diesen Namen gibt es am Tisch schon. Nimm einen anderen:';
 }

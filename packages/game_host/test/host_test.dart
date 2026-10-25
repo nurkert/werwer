@@ -216,6 +216,19 @@ void main() {
     expect(late.bye, ByeReason.gameRunning);
   });
 
+  test('a taken name can be changed without reconnecting', () async {
+    await table(2);
+    final twin = Player(transport.connect())
+      ..send(const Hello(name: 'p1', room: room));
+    await settle();
+    expect(twin.refused, [Violation.invalidName]);
+    expect(twin.bye, isNull);
+    twin.send(const Hello(name: 'Other', room: room));
+    await settle();
+    expect(twin.id, isNotNull);
+    expect(twin.view.seats.map((s) => s.name), ['Owner', 'P1', 'Other']);
+  });
+
   test('the owner kicks a player from the lobby', () async {
     final players = await table(3);
     players.first.send(KickIntent(players[2].id!));

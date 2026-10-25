@@ -15,7 +15,7 @@ enum SessionStatus { connecting, connected, reconnecting, ended }
 /// holds the latest view. It knows nothing about where the host runs.
 class GameSession extends ChangeNotifier {
   GameSession({
-    required this.name,
+    required this._name,
     required this.roomCode,
     required this._dial,
     this._token,
@@ -27,15 +27,21 @@ class GameSession extends ChangeNotifier {
     unawaited(_connect());
   }
 
-  final String name;
+  String _name;
   final String roomCode;
+
+  /// The name this player joins with.
+  String get name => _name;
+
+  /// The host refused the name (taken or invalid); [rename] tries another.
+  bool nameRefused = false;
   final Duration reconnectDelay;
 
   /// Give up after this many failed reconnects in a row (the host is gone).
   final int maxReconnects;
 
-  /// Called with the session token once the host welcomed us.
-  final void Function(String token)? onWelcome;
+  /// Called with the session token and the accepted name once welcomed.
+  final void Function(String token, String name)? onWelcome;
 
   /// Called when the session ends for good.
   final void Function()? onEnded;
@@ -80,7 +86,7 @@ class GameSession extends ChangeNotifier {
         cancelOnError: true,
       );
       connection.send(
-        Hello(name: name, room: roomCode, token: _token).encode(),
+        Hello(name: _name, room: roomCode, token: _token).encode(),
       );
     } on Object {
       _lost();
@@ -99,7 +105,8 @@ class GameSession extends ChangeNotifier {
         _token = token;
         _failedReconnects = 0;
         status = SessionStatus.connected;
-        onWelcome?.call(token);
+        nameRefused = false;
+        onWelcome?.call(token, _name);
       case StateMessage():
         view = message.view;
         isOwner = message.isOwner;
@@ -108,7 +115,11 @@ class GameSession extends ChangeNotifier {
             ? null
             : DateTime.now().add(Duration(milliseconds: endsIn));
       case Refused(:final reason):
-        refused = reason;
+        if (reason == Violation.invalidName && _token == null) {
+          nameRefused = true;
+        } else {
+          refused = reason;
+        }
       case Bye(:final reason):
         byeReason = reason;
         _end();
@@ -144,6 +155,14 @@ class GameSession extends ChangeNotifier {
     if (status == SessionStatus.ended) return;
     status = SessionStatus.ended;
     onEnded?.call();
+  }
+
+  /// Joins with another name after the host refused the first one.
+  void rename(String name) {
+    _name = name.trim();
+    nameRefused = false;
+    send(Hello(name: _name, room: roomCode));
+    notifyListeners();
   }
 
   void send(ClientMessage message) => _connection?.send(message.encode());

@@ -26,6 +26,7 @@ class HostConfig {
     this.dayTime = const Duration(minutes: 8),
     this.voteTime = const Duration(minutes: 2),
     this.helloTimeout = const Duration(seconds: 5),
+    this.renameTimeout = const Duration(minutes: 2),
     this.maxConnections = 40,
     this.maxMessagesPerSecond = 20,
     this.maxBadMessages = 3,
@@ -42,6 +43,9 @@ class HostConfig {
 
   /// A new connection must say hello within this time.
   final Duration helloTimeout;
+
+  /// After a refused name, how long the player has to send another one.
+  final Duration renameTimeout;
 
   /// Most simultaneous connections, joined or not.
   final int maxConnections;
@@ -230,8 +234,19 @@ class GameHost {
     final id = PlayerId('p${_nextId++}');
     try {
       _state = apply(_state, AddPlayer(id, hello.name)).state;
-    } on RuleViolation {
-      return _bye(link, ByeReason.refused);
+    } on RuleViolation catch (violation) {
+      if (violation.reason != Violation.invalidName) {
+        return _bye(link, ByeReason.refused);
+      }
+      // Name taken or invalid: keep the connection so the player can pick
+      // another name without starting over.
+      link
+        ..cancelHello?.call()
+        ..cancelHello = _startTimer(config.renameTimeout, () {
+          if (link.session == null) _drop(link);
+        })
+        ..connection.send(const Refused(Violation.invalidName).encode());
+      return;
     }
     final hasOwner = _sessions.values.any((s) => s.owner);
     final session = _Session(_newToken(), id, owner: link.owner && !hasOwner);

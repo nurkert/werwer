@@ -117,6 +117,8 @@ class _GameScreenState extends State<GameScreen> {
               Expanded(
                 child: session.status == SessionStatus.ended
                     ? _Ended(reason: session.byeReason)
+                    : session.nameRefused
+                    ? _Rename(session: session)
                     : view == null
                     ? const Center(child: CircularProgressIndicator())
                     : _phase(view),
@@ -140,6 +142,51 @@ class _GameScreenState extends State<GameScreen> {
     Phase.vote => VotePhase(session: session),
     Phase.ended => EndedPhase(session: session, onLeave: _leave),
   };
+}
+
+/// The name was taken: pick another one right here, still connected.
+class _Rename extends StatefulWidget {
+  const _Rename({required this.session});
+
+  final GameSession session;
+
+  @override
+  State<_Rename> createState() => _RenameState();
+}
+
+class _RenameState extends State<_Rename> {
+  late final _name = TextEditingController(text: widget.session.name);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_name.text.trim().isEmpty) return;
+    widget.session.rename(_name.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return PhaseBody(
+      children: [
+        const SizedBox(height: 24),
+        Body(l10n.nameTaken),
+        TextField(
+          controller: _name,
+          autofocus: true,
+          maxLength: 24,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(labelText: l10n.nameLabel),
+          onSubmitted: (_) => _submit(),
+        ),
+        PrimaryButton(label: l10n.connect, onPressed: _submit),
+      ],
+    );
+  }
 }
 
 class _Ended extends StatelessWidget {

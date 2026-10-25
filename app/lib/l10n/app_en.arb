@@ -245,5 +245,6 @@
   "save": "Save",
   "invalidServer": "Use an address starting with ws:// or wss://.",
   "scanHint": "Or scan this code with the Whowolf app:",
-  "relayFailed": "The online server is not reachable: Wi-Fi only."
+  "relayFailed": "The online server is not reachable: Wi-Fi only.",
+  "nameTaken": "This name is already taken at the table. Pick another one:"
 }

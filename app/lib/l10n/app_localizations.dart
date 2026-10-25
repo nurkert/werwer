@@ -715,6 +715,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The online server is not reachable: Wi-Fi only.'**
   String get relayFailed;
+
+  /// No description provided for @nameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This name is already taken at the table. Pick another one:'**
+  String get nameTaken;
 }
 
 class _AppLocalizationsDelegate

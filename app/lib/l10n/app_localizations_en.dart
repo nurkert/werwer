@@ -377,4 +377,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relayFailed => 'The online server is not reachable: Wi-Fi only.';
+
+  @override
+  String get nameTaken =>
+      'This name is already taken at the table. Pick another one:';
 }

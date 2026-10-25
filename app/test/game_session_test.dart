@@ -49,6 +49,32 @@ void main() {
     await host.close();
   });
 
+  test('a taken name is changed in place', () async {
+    final host = GameHost(roomCode: '1234', random: Random(4));
+    final lan = MemoryTransport();
+    host.serve(lan);
+    final first = GameSession(
+      name: 'Ada',
+      roomCode: '1234',
+      dial: () async => lan.connect(),
+    );
+    final second = GameSession(
+      name: 'ada',
+      roomCode: '1234',
+      dial: () async => lan.connect(),
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(second.nameRefused, isTrue);
+    expect(second.status, SessionStatus.connecting);
+    second.rename('Bo');
+    await Future<void>.delayed(Duration.zero);
+    expect(second.status, SessionStatus.connected);
+    expect(second.view!.seats.map((s) => s.name), ['Ada', 'Bo']);
+    first.dispose();
+    second.dispose();
+    await host.close();
+  });
+
   test('a wrong room code ends the session with a reason', () async {
     final host = GameHost(roomCode: '1234', random: Random(4));
     final lan = MemoryTransport();
