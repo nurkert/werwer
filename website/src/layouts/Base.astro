@@ -27,7 +27,7 @@ interface Props {
 const { lang, title, description, overlay = false, bare = false, page } = Astro.props;
 const t = ui[lang];
 const site = Astro.site!;
-const feltTile = (await getImage({ src: feltPlate, width: 616, format: 'webp' })).src;
+const feltTile = (await getImage({ src: feltPlate, width: 1024, format: 'webp' })).src;
 const canonical = new URL(Astro.url.pathname, site);
 const versions = alternates(page ?? 'home');
 const others = versions.filter((version) => version.lang !== lang);

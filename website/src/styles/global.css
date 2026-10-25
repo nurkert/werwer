@@ -26,7 +26,7 @@ body {
   color: var(--moon-100);
   background-color: #0d140f;
   background-image: var(--felt-tile, none);
-  background-size: 308px;
+  background-size: 640px;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -184,7 +184,7 @@ p {
   text-decoration: none;
   cursor: pointer;
   transition:
-    transform 0.35s var(--ease-puppet),
+    transform 0.35s var(--ease-out),
     background-color 0.2s ease,
     color 0.2s ease,
     box-shadow 0.2s ease;
@@ -231,7 +231,9 @@ p {
 .stamp {
   display: inline-block;
   padding: 0.2rem 0.65rem 0.15rem;
-  border: 2px solid currentColor;
+  border: 3px solid currentColor;
+  mask-image: url('/stamp-grain.png');
+  mask-size: 9rem;
   border-radius: 6px;
   font-family: var(--font-display);
   font-size: 0.95rem;

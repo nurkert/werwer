@@ -24,7 +24,7 @@ const t = ui[lang];
 const home = path('home', lang);
 const others = alternates('home').filter((v) => v.lang !== lang);
 
-const feltTile = (await getImage({ src: felt, width: 616, format: 'webp' })).src;
+const feltTile = (await getImage({ src: felt, width: 1024, format: 'webp' })).src;
 const lidTexture = (await getImage({ src: lid, width: 1600, format: 'webp' })).src;
 const bandTexture = (await getImage({ src: band, width: 1600, format: 'webp' })).src;
 const bandFrontTexture = (await getImage({ src: bandFront, width: 1600, format: 'webp' })).src;
@@ -154,7 +154,7 @@ const props = [
     position: relative;
     overflow: hidden;
     background: var(--felt-color) var(--felt) repeat;
-    background-size: 308px;
+    background-size: 640px;
     color: var(--cream);
     font-family: 'Ancizar Serif', Georgia, serif;
   }
@@ -181,8 +181,10 @@ const props = [
     top: 0;
     width: 10%;
     height: 20%;
+    mask-image: linear-gradient(180deg, #000 70%, transparent);
   }
   .frame :global(.p-decor-tr) {
+    mask-image: radial-gradient(ellipse at 70% 30%, #000 45%, transparent 75%);
     object-fit: contain;
     padding: 0.4cqw 0 0 1cqw;
     left: 90%;
@@ -197,12 +199,13 @@ const props = [
     height: 80%;
   }
   .frame :global(.p-cluster) {
-    left: 62.5%;
-    top: 43%;
-    width: 37.5%;
-    height: 57%;
+    left: 65.5%;
+    top: 46%;
+    width: 34.5%;
+    height: 54%;
     object-fit: cover;
     object-position: 0 0;
+    mask-image: linear-gradient(180deg, #000 82%, transparent);
   }
 
   /* ---------- 3D box ---------- */
@@ -425,7 +428,7 @@ const props = [
     text-decoration: none;
     box-shadow: 0 0.4cqw 1.2cqw rgb(0 0 0 / 0.35);
     transition:
-      transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1),
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
       background-color 0.2s ease;
   }
   .hero-cta:hover {
@@ -443,8 +446,12 @@ const props = [
   }
   .hero-stamp {
     display: inline-block;
-    padding: 0.3cqw 0.8cqw;
-    border: 0.18cqw solid var(--stamp);
+    padding: 0.35cqw 0.9cqw;
+    border: 0.3cqw solid var(--stamp);
+    mask-image: url('/stamp-grain.png');
+    mask-size: 12cqw;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     border-radius: 0.3cqw;
     color: var(--stamp);
     font-size: 1.45cqw;
@@ -497,8 +504,8 @@ const props = [
       aspect-ratio: auto;
       display: grid;
       grid-template-areas: 'copy' 'box' 'parts' 'foot';
-      gap: 1.5rem;
-      padding: 1.25rem var(--gutter, 1rem) 2.5rem;
+      gap: 1.25rem;
+      padding: 1.25rem var(--gutter, 1rem) 0.5rem;
     }
     .hero-nav,
     .frame :global(.p-lantern),
@@ -544,8 +551,9 @@ const props = [
     }
     .hero-stamp {
       padding: 0.25rem 0.7rem;
-      border-width: 2px;
+      border-width: 3px;
       border-radius: 4px;
+      mask-size: 9rem;
       font-size: 1.05rem;
       transform: rotate(-6deg);
     }

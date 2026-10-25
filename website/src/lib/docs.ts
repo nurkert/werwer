@@ -20,7 +20,10 @@ export function docTitle(entry: CollectionEntry<'docs'>): string {
 /** First real paragraph, used as summary on the overview page. */
 export function docSummary(entry: CollectionEntry<'docs'>): string {
   const lines = (entry.body ?? '').split('\n');
-  const paragraph = lines.find((line) => /^[A-ZÄÖÜa-zäöü*]/.test(line.trim()) && !line.startsWith('#'));
+  // First real sentence: skip headings and lead-ins that end in a colon.
+  const paragraph = lines.find(
+    (line) => /^[A-ZÄÖÜa-zäöü*]/.test(line.trim()) && !line.startsWith('#') && !line.trim().endsWith(':'),
+  );
   const plain = (paragraph ?? '').replace(/[*_`[\]]/g, '').replace(/\(([^)]*)\)/g, '').trim();
   return plain.length > 160 ? `${plain.slice(0, 157)}…` : plain;
 }
