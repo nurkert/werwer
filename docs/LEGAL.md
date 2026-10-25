@@ -21,31 +21,39 @@
 ## Was wir tun
 
 - Alle Texte, Erzähler-Sprüche, Rollenbeschreibungen und Grafiken **selbst erstellen**.
-- Eigener Name (**Werwer**) und eigene visuelle Identität.
+- Eigener Name (**Whowolf**) und eigene visuelle Identität.
 - Assets von Dritten (Fonts, Sounds, Icons) nur mit passender Lizenz, mit Nachweis in `NOTICE` bzw. einer Credits-Datei.
 
-## Name „Werwer“
+## Name „Whowolf“
 
-Wortspiel: **„Wer? Wer?“** (die zentrale Frage des Spiels) und **Wer**wolf. Slogan: *„Wer? Wer? Werwolf.“*
+Wortspiel: **„Who? Wolf“** – die zentrale Frage des Spiels („Wer ist der Wolf?“) und **Werewolf**. Slogan: *„Who? Who? Werewolf.“* Leicht auszusprechen, auf Deutsch wie auf Englisch.
 
 Noch offiziell zu prüfen:
 
 - [ ] DPMA-Register: https://register.dpma.de
-- [ ] EUIPO (EU-Marken): https://euipo.europa.eu/eSearch
+- [ ] EUIPO (EU-Marken): https://euipo.europa.eu/eSearch bzw. TMview: https://www.tmdn.org/tmview/
 - [ ] USPTO (USA), falls die App international vermarktet wird
-- [ ] Domain sichern (z. B. `werwer.app`)
+- [ ] App Store und Google Play nach „Whowolf“ durchsuchen
+- [ ] Domain und GitHub-Organisation sichern
 
 ### Erste Recherche (2026-10-25, kurze Websuche, keine Registerprüfung)
 
 | Fund | Relevanz |
 |---|---|
-| Apps / Spiele namens „Werwer“ | keine gefunden ✅ |
-| **Werwörter** (Ravensburger, Spiel + Begleit-App) | ⚠️ gering bis mittel: ähnlicher Wortanfang, ebenfalls Werwolf-Thema |
-| Markenregister | ungeprüft, die Websuche fand keinen Eintrag „Werwer“ |
-| Domains | `werwer.com`, `werwer.de` vergeben; `werwer.app`, `werwer.io`, `playwerwer.com`, `getwerwer.app` vermutlich frei; `werwer.game` unklar |
-| GitHub | `github.com/werwer` vergeben, `github.com/werwer-game` frei |
+| Apps / Spiele namens „Whowolf“ | keine gefunden ✅ |
+| Markenregister | ungeprüft |
+| Domains / GitHub | ungeprüft |
 
-Einschätzung: Der Name ist gut verfügbar. Der Witz funktioniert vor allem auf Deutsch, für internationale Spieler helfen Logo und Slogan.
+## Verworfener Name „Werwer“
+
+Wortspiel „Wer? Wer?“ + Werwolf. Verworfen, weil der Witz nur auf Deutsch funktioniert und der Wortanfang nah an bestehenden Werwolf-Spielen liegt.
+
+| Fund | Relevanz |
+|---|---|
+| Apps / Spiele namens „Werwer“ | keine gefunden |
+| **Werwörter** (Ravensburger, Spiel + Begleit-App), deutsche Ausgabe von **Werewords** (Bezier Games) | ⚠️ gering bis mittel: ähnlicher Wortanfang, ebenfalls Werwolf-Thema |
+| Domains | `werwer.com`, `werwer.de` vergeben |
+| GitHub | `github.com/werwer` vergeben |
 
 ## Verworfener Arbeitstitel „Lycan“
 
@@ -74,7 +82,7 @@ Gewählt wurde die **Apache License 2.0** für das gesamte Repo:
 
 Option für später: den Server unter **AGPL** stellen, damit Änderungen an öffentlich betriebenen Servern offengelegt werden müssen. Vorerst bleibt alles Apache 2.0.
 
-**Wichtig:** Die Lizenz deckt den Code ab, nicht automatisch den Namen. Der Name „Werwer“ und das Logo können später als Marke gelten, damit Forks nicht unter demselben Namen in die Stores gehen. Dafür kann eine Trademark-Policy ergänzt werden.
+**Wichtig:** Die Lizenz deckt den Code ab, nicht automatisch den Namen. Der Name „Whowolf“ und das Logo können später als Marke gelten, damit Forks nicht unter demselben Namen in die Stores gehen. Dafür kann eine Trademark-Policy ergänzt werden.
 
 ## App Stores
 

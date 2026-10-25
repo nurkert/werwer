@@ -5,7 +5,7 @@
 
 ## Ziel
 
-Am Ende gibt es ein Dart-Workspace-Monorepo mit dem Paket `packages/game_core`, das eine komplette Werwer-Partie mit **Dorfbewohner, Werwolf und Seherin** regelkonform abbilden kann, vollständig getestet und ohne UI oder Netzwerk.
+Am Ende gibt es ein Dart-Workspace-Monorepo mit dem Paket `packages/game_core`, das eine komplette Whowolf-Partie mit **Dorfbewohner, Werwolf und Seherin** regelkonform abbilden kann, vollständig getestet und ohne UI oder Netzwerk.
 
 `app/` und `server/` werden in diesem Task **noch nicht** angelegt (kommt in Phase 2).
 

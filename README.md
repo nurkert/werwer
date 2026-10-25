@@ -1,6 +1,6 @@
-# Werwer
+# Whowolf
 
-*Wer? Wer? Werwolf.*
+*Who? Who? Werewolf.*
 
 **An open-source Werewolf party game — together at one table, every player on their own phone, and the app as the narrator.**
 
@@ -8,7 +8,7 @@
 
 ## The idea
 
-Werewolf (a.k.a. Mafia) lives from secret information. Werwer moves that information onto each player's own device:
+Werewolf (a.k.a. Mafia) lives from secret information. Whowolf moves that information onto each player's own device:
 
 - 🎭 **Secret roles** – everyone sees only their own role, on their own phone.
 - 🌙 **No game master needed** – the app narrates the night and day, so everybody gets to play.
@@ -25,7 +25,7 @@ One Flutter codebase for **Android, iOS, Web, Windows, macOS and Linux**.
 ## Repository layout (planned)
 
 ```
-werwer/
+whowolf/
 ├── app/                 Flutter client (all platforms)
 ├── packages/game_core/  Game rules, roles and phases (pure Dart, shared)
 ├── server/              Dart WebSocket server (authoritative)
@@ -38,7 +38,7 @@ werwer/
 
 | Document | Content |
 |---|---|
-| [Vision](docs/VISION.md) | What Werwer is and what makes it different |
+| [Vision](docs/VISION.md) | What Whowolf is and what makes it different |
 | [Game design](docs/GAME_DESIGN.md) | Game flow, phases and starting roles |
 | [Architecture](docs/ARCHITECTURE.md) | Tech stack, structure, networking, self-hosting |
 | [Roadmap](docs/ROADMAP.md) | Phases and next steps |

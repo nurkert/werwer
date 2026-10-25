@@ -7,7 +7,7 @@ Client und Server sind in Dart geschrieben. Die **Spielregeln liegen in einem ei
 ## Monorepo-Struktur
 
 ```
-werwer/
+whowolf/
 ├── app/                    Flutter-App (Android, iOS, Web, Windows, macOS, Linux)
 ├── packages/
 │   └── game_core/          Reines Dart: Rollen, Phasen, Regeln, Zustandsmaschine, Tests

@@ -2,7 +2,7 @@
 
 ## In einem Satz
 
-Werwer ist eine Open-Source-Werwolf-App, mit der man **zusammen am Tisch** spielt, bei der **jeder sein eigenes Handy** hat und die **App der Erzähler** ist.
+Whowolf ist eine Open-Source-Werwolf-App, mit der man **zusammen am Tisch** spielt, bei der **jeder sein eigenes Handy** hat und die **App der Erzähler** ist.
 
 ## Das Problem
 
@@ -28,9 +28,9 @@ Bestehende Werwolf-Apps fallen grob in zwei Gruppen:
 1. **Online-Werwolf mit Fremden** (Chat/Voice). Da sitzt man nicht zusammen.
 2. **Erzähler-Apps für ein einzelnes Handy.** Ein Spielleiter bedient die App, die anderen nicht.
 
-Werwer liegt genau dazwischen: **gemeinsam vor Ort, jeder mit eigenem Gerät, die App als Erzähler.**
+Whowolf liegt genau dazwischen: **gemeinsam vor Ort, jeder mit eigenem Gerät, die App als Erzähler.**
 
-## Was Werwer besonders machen soll
+## Was Whowolf besonders machen soll
 
 - **Beitritt ohne Installation:** QR-Code scannen, sofort im Browser dabei.
 - **Ein richtig guter Erzähler:** Atmosphäre, Sprachausgabe, Musik, verschiedene Stimmungen (gruselig, lustig, dramatisch).

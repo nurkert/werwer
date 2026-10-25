@@ -42,7 +42,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 | Jäger | Nimmt beim Tod eine Person mit. |
 | Amor | Verbindet in Nacht 1 zwei Personen. Stirbt einer, stirbt der andere. |
 | Beschützer | Schützt nachts eine Person (nicht zweimal hintereinander dieselbe). |
-| Eigene Rollen | Ideen für Werwer-eigene Rollen sammeln, das macht die App besonders. |
+| Eigene Rollen | Ideen für Whowolf-eigene Rollen sammeln, das macht die App besonders. |
 
 ## Wichtige Regeln für die App
 
@@ -56,5 +56,5 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 - Erzähler nur auf dem Host-Gerät oder auf allen Geräten gleichzeitig?
 - Rollen beim Tod aufdecken: Standard ja oder nein?
-- Eigene Rollennamen und eine eigene Welt (Lore) für Werwer?
+- Eigene Rollennamen und eine eigene Welt (Lore) für Whowolf?
 - Mindest- und Maximalspielerzahl (Vorschlag: 5–20)?

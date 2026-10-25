@@ -1,4 +1,4 @@
-# Werwer – Notes for Claude
+# Whowolf – Notes for Claude
 
 Open-source Werewolf party game: players sit together, each on their own device, the app is the narrator.
 
