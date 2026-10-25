@@ -42,6 +42,8 @@ whowolf/
 | [Game design](docs/GAME_DESIGN.md) | Game flow, phases and starting roles |
 | [Architecture](docs/ARCHITECTURE.md) | Tech stack, structure, networking, self-hosting |
 | [Market analysis](docs/MARKET.md) | Existing apps and positioning (German) |
+| [Security design](docs/SECURITY_DESIGN.md) | Threat model and secure-by-design measures (German) |
+| [Tooling](docs/TOOLING.md) | Developer tooling principles (German) |
 | [Roadmap](docs/ROADMAP.md) | Phases and next steps |
 | [Legal notes](docs/LEGAL.md) | License, trademarks, app store notes |
 | [Decisions](docs/DECISIONS.md) | Log of project decisions |

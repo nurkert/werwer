@@ -1,5 +1,7 @@
 # Roadmap
 
+> **Qualitätsanspruch:** Tooling nach dem Prinzip „It just works“ ([TOOLING.md](TOOLING.md)) und **Secure by Design** von Anfang an ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)).
+
 > **Leitprinzip:** So schnell wie möglich zu einem **MVP**, das sich am Tisch gut anfühlt und als **GitHub-Release mit Website** veröffentlicht wird. Der Server kommt ganz zum Schluss. Er wird aber von Anfang an mitgedacht, damit er sich später ohne Umbau anschließen lässt (siehe [unten](#von-anfang-an-mitdenken)).
 
 Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeitspakete stehen als Tasks in [`docs/tasks/`](tasks/).
@@ -30,9 +32,11 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 - [x] Vision, Name (**Whowolf**), Lizenz (Apache 2.0), Repo, [Marktanalyse](MARKET.md)
 - [ ] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
-- [ ] CI von Anfang an: GitHub Actions mit `dart analyze`, `dart format --set-exit-if-changed` und Tests bei jedem Push
+- [ ] Tooling: `.flutter-version`, `tool/doctor.sh`, `tool/check.sh` (= CI)
+- [ ] CI von Anfang an: GitHub Actions ruft `tool/check.sh` auf (Format, Analyse, Tests, Secret-Scan, `osv-scanner`); Actions auf Commit-SHA gepinnt, minimale `permissions`
+- [ ] Repo absichern: Branch-Schutz für `main`, Secret Scanning + Push Protection, private Schwachstellenmeldung, Dependabot
 - [ ] **Früh festlegen, später teuer:**
-  - [x] App-ID / Bundle-Identifier: **`de.nurkert.whowolf`** (lässt sich nach einem Store-Release nicht mehr ändern)
+  - [x] App-ID / Bundle-Identifier: **`de.whowolf.app`** (lässt sich nach einem Store-Release nicht mehr ändern)
   - [x] Domain **`whowolf.de`** gesichert; QR-Link-Format siehe [unten](#von-anfang-an-mitdenken)
   - [ ] Versionierung: SemVer + `CHANGELOG.md`
 - [ ] Namen „Whowolf“ offiziell prüfen: DPMA/EUIPO (TMview), Stores, Domain, GitHub-Organisation
@@ -50,6 +54,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Siegbedingungen, Gleichstände, Phasen-Timeout
 - [ ] Ereignisse für den Erzähler (nur Daten, keine Texte), gefilterte Spieler-Sichten
 - [ ] Zustand serialisierbar (JSON)
+- [ ] Sicherheit: Test für **jeden** Spieler, dass seine Sicht keine fremden Geheimnisse enthält; ungültige Aktionen ändern nie den Zustand
 - [ ] Tests: jede Regel, komplette Partien über die öffentliche API, kein Informationsleck in den Sichten
 
 **Fertig, wenn:** Die Akzeptanzkriterien aus Task 001 erfüllt sind und der Zustand verlustfrei in JSON und zurück geht.
@@ -62,6 +67,12 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] **Protokoll:** versionierte JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), eigenes Paket `packages/protocol`
 - [ ] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
 - [ ] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
+- [ ] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
+  - Ende-zu-Ende-Verschlüsselung per Noise-Handshake (Host-Schlüssel + Raumgeheimnis aus dem QR-Code), Bibliothek prüfen und auswählen
+  - Identität nur aus der Sitzung, Rechteprüfung jeder Absicht
+  - Limits: Nachrichtengröße, Verbindungen, Handshake-Zeit, Rate; strenges Parsen
+  - Gleicher Nachrichtentakt + Padding in geheimen Phasen (kein Seitenkanal)
+  - Fuzz-/Property-Tests für Parser und Protokoll
 - [ ] Integrationstest: Host + mehrere Clients spielen über den In-Memory-Transport eine ganze Partie, inklusive Verbindungsabbruch und Rejoin
 
 **Fertig, wenn:** Zwei Rechner im selben WLAN über den Kommandozeilen-Client eine Partie spielen können und ein abgebrochener Client mit seinem Status zurückkommt.
@@ -72,7 +83,8 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 - [ ] Flutter-App im Workspace, Mehrsprachigkeit (Deutsch/Englisch) von Anfang an
 - [ ] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
-- [ ] Beitreten: **QR-Scanner in der App**, Fallback Raumcode + IP manuell
+- [ ] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
+- [ ] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
 - [ ] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
 - [ ] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg
 - [ ] Erzähler: Text auf allen Geräten, Sprachausgabe auf dem Host-Gerät
@@ -114,11 +126,12 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 **Ziel:** Whowolf ist öffentlich herunterladbar und verständlich präsentiert.
 
 - [ ] Minimale visuelle Identität: Logo, App-Icon, Farben, Schrift (alles eigen bzw. frei lizenziert)
-- [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK, macOS, Windows, Linux → **GitHub-Release** mit Changelog
+- [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
+- [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
 - [ ] iOS über **TestFlight**. Dafür braucht es den Apple Developer Account (99 $/Jahr), alternativ iOS erst nach 0.1.
 - [ ] **Website** auf GitHub Pages unter **whowolf.de** (eigene Domain): Was ist Whowolf, Downloads, Spielregeln, Wolfsspur erklärt, Mitmachen
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
-- [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren
+- [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren (`SECURITY.md` existiert bereits)
 - [ ] Release-Hinweise: unsignierte Builds (Warnung unter macOS und Windows) erklären
 
 **Fertig, wenn:** Jemand Fremdes über die Website die App findet, installiert und mit Freunden spielt.
@@ -142,7 +155,7 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
 5. **Server (ganz zum Schluss):**
    - Relay-Server (`server/`) ohne Spiellogik
    - gemischtes Spiel
-   - Beitrittsseite `/r/<raumcode>` mit Deep Links
+   - Beitrittsseite `whowolf.de/join` mit Deep Links
    - eigener Server in den Einstellungen
    - Docker-Image und offizieller Server
    - optional: Server als Spielleiter

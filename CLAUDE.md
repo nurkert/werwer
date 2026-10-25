@@ -21,6 +21,13 @@ Open-source Werewolf party game: players sit together, each on their own device,
 - License: Apache 2.0.
 - Record new project decisions in `docs/DECISIONS.md` (German, newest on top) and tick off items in `docs/ROADMAP.md`.
 
+## Security & tooling (non-negotiable)
+
+- Follow `docs/SECURITY_DESIGN.md`: never send a client data it may not know; never trust identity or fields from a message (identity comes from the session); validate and size-limit all input; no custom crypto (use the planned Noise handshake via a vetted library); no secrets or hidden game state in logs.
+- Every new network or storage feature gets a short "security" note in its task (what can go wrong, what prevents it, which test proves it), and security tests block merging.
+- New dependencies need a reason (maintainer, license, activity); pin GitHub Actions to commit SHAs with minimal `permissions`.
+- Follow `docs/TOOLING.md`: one command per job, `tool/check.sh` is exactly what CI runs, scripts fail fast with actionable messages.
+
 ## Toolchain
 
 - Flutter 3.44.8 (stable), Dart 3.12.2 — SDK constraint `^3.12.0`.
