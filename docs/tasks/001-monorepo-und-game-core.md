@@ -1,13 +1,13 @@
 # Task 001 – Monorepo-Grundgerüst + `game_core`
 
 **Status:** offen
-**Roadmap:** Phase 0 (Monorepo-Gerüst) + Phase 1 (Spielregeln)
+**Roadmap:** M0 (Fundament) + M1 (Spielregeln)
 
 ## Ziel
 
 Am Ende gibt es ein Dart-Workspace-Monorepo mit dem Paket `packages/game_core`, das eine komplette Whowolf-Partie mit **Dorfbewohner, Werwolf und Seherin** regelkonform abbilden kann, vollständig getestet und ohne UI oder Netzwerk.
 
-`app/` und `server/` werden in diesem Task **noch nicht** angelegt (kommt in Phase 2).
+`app/` (M3), `packages/protocol` und `packages/game_host` (M2) werden in diesem Task **noch nicht** angelegt, `server/` erst nach dem MVP.
 
 ## 1. Monorepo-Gerüst
 
@@ -15,6 +15,7 @@ Am Ende gibt es ein Dart-Workspace-Monorepo mit dem Paket `packages/game_core`, 
 - Root-`analysis_options.yaml` mit `very_good_analysis` + strikten Analyzer-Optionen (siehe `CLAUDE.md`).
 - `packages/game_core/` mit `resolution: workspace`, Package-Name `game_core`, `lib/game_core.dart` als einziger öffentlicher Einstiegspunkt, Implementierung unter `lib/src/`.
 - `.gitignore` ist schon da, bei Bedarf ergänzen.
+- GitHub Actions: `dart analyze`, `dart format --set-exit-if-changed .` und `dart test` bei jedem Push und Pull Request.
 
 ## 2. Fachliches Modell
 
@@ -105,12 +106,12 @@ Zusätzlich eine öffentliche Sicht (`publicView`), z. B. für einen geteilten B
 
 ## Bewusst nicht in diesem Task
 
-- JSON-Serialisierung (kommt mit dem Server in Phase 2; Modelle aber so bauen, dass sie leicht serialisierbar sind)
+- JSON-Serialisierung (kommt mit dem Protokoll in M2; Modelle aber so bauen, dass sie leicht serialisierbar sind)
 - Weitere Rollen (Hexe, Jäger, Amor …)
 - Timer, Netzwerk, UI, Erzähltexte
 
 ## Abschluss
 
-- `docs/ROADMAP.md`: erledigte Punkte in Phase 0/1 abhaken.
+- `docs/ROADMAP.md`: erledigte Punkte in M0/M1 abhaken.
 - `docs/DECISIONS.md`: wichtige Designentscheidungen eintragen (z. B. Fehlerbehandlung, ID-Typ).
 - Status oben auf **erledigt** setzen.

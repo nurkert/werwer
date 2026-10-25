@@ -10,11 +10,12 @@ Open-source Werewolf party game: players sit together, each on their own device,
 
 ## Project rules
 
-- Monorepo, all Dart: `app/` (Flutter, all platforms incl. web), `packages/game_core/` (pure Dart rules, shared), `server/` (relay server, no game logic), `website/` (GitHub Pages + docs).
+- Monorepo, all Dart: `app/` (Flutter, all platforms incl. web), `packages/game_core/` (pure Dart rules, shared), `server/` (relay server, no game logic; built last, after the MVP), `website/` (GitHub Pages + docs).
 - Use a Dart pub workspace: root `pubspec.yaml` with `workspace:` listing the members; each member has `resolution: workspace`.
 - Game rules live only in `game_core`; never duplicate rule logic in app or server.
 - `game_core` is pure Dart: no Flutter, no `dart:io`, no network, no clock. Randomness is injected (`Random` passed in) so games are reproducible in tests.
 - The **host device** (game leader's app) is authoritative and runs the game; every client, including the host player's own UI, receives only per-player filtered state.
+- **MVP first:** follow `docs/ROADMAP.md`. The MVP is LAN-only and ships as a GitHub release + website; do not build server features before that, but never design something that makes attaching the server later hard (see the roadmap section "Von Anfang an mitdenken").
 - **Local-first:** for now there is no server. One device hosts the game over the local Wi-Fi (LAN WebSocket); later a server is added **only as a relay** (room codes, forwarding, web app hosting) so remote players can join a host; the server does not run game logic for now, but keep in mind it may later act as a headless host running the same host logic. Keep host logic in pure Dart and transports behind an interface (host serves several transports at once) so this works without rework. Players are identified by a session token, not the connection: they can rejoin with their exact state and can join mid-game. See `docs/ARCHITECTURE.md` ("Ausbaustufen").
 - Never use third-party trademarks, artwork or rule texts from commercial Werewolf editions (see `docs/LEGAL.md`). All names and texts are original.
 - License: Apache 2.0.

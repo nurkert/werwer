@@ -10,8 +10,10 @@ App und Server sind in Dart geschrieben. Die **Spielregeln liegen in einem eigen
 whowolf/
 ├── app/                    Flutter-App (Android, iOS, Web, Windows, macOS, Linux)
 ├── packages/
-│   └── game_core/          Reines Dart: Rollen, Phasen, Regeln, Zustandsmaschine, Tests
-├── server/                 Relay-Server (Vermittlung) + Auslieferung der Web-App, keine Spiellogik
+│   ├── game_core/          Reines Dart: Rollen, Phasen, Regeln, Zustandsmaschine, Tests
+│   ├── protocol/           Reines Dart: versionierte Nachrichten (JSON) zwischen Host und Clients
+│   └── game_host/          Reines Dart: Host-Logik (Raum, Sitzungen, Timer), Transport-Schnittstelle
+├── server/                 (nach dem MVP) Relay-Server + Auslieferung der Web-App, keine Spiellogik
 ├── website/                GitHub-Pages-Seite + Doku/Wiki
 ├── docker-compose.yml      Self-Hosting mit einem Befehl
 ├── docs/                   Planungsdokumente
