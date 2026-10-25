@@ -76,7 +76,12 @@ Die Handys der Werwölfe geben nachts **leise Geräusche** von sich (Knurren, Sc
 - **Gegenmittel der Wölfe:** Handy leise oder stumm stellen.
 - **Gegen-Gegenmittel:** Am **Morgen gähnt jedes Handy** laut (gleiche Lautstärke für alle). Ein stummes oder auffällig leises Handy fällt auf. Die Wölfe müssen also rechtzeitig wieder laut stellen, und ständiges Herumdrücken an der Lautstärke ist selbst verdächtig.
 - Daraus entstehen Gespräche wie: „Bei dir war es nachts total ruhig. Hattest du dein Handy stumm?“
-- **Nicht zu leicht machen:** Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, und auch Handys von Dorfbewohnern machen manchmal ähnliche oder mehrdeutige Geräusche. Stärke einstellbar (aus / subtil / deutlich).
+- **Balance – ein Verdacht, kein Beweis.** „Leises Handy“ oder „knurrendes Handy“ soll ein guter Grund für Verdacht sein, aber **nie sicher**. Stellschrauben:
+  - Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, nicht jede Nacht.
+  - Auch Handys von Dorfbewohnern machen ähnliche oder mehrdeutige Geräusche (falsche Fährten).
+  - Manche Nächte sind für zufällige Handys einfach ruhig, also ist „bei dir war es still“ auch bei Unschuldigen normal.
+  - Stärke einstellbar (aus / subtil / deutlich); Werte durch Testrunden austarieren.
+  - Ziel: Die Werwölfe gewinnen mit Wolfsgeräuschen ungefähr genauso oft wie ohne.
 - **Tischregel:** Handys liegen nachts sichtbar vor einem auf dem Tisch (Display nach unten).
 - **Technik klären:** Kopfhörer/Bluetooth würden die Mechanik aushebeln (Audio-Ausgang erkennen und z. B. öffentlich melden?). iOS-Stummschalter umgehen wir mit der passenden Audio-Kategorie, die Lautstärke selbst kann die App auf iOS nicht setzen, nur auslesen. Das ist auch gut so: Das Katz-und-Maus-Spiel mit der Lautstärke **ist** die Mechanik.
 - Barrierefreiheit: Für Runden mit hörgeschädigten Spielern abschaltbar.
