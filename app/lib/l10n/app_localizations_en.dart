@@ -381,4 +381,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nameTaken =>
       'This name is already taken at the table. Pick another one:';
+
+  @override
+  String get narrateReveal =>
+      'The roles are dealt. Look at yours, and let nobody look over your shoulder.';
+
+  @override
+  String get narrateNight =>
+      'Night falls over the village. Everyone close your eyes … and tap on your phone.';
+
+  @override
+  String get narrateMorning => 'The sun rises over the village.';
+
+  @override
+  String get narrateDiscuss => 'Now talk: who is the werewolf?';
+
+  @override
+  String get narrateVote => 'Enough talk. Cast your votes now.';
+
+  @override
+  String narrateRole(String role) {
+    return 'They were: $role.';
+  }
+
+  @override
+  String get mute => 'Narrator voice off';
+
+  @override
+  String get unmute => 'Narrator voice on';
 }

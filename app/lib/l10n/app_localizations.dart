@@ -721,6 +721,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This name is already taken at the table. Pick another one:'**
   String get nameTaken;
+
+  /// No description provided for @narrateReveal.
+  ///
+  /// In en, this message translates to:
+  /// **'The roles are dealt. Look at yours, and let nobody look over your shoulder.'**
+  String get narrateReveal;
+
+  /// No description provided for @narrateNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night falls over the village. Everyone close your eyes … and tap on your phone.'**
+  String get narrateNight;
+
+  /// No description provided for @narrateMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'The sun rises over the village.'**
+  String get narrateMorning;
+
+  /// No description provided for @narrateDiscuss.
+  ///
+  /// In en, this message translates to:
+  /// **'Now talk: who is the werewolf?'**
+  String get narrateDiscuss;
+
+  /// No description provided for @narrateVote.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough talk. Cast your votes now.'**
+  String get narrateVote;
+
+  /// No description provided for @narrateRole.
+  ///
+  /// In en, this message translates to:
+  /// **'They were: {role}.'**
+  String narrateRole(String role);
+
+  /// No description provided for @mute.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator voice off'**
+  String get mute;
+
+  /// No description provided for @unmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator voice on'**
+  String get unmute;
 }
 
 class _AppLocalizationsDelegate

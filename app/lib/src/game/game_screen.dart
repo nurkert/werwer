@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -26,6 +27,11 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   GameSession get session => widget.session;
 
+  /// Only the host device speaks, so the voice comes from one place.
+  late final Voice? _voice = widget.room == null ? null : Voice();
+  PlayerView? _lastView;
+  String? _narration;
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +45,7 @@ class _GameScreenState extends State<GameScreen> {
     session
       ..removeListener(_changed)
       ..dispose();
+    _voice?.stop();
     unawaited(widget.room?.close());
     unawaited(WakelockPlus.disable());
     super.dispose();
@@ -51,6 +58,16 @@ class _GameScreenState extends State<GameScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).refused)),
       );
+    }
+    final view = session.view;
+    if (view != null && !identical(view, _lastView) && mounted) {
+      final l10n = AppLocalizations.of(context);
+      final line = narration(_lastView, view, l10n);
+      _lastView = view;
+      if (line != null) {
+        _narration = line;
+        unawaited(_voice?.say(line, l10n.localeName));
+      }
     }
     setState(() {});
   }
@@ -98,6 +115,19 @@ class _GameScreenState extends State<GameScreen> {
             style: TextStyle(fontFamily: displayFont, fontSize: 24),
           ),
           actions: [
+            if (_voice != null)
+              IconButton(
+                tooltip: _voice.muted ? l10n.unmute : l10n.mute,
+                icon: Icon(
+                  _voice.muted
+                      ? Icons.volume_off_outlined
+                      : Icons.volume_up_outlined,
+                ),
+                onPressed: () => setState(() {
+                  _voice.muted = !_voice.muted;
+                  if (_voice.muted) _voice.stop();
+                }),
+              ),
             if (session.status != SessionStatus.ended)
               TextButton(onPressed: _leave, child: Text(l10n.leave)),
           ],
@@ -114,6 +144,10 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   actions: const [SizedBox.shrink()],
                 ),
+              if (_narration != null &&
+                  session.status != SessionStatus.ended &&
+                  view?.phase != Phase.lobby)
+                _NarratorLine(text: _narration!),
               Expanded(
                 child: session.status == SessionStatus.ended
                     ? _Ended(reason: session.byeReason)
@@ -142,6 +176,47 @@ class _GameScreenState extends State<GameScreen> {
     Phase.vote => VotePhase(session: session),
     Phase.ended => EndedPhase(session: session, onLeave: _leave),
   };
+}
+
+/// The narrator's latest line, on every device.
+class _NarratorLine extends StatelessWidget {
+  const _NarratorLine({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+    child: AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      child: Container(
+        key: ValueKey(text),
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 560),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Palette.night700,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.nightlight_round, color: Palette.lantern400),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Palette.moon100,
+                  fontStyle: FontStyle.italic,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 /// The name was taken: pick another one right here, still connected.

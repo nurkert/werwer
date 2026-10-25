@@ -246,5 +246,20 @@
   "invalidServer": "Use an address starting with ws:// or wss://.",
   "scanHint": "Or scan this code with the Whowolf app:",
   "relayFailed": "The online server is not reachable: Wi-Fi only.",
-  "nameTaken": "This name is already taken at the table. Pick another one:"
+  "nameTaken": "This name is already taken at the table. Pick another one:",
+  "narrateReveal": "The roles are dealt. Look at yours, and let nobody look over your shoulder.",
+  "narrateNight": "Night falls over the village. Everyone close your eyes … and tap on your phone.",
+  "narrateMorning": "The sun rises over the village.",
+  "narrateDiscuss": "Now talk: who is the werewolf?",
+  "narrateVote": "Enough talk. Cast your votes now.",
+  "narrateRole": "They were: {role}.",
+  "@narrateRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "mute": "Narrator voice off",
+  "unmute": "Narrator voice on"
 }

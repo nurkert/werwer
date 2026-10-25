@@ -15,6 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_secure_storage: ^11.2.0
+  flutter_tts: ^4.2.5
   game_core:
     path: ../packages/game_core
   game_host:

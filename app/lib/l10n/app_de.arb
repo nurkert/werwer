@@ -103,5 +103,13 @@
   "invalidServer": "Die Adresse muss mit ws:// oder wss:// beginnen.",
   "scanHint": "Oder scannt diesen Code mit der Whowolf-App:",
   "relayFailed": "Online-Server nicht erreichbar: nur WLAN.",
-  "nameTaken": "Diesen Namen gibt es am Tisch schon. Nimm einen anderen:"
+  "nameTaken": "Diesen Namen gibt es am Tisch schon. Nimm einen anderen:",
+  "narrateReveal": "Die Rollen sind verteilt. Schaut euch eure Rolle an, und lasst niemanden mitschauen.",
+  "narrateNight": "Die Nacht legt sich über das Dorf. Alle schließen die Augen … und tippen auf ihrem Handy.",
+  "narrateMorning": "Die Sonne geht über dem Dorf auf.",
+  "narrateDiscuss": "Jetzt redet: Wer ist der Werwolf?",
+  "narrateVote": "Genug geredet. Stimmt jetzt ab.",
+  "narrateRole": "Die Rolle war: {role}.",
+  "mute": "Erzählerstimme aus",
+  "unmute": "Erzählerstimme an"
 }
