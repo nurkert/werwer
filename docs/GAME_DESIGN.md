@@ -78,12 +78,15 @@ Die Handys der Werwölfe geben nachts **leise Geräusche** von sich (Knurren, Sc
 - Daraus entstehen Gespräche wie: „Bei dir war es nachts total ruhig. Hattest du dein Handy stumm?“
 - **Balance – ein Verdacht, kein Beweis.** „Leises Handy“ oder „knurrendes Handy“ soll ein guter Grund für Verdacht sein, aber **nie sicher**. Stellschrauben:
   - Wolfsgeräusche kommen nur mit einer gewissen Wahrscheinlichkeit, nicht jede Nacht.
-  - **Knurren kommt ausschließlich von Werwolf-Handys.** Ein eindeutig zugeordnetes Knurren wäre damit ein Beweis. Die Unschärfe entsteht deshalb über das **Wo**, nicht über das **Was**: Das Knurren ist kurz und leise und läuft **gleichzeitig** mit anderen Nachtgeräuschen (Wind, Schritte, Eule …) auf den übrigen Handys. Man hört „da links hat was geknurrt“, aber nicht sicher, welches Handy.
+  - **Knurren kommt ausschließlich von Werwolf-Handys** und ist **sehr leise**: Hören sollen es höchstens die direkten Sitznachbarn, nicht der ganze Raum. Für den, der es sicher hört, ist es ein **privater Beweis**. Die anderen müssen ihm aber erst glauben (er könnte ja selbst lügen). Daraus entsteht Diskussion statt Auflösung.
+  - Oft hört es sogar nur **ein** Nachbar, weil auf dem Handy des anderen Nachbarn im selben Moment ein ähnliches, mehrdeutiges Geräusch läuft und das Knurren überdeckt.
   - Dorfbewohner-Handys machen andere, mehrdeutige Geräusche (nie Knurren), die das Orten erschweren.
   - Manche Nächte sind für zufällige Handys einfach ruhig, also ist „bei dir war es still“ auch bei Unschuldigen normal.
   - Stärke einstellbar (aus / subtil / deutlich); Werte durch Testrunden austarieren.
   - Ziel: Die Werwölfe gewinnen mit Wolfsgeräuschen ungefähr genauso oft wie ohne.
 - **Tischregel:** Handys liegen nachts sichtbar vor einem auf dem Tisch (Display nach unten).
+- **Sitzordnung (optional):** Damit die App gezielt auf Nachbar-Handys überdecken kann, kann man in der Lobby die Reihenfolge am Tisch festlegen. Ohne Sitzordnung werden die Überdeckungsgeräusche zufällig verteilt.
+- **Dosiert, nicht nervig:** Nachts nur **ein paar** Geräusche mit Pausen dazwischen, kein Dauerrauschen. Insgesamt leise; Atmosphäre statt Lärm.
 - **Technik klären:** Kopfhörer/Bluetooth würden die Mechanik aushebeln (Audio-Ausgang erkennen und z. B. öffentlich melden?). iOS-Stummschalter umgehen wir mit der passenden Audio-Kategorie, die Lautstärke selbst kann die App auf iOS nicht setzen, nur auslesen. Das ist auch gut so: Das Katz-und-Maus-Spiel mit der Lautstärke **ist** die Mechanik.
 - Barrierefreiheit: Für Runden mit hörgeschädigten Spielern abschaltbar.
 
