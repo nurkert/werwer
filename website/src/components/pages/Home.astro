@@ -145,7 +145,6 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
                   <div class="role__stage">
                     <div class="role__flip">
                       <Picture class="role__face" src={figures[role.id]} alt="" formats={formats} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
-                      <Picture class="role__face role__face--back" src={figures[role.id]} alt="" formats={formats} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
                     </div>
                   </div>
                   <div class="role__card">
@@ -436,9 +435,6 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     50% {
       transform: rotate(1.2deg) translateY(-0.3rem);
     }
-  }
-  .role:hover .role__stage :global(img) {
-    transform: rotate(-2.5deg) translateY(-6px);
   }
   .role__card {
     padding: 3.6rem var(--space-3) var(--space-3);
@@ -788,7 +784,6 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     .playbill__cast :global(.pc) {
       animation: none;
     }
-    .role:hover .role__stage :global(img),
     .doc-links a:hover {
       transform: none;
     }
@@ -984,7 +979,6 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .role__flip {
     position: relative;
     height: 100%;
-    transform-style: preserve-3d;
     transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
   }
   .role__stage {
@@ -994,13 +988,8 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     height: 100%;
     width: auto;
     margin-inline: auto;
-    backface-visibility: hidden;
-  }
-  .role__flip :global(.role__face--back) {
-    position: absolute;
-    inset: 0;
-    transform: rotateY(180deg);
-    filter: brightness(0.88) sepia(0.08) drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
+    /* one cutout: turned around, it simply shows mirrored */
+    backface-visibility: visible;
   }
   .role:hover .role__flip,
   .role:focus-within .role__flip {

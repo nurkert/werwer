@@ -49,11 +49,18 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
       </div>
 
       <!-- the puppets, each held in from off-stage -->
+      <!-- middle ground: the puppets are held up in front of it -->
+      <div class="set set--near">
+        <Picture class="c c-stones" src={steine} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
+        <Picture class="c c-bush1" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
+        <Picture class="c c-fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
+        <Picture class="c c-bush2" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
+      </div>
       <div class="cast" aria-hidden="true">
-        <div class="pp pp--villager"><div class="flip"><Picture class="face" src={dorfbewohner} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /><Picture class="face face--back" src={dorfbewohner} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
-        <div class="pp pp--maid"><div class="flip"><Picture class="face" src={magd} alt="" formats={formats} widths={[220, 440]} sizes="12vw" loading="eager" /><Picture class="face face--back" src={magd} alt="" formats={formats} widths={[220, 440]} sizes="12vw" loading="eager" /></div></div>
-        <div class="pp pp--wolf"><div class="flip"><Picture class="face" src={werwolf} alt="" formats={formats} widths={[320, 640]} sizes="18vw" loading="eager" /><Picture class="face face--back" src={werwolf} alt="" formats={formats} widths={[320, 640]} sizes="18vw" loading="eager" /></div></div>
-        <div class="pp pp--seer"><div class="flip"><Picture class="face" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /><Picture class="face face--back" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
+        <div class="pp pp--villager"><div class="flip"><Picture class="face" src={dorfbewohner} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
+        <div class="pp pp--maid"><div class="flip"><Picture class="face" src={magd} alt="" formats={formats} widths={[220, 440]} sizes="12vw" loading="eager" /></div></div>
+        <div class="pp pp--wolf"><div class="flip"><Picture class="face" src={werwolf} alt="" formats={formats} widths={[320, 640]} sizes="18vw" loading="eager" /></div></div>
+        <div class="pp pp--seer"><div class="flip"><Picture class="face" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
         <div class="pp pp--phone pp--phone-a">
           <Picture src={phoneIsland} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
           <div class="pscreen pscreen--island">
@@ -108,13 +115,6 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
         </div>
       </div>
 
-      <!-- set pieces in front of the puppets: they hide the sticks -->
-      <div class="set set--near">
-        <Picture class="c c-stones" src={steine} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
-        <Picture class="c c-bush1" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-        <Picture class="c c-fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
-        <Picture class="c c-bush2" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-      </div>
 
       <div class="sky" aria-hidden="true">
         {Array.from({ length: 22 }, (_, i) => (
@@ -407,20 +407,14 @@ const votePortraits = [dorfbewohner, magd, hexe, seherin];
   }
   .flip {
     position: relative;
-    transform-style: preserve-3d;
     transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
   }
   .flip :global(.face) {
     display: block;
     width: 100%;
     height: auto;
-    backface-visibility: hidden;
-  }
-  .flip :global(.face--back) {
-    position: absolute;
-    inset: 0;
-    transform: rotateY(180deg);
-    filter: brightness(0.88) sepia(0.08);
+    /* one cutout: turned around, it simply shows mirrored */
+    backface-visibility: visible;
   }
   [data-beat='2'] .pp--villager .flip,
   [data-beat='3'] .pp--villager .flip,
