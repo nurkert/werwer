@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// The 16 symbols of a check code (see `secure_channel`: 4 of 16).
-const List<IconData> _symbols = [
+/// The 16 symbols of a check code (see `secure_channel`: 4 of 16), also
+/// used for the door signs at night.
+const List<IconData> checkSymbols = [
   Icons.nightlight_round,
   Icons.star_rounded,
   Icons.local_fire_department_rounded,
@@ -44,7 +45,7 @@ class CheckCode extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Icon(
-                _symbols[c % _symbols.length],
+                checkSymbols[c % checkSymbols.length],
                 size: size,
                 color: Palette.moon100,
               ),

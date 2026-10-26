@@ -681,7 +681,7 @@ void main() {
     final players = await table(4);
     await start(players);
     timers.now += 60000;
-    players.first.send(const PersonaIntent(Persona.hunter)); // any broadcast
+    players.first.send(const PersonaIntent(Persona.smith)); // any broadcast
     players[1].send(NightIntent(players[2].id!));
     await settle();
     await host.close();

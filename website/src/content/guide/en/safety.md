@@ -5,7 +5,7 @@ title: Safety & privacy
 short: Safety & privacy
 description: "Why Whowolf needs no account, tracking or ads, why nobody sees more than they should, and what the test version is still missing."
 lead: "Werewolf is all about secrets. That is why Whowolf is built so your roles stay on your phone and your data stays at the table. Here is what that means, and where the test version still has limits."
-figure: beschuetzer
+figure: seherin
 ---
 
 ## In short

@@ -93,7 +93,8 @@ class _SettingsBody extends StatelessWidget {
           ),
           const SizedBox(height: 10),
         ],
-        if (s.preset == null) Center(child: Stamp(l10n.presetCustom, size: 16)),
+        if (s.preset == null)
+          Center(child: Stamp(l10n.settingsName(s), size: 16)),
         _Section(l10n.settingsRoles),
         Wrap(
           spacing: 8,
@@ -177,6 +178,11 @@ class _SettingsBody extends StatelessWidget {
           hint: s.sheepCounting ? null : l10n.settingsSheepOff,
           value: s.sheepCounting,
           onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
+        ),
+        _Switch(
+          label: l10n.settingsDoorSigns,
+          value: s.doorSigns,
+          onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
         ),
         _Switch(
           label: l10n.settingsAtmosphere,

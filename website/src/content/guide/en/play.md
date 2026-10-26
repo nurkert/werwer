@@ -44,7 +44,8 @@ The app announces that the village falls asleep, and **everyone taps on their ph
 
 - **The werewolves** pick a victim together. They see whom their packmates tap and should agree. Without a majority, the village gets away for the night.
 - **The seer** taps another player and learns their role on the spot.
-- **Everyone else counts sheep.** Sheep hop across a meadow: tapping a white one earns a dream point; black ones are better left alone, or you lose three points. Werewolves and the seer join in once they have made their choice.
+- **Everyone else counts sheep.** Sheep hop across a meadow: tapping a white one earns a dream point; black ones are better left alone, or you lose three points. Werewolves and the seer join in once they have made their choice. You may also enter your number yourself, fibs allowed.
+- **Door signs** (from the “Whowolf” level on): at night every phone shows a secret sign of three symbols, big. If a werewolf spotted the sign on your screen, the pack may enter it once a night; if it is right, that person may die as well (about every second time). So let nobody look at your phone, whatever your role.
 
 How many sheep cross your meadow is decided by the game anew for every player and every night. Some get a big flock, some only a few sheep. The night has a fixed length (one and a half minutes in the test version), shown by a countdown.
 

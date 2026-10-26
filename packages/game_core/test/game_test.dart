@@ -127,17 +127,17 @@ void main() {
     test('joiners get free personas; personas can be changed in the lobby', () {
       var state = lobby(3);
       expect(state.players.map((p) => p.persona).toSet(), hasLength(3));
-      state = apply(state, ChoosePersona(id(0), Persona.hunter)).state;
-      expect(state.player(id(0))!.persona, Persona.hunter);
+      state = apply(state, ChoosePersona(id(0), Persona.smith)).state;
+      expect(state.player(id(0))!.persona, Persona.smith);
       expect(
-        () => apply(state, ChoosePersona(id(1), Persona.hunter)),
+        () => apply(state, ChoosePersona(id(1), Persona.smith)),
         refuses(Violation.personaTaken),
       );
       state = apply(
         state,
-        AddPlayer(id(7), 'Hugo', persona: Persona.cupid),
+        AddPlayer(id(7), 'Hugo', persona: Persona.shepherd),
       ).state;
-      expect(viewFor(state, id(1)).seats.last.persona, Persona.cupid);
+      expect(viewFor(state, id(1)).seats.last.persona, Persona.shepherd);
     });
 
     test('a full table has a persona for everyone', () {
@@ -172,7 +172,7 @@ void main() {
     test('personas are only chosen in the lobby', () {
       final started = apply(lobby(5), StartGame(random: Random(1))).state;
       expect(
-        () => apply(started, ChoosePersona(id(0), Persona.hunter)),
+        () => apply(started, ChoosePersona(id(0), Persona.smith)),
         refuses(Violation.wrongPhase),
       );
     });

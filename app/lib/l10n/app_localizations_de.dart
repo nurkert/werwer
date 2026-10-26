@@ -449,39 +449,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Deine Figur ist nur dein Aussehen. Deine Rolle bleibt geheim und wird zufällig verteilt.';
 
   @override
-  String get persona_maid => 'Magd';
-
-  @override
-  String get persona_lanternBearer => 'Laternenträgerin';
-
-  @override
-  String get persona_greyWolf => 'Grauwolf';
-
-  @override
-  String get persona_farmer => 'Bauer';
-
-  @override
-  String get persona_hunter => 'Jäger';
-
-  @override
-  String get persona_herbWitch => 'Kräuterhexe';
-
-  @override
-  String get persona_cupid => 'Amor';
-
-  @override
-  String get persona_guard => 'Wächter';
-
-  @override
-  String get persona_tracker => 'Fährtenleger';
-
-  @override
-  String get persona_listener => 'Lauscherin';
-
-  @override
-  String get persona_quietPaw => 'Stille Pfote';
-
-  @override
   String get inviteTitle => 'Holt die anderen dazu';
 
   @override
@@ -840,29 +807,98 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ownCountSet => 'Übernehmen';
 
   @override
+  String get persona_maid => 'Magd';
+
+  @override
+  String get persona_farmer => 'Bauer';
+
+  @override
   String get persona_baker => 'Bäckerin';
-
-  @override
-  String get persona_fisher => 'Fischerin';
-
-  @override
-  String get persona_seamstress => 'Schneiderin';
-
-  @override
-  String get persona_gooseGirl => 'Gänsehirtin';
-
-  @override
-  String get persona_innkeeper => 'Wirtin';
 
   @override
   String get persona_smith => 'Schmied';
 
   @override
+  String get persona_fisher => 'Fischerin';
+
+  @override
   String get persona_miller => 'Müller';
+
+  @override
+  String get persona_seamstress => 'Schneiderin';
 
   @override
   String get persona_minstrel => 'Spielmann';
 
   @override
+  String get persona_gooseGirl => 'Gänsehirtin';
+
+  @override
   String get persona_beekeeper => 'Imker';
+
+  @override
+  String get persona_innkeeper => 'Wirtin';
+
+  @override
+  String get persona_shepherd => 'Schäfer';
+
+  @override
+  String get persona_washerwoman => 'Wäscherin';
+
+  @override
+  String get persona_carpenter => 'Zimmermann';
+
+  @override
+  String get persona_spinner => 'Spinnerin';
+
+  @override
+  String get persona_cobbler => 'Schuster';
+
+  @override
+  String get persona_flowerGirl => 'Blumenmädchen';
+
+  @override
+  String get persona_mayor => 'Bürgermeister';
+
+  @override
+  String get persona_grandmother => 'Großmutter';
+
+  @override
+  String get persona_grandfather => 'Großvater';
+
+  @override
+  String get doorSignTitle => 'Dein Türzeichen heute Nacht';
+
+  @override
+  String get doorSignHint =>
+      'Lass niemanden auf dein Display schauen: Ein Werwolf, der dein Zeichen kennt, hat heute Nacht eine Chance, dich zu holen.';
+
+  @override
+  String get markTitle => 'Ein Türzeichen erspäht?';
+
+  @override
+  String get markHint =>
+      'Einmal pro Nacht darf das Rudel eines versuchen. Stimmt es, stirbt diese Person heute Nacht vielleicht zusätzlich (etwa jedes zweite Mal).';
+
+  @override
+  String markSymbol(int number) {
+    return 'Symbol $number';
+  }
+
+  @override
+  String get markTry => 'Zeichen versuchen';
+
+  @override
+  String markRight(String name) {
+    return 'Das Zeichen von $name stimmte. Vielleicht erwischt das Rudel sie heute Nacht.';
+  }
+
+  @override
+  String markWrong(String name) {
+    return 'Das Zeichen von $name war falsch. Die nächste Nacht bringt neue Zeichen.';
+  }
+
+  @override
+  String get settingsDoorSigns =>
+      'Türzeichen (wer aufs Display schauen lässt, riskiert sein Leben)';
 }

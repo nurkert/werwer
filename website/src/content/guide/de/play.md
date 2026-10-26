@@ -44,7 +44,8 @@ Die App sagt an, dass das Dorf einschläft, und **alle tippen auf ihrem Handy**.
 
 - **Die Werwölfe** wählen gemeinsam ein Opfer. Sie sehen, wen ihre Rudelmitglieder antippen, und sollten sich einig werden. Gibt es keine Mehrheit, kommt das Dorf in dieser Nacht davon.
 - **Die Seherin** tippt einen Mitspieler an und erfährt sofort seine Rolle.
-- **Alle anderen zählen Schäfchen.** Über eine Wiese hüpfen Schafe: Weiße antippen bringt einen Traumpunkt, schwarze lässt man besser springen, sonst gibt es drei Punkte Abzug. Werwölfe und Seherin zählen nach ihrer Wahl ebenfalls mit.
+- **Alle anderen zählen Schäfchen.** Über eine Wiese hüpfen Schafe: Weiße antippen bringt einen Traumpunkt, schwarze lässt man besser springen, sonst gibt es drei Punkte Abzug. Werwölfe und Seherin zählen nach ihrer Wahl ebenfalls mit. Wer mag, trägt seine Zahl auch selbst ein, und darf dabei flunkern.
+- **Türzeichen** (ab der Stufe „Whowolf“): Jedes Handy zeigt nachts groß ein geheimes Zeichen aus drei Symbolen. Hat ein Werwolf das Zeichen auf deinem Display erspäht, darf das Rudel es einmal pro Nacht eintragen; stimmt es, stirbt diese Person vielleicht zusätzlich (etwa jedes zweite Mal). Also: Lass niemanden auf dein Handy schauen, egal welche Rolle du hast.
 
 Wie viele Schafe über deine Wiese laufen, legt das Spiel jede Nacht für jeden neu fest. Manche haben eine große Herde, manche nur ein paar Schafe. Die Nacht hat eine feste Zeit (in der Testversion anderthalb Minuten), ein Countdown zeigt sie an.
 

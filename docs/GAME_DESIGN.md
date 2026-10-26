@@ -31,7 +31,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 ## Personas
 
-Jeder Spieler wählt in der Lobby eine Persona aus den Pappfiguren (Magd, Laternenträgerin, Grauwolf, Bauer, Jäger, Kräuterhexe, Amor, Wächter, Fährtenleger, Lauscherin, Stille Pfote). Die Persona ist nur das Aussehen: Jede Persona kann jede Rolle sein, die Rolle wird geheim und zufällig verteilt. Personas sind eindeutig, solange noch welche frei sind; danach dürfen sie sich wiederholen. Beim Beitritt bekommt man die erste freie Persona und kann sie in der Lobby ändern.
+Jeder Spieler wählt in der Lobby eine Persona: zwanzig ganz normale Leute aus dem Dorf, zehn Frauen und zehn Männer (Magd, Bauer, Bäckerin, Schmied, Fischerin, Müller, Schneiderin, Spielmann, Gänsehirtin, Imker, Wirtin, Schäfer, Wäscherin, Zimmermann, Spinnerin, Schuster, Blumenmädchen, Bürgermeister, Großmutter, Großvater). Keine Persona sieht nach einer Rolle aus. Die Persona ist nur das Aussehen: Jede Persona kann jede Rolle sein, die Rolle wird geheim und zufällig verteilt. Jede Persona gibt es im Kostüm jeder Rolle; beim Aufdecken dreht sich die eigene Figur um und steht als ihre Rolle da (die Bäckerin als Werwölfin, der Schmied als Seher). Personas sind eindeutig, solange noch welche frei sind; danach dürfen sie sich wiederholen. Beim Beitritt bekommt man die erste freie Persona und kann sie in der Lobby ändern.
 
 ## Startrollen (MVP)
 
@@ -48,8 +48,11 @@ Jeder Spieler wählt in der Lobby eine Persona aus den Pappfiguren (Magd, Latern
 | Hexe | Ein Heiltrank und ein Gifttrank pro Spiel. |
 | Jäger | Nimmt beim Tod eine Person mit. |
 | Amor | Verbindet in Nacht 1 zwei Personen. Stirbt einer, stirbt der andere. |
-| Beschützer | Schützt nachts eine Person (nicht zweimal hintereinander dieselbe). |
 | Eigene Rollen | Ideen für Whowolf-eigene Rollen sammeln, das macht die App besonders. |
+
+## Türzeichen
+
+Bisher hätten nur Werwölfe einen Grund, ihr Display zu verbergen, und genau das Verbergen verrät sie. Deshalb zeigt nachts jedes Handy groß ein geheimes **Türzeichen** (3 von 16 Symbolen, jede Nacht neu, aus Startwert, Runde und Spieler berechnet). Hat ein Werwolf das Zeichen auf einem fremden Display erspäht, darf das Rudel **einmal pro Nacht** Person und Zeichen eintragen. Stimmt es, stirbt diese Person mit **50 %** zusätzlich zum Rudelopfer (normale Todeskette, die Hexe kann sie nicht retten); ein falsches Zeichen bewirkt nichts. Raten lohnt nicht (1 zu 4096 pro Nacht). Einstellung `doorSigns`: aus in „Klassisch“, an ab „Whowolf“.
 
 ## Wichtige Regeln für die App
 

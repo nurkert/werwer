@@ -162,7 +162,7 @@ void main() {
     test('without persona choice, personas stay as dealt', () {
       final state = lobby(3, settings: Preset.classic.settings);
       expect(
-        () => apply(state, ChoosePersona(id(0), Persona.quietPaw)),
+        () => apply(state, ChoosePersona(id(0), Persona.mayor)),
         refuses(Violation.disabled),
       );
     });

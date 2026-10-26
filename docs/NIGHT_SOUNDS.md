@@ -62,7 +62,7 @@ Das Schöne daran: Wer die Spur auf dem eigenen Handy hört, weiß viel, ist abe
 Das System ist allgemein: **Jede Nachtaktion kann eine Spur mit eigenem Geräusch hinterlassen.** In `game_core` ist das pro Rolle als Daten hinterlegt (Geräusch, Wahrscheinlichkeit, Radius).
 
 - **Eulenspur (Seherin):** Wenn die Seherin jemanden prüft, kann ein Eulenruf auf ihrem Handy oder dem eines Nachbarn kommen. Damit haben auch die **Wölfe eine Spur**, die sie verfolgen können. Das ist das Gegengewicht zur Wolfsspur, und beide Seiten profitieren vom Hinhören.
-- **Spätere Rollen:** Hexe (Blubbern eines Tranks), Beschützer (leises Klirren) usw.
+- **Spätere Rollen:** Hexe (Blubbern eines Tranks) usw.
 - **Eigene Whowolf-Rollen**, die mit Spuren spielen:
   - **Fährtenleger** (Werwolf-Seite): darf einmal pro Spiel eine falsche Wolfsspur auf ein Handy seiner Wahl legen.
   - **Lauscher** (Dorf): hört mit größerem Radius oder bekommt morgens auf dem Bildschirm, ob in seiner Nähe eine Spur war.

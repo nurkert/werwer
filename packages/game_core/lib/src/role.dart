@@ -73,68 +73,70 @@ enum Role {
 /// once.
 const Set<Role> specialRoles = {Role.seer, Role.witch, Role.hunter, Role.cupid};
 
-/// A character a player appears as at the table. Any persona can have any
-/// role: the persona is who you are, the role is your secret.
+/// A character a player appears as at the table: twenty ordinary villagers,
+/// ten women and ten men, alternating so a new table starts mixed. Any
+/// persona can have any role; the app shows each persona in each role's
+/// costume. The persona is who you are, the role is your secret.
 enum Persona {
   /// The maid with her bucket.
   maid,
 
-  /// The cloaked woman with the lantern.
-  lanternBearer,
-
-  /// The grey wolf in the red vest.
-  greyWolf,
-
   /// The farmer with the pitchfork.
   farmer,
-
-  /// The hunter with the longbow.
-  hunter,
-
-  /// The herb witch.
-  herbWitch,
-
-  /// The little cupid.
-  cupid,
-
-  /// The guard with the shield.
-  guard,
-
-  /// The tracker.
-  tracker,
-
-  /// The listener.
-  listener,
-
-  /// The quiet paw.
-  quietPaw,
 
   /// The baker with her bread peel.
   baker,
 
-  /// The fisher with her net.
-  fisher,
-
-  /// The seamstress with her scissors.
-  seamstress,
-
-  /// The goose girl.
-  gooseGirl,
-
-  /// The innkeeper with two tankards.
-  innkeeper,
-
   /// The young smith with his hammer.
   smith,
+
+  /// The fisher with her net.
+  fisher,
 
   /// The miller with a flour sack.
   miller,
 
+  /// The seamstress with her scissors.
+  seamstress,
+
   /// The minstrel with his lute.
   minstrel,
 
+  /// The goose girl.
+  gooseGirl,
+
   /// The old beekeeper.
   beekeeper,
+
+  /// The innkeeper with two tankards.
+  innkeeper,
+
+  /// The shepherd with a lamb.
+  shepherd,
+
+  /// The washerwoman with her basket.
+  washerwoman,
+
+  /// The carpenter with his saw.
+  carpenter,
+
+  /// The spinner with her spindle.
+  spinner,
+
+  /// The cobbler with a boot.
+  cobbler,
+
+  /// The flower girl.
+  flowerGirl,
+
+  /// The mayor with his chain of office.
+  mayor,
+
+  /// The knitting grandmother.
+  grandmother,
+
+  /// The grandfather with his pipe.
+  grandfather,
 }
 
 /// Fewest players a game can start with (for play tests; fun starts at

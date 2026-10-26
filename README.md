@@ -30,10 +30,10 @@ Werewolf lives on secrets. Whowolf puts them where they belong: on each player's
 ## The cast
 
 <p align="center">
-  <img src=".github/assets/cast.png" alt="The cast as cardboard puppets: werewolf, seer, villagers, witch, hunter, cupid, protector, trail layer, listener and silent paw" width="100%">
+  <img src=".github/assets/cast.png" alt="The cast as cardboard puppets: werewolf, seer, villagers, witch, hunter, cupid and the roles planned for the wolf trail" width="100%">
 </p>
 
-Every role is a cardboard puppet with its own character. Playable now: werewolves, seer, witch, hunter, cupid (with the lovers) and villagers, from a plain **Classic** game like the card game to the **Full stage**. Twenty figures, ten women and ten men, let everyone at the table pick how they look; the protector and three roles that exist only in Whowolf are on the programme.
+Every role is a cardboard puppet with its own character. Playable now: werewolves, seer, witch, hunter, cupid (with the lovers) and villagers, from a plain **Classic** game like the card game to the **Full stage**. Everyone picks one of twenty ordinary villagers, ten women and ten men, and sees them turn around in their role's costume when the roles are dealt; three roles that exist only in Whowolf are on the programme.
 
 ## The wolf trail
 

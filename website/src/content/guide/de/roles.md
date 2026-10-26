@@ -3,8 +3,8 @@ page: docsRoles
 lang: de
 title: Die Rollen
 short: Rollen
-description: "Die Rollen bei Whowolf: Dorfbewohner, Werwolf und Seherin sind schon im Spiel, weitere Rollen und eigene Whowolf-Rollen sind geplant."
-lead: "Zwei Lager, ein Dorf: Auf der einen Seite die Dorfbewohner, auf der anderen die Werwölfe. Begonnen wird mit drei Rollen, weitere sind geplant."
+description: "Die Rollen bei Whowolf: Dorfbewohner, Werwolf, Seherin, Hexe, Jäger und Amor sind im Spiel, eigene Whowolf-Rollen sind geplant."
+lead: "Zwei Lager, ein Dorf: Auf der einen Seite die Dorfbewohner, auf der anderen die Werwölfe. Sechs Rollen sind im Spiel, eigene Whowolf-Rollen sind geplant."
 figure: werwolf
 cast:
   - figure: dorfbewohner
@@ -25,23 +25,18 @@ cast:
   - figure: hexe
     name: Hexe
     side: village
-    status: planned
-    text: Hat einen Heiltrank und einen Gifttrank, jeden nur einmal pro Spiel.
+    status: now
+    text: Hat einen Heiltrank und einen Gifttrank, jeden einmal pro Spiel. Sie sieht nachts, wen die Werwölfe holen, und entscheidet nach ihnen.
   - figure: jaeger
     name: Jäger
     side: village
-    status: planned
-    text: Stirbt er, darf er noch eine Person mitnehmen.
+    status: now
+    text: Fällt er, nachts oder bei der Abstimmung, nimmt er sofort jemanden mit.
   - figure: amor
     name: Amor
     side: village
-    status: planned
-    text: Verbindet in der ersten Nacht zwei Spieler. Stirbt einer, stirbt auch der andere.
-  - figure: beschuetzer
-    name: Beschützer
-    side: village
-    status: planned
-    text: Schützt nachts eine Person, aber nie zweimal hintereinander dieselbe.
+    status: now
+    text: Verbindet in der ersten Nacht zwei Spieler als Liebespaar. Stirbt einer, stirbt auch der andere; ein gemischtes Paar gewinnt, wenn es allein übrig ist.
   - figure: faehrtenleger
     name: Fährtenleger
     side: wolves
@@ -68,7 +63,7 @@ Zum Dorf gehören alle, die keine Werwölfe sind, also auch die Seherin. Jeder s
 
 ## Jetzt im Spiel
 
-In der Testversion gibt es drei Rollen. Die App verteilt sie passend zur Spielerzahl: bis 4 Spieler ein Werwolf, ab 5 Spielern ungefähr jeder Vierte, und ab 4 Spielern eine Seherin. Der Rest sind Dorfbewohner.
+Die App verteilt die Rollen passend zur Spielerzahl und zu den Einstellungen: etwa jeder vierte Spieler ist ein Werwolf, jede Sonderrolle im Spiel gibt es einmal, alle anderen sind Dorfbewohner.
 
 **Dorfbewohner** haben es nicht leicht: Sie wissen nichts und müssen trotzdem richtig abstimmen. Ihre Waffe ist Aufmerksamkeit. Wer redet zu viel, wer zu wenig, und wer hatte heute Nacht verdächtig wenige Schafe?
 
@@ -76,9 +71,9 @@ In der Testversion gibt es drei Rollen. Die App verteilt sie passend zur Spieler
 
 **Die Seherin** ist die gefährlichste Gegnerin der Wölfe. Sie sammelt jede Nacht ein sicheres Wissen. Gibt sie sich zu früh zu erkennen, ist sie das nächste Opfer. Schweigt sie zu lange, nützt ihr Wissen niemandem.
 
-## Geplant
+## Hexe, Jäger und Amor
 
-Hexe, Jäger, Amor und Beschützer sind Rollen, die viele aus Werwolf-Runden kennen, und kommen als Nächstes. Ihre Namen und Texte bei Whowolf sind selbst formuliert.
+Diese drei kennen viele aus Werwolf-Runden; bei Whowolf sind Namen und Texte selbst formuliert. Welche davon mitspielen, legt der Gastgeber in den Einstellungen fest: **Klassisch** und **Whowolf** spielen mit Seherin, Hexe und Jäger, die **Volle Bühne** auch mit Amor.
 
 ## Nur bei Whowolf (Ideen)
 
@@ -86,4 +81,4 @@ Fährtenleger, Lauscherin und Stille Pfote spielen mit der geplanten **Wolfsspur
 
 ## Rolle und Figur sind zwei Dinge
 
-Die Pappfiguren auf dieser Seite zeigen die Rollen. In der App wählt jeder außerdem eine Figur als sein Aussehen, zum Beispiel die Magd oder den Grauwolf. Diese Figur sagt nichts über die Rolle: Der Grauwolf kann Dorfbewohner sein und die Magd ein Werwolf.
+Die Pappfiguren auf dieser Seite zeigen die Rollen. In der App sucht sich jeder außerdem eine von zwanzig Figuren aus, ganz normale Leute aus dem Dorf, zum Beispiel die Bäckerin oder den Schmied. Diese Figur sagt nichts über die Rolle. Erst wenn du deine Rolle ansiehst, dreht sich deine Figur um und steht im Kostüm deiner Rolle da: die Bäckerin als Werwölfin, der Schmied als Seher.

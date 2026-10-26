@@ -818,72 +818,6 @@ abstract class AppLocalizations {
   /// **'Your figure is only your look. Your role stays secret and is dealt by chance.'**
   String get personaHint;
 
-  /// No description provided for @persona_maid.
-  ///
-  /// In en, this message translates to:
-  /// **'Maid'**
-  String get persona_maid;
-
-  /// No description provided for @persona_lanternBearer.
-  ///
-  /// In en, this message translates to:
-  /// **'Lantern bearer'**
-  String get persona_lanternBearer;
-
-  /// No description provided for @persona_greyWolf.
-  ///
-  /// In en, this message translates to:
-  /// **'Grey wolf'**
-  String get persona_greyWolf;
-
-  /// No description provided for @persona_farmer.
-  ///
-  /// In en, this message translates to:
-  /// **'Farmer'**
-  String get persona_farmer;
-
-  /// No description provided for @persona_hunter.
-  ///
-  /// In en, this message translates to:
-  /// **'Hunter'**
-  String get persona_hunter;
-
-  /// No description provided for @persona_herbWitch.
-  ///
-  /// In en, this message translates to:
-  /// **'Herb witch'**
-  String get persona_herbWitch;
-
-  /// No description provided for @persona_cupid.
-  ///
-  /// In en, this message translates to:
-  /// **'Cupid'**
-  String get persona_cupid;
-
-  /// No description provided for @persona_guard.
-  ///
-  /// In en, this message translates to:
-  /// **'Guard'**
-  String get persona_guard;
-
-  /// No description provided for @persona_tracker.
-  ///
-  /// In en, this message translates to:
-  /// **'Tracker'**
-  String get persona_tracker;
-
-  /// No description provided for @persona_listener.
-  ///
-  /// In en, this message translates to:
-  /// **'Listener'**
-  String get persona_listener;
-
-  /// No description provided for @persona_quietPaw.
-  ///
-  /// In en, this message translates to:
-  /// **'Quiet paw'**
-  String get persona_quietPaw;
-
   /// No description provided for @inviteTitle.
   ///
   /// In en, this message translates to:
@@ -1478,35 +1412,23 @@ abstract class AppLocalizations {
   /// **'Take it'**
   String get ownCountSet;
 
+  /// No description provided for @persona_maid.
+  ///
+  /// In en, this message translates to:
+  /// **'Maid'**
+  String get persona_maid;
+
+  /// No description provided for @persona_farmer.
+  ///
+  /// In en, this message translates to:
+  /// **'Farmer'**
+  String get persona_farmer;
+
   /// No description provided for @persona_baker.
   ///
   /// In en, this message translates to:
   /// **'Baker'**
   String get persona_baker;
-
-  /// No description provided for @persona_fisher.
-  ///
-  /// In en, this message translates to:
-  /// **'Fisher'**
-  String get persona_fisher;
-
-  /// No description provided for @persona_seamstress.
-  ///
-  /// In en, this message translates to:
-  /// **'Seamstress'**
-  String get persona_seamstress;
-
-  /// No description provided for @persona_gooseGirl.
-  ///
-  /// In en, this message translates to:
-  /// **'Goose girl'**
-  String get persona_gooseGirl;
-
-  /// No description provided for @persona_innkeeper.
-  ///
-  /// In en, this message translates to:
-  /// **'Innkeeper'**
-  String get persona_innkeeper;
 
   /// No description provided for @persona_smith.
   ///
@@ -1514,11 +1436,23 @@ abstract class AppLocalizations {
   /// **'Smith'**
   String get persona_smith;
 
+  /// No description provided for @persona_fisher.
+  ///
+  /// In en, this message translates to:
+  /// **'Fisher'**
+  String get persona_fisher;
+
   /// No description provided for @persona_miller.
   ///
   /// In en, this message translates to:
   /// **'Miller'**
   String get persona_miller;
+
+  /// No description provided for @persona_seamstress.
+  ///
+  /// In en, this message translates to:
+  /// **'Seamstress'**
+  String get persona_seamstress;
 
   /// No description provided for @persona_minstrel.
   ///
@@ -1526,11 +1460,131 @@ abstract class AppLocalizations {
   /// **'Minstrel'**
   String get persona_minstrel;
 
+  /// No description provided for @persona_gooseGirl.
+  ///
+  /// In en, this message translates to:
+  /// **'Goose girl'**
+  String get persona_gooseGirl;
+
   /// No description provided for @persona_beekeeper.
   ///
   /// In en, this message translates to:
   /// **'Beekeeper'**
   String get persona_beekeeper;
+
+  /// No description provided for @persona_innkeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Innkeeper'**
+  String get persona_innkeeper;
+
+  /// No description provided for @persona_shepherd.
+  ///
+  /// In en, this message translates to:
+  /// **'Shepherd'**
+  String get persona_shepherd;
+
+  /// No description provided for @persona_washerwoman.
+  ///
+  /// In en, this message translates to:
+  /// **'Washerwoman'**
+  String get persona_washerwoman;
+
+  /// No description provided for @persona_carpenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Carpenter'**
+  String get persona_carpenter;
+
+  /// No description provided for @persona_spinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Spinner'**
+  String get persona_spinner;
+
+  /// No description provided for @persona_cobbler.
+  ///
+  /// In en, this message translates to:
+  /// **'Cobbler'**
+  String get persona_cobbler;
+
+  /// No description provided for @persona_flowerGirl.
+  ///
+  /// In en, this message translates to:
+  /// **'Flower girl'**
+  String get persona_flowerGirl;
+
+  /// No description provided for @persona_mayor.
+  ///
+  /// In en, this message translates to:
+  /// **'Mayor'**
+  String get persona_mayor;
+
+  /// No description provided for @persona_grandmother.
+  ///
+  /// In en, this message translates to:
+  /// **'Grandmother'**
+  String get persona_grandmother;
+
+  /// No description provided for @persona_grandfather.
+  ///
+  /// In en, this message translates to:
+  /// **'Grandfather'**
+  String get persona_grandfather;
+
+  /// No description provided for @doorSignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your door sign tonight'**
+  String get doorSignTitle;
+
+  /// No description provided for @doorSignHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Let nobody look at your screen: a werewolf who knows your sign has a chance to come for you tonight.'**
+  String get doorSignHint;
+
+  /// No description provided for @markTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spotted a door sign?'**
+  String get markTitle;
+
+  /// No description provided for @markHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a night the pack may try one. If it is right, that person may die tonight as well (about one in two).'**
+  String get markHint;
+
+  /// No description provided for @markSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Symbol {number}'**
+  String markSymbol(int number);
+
+  /// No description provided for @markTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try the sign'**
+  String get markTry;
+
+  /// No description provided for @markRight.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign of {name} was right. Maybe the pack gets them tonight.'**
+  String markRight(String name);
+
+  /// No description provided for @markWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign of {name} was wrong. Next night brings new signs.'**
+  String markWrong(String name);
+
+  /// No description provided for @settingsDoorSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Door signs (peeking at screens can cost a life)'**
+  String get settingsDoorSigns;
 }
 
 class _AppLocalizationsDelegate

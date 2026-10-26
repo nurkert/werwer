@@ -34,7 +34,7 @@ void main() {
         const LeaveIntent(),
         const RematchIntent(),
         const SheepIntent(-3),
-        const PersonaIntent(Persona.hunter),
+        const PersonaIntent(Persona.smith),
         const SwapSeatsIntent(PlayerId('p1'), PlayerId('p2')),
         const AdmitIntent(3, admit: true),
         const PingIntent(12),

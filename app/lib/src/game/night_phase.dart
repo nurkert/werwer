@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/door_sign.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -136,6 +137,9 @@ class _NightPhaseState extends State<NightPhase> {
         if (!view.yourSeat.isAlive)
           Body(l10n.youAreDead)
         else ...[
+          // Everyone's own sign, big: a reason for every player, not just
+          // the werewolves, to keep their screen to themselves.
+          if (view.yourDoorSign case final sign?) DoorSignPanel(sign: sign),
           _taskCard(view, l10n),
           // The meadow is the same on every phone: once your task is done
           // (or folded away), a werewolf's phone looks like anyone's.
@@ -228,6 +232,10 @@ class _NightPhaseState extends State<NightPhase> {
           if (choice != null) ...[
             const SizedBox(height: 10),
             Body(l10n.picked(view.nameOf(choice))),
+          ],
+          if (hunt && view.settings.doorSigns) ...[
+            const SizedBox(height: 20),
+            MarkForm(session: session),
           ],
           for (final r in view.seerResults.where((r) => r.round == view.round))
             Padding(

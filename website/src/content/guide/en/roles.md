@@ -3,8 +3,8 @@ page: docsRoles
 lang: en
 title: The roles
 short: Roles
-description: "The roles in Whowolf: villager, werewolf and seer are in the game now; more roles and Whowolf’s own roles are planned."
-lead: "Two sides, one village: the villagers on one side, the werewolves on the other. The game starts with three roles, more are planned."
+description: "The roles in Whowolf: villager, werewolf, seer, witch, hunter and cupid are in the game; Whowolf’s own roles are planned."
+lead: "Two sides, one village: the villagers on one side, the werewolves on the other. Six roles are in the game; Whowolf’s own roles are planned."
 figure: werwolf
 cast:
   - figure: dorfbewohner
@@ -25,23 +25,18 @@ cast:
   - figure: hexe
     name: Witch
     side: village
-    status: planned
-    text: Has one healing potion and one poison, each usable once per game.
+    status: now
+    text: Has one healing potion and one poison, each once per game. At night she sees whom the werewolves take and decides after them.
   - figure: jaeger
     name: Hunter
     side: village
-    status: planned
-    text: When he dies, he may take one more person with him.
+    status: now
+    text: If he falls, at night or by the vote, he takes someone with him at once.
   - figure: amor
     name: Cupid
     side: village
-    status: planned
-    text: Links two players on the first night. If one dies, so does the other.
-  - figure: beschuetzer
-    name: Protector
-    side: village
-    status: planned
-    text: Protects one person each night, but never the same one twice in a row.
+    status: now
+    text: Binds two players as lovers on the first night. If one dies, so does the other; a mixed couple wins when they are the last two.
   - figure: faehrtenleger
     name: Trail layer
     side: wolves
@@ -68,7 +63,7 @@ Everyone who is not a werewolf belongs to the village, the seer included. Each p
 
 ## In the game now
 
-The test version has three roles. The app deals them to fit the number of players: one werewolf up to 4 players, roughly every fourth player from 5 players on, and a seer from 4 players. Everyone else is a villager.
+The app deals the roles to fit the number of players and the settings: about every fourth player is a werewolf, each special role in play once, everyone else a villager.
 
 **Villagers** have it hard: they know nothing and still have to vote right. Their weapon is attention. Who talks too much, who too little, and who had suspiciously few sheep last night?
 
@@ -76,9 +71,9 @@ The test version has three roles. The app deals them to fit the number of player
 
 **The seer** is the wolves’ most dangerous opponent. Every night she gains one piece of certain knowledge. Reveal herself too early and she is the next victim. Stay quiet too long and her knowledge helps nobody.
 
-## Planned
+## Witch, hunter and cupid
 
-Witch, hunter, cupid and protector are roles many people know from werewolf rounds, and they come next. Their names and texts in Whowolf are written from scratch.
+Many people know these three from werewolf rounds; in Whowolf their names and texts are written from scratch. The host decides in the settings which of them play: **Classic** and **Whowolf** play with seer, witch and hunter, the **Full stage** also with cupid.
 
 ## Only in Whowolf (ideas)
 
@@ -86,4 +81,4 @@ Trail layer, listener and silent paw play with the planned **wolf trail**, the q
 
 ## Role and figure are two things
 
-The cardboard figures on this page show the roles. In the app, everyone also picks a figure as their look, such as the maid or the grey wolf. That figure says nothing about the role: the grey wolf can be a villager and the maid a werewolf.
+The cardboard figures on this page show the roles. In the app, everyone also picks one of twenty figures, ordinary people from the village such as the baker or the smith. That figure says nothing about the role. Only when you look at your role does your figure turn around, dressed up as your role: the baker as a werewolf, the smith as the seer.

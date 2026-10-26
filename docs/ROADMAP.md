@@ -14,7 +14,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 |---|---|
 | Lokal im WLAN, ein Handy ist Host; Relay mit eigenem Server | Offizieller Server, gemischtes Spiel |
 | Beitritt per Raumsuche (Bonjour) und QR-Code, Raumcode/IP als Fallback | Beitritt im Browser ohne Installation |
-| Rollen: Dorfbewohner, Werwolf, Seherin, **Hexe, Jäger, Amor** | Beschützer, eigene Rollen, Beitritt während der Partie |
+| Rollen: Dorfbewohner, Werwolf, Seherin, **Hexe, Jäger, Amor** | eigene Rollen, Beitritt während der Partie |
 | Stufen Klassisch → Whowolf → Volle Bühne, jede eigene Funktion abschaltbar | Menschlicher Erzähler |
 | Tarnaufgaben für alle (Schäfchen zählen) | Eulenspur und weitere Spuren |
 | **Wolfsspur light:** Morgen-Gähnen + Atmosphäre | Volle Wolfsspur mit Uhrabgleich |
@@ -149,7 +149,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core` und der App, mit Tarnaufgaben für alle
 - [x] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln
 - [x] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme (`GameSettings`, Absicht `settings`, Einstellungsseite in der App)
-- [x] Gleich viele weibliche und männliche Figuren (neue Figurenbilder im Mondbühnen-Stil): 20 Figuren, 10 + 10
+- [x] Gleich viele weibliche und männliche Figuren (neue Figurenbilder im Mondbühnen-Stil): 20 Dorfbewohner, 10 + 10, jede Figur im Kostüm jeder Rolle; keinen Wächter/Beschützer
 
 ### W – Wolfsspur light ([Task 006](tasks/006-wolfsspur-light.md))
 
@@ -182,7 +182,6 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
 1. **Beitritt im Browser ohne Installation:** Der Host liefert die Flutter-Web-App im WLAN aus. Das ist der stärkste Wachstumshebel laut Marktanalyse.
 2. **Volle Wolfsspur** (früher M4, [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)): Uhrabgleich mit dem Host, synchrones Abspielen, Spur-Regel, Überdecken, Stummschalter auf iOS umgehen, Kopfhörer erkennen, Startwerte per Simulation mit Bots, eigene bzw. lizenzfreie Geräusche.
 3. **Mehr Spiel:**
-   - Beschützer
    - Eulenspur und eigene Whowolf-Rollen (Fährtenleger, Lauscher, Stille Pfote)
    - Beitritt während der Partie
    - menschlicher Erzähler, Story am Ende, Geistermodus

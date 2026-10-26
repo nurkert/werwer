@@ -516,7 +516,8 @@ class _RevealPhaseState extends State<RevealPhase> {
       children: [
         Headline(l10n.revealTitle),
         // Your persona stands with its back to the table (grey board, so
-        // onlookers learn nothing); a tap turns it into your role.
+        // onlookers learn nothing); a tap turns it around in your role's
+        // costume.
         Semantics(
           button: true,
           label: _shown ? l10n.role(role) : l10n.revealTap,
@@ -532,7 +533,7 @@ class _RevealPhaseState extends State<RevealPhase> {
                   children: [
                     const SizedBox(height: 8),
                     TurningFigure(
-                      asset: figureAsset(role),
+                      asset: personaRoleAsset(view.yourSeat.persona, role),
                       backAsset: personaAsset(view.yourSeat.persona),
                       showBack: !_shown,
                       height: 240,
@@ -716,7 +717,15 @@ class HunterPhase extends StatelessWidget {
     final yours = shooter == view.you;
     return PhaseBody(
       children: [
-        const TurningFigure(asset: 'assets/figures/jaeger.webp', height: 180),
+        TurningFigure(
+          asset: shooter == null
+              ? figureAsset(Role.hunter)
+              : personaRoleAsset(
+                  view.seats.firstWhere((s) => s.id == shooter).persona,
+                  Role.hunter,
+                ),
+          height: 180,
+        ),
         Headline(l10n.roleHunter),
         LastNews(view: view),
         Body(

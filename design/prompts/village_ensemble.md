@@ -17,3 +17,11 @@ Codex CLI 0.164.0 (built-in image generation), 2026-10-26, run as `codex exec -i
 - `sheets/cast_village_a.png` → `source/figures/{baeckerin,fischerin,schneiderin}.png`: 1. a sturdy cheerful woman baker with a flour-dusted apron and a long wooden bread peel with a round loaf; 2. a young woman fisher with rolled-up sleeves, a net over her shoulder and a fish in her hand; 3. a slim woman seamstress with big scissors, a measuring tape around her neck and a pincushion on her wrist.
 - `sheets/cast_village_b.png` → `source/figures/{gaensehirtin,wirtin,schmied}.png`: 1. a freckled young goose girl with braids holding a white goose under her arm; 2. a broad-smiling woman innkeeper with two foaming wooden tankards; 3. a young muscular blacksmith (man) with a leather apron and a hammer over his shoulder.
 - `sheets/cast_village_c.png` → `source/figures/{mueller,spielmann,imker}.png`: 1. a round-bellied jolly miller (man) carrying a flour sack, flour on his cap; 2. a lanky minstrel (man) with a feathered hat playing a lute; 3. an elderly beekeeper (man) with a veiled straw hat and a smoking bee smoker, a few bees around him.
+
+## More villagers (2026-10-26)
+
+Same shared style text plus: "They are ordinary villagers: no magic, no weapons, no role attributes."
+
+- `sheets/cast_village_d.png` → `{waescherin,spinnerin,blumenmaedchen}`: 1. a washerwoman (woman) with rolled sleeves carrying a wicker laundry basket on her hip; 2. a young woman spinner holding a drop spindle and a tuft of wool; 3. a cheerful flower girl with a flower basket and a daisy in her hair.
+- `sheets/cast_village_e.png` → `{grossmutter,schaefer,zimmermann}`: 1. a kind grandmother (woman) with round glasses and a shawl, knitting a long scarf; 2. a young shepherd (man) with a shepherd's crook and a lamb at his feet; 3. a sturdy carpenter (man) with a wood saw over his shoulder and a pencil behind his ear.
+- `sheets/cast_village_f.png` → `{schuster,buergermeister,grossvater}`: 1. a thin cobbler (man) with a leather apron holding a boot and a small hammer; 2. a pompous portly mayor (man) with a golden chain of office and a tall hat; 3. an old grandfather (man) with a white beard, a walking stick and a smoking pipe.

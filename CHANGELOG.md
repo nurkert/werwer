@@ -17,11 +17,15 @@ The first release: a developer beta you can play with friends.
   the seer sees, and every extra one by one.
 - **Night sounds and a morning yawn** (synthesised, not recorded); the same on
   every phone and independent of any role. One button mutes a phone.
-- **20 figures**, ten women and ten men, so everyone at a full table has their
-  own.
+- **20 figures**, ten women and ten men, all ordinary villagers, so everyone
+  at a full table has their own; each one also exists in every role's
+  costume, and your own figure turns around in it when you see your role.
 - **The moon stage in the app:** cardboard cards, a curtain valance, stamps,
   Manrope text; your role stands as your figure seen from behind and turns
   around, cut edge and all. The website's figures turn the same way.
+- **Door signs:** at night every phone shows a secret sign; a werewolf who
+  spotted yours may try it once a night, and a right sign gives the pack a
+  fair chance at you. Now everyone has a reason to hide their screen.
 - Anyone may set their own sheep count at night, so the morning tally is
   something to argue about, not proof.
 

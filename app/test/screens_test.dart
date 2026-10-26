@@ -110,7 +110,7 @@ class _Shooter {
 Future<void> _precache(WidgetTester tester) async {
   final context = tester.element(find.byType(Scaffold).first);
   await tester.runAsync(() async {
-    for (final dir in ['brand', 'figures', 'sheep']) {
+    for (final dir in ['brand', 'figures', 'figures/roles', 'sheep']) {
       for (final file in Directory('assets/$dir').listSync()) {
         if (file is! File) continue;
         await precacheImage(AssetImage(file.path), context);

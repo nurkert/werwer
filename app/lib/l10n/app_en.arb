@@ -294,17 +294,6 @@
   "youAppearAs": "You appear as",
   "changePersona": "Choose your figure",
   "personaHint": "Your figure is only your look. Your role stays secret and is dealt by chance.",
-  "persona_maid": "Maid",
-  "persona_lanternBearer": "Lantern bearer",
-  "persona_greyWolf": "Grey wolf",
-  "persona_farmer": "Farmer",
-  "persona_hunter": "Hunter",
-  "persona_herbWitch": "Herb witch",
-  "persona_cupid": "Cupid",
-  "persona_guard": "Guard",
-  "persona_tracker": "Tracker",
-  "persona_listener": "Listener",
-  "persona_quietPaw": "Quiet paw",
   "inviteTitle": "Get the others in",
   "inviteHint": "The others open Whowolf and tap “Join a room”: your room shows up by itself. Or they scan this code.",
   "connectionDetails": "Connection details",
@@ -526,13 +515,54 @@
   "ownCountTitle": "How many sheep did you count?",
   "ownCountHint": "Everyone may do this, so fibbing is allowed. In the morning everyone sees the numbers.",
   "ownCountSet": "Take it",
+  "persona_maid": "Maid",
+  "persona_farmer": "Farmer",
   "persona_baker": "Baker",
-  "persona_fisher": "Fisher",
-  "persona_seamstress": "Seamstress",
-  "persona_gooseGirl": "Goose girl",
-  "persona_innkeeper": "Innkeeper",
   "persona_smith": "Smith",
+  "persona_fisher": "Fisher",
   "persona_miller": "Miller",
+  "persona_seamstress": "Seamstress",
   "persona_minstrel": "Minstrel",
-  "persona_beekeeper": "Beekeeper"
+  "persona_gooseGirl": "Goose girl",
+  "persona_beekeeper": "Beekeeper",
+  "persona_innkeeper": "Innkeeper",
+  "persona_shepherd": "Shepherd",
+  "persona_washerwoman": "Washerwoman",
+  "persona_carpenter": "Carpenter",
+  "persona_spinner": "Spinner",
+  "persona_cobbler": "Cobbler",
+  "persona_flowerGirl": "Flower girl",
+  "persona_mayor": "Mayor",
+  "persona_grandmother": "Grandmother",
+  "persona_grandfather": "Grandfather",
+  "doorSignTitle": "Your door sign tonight",
+  "doorSignHint": "Let nobody look at your screen: a werewolf who knows your sign has a chance to come for you tonight.",
+  "markTitle": "Spotted a door sign?",
+  "markHint": "Once a night the pack may try one. If it is right, that person may die tonight as well (about one in two).",
+  "markSymbol": "Symbol {number}",
+  "@markSymbol": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "markTry": "Try the sign",
+  "markRight": "The sign of {name} was right. Maybe the pack gets them tonight.",
+  "@markRight": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "markWrong": "The sign of {name} was wrong. Next night brings new signs.",
+  "@markWrong": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDoorSigns": "Door signs (peeking at screens can cost a life)"
 }

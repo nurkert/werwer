@@ -16,6 +16,7 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 | `sheets/sheet_stage_far.png`, `sheets/sheet_stage_near.png` → `source/stage/ebene_*.png` (hero depth planes: sky, moon, clouds, mountains with castle, hills, meadow) | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/stage.md`](prompts/stage.md), prompts embedded in the sheets and in `ebene_himmel.png` |
 | `source/stage/box-tray.png` (open box interior for the unboxing animation) | Codex CLI 0.164.0 | 2026-10-25 | prompt embedded in the PNG |
 | `sheets/cast_village_{a,b,c}.png` → `source/figures/{baeckerin,fischerin,schneiderin,gaensehirtin,wirtin,schmied,mueller,spielmann,imker}.png` (village ensemble) | Codex CLI 0.164.0 (image generation) | 2026-10-26 | [`prompts/village_ensemble.md`](prompts/village_ensemble.md) |
+| `sheets/cast_village_{d,e,f}.png` → nine more villagers; `sheets/roles/<persona>.png` → `source/figures/roles/<persona>_<role>.png` (every persona in every role's costume) | Codex CLI 0.164.0 (image generation) | 2026-10-26 | [`prompts/village_ensemble.md`](prompts/village_ensemble.md), [`prompts/costumes.md`](prompts/costumes.md) |
 
 ## Third-party icons
 

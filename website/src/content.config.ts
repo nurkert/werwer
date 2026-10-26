@@ -11,7 +11,6 @@ const docs = defineCollection({
 
 const figure = z.enum([
   'amor',
-  'beschuetzer',
   'dorfbewohner',
   'faehrtenleger',
   'hexe',

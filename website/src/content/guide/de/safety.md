@@ -5,7 +5,7 @@ title: Sicherheit & Privatsphäre
 short: Sicherheit & Privatsphäre
 description: "Warum Whowolf ohne Konto, Tracking und Werbung auskommt, warum niemand mehr sieht, als er darf, und was in der Testversion noch fehlt."
 lead: "Bei Werwolf geht es um Geheimnisse. Deshalb ist Whowolf so gebaut, dass eure Rollen auf eurem Handy bleiben und eure Daten am Tisch. Hier steht, was das heißt und wo die Testversion noch Grenzen hat."
-figure: beschuetzer
+figure: seherin
 ---
 
 ## Kurz gesagt

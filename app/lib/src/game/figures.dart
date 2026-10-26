@@ -17,29 +17,39 @@ String figureAsset(Role role) => switch (role) {
   Role.cupid => 'assets/figures/amor.webp',
 };
 
-/// The cardboard figure of a persona.
-String personaAsset(Persona persona) => switch (persona) {
-  Persona.maid => 'assets/figures/magd.webp',
-  Persona.lanternBearer => 'assets/figures/seherin.webp',
-  Persona.greyWolf => 'assets/figures/werwolf.webp',
-  Persona.farmer => 'assets/figures/dorfbewohner.webp',
-  Persona.hunter => 'assets/figures/jaeger.webp',
-  Persona.herbWitch => 'assets/figures/hexe.webp',
-  Persona.cupid => 'assets/figures/amor.webp',
-  Persona.guard => 'assets/figures/beschuetzer.webp',
-  Persona.tracker => 'assets/figures/faehrtenleger.webp',
-  Persona.listener => 'assets/figures/lauscherin.webp',
-  Persona.quietPaw => 'assets/figures/stille_pfote.webp',
-  Persona.baker => 'assets/figures/baeckerin.webp',
-  Persona.fisher => 'assets/figures/fischerin.webp',
-  Persona.seamstress => 'assets/figures/schneiderin.webp',
-  Persona.gooseGirl => 'assets/figures/gaensehirtin.webp',
-  Persona.innkeeper => 'assets/figures/wirtin.webp',
-  Persona.smith => 'assets/figures/schmied.webp',
-  Persona.miller => 'assets/figures/mueller.webp',
-  Persona.minstrel => 'assets/figures/spielmann.webp',
-  Persona.beekeeper => 'assets/figures/imker.webp',
+/// The file name of each persona's figure (`assets/figures/<name>.webp`).
+const _personaFiles = <Persona, String>{
+  Persona.maid: 'magd',
+  Persona.farmer: 'dorfbewohner',
+  Persona.baker: 'baeckerin',
+  Persona.smith: 'schmied',
+  Persona.fisher: 'fischerin',
+  Persona.miller: 'mueller',
+  Persona.seamstress: 'schneiderin',
+  Persona.minstrel: 'spielmann',
+  Persona.gooseGirl: 'gaensehirtin',
+  Persona.beekeeper: 'imker',
+  Persona.innkeeper: 'wirtin',
+  Persona.shepherd: 'schaefer',
+  Persona.washerwoman: 'waescherin',
+  Persona.carpenter: 'zimmermann',
+  Persona.spinner: 'spinnerin',
+  Persona.cobbler: 'schuster',
+  Persona.flowerGirl: 'blumenmaedchen',
+  Persona.mayor: 'buergermeister',
+  Persona.grandmother: 'grossmutter',
+  Persona.grandfather: 'grossvater',
 };
+
+/// The cardboard figure of a persona, as the villager they look like.
+String personaAsset(Persona persona) =>
+    'assets/figures/${_personaFiles[persona]}.webp';
+
+/// The persona in the costume of [role]: the baker as a werewolf, the smith
+/// as the seer. Villagers wear their everyday clothes.
+String personaRoleAsset(Persona persona, Role role) => role == Role.villager
+    ? personaAsset(persona)
+    : 'assets/figures/roles/${_personaFiles[persona]}_${role.name}.webp';
 
 /// Figures for decoration (start screen), all facing right.
 const castAssets = [
@@ -78,26 +88,26 @@ class Figure extends StatelessWidget {
 /// Where a persona's face is in its figure: (x, y) as fractions of the
 /// image, and the image's aspect ratio (width / height).
 const _faces = <Persona, (double, double, double)>{
-  Persona.cupid: (0.45, 0.12, 462 / 640),
-  Persona.guard: (0.40, 0.10, 391 / 640),
-  Persona.farmer: (0.45, 0.10, 355 / 640),
-  Persona.tracker: (0.62, 0.15, 535 / 627),
-  Persona.herbWitch: (0.45, 0.20, 435 / 640),
-  Persona.hunter: (0.47, 0.09, 405 / 640),
-  Persona.listener: (0.45, 0.12, 492 / 640),
   Persona.maid: (0.50, 0.09, 313 / 640),
-  Persona.lanternBearer: (0.56, 0.10, 426 / 640),
-  Persona.quietPaw: (0.72, 0.15, 414 / 640),
+  Persona.farmer: (0.45, 0.10, 355 / 640),
   Persona.baker: (0.55, 0.08, 404 / 640),
-  Persona.fisher: (0.55, 0.08, 367 / 640),
-  Persona.seamstress: (0.55, 0.07, 289 / 640),
-  Persona.gooseGirl: (0.55, 0.08, 385 / 640),
-  Persona.innkeeper: (0.55, 0.09, 415 / 640),
   Persona.smith: (0.52, 0.09, 394 / 640),
+  Persona.fisher: (0.55, 0.08, 367 / 640),
   Persona.miller: (0.55, 0.11, 410 / 640),
+  Persona.seamstress: (0.55, 0.07, 289 / 640),
   Persona.minstrel: (0.60, 0.13, 379 / 640),
+  Persona.gooseGirl: (0.55, 0.08, 385 / 640),
   Persona.beekeeper: (0.70, 0.17, 424 / 640),
-  Persona.greyWolf: (0.72, 0.20, 512 / 640),
+  Persona.innkeeper: (0.55, 0.09, 415 / 640),
+  Persona.shepherd: (0.50, 0.08, 329 / 640),
+  Persona.washerwoman: (0.55, 0.08, 331 / 640),
+  Persona.carpenter: (0.55, 0.09, 364 / 640),
+  Persona.spinner: (0.55, 0.07, 298 / 640),
+  Persona.cobbler: (0.62, 0.12, 312 / 640),
+  Persona.flowerGirl: (0.58, 0.08, 298 / 640),
+  Persona.mayor: (0.55, 0.13, 364 / 640),
+  Persona.grandmother: (0.50, 0.13, 374 / 640),
+  Persona.grandfather: (0.62, 0.13, 324 / 640),
 };
 
 /// A round portrait of a persona, zoomed onto the face, cut from card with
