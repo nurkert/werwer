@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:game_core/game_core.dart' show NarratorLanguage;
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
@@ -234,6 +235,9 @@ class _StartScreenState extends State<StartScreen> {
         hostName: name,
         relayServer: await const Store().relayServer(),
         notice: l10n.roomOpenNotice,
+        language: l10n.localeName == 'de'
+            ? NarratorLanguage.de
+            : NarratorLanguage.en,
       );
       final session = GameSession(
         name: name,

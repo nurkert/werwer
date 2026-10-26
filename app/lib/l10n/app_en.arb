@@ -620,5 +620,6 @@
   "webJoinApp": "The app can do even more: whowolf.de",
   "inviteHintWeb": "Scan the code with the Whowolf app, or without the app with your phone's camera to play in the browser.",
   "language": "Language",
-  "languageSystem": "Like the system"
+  "languageSystem": "Like the system",
+  "settingsNarratorLanguage": "Narrator's language"
 }

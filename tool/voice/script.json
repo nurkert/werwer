@@ -1,0 +1,332 @@
+{
+  "version": 2,
+  "about": "The narrator's script. Every moment has several variants; all phones pick the same one (from room and round) and never the same one twice in a row. 'when' says when a moment is spoken; 'direction' is for the speaker (ElevenLabs).",
+  "moments": [
+    {
+      "key": "reveal",
+      "when": "The roles are dealt.",
+      "direction": "Warm, inviting, a little secretive.",
+      "de": [
+        "Die Rollen sind verteilt. Schaut euch eure Rolle an, und lasst niemanden mitschauen.",
+        "Jeder von euch hat jetzt ein Geheimnis. Schaut es euch an. Allein.",
+        "Die Karten sind gemischt. Wer ihr seid, weiß nur euer Handy. Behaltet es für euch."
+      ],
+      "en": [
+        "The roles are dealt. Look at yours, and let nobody look over your shoulder.",
+        "Each of you now holds a secret. Look at it. Alone.",
+        "The cards are shuffled. Only your phone knows who you are. Keep it that way."
+      ]
+    },
+    {
+      "key": "night_first_called",
+      "when": "The first night falls, classic night.",
+      "direction": "Slow, hushed, the village goes to sleep.",
+      "de": [
+        "Die erste Nacht legt sich über das Dorf. Alle schließen die Augen.",
+        "Es wird dunkel im Dorf. Die Lichter gehen aus, eins nach dem anderen. Schließt die Augen.",
+        "Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit einem Werwolf unter sich. Augen zu."
+      ],
+      "en": [
+        "The first night falls over the village. Everyone close your eyes.",
+        "Darkness comes to the village. The lights go out, one by one. Close your eyes.",
+        "The sun has set. For the first time the village sleeps with a werewolf among it. Eyes closed."
+      ]
+    },
+    {
+      "key": "night_called",
+      "when": "A later night falls, classic night.",
+      "direction": "Hushed; heavier with each round.",
+      "de": [
+        "Die Nacht kehrt zurück. Alle schließen die Augen.",
+        "Wieder wird es dunkel. Das Dorf ist kleiner geworden. Schließt die Augen.",
+        "Noch eine Nacht. Wer sie übersteht, erfährt ihr am Morgen. Augen zu.",
+        "Die Nacht legt sich über das Dorf. Niemand traut mehr seinem Nachbarn. Schließt die Augen."
+      ],
+      "en": [
+        "Night returns. Everyone close your eyes.",
+        "Darkness again. The village has grown smaller. Close your eyes.",
+        "Another night. Who makes it through, you will learn in the morning. Eyes closed.",
+        "Night falls over the village. Nobody trusts their neighbour any more. Close your eyes."
+      ]
+    },
+    {
+      "key": "night_together",
+      "when": "A night falls in Whowolf's night (everyone taps).",
+      "direction": "Hushed, with a wink.",
+      "de": [
+        "Die Nacht legt sich über das Dorf. Alle schließen die Augen … und tippen auf ihrem Handy.",
+        "Es wird Nacht. Jetzt tippen alle, und niemand verrät sich.",
+        "Dunkelheit. Alle haben etwas zu tun, und von außen sieht es bei allen gleich aus."
+      ],
+      "en": [
+        "Night falls over the village. Everyone close your eyes … and tap on your phone.",
+        "Night comes. Now everyone taps, and nobody gives themselves away.",
+        "Darkness. Everyone has something to do, and from the outside it all looks the same."
+      ]
+    },
+    {
+      "key": "wake_cupid",
+      "when": "Classic night, first night: cupid is called.",
+      "direction": "Soft, almost tender.",
+      "de": [
+        "Amor erwacht und verbindet zwei Menschen in Liebe.",
+        "Amor öffnet die Augen. Zwei Herzen sollen von heute an zusammen schlagen."
+      ],
+      "en": [
+        "Cupid wakes up and binds two people in love.",
+        "Cupid opens his eyes. From tonight, two hearts shall beat as one."
+      ]
+    },
+    {
+      "key": "wake_wolves",
+      "when": "Classic night: the werewolves are called.",
+      "direction": "Low and close, a touch of menace.",
+      "de": [
+        "Die Werwölfe erwachen und suchen sich ein Opfer.",
+        "Die Werwölfe öffnen die Augen. Sie haben Hunger.",
+        "Jetzt erwachen die Werwölfe. Lautlos einigen sie sich auf ein Opfer.",
+        "Die Werwölfe sind wach. Wen holen sie sich heute?"
+      ],
+      "en": [
+        "The werewolves wake up and choose a victim.",
+        "The werewolves open their eyes. They are hungry.",
+        "Now the werewolves wake. Silently they agree on a victim.",
+        "The werewolves are awake. Whom will they take tonight?"
+      ]
+    },
+    {
+      "key": "wake_seer",
+      "when": "Classic night: the seer is called.",
+      "direction": "Mysterious, a little dreamy.",
+      "de": [
+        "Die Seherin erwacht und blickt in eine Seele.",
+        "Die Seherin öffnet die Augen. Wessen Geheimnis will sie heute sehen?",
+        "Die Seherin ist wach. Ein Blick, und sie weiß, wer jemand wirklich ist."
+      ],
+      "en": [
+        "The seer wakes up and looks into someone's soul.",
+        "The seer opens her eyes. Whose secret will she see tonight?",
+        "The seer is awake. One look, and she knows who someone really is."
+      ]
+    },
+    {
+      "key": "wake_witch",
+      "when": "Classic night: the witch is called.",
+      "direction": "Crooked, knowing, a little amused.",
+      "de": [
+        "Die Hexe erwacht. Sie sieht, wen es heute Nacht treffen soll, und greift zu ihren Tränken.",
+        "Die Hexe öffnet die Augen. Ein Heiltrank, ein Gift. Was braut sie heute?",
+        "Die Hexe ist wach. Sie weiß, wen die Werwölfe gewählt haben. Rettet sie ihn?"
+      ],
+      "en": [
+        "The witch wakes up. She sees who is to die tonight and reaches for her potions.",
+        "The witch opens her eyes. One healing potion, one poison. What will she brew tonight?",
+        "The witch is awake. She knows whom the werewolves chose. Will she save them?"
+      ]
+    },
+    {
+      "key": "sleep",
+      "when": "Classic night: a role goes back to sleep (before the next is called).",
+      "direction": "Short, quiet.",
+      "de": ["Augen wieder zu.", "Und wieder schlafen.", "Augen zu."],
+      "en": ["Eyes closed again.", "Back to sleep.", "Eyes closed."]
+    },
+    {
+      "key": "morning_first",
+      "when": "The first morning.",
+      "direction": "Brighter, but with a shadow over it.",
+      "de": [
+        "Die Sonne geht über dem Dorf auf. Die erste Nacht ist vorbei.",
+        "Der Hahn kräht. Das Dorf erwacht nach seiner ersten Nacht."
+      ],
+      "en": [
+        "The sun rises over the village. The first night is over.",
+        "The rooster crows. The village wakes after its first night."
+      ]
+    },
+    {
+      "key": "morning",
+      "when": "A later morning.",
+      "direction": "Brighter, tired, wary.",
+      "de": [
+        "Die Sonne geht über dem Dorf auf.",
+        "Es wird hell. Das Dorf zählt nach, wer noch da ist.",
+        "Ein neuer Morgen. Nicht alle haben ihn erlebt."
+      ],
+      "en": [
+        "The sun rises over the village.",
+        "Day breaks. The village counts who is still there.",
+        "A new morning. Not everyone lived to see it."
+      ]
+    },
+    {
+      "key": "died_one",
+      "when": "In the morning: one player died (the screen shows who; the narrator walks to their seat).",
+      "direction": "Grave, a short pause before.",
+      "de": [
+        "Heute Nacht hat es jemanden erwischt.",
+        "Einer ist nicht mehr aufgewacht.",
+        "Das Dorf hat einen der Seinen verloren.",
+        "Ein Platz am Tisch bleibt heute leer."
+      ],
+      "en": [
+        "Tonight, someone did not make it.",
+        "One of you did not wake up.",
+        "The village has lost one of its own.",
+        "One seat at the table stays empty today."
+      ]
+    },
+    {
+      "key": "died_two",
+      "when": "In the morning: two players died.",
+      "direction": "Grave, heavier.",
+      "de": [
+        "Heute Nacht hat es gleich zwei erwischt.",
+        "Zwei sind nicht mehr aufgewacht. Das war eine schwarze Nacht.",
+        "Das Dorf trauert heute gleich doppelt."
+      ],
+      "en": [
+        "Tonight, two did not make it.",
+        "Two of you did not wake up. That was a dark night.",
+        "The village mourns twice today."
+      ]
+    },
+    {
+      "key": "died_none",
+      "when": "In the morning: nobody died.",
+      "direction": "Relieved, a little puzzled.",
+      "de": [
+        "Alle sind wieder aufgewacht. Niemand ist gestorben.",
+        "Ein Wunder: Heute Nacht ist niemand gestorben.",
+        "Alle sind noch da. Hat da jemand seine Hand im Spiel gehabt?"
+      ],
+      "en": [
+        "Everyone woke up again. Nobody died.",
+        "A miracle: nobody died tonight.",
+        "Everyone is still here. Did someone have a hand in that?"
+      ]
+    },
+    {
+      "key": "role_villager",
+      "when": "After a death, when roles are revealed.",
+      "direction": "Plain, a little sad.",
+      "de": ["Die Rolle war: Dorfbewohner.", "Es war ein einfacher Dorfbewohner."],
+      "en": ["The role was: villager.", "It was a simple villager."]
+    },
+    {
+      "key": "role_werewolf",
+      "when": "After a death, when roles are revealed: a werewolf.",
+      "direction": "A small triumph.",
+      "de": ["Die Rolle war: Werwolf.", "Es war ein Werwolf!"],
+      "en": ["The role was: werewolf.", "It was a werewolf!"]
+    },
+    {
+      "key": "role_seer",
+      "when": "After a death, when roles are revealed.",
+      "direction": "Regretful.",
+      "de": ["Die Rolle war: Seherin.", "Es war die Seherin. Was sie wohl gesehen hat?"],
+      "en": ["The role was: seer.", "It was the seer. What might she have seen?"]
+    },
+    {
+      "key": "role_witch",
+      "when": "After a death, when roles are revealed.",
+      "direction": "Regretful.",
+      "de": ["Die Rolle war: Hexe.", "Es war die Hexe. Ihre Tränke bleiben ungenutzt."],
+      "en": ["The role was: witch.", "It was the witch. Her potions stay on the shelf."]
+    },
+    {
+      "key": "role_hunter",
+      "when": "After a death, when roles are revealed.",
+      "direction": "Tense.",
+      "de": ["Die Rolle war: Jäger.", "Es war der Jäger."],
+      "en": ["The role was: hunter.", "It was the hunter."]
+    },
+    {
+      "key": "role_cupid",
+      "when": "After a death, when roles are revealed.",
+      "direction": "Soft.",
+      "de": ["Die Rolle war: Amor.", "Es war Amor."],
+      "en": ["The role was: cupid.", "It was cupid."]
+    },
+    {
+      "key": "discuss",
+      "when": "The day's discussion begins.",
+      "direction": "Energetic, stirring it up.",
+      "de": [
+        "Jetzt redet: Wer ist der Werwolf?",
+        "Ihr habt das Wort. Wer war es?",
+        "Schaut euch genau an. Einer von euch lügt.",
+        "Jetzt wird geredet. Und vergesst nicht: Der Werwolf redet mit."
+      ],
+      "en": [
+        "Now talk: who is the werewolf?",
+        "The floor is yours. Who was it?",
+        "Look at each other closely. One of you is lying.",
+        "Now you talk. And remember: the werewolf talks too."
+      ]
+    },
+    {
+      "key": "vote",
+      "when": "The vote begins.",
+      "direction": "Firm, a decision is due.",
+      "de": ["Genug geredet. Stimmt jetzt ab.", "Zeit für eine Entscheidung. Wer soll gehen?", "Stimmt ab. Geheim, auf eurem Handy."],
+      "en": ["Enough talk. Vote now.", "Time to decide. Who has to go?", "Cast your votes. In secret, on your phone."]
+    },
+    {
+      "key": "voted_out",
+      "when": "The vote has a result (the narrator walks to that seat).",
+      "direction": "Solemn.",
+      "de": ["Das Dorf hat entschieden.", "Die Stimmen sind gezählt. Das Dorf hat gesprochen.", "So soll es sein."],
+      "en": ["The village has decided.", "The votes are counted. The village has spoken.", "So be it."]
+    },
+    {
+      "key": "vote_tie",
+      "when": "The vote ends in a tie or nobody voted.",
+      "direction": "Uneasy.",
+      "de": ["Niemand wurde verbannt.", "Das Dorf ist sich nicht einig. Niemand muss gehen.", "Gleichstand. Heute bleibt alles, wie es ist."],
+      "en": ["Nobody was banished.", "The village cannot agree. Nobody has to go.", "A tie. Today everything stays as it is."]
+    },
+    {
+      "key": "hunter",
+      "when": "The hunter has died and takes aim (the narrator walks to the hunter).",
+      "direction": "Tense, slow.",
+      "de": ["Der Jäger ist gefallen und legt an …", "Der Jäger hebt ein letztes Mal seinen Bogen …"],
+      "en": ["The hunter has fallen and takes aim …", "The hunter raises his bow one last time …"]
+    },
+    {
+      "key": "hunter_spares",
+      "when": "The hunter decides not to shoot.",
+      "direction": "Calm.",
+      "de": ["Der Jäger senkt den Bogen.", "Der Jäger schont alle. Sein Pfeil bleibt im Köcher."],
+      "en": ["The hunter lowers his bow.", "The hunter spares everyone. His arrow stays in the quiver."]
+    },
+    {
+      "key": "grief",
+      "when": "A lover dies of grief.",
+      "direction": "Very soft, sad.",
+      "de": ["Vor Kummer folgt der Geliebte in den Tod.", "Ohne den anderen will der Geliebte nicht weiterleben."],
+      "en": ["Out of grief, the beloved follows into death.", "Without the other, the beloved will not go on."]
+    },
+    {
+      "key": "win_village",
+      "when": "The village wins.",
+      "direction": "Triumphant, warm.",
+      "de": ["Das Dorf hat gewonnen. Die Werwölfe sind besiegt.", "Der letzte Werwolf ist gefallen. Das Dorf kann wieder ruhig schlafen.", "Geschafft! Das Dorf hat seine Werwölfe gefunden."],
+      "en": ["The village has won. The werewolves are defeated.", "The last werewolf has fallen. The village can sleep in peace again.", "Done it! The village has found its werewolves."]
+    },
+    {
+      "key": "win_wolves",
+      "when": "The werewolves win.",
+      "direction": "Dark, slow, a little pleased.",
+      "de": ["Die Werwölfe haben gewonnen. Im Dorf ist es still geworden.", "Die Werwölfe sind unter sich. Das Dorf gehört ihnen.", "Zu spät. Die Werwölfe haben gewonnen."],
+      "en": ["The werewolves have won. The village has fallen silent.", "The werewolves are among themselves. The village is theirs.", "Too late. The werewolves have won."]
+    },
+    {
+      "key": "win_lovers",
+      "when": "The lovers win.",
+      "direction": "Tender, a little bittersweet.",
+      "de": ["Die Verliebten haben gewonnen. Am Ende zählt nur die Liebe.", "Nur die beiden sind übrig. Die Liebe hat gesiegt."],
+      "en": ["The lovers have won. In the end, only love counts.", "Only the two of them are left. Love has won."]
+    }
+  ]
+}

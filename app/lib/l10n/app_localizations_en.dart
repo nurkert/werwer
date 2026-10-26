@@ -1078,4 +1078,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSystem => 'Like the system';
+
+  @override
+  String get settingsNarratorLanguage => 'Narrator\'s language';
 }

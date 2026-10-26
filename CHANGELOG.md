@@ -18,6 +18,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - Join in the browser without installing anything: in the same Wi-Fi,
   scan the host's QR code with the phone's camera. The host's phone serves
   the web app itself, no internet needed.
+- The walking narrator: with recordings in the app, the narrator's voice
+  walks around the table from phone to phone, with several variants of
+  every line and a little more tension each round. The host picks one
+  narrator language for the whole table.
 - Pick German or English per app in the system settings (iOS, macOS,
   Android 13+) or in the app's settings.
 - A short privacy notice on first start, the full privacy notice in the

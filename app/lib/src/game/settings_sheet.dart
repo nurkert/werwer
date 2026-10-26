@@ -89,7 +89,9 @@ class _SettingsBody extends StatelessWidget {
           _PresetCard(
             preset: preset,
             selected: s.preset == preset,
-            onTap: () => onChanged(preset.settings),
+            onTap: () => onChanged(
+              preset.settings.copyWith(narratorLanguage: s.narratorLanguage),
+            ),
           ),
           const SizedBox(height: 10),
         ],
@@ -162,6 +164,25 @@ class _SettingsBody extends StatelessWidget {
           onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
         ),
         _Section(l10n.settingsNight),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.settingsNarratorLanguage,
+                style: const TextStyle(color: Palette.moon100),
+              ),
+            ),
+            SegmentedButton<NarratorLanguage>(
+              segments: const [
+                ButtonSegment(value: NarratorLanguage.de, label: Text('DE')),
+                ButtonSegment(value: NarratorLanguage.en, label: Text('EN')),
+              ],
+              selected: {s.narratorLanguage},
+              onSelectionChanged: (v) =>
+                  onChanged(s.copyWith(narratorLanguage: v.first)),
+            ),
+          ],
+        ),
         _Switch(
           label: l10n.settingsNightCalled,
           hint: s.nightMode == NightMode.called

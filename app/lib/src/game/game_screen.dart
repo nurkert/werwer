@@ -10,11 +10,13 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
+import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
+import 'package:whowolf/src/game/walking_narrator.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -61,9 +63,21 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   PlayerView? _lastView;
   String? _narration;
 
+  /// The recorded narrator walking around the table, once its recordings
+  /// are loaded (none in this build: the system voice on the host).
+  WalkingNarrator? _walker;
+
   @override
   void initState() {
     super.initState();
+    unawaited(
+      VoiceBank.load().then((bank) {
+        if (mounted) {
+          _walker = WalkingNarrator(bank: bank, room: session.roomCode)
+            ..muted = _quiet;
+        }
+      }),
+    );
     // The host must stay awake: a locked host phone ends the game for all.
     unawaited(WakelockPlus.enable());
     final room = session.hosted;
@@ -100,6 +114,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       ..removeListener(_changed)
       ..dispose();
     _voice?.stop();
+    _walker?.stop();
     _atmosphere.dispose();
     unawaited(WakelockPlus.disable());
     super.dispose();
@@ -119,14 +134,34 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       _atmosphere.update(view, phaseStartedAt: session.phaseStartedAtMs);
       final l10n = AppLocalizations.of(context);
       final line = narration(_lastView, view, l10n);
+      final spoken = spokenMoments(_lastView, view);
       _lastView = view;
-      if (line != null) {
-        _narration = line;
-        // The table can switch the voice off in the settings; the line
-        // still shows on every screen.
-        if (view.settings.narratorVoice) {
-          unawaited(_voice?.say(line, l10n.localeName));
-        }
+      if (line != null) _narration = line;
+      // The table can switch the voice off in the settings; the line still
+      // shows on every screen.
+      final settings = view.settings;
+      final walker = _walker;
+      if (!settings.narratorVoice) {
+        // Silent table.
+      } else if (walker != null &&
+          spoken.isNotEmpty &&
+          walker.bank.speaks(settings.narratorLanguage)) {
+        // Recorded voice: it walks around the table, on every phone at
+        // the same moment (just after the phase began, by the host's
+        // clock).
+        walker.speak(
+          moments: spoken,
+          language: settings.narratorLanguage,
+          round: view.round,
+          startMs:
+              (session.phaseStartedAtMs ??
+                  DateTime.now().millisecondsSinceEpoch) +
+              700,
+          seats: [for (final s in view.seats) s.id],
+          me: view.you,
+        );
+      } else if (line != null) {
+        unawaited(_voice?.say(line, l10n.localeName));
       }
     }
     setState(() {});
@@ -197,7 +232,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       _quiet = !_quiet;
                       _atmosphere.muted = _quiet;
                       _voice?.muted = _quiet;
-                      if (_quiet) _voice?.stop();
+                      _walker?.muted = _quiet;
+                      if (_quiet) {
+                        _voice?.stop();
+                        _walker?.stop();
+                      }
                     }),
                   ),
                 if (session.status != SessionStatus.ended)

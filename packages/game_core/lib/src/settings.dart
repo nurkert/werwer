@@ -34,6 +34,16 @@ enum NightMode {
   called,
 }
 
+/// The language the narrator speaks at the table: one for everyone, so the
+/// voice does not change language as it walks from phone to phone.
+enum NarratorLanguage {
+  /// German.
+  de,
+
+  /// English.
+  en,
+}
+
 /// Options the host picks in the lobby; everyone at the table sees them.
 ///
 /// Everything Whowolf adds to the classic card game is optional, so a table
@@ -60,6 +70,7 @@ class GameSettings {
     this.narratorVoice = false,
     this.doorSigns = false,
     this.nightMode = NightMode.together,
+    this.narratorLanguage = NarratorLanguage.de,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -113,6 +124,9 @@ class GameSettings {
   /// How the night runs.
   final NightMode nightMode;
 
+  /// The language of the narrator's voice (the host's app language).
+  final NarratorLanguage narratorLanguage;
+
   /// Whether sheep are counted: they need the phones in hand at night, so
   /// not when the narrator calls the roles.
   bool get sheepInPlay => sheepCounting && nightMode == NightMode.together;
@@ -121,8 +135,12 @@ class GameSettings {
   bool get doorSignsInPlay => doorSigns && nightMode == NightMode.together;
 
   /// The preset these settings are exactly, if any.
-  Preset? get preset =>
-      Preset.values.where((p) => p.settings == this).firstOrNull;
+  /// The narrator's language is the table's, not part of a preset.
+  Preset? get preset => Preset.values
+      .where(
+        (p) => p.settings.copyWith(narratorLanguage: narratorLanguage) == this,
+      )
+      .firstOrNull;
 
   /// Throws a [RuleViolation] unless every value is within its bounds.
   void validate() {
@@ -176,6 +194,7 @@ class GameSettings {
     bool? narratorVoice,
     bool? doorSigns,
     NightMode? nightMode,
+    NarratorLanguage? narratorLanguage,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -191,6 +210,7 @@ class GameSettings {
     narratorVoice: narratorVoice ?? this.narratorVoice,
     doorSigns: doorSigns ?? this.doorSigns,
     nightMode: nightMode ?? this.nightMode,
+    narratorLanguage: narratorLanguage ?? this.narratorLanguage,
   );
 
   @override
@@ -210,7 +230,8 @@ class GameSettings {
       other.personaChoice == personaChoice &&
       other.narratorVoice == narratorVoice &&
       other.doorSigns == doorSigns &&
-      other.nightMode == nightMode;
+      other.nightMode == nightMode &&
+      other.narratorLanguage == narratorLanguage;
 
   @override
   int get hashCode => Object.hash(
@@ -228,6 +249,7 @@ class GameSettings {
     narratorVoice,
     doorSigns,
     nightMode,
+    narratorLanguage,
   );
 }
 

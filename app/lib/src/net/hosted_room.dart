@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:game_core/game_core.dart' show PlayerId;
+import 'package:game_core/game_core.dart' show NarratorLanguage, PlayerId;
 import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:game_host/relay.dart';
@@ -40,6 +40,7 @@ class HostedRoom {
     required String hostName,
     Uri? relayServer,
     String Function(String room)? notice,
+    NarratorLanguage language = NarratorLanguage.de,
   }) {
     final random = Random.secure();
     final code = List.generate(
@@ -47,7 +48,12 @@ class HostedRoom {
       (_) => random.nextInt(10),
     ).join();
     return _start(
-      GameHost(roomCode: code, random: random),
+      GameHost(
+        roomCode: code,
+        random: random,
+        // The narrator speaks the host's language to the whole table.
+        settings: GameHost.defaultSettings.copyWith(narratorLanguage: language),
+      ),
       keys: null,
       hostName: hostName,
       relayServer: relayServer,

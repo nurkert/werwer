@@ -24,6 +24,7 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'voice': settings.narratorVoice,
   'doorSigns': settings.doorSigns,
   'nights': settings.nightMode.name,
+  'voiceLang': settings.narratorLanguage.name,
 };
 
 /// Decodes [GameSettings]; throws a [ProtocolError] for invalid input. Only
@@ -53,5 +54,6 @@ GameSettings decodeSettings(JsonReader json) {
     narratorVoice: json.boolean('voice'),
     doorSigns: json.boolean('doorSigns'),
     nightMode: json.enumValue('nights', NightMode.values),
+    narratorLanguage: json.enumValue('voiceLang', NarratorLanguage.values),
   );
 }

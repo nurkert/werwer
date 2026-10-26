@@ -1,11 +1,22 @@
 # Task 010 – Der wandernde Erzähler
 
-**Status:** Entwurf (2026-10-26); die Aufnahmen liefert der Eigentümer
+**Status:** umgesetzt bis auf die Aufnahmen (2026-10-26). Die Aufnahmen entstehen mit ElevenLabs aus `tool/voice/script.json` (Ablauf in `tool/voice/README.md`).
 **Roadmap:** 0.1.2 (vorgezogen)
 
 ## Ziel
 
 Die Erzählerstimme kommt nicht aus einem Handy, sie geht um den Tisch. Weil die Handys in Sitzordnung liegen, wird die Stimme bei einem Handy lauter, beim nächsten langsam lauter und beim vorigen leiser. Das soll so synchron sein, dass es klingt, als liefe der Erzähler wirklich im Kreis. Er kann auch gezielt zu jemandem gehen, etwa morgens zum Platz dessen, der nicht mehr aufgewacht ist. Gemeinsame Klänge wie das Morgen-Gähnen spielen dieselbe Technik und erklingen auf allen Handys im selben Augenblick.
+
+## Wie es umgesetzt ist
+
+- **Kein neues Protokoll:** Jedes Handy plant denselben Gang selbst, als reine Funktion öffentlicher Werte.
+  - **Was gesagt wird:** `spokenMoments` leitet aus dem Übergang der öffentlichen Sicht die Momente ab, inklusive „gezielt zu“ beim Toten, beim Verbannten und beim Jäger.
+  - **Welche Fassung:** `pickVariant` wählt aus Raum und Runde, nie dieselbe zweimal hintereinander.
+  - **Wo der Erzähler steht und wie laut:** `NarratorWalk` mit leistungsgleicher Überblendung, höchstens zwei Handys zugleich.
+  - **Wann:** Phasenbeginn in Host-Zeit plus 700 ms (Uhrabgleich).
+- **Abspielen:** `WalkingNarrator` lädt nur, was dieses Handy hörbar spielt, startet zum gemeinsamen Zeitpunkt und führt die Lautstärke alle 40 ms nach. Was nicht rechtzeitig geladen ist, bleibt still statt zu spät.
+- **Drehbuch:** `tool/voice/script.json`, 30 Momente mit 2–4 Fassungen in Deutsch und Englisch. Die Spannung steigert sich über die Runden, und die Momente unterscheiden sich nach Kontext (erste Nacht, keine/eine/zwei Tote, aufgedeckte Rolle).
+- **Erzählsprache:** Einstellung des Tisches (`narratorLanguage`, die App-Sprache des Hosts), damit die Stimme beim Wandern nicht die Sprache wechselt.
 
 ## Die schwierigen Teile
 

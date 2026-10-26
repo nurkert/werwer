@@ -1909,6 +1909,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Like the system'**
   String get languageSystem;
+
+  /// No description provided for @settingsNarratorLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator\'s language'**
+  String get settingsNarratorLanguage;
 }
 
 class _AppLocalizationsDelegate

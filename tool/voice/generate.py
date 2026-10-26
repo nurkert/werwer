@@ -1,10 +1,12 @@
-"""Speaks the narrator's lines (tool/voice/lines.json) with Chatterbox.
+"""Speaks the narrator's script (tool/voice/script.json) with Chatterbox,
+for a voice whose owner agreed to be cloned (e.g. your own).
 
     ~/.venvs/chatterbox/bin/python tool/voice/generate.py \
-        [--reference narrator.wav] [--lang de en] [--takes 2] [--only key ...]
+        [--reference narrator.wav] [--lang de en] [--only key ...]
 
-Without --reference Chatterbox uses its built-in voice. Clone only a voice
-whose owner agreed. Raw takes go to design/source/voice/<key>_<lang>_<n>.wav;
+Without --reference Chatterbox uses its built-in voice. The model files
+(about 3 GB) come from Hugging Face, or from --models if downloaded there. Clone only a voice
+whose owner agreed. Raw files go to design/source/voice/<lang>/<key>_<n>_<lang>.wav;
 tool/voice/encode.sh turns them into the app's files.
 """
 
@@ -19,7 +21,7 @@ import torchaudio
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 
 ROOT = Path(__file__).resolve().parents[2]
-LINES = ROOT / "tool/voice/lines.json"
+SCRIPT = ROOT / "tool/voice/script.json"
 OUT = ROOT / "design/source/voice"
 
 
@@ -27,28 +29,38 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reference", type=Path)
     parser.add_argument("--lang", nargs="+", default=["de", "en"])
-    parser.add_argument("--takes", type=int, default=2)
     parser.add_argument("--only", nargs="*")
+    parser.add_argument(
+        "--models",
+        type=Path,
+        default=Path.home() / ".cache/whowolf-chatterbox",
+        help="the model files, if downloaded by hand (else from Hugging Face)",
+    )
     args = parser.parse_args()
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
-    model = ChatterboxMultilingualTTS.from_pretrained(device=device)
-    lines = json.loads(LINES.read_text(encoding="utf-8"))["lines"]
-    OUT.mkdir(parents=True, exist_ok=True)
-    for line in lines:
-        if args.only and line["key"] not in args.only:
+    model = (
+        ChatterboxMultilingualTTS.from_local(args.models, device)
+        if (args.models / "t3_mtl23ls_v2.safetensors").exists()
+        else ChatterboxMultilingualTTS.from_pretrained(device=device)
+    )
+    moments = json.loads(SCRIPT.read_text(encoding="utf-8"))["moments"]
+    for moment in moments:
+        if args.only and moment["key"] not in args.only:
             continue
         for lang in args.lang:
-            for take in range(1, args.takes + 1):
-                target = OUT / f"{line['key']}_{lang}_{take}.wav"
+            for n, text in enumerate(moment[lang], start=1):
+                take = n
+                target = OUT / lang / f"{moment['key']}_{n}_{lang}.wav"
+                target.parent.mkdir(parents=True, exist_ok=True)
                 if target.exists():
                     continue
                 # Calm, warm narration: a little less exaggeration, and each
                 # take with its own seed so they differ.
-                torch.manual_seed(1000 * take + zlib.crc32(line["key"].encode()) % 1000)
+                torch.manual_seed(1000 * take + zlib.crc32(moment["key"].encode()) % 1000)
                 random.seed(take)
                 wav = model.generate(
-                    line[lang],
+                    text,
                     language_id=lang,
                     audio_prompt_path=str(args.reference) if args.reference else None,
                     exaggeration=0.45,
