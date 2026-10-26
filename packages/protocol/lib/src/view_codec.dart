@@ -74,12 +74,24 @@ Map<String, Object?> encodeView(PlayerView view) => {
       {'player': key.value, 'n': value},
   ],
   'flock': ?view.yourFlock,
+  'doorSign': ?view.yourDoorSign,
+  'packMark': ?_encodeMark(view.packMark),
   'couple': [for (final p in view.couple) p.value],
   'victim': ?view.victim?.value,
   'potions': [for (final p in view.potions) p.name],
   'shooter': ?view.shooter?.value,
   'winner': ?view.winner?.name,
 };
+
+Map<String, Object?>? _encodeMark(DoorMark? mark) => mark == null
+    ? null
+    : {'target': mark.target.value, 'correct': mark.correct};
+
+DoorMark? _decodeMark(JsonReader json, String key) {
+  if (!json.has(key)) return null;
+  final mark = json.object(key);
+  return (target: _pid(mark, 'target'), correct: mark.boolean('correct'));
+}
 
 Map<PlayerId, int> _counts(JsonReader json, String key) => {
   for (final c in json.objects(key, max: maxPlayers))
@@ -136,6 +148,14 @@ PlayerView decodeView(JsonReader json) => PlayerView(
   lastNightSheep: _counts(json, 'sheepLast'),
   dreams: _counts(json, 'dreams'),
   yourFlock: json.maybeInteger('flock', max: maxFlock),
+  yourDoorSign: json.has('doorSign')
+      ? json.integers(
+          'doorSign',
+          length: doorSignLength,
+          max: doorSignSymbols - 1,
+        )
+      : null,
+  packMark: _decodeMark(json, 'packMark'),
   couple: _couple(_ids(json, 'couple', max: 2)),
   victim: _maybePid(json, 'victim'),
   potions: {

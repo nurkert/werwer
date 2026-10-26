@@ -1,3 +1,4 @@
+import 'package:game_core/src/actions.dart';
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
 import 'package:game_core/src/rules.dart';
@@ -78,6 +79,8 @@ class PlayerView {
     this.lastNightSheep = const {},
     this.dreams = const {},
     this.yourFlock,
+    this.yourDoorSign,
+    this.packMark,
     this.couple = const [],
     this.victim,
     this.potions = const {},
@@ -151,6 +154,14 @@ class PlayerView {
   /// At night: how many sheep run across the viewer's meadow.
   final int? yourFlock;
 
+  /// At night, with [GameSettings.doorSigns]: the sign on the viewer's own
+  /// door ([doorSignLength] symbols). Nobody ever sees another's sign.
+  final List<int>? yourDoorSign;
+
+  /// For living werewolves: tonight's door sign attempt of the pack, and
+  /// whether the sign was right.
+  final DoorMark? packMark;
+
   /// The two lovers, for the lovers themselves and cupid (and for
   /// everyone once the game is over); empty otherwise.
   final List<PlayerId> couple;
@@ -182,7 +193,8 @@ class PlayerView {
 /// werewolf, revealed dead players and everyone once the game is over),
 /// other players' night choices, decoys or votes. The lovers are known only
 /// to themselves and cupid, tonight's victim only to the werewolves (by
-/// their picks) and the witch in her step.
+/// their picks) and the witch in her step. Each player sees only their own
+/// door sign, the pack's door sign attempt only the living werewolves.
 PlayerView viewFor(GameState state, PlayerId viewer) {
   final me = state.player(viewer);
   if (me == null) throw ArgumentError.value(viewer, 'viewer', 'not in game');
@@ -237,6 +249,11 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
         state.phase == Phase.night && me.isAlive && state.settings.sheepCounting
         ? flockFor(state, viewer)
         : null,
+    yourDoorSign:
+        state.phase == Phase.night && me.isAlive && state.settings.doorSigns
+        ? doorSignFor(state, viewer)
+        : null,
+    packMark: isWolf && me.isAlive ? state.packMark : null,
     couple: knowsCouple ? state.lovers : const [],
     victim: isWitch && state.phase == Phase.night ? state.nightVictim : null,
     potions: isWitch

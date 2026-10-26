@@ -41,6 +41,9 @@ enum Violation {
 
   /// The game's settings switch this off.
   disabled,
+
+  /// The werewolves already tried a door sign tonight.
+  markUsed,
 }
 
 /// Thrown by `apply` for an action that breaks the rules. The state is never

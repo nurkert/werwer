@@ -55,6 +55,13 @@ Map<String, Object?> encodeState(GameState state) => {
       },
   ],
   'nightVictim': ?state.nightVictim?.value,
+  'packMark': ?switch (state.packMark) {
+    null => null,
+    (:final target, :final correct) => {
+      'target': target.value,
+      'correct': correct,
+    },
+  },
   'lovers': [for (final p in state.lovers) p.value],
   'potionsUsed': [for (final p in state.potionsUsed) p.name],
   'shooter': ?state.shooter?.value,
@@ -124,6 +131,12 @@ GameState decodeState(JsonReader json) {
         _pid(c, 'player'): _ids(c, 'targets', max: 2),
     },
     nightVictim: _maybePid(json, 'nightVictim'),
+    packMark: json.has('packMark')
+        ? (
+            target: _pid(json.object('packMark'), 'target'),
+            correct: json.object('packMark').boolean('correct'),
+          )
+        : null,
     lovers: lovers.isEmpty || lovers.length == 2
         ? lovers
         : throw const ProtocolError('bad lovers'),

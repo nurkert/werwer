@@ -43,6 +43,7 @@ class GameSettings {
     this.atmosphere = false,
     this.personaChoice = true,
     this.narratorVoice = true,
+    this.doorSigns = false,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -84,6 +85,12 @@ class GameSettings {
 
   /// Whether the narrator speaks aloud (otherwise text only).
   final bool narratorVoice;
+
+  /// Whether door signs are in play: every night each living player gets a
+  /// secret sign on their door, and the werewolves may once per night guess
+  /// a player's sign; a right guess may take that player too. So everyone,
+  /// not only the werewolves, has a reason to hide their screen at night.
+  final bool doorSigns;
 
   /// The preset these settings are exactly, if any.
   Preset? get preset =>
@@ -139,6 +146,7 @@ class GameSettings {
     bool? atmosphere,
     bool? personaChoice,
     bool? narratorVoice,
+    bool? doorSigns,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -152,6 +160,7 @@ class GameSettings {
     atmosphere: atmosphere ?? this.atmosphere,
     personaChoice: personaChoice ?? this.personaChoice,
     narratorVoice: narratorVoice ?? this.narratorVoice,
+    doorSigns: doorSigns ?? this.doorSigns,
   );
 
   @override
@@ -169,7 +178,8 @@ class GameSettings {
       other.wolfTrail == wolfTrail &&
       other.atmosphere == atmosphere &&
       other.personaChoice == personaChoice &&
-      other.narratorVoice == narratorVoice;
+      other.narratorVoice == narratorVoice &&
+      other.doorSigns == doorSigns;
 
   @override
   int get hashCode => Object.hash(
@@ -185,6 +195,7 @@ class GameSettings {
     atmosphere,
     personaChoice,
     narratorVoice,
+    doorSigns,
   );
 }
 
@@ -202,11 +213,12 @@ enum Preset {
   ),
 
   /// Classic plus Whowolf's own touches: sheep counting with the morning
-  /// score, atmosphere and the morning yawn, persona choice.
+  /// score, door signs, atmosphere and the morning yawn, persona choice.
   whowolf(
     GameSettings(
       roles: {Role.seer, Role.witch, Role.hunter},
       atmosphere: true,
+      doorSigns: true,
     ),
   ),
 
@@ -216,6 +228,7 @@ enum Preset {
       roles: {Role.seer, Role.witch, Role.hunter, Role.cupid},
       atmosphere: true,
       wolfTrail: true,
+      doorSigns: true,
     ),
   );
 

@@ -101,6 +101,10 @@ enum Potion {
   poison,
 }
 
+/// The werewolves' door sign attempt of a night: whose door they marked
+/// and whether the sign was right.
+typedef DoorMark = ({PlayerId target, bool correct});
+
 /// A death, kept so that late (re)joiners can be told what happened.
 class Death {
   /// Creates a record of a death.
@@ -152,6 +156,7 @@ class GameState {
     this.nightStep = NightStep.hunt,
     Map<PlayerId, List<PlayerId>> nightChoices = const {},
     this.nightVictim,
+    this.packMark,
     List<PlayerId> lovers = const [],
     Set<Potion> potionsUsed = const {},
     this.shooter,
@@ -214,6 +219,9 @@ class GameState {
   /// witch may still save them); `null` if they did not agree.
   final PlayerId? nightVictim;
 
+  /// Tonight's door sign attempt of the werewolves, if they made one.
+  final DoorMark? packMark;
+
   /// The two players cupid linked, or empty.
   final List<PlayerId> lovers;
 
@@ -275,8 +283,8 @@ class GameState {
 
   /// Returns a copy with the given fields replaced.
   ///
-  /// The nullable fields [nightVictim], [shooter] and [afterShot] are
-  /// replaced whenever they are passed, also by `null`.
+  /// The nullable fields [nightVictim], [packMark], [shooter] and
+  /// [afterShot] are replaced whenever they are passed, also by `null`.
   GameState copyWith({
     List<Player>? players,
     Phase? phase,
@@ -286,6 +294,7 @@ class GameState {
     NightStep? nightStep,
     Map<PlayerId, List<PlayerId>>? nightChoices,
     Object? nightVictim = _keep,
+    Object? packMark = _keep,
     List<PlayerId>? lovers,
     Set<Potion>? potionsUsed,
     Object? shooter = _keep,
@@ -309,6 +318,9 @@ class GameState {
     nightVictim: identical(nightVictim, _keep)
         ? this.nightVictim
         : nightVictim as PlayerId?,
+    packMark: identical(packMark, _keep)
+        ? this.packMark
+        : packMark as DoorMark?,
     lovers: lovers ?? this.lovers,
     potionsUsed: potionsUsed ?? this.potionsUsed,
     shooter: identical(shooter, _keep) ? this.shooter : shooter as PlayerId?,

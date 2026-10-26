@@ -20,6 +20,7 @@ void main() {
               sheepCounting: true,
               atmosphere: true,
               personaChoice: true,
+              doorSigns: true,
             )
             .preset,
         Preset.whowolf,
@@ -33,6 +34,8 @@ void main() {
       expect(classic.sheepCounting || classic.atmosphere, isFalse);
       expect(classic.wolfTrail, isFalse);
       expect(whowolf.sheepCounting && whowolf.atmosphere, isTrue);
+      expect(const GameSettings().doorSigns || classic.doorSigns, isFalse);
+      expect(whowolf.doorSigns && full.doorSigns, isTrue);
       expect(full.roles, specialRoles);
       expect(full.wolfTrail, isTrue);
     });

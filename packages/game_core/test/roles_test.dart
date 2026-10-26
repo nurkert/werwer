@@ -412,6 +412,27 @@ void main() {
   });
 }
 
+/// [player] tries a door sign (refused unless a werewolf in the hunt with
+/// the pack's attempt still free): mostly a guess, sometimes the right sign.
+GameState _randomMark(GameState state, Player player, Random random) {
+  final prey = [
+    for (final o in state.alive)
+      if (o.role != Role.werewolf) o.id,
+  ];
+  final target = prey[random.nextInt(prey.length)];
+  final sign = random.nextBool()
+      ? doorSignFor(state, target)
+      : [
+          for (var i = 0; i < doorSignLength; i++)
+            random.nextInt(doorSignSymbols),
+        ];
+  try {
+    return apply(state, MarkDoor(player.id, target, sign)).state;
+  } on RuleViolation {
+    return state;
+  }
+}
+
 /// One random legal move (or a timeout) in [state].
 GameState _randomMove(GameState state, Random random) {
   T pick<T>(List<T> list) => list[random.nextInt(list.length)];
@@ -420,6 +441,7 @@ GameState _randomMove(GameState state, Random random) {
   switch (state.phase) {
     case Phase.night:
       final p = pick(alive);
+      if (random.nextInt(4) == 0) return _randomMark(state, p, random);
       final others = [
         for (final o in alive)
           if (o.id != p.id) o.id,

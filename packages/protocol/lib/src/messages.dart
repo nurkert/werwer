@@ -9,7 +9,8 @@ import 'package:protocol/src/view_codec.dart';
 ///
 /// 2: night picks carry a list of targets; hunter's shot, settings and the
 /// views for witch, hunter and lovers.
-const protocolVersion = 2;
+/// 3: door signs (the mark intent, the door sign setting and views).
+const protocolVersion = 3;
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;
@@ -51,6 +52,12 @@ List<int>? _readSecret(String? value) {
   }
   throw const ProtocolError('bad secret');
 }
+
+List<int> _readSign(JsonReader json) => json.integers(
+  'sign',
+  length: doorSignLength,
+  max: doorSignSymbols - 1,
+);
 
 void _expectVersion(JsonReader json) {
   if (json.integer('v') != protocolVersion) {
@@ -112,6 +119,7 @@ sealed class ClientMessage {
         _readPlayerId(json, 'a'),
         _readPlayerId(json, 'b'),
       ),
+      'mark' => MarkIntent(_readPlayerId(json, 'target'), _readSign(json)),
       'sheep' => SheepIntent(
         json.integer('count', min: -maxSheepPerNight, max: maxSheepPerNight),
       ),
@@ -370,6 +378,25 @@ final class SwapSeatsIntent extends ClientMessage {
 
   @override
   Map<String, Object?> get _fields => {'a': first.value, 'b': second.value};
+}
+
+/// As a werewolf: the pack's door sign guess of tonight on [target]'s door
+/// (see [GameSettings.doorSigns]).
+final class MarkIntent extends ClientMessage {
+  /// Creates the message.
+  MarkIntent(this.target, Iterable<int> sign) : sign = List.unmodifiable(sign);
+
+  /// Whose door.
+  final PlayerId target;
+
+  /// The guessed sign: [doorSignLength] symbols.
+  final List<int> sign;
+
+  @override
+  String get _type => 'mark';
+
+  @override
+  Map<String, Object?> get _fields => {'target': target.value, 'sign': sign};
 }
 
 /// How many sheep I have counted tonight (running total).

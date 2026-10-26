@@ -2,6 +2,7 @@ import 'package:game_core/src/actions.dart';
 import 'package:game_core/src/events.dart';
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
+import 'package:game_core/src/settings.dart';
 import 'package:game_core/src/violation.dart';
 
 /// Longest allowed player name, in characters.
@@ -57,6 +58,7 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
     [target],
   ),
   HunterShoot() => _shoot(state, action),
+  MarkDoor() => _markDoor(state, action),
   CountSheep() => _countSheep(state, action),
   EndDiscussion() => _endDiscussion(state),
   CastVote() => _castVote(state, action),
@@ -443,24 +445,102 @@ PlayerId? _majority(Iterable<PlayerId> votes) {
   return leaders.length == 1 ? leaders.single.key : null;
 }
 
-/// How many sheep run across [player]'s meadow in this night. Decided by the
-/// game, not by the role: some nights bring a big flock, some only a few
-/// sheep, so a low count in the morning is a hint at most, never proof.
-int flockFor(GameState state, PlayerId player) {
-  // FNV-1a over seed, round and player id: stable, serializable, no Random.
+/// A 32-bit FNV-1a hash over [salt], the game's seed, the round, [player]
+/// and [extra]: stable, serializable, no `Random`. Each use has its own
+/// salt, so flocks, door signs and the mark's coin do not depend on each
+/// other.
+int _hash(
+  GameState state, {
+  String salt = '',
+  PlayerId? player,
+  List<int> extra = const [],
+}) {
   var hash = 0x811c9dc5;
   void mix(int value) {
-    hash = ((hash ^ (value & 0xff)) * 0x01000193) & 0xffffffff;
+    hash = _mul32(hash ^ (value & 0xff), 0x01000193);
   }
 
+  salt.codeUnits.forEach(mix);
   for (var shift = 0; shift < 32; shift += 8) {
     mix(state.seed >> shift);
   }
   mix(state.round);
-  player.value.codeUnits.forEach(mix);
-  final u = hash / 0xffffffff;
+  player?.value.codeUnits.forEach(mix);
+  extra.forEach(mix);
+  return hash;
+}
+
+/// [a] times [b] modulo 2^32, exact also on the web, where integers above
+/// 2^53 lose precision.
+int _mul32(int a, int b) =>
+    ((((a * (b >> 16)) & 0xffff) << 16) + a * (b & 0xffff)) & 0xffffffff;
+
+/// Spreads every input bit of a 32-bit [hash] over all output bits
+/// (MurmurHash3's finalizer). FNV alone barely changes the high bits when
+/// only the last bytes differ.
+int _avalanche(int hash) {
+  var h = hash ^ (hash >> 16);
+  h = _mul32(h, 0x85ebca6b);
+  h ^= h >> 13;
+  h = _mul32(h, 0xc2b2ae35);
+  return h ^ (h >> 16);
+}
+
+/// How many sheep run across [player]'s meadow in this night. Decided by the
+/// game, not by the role: some nights bring a big flock, some only a few
+/// sheep, so a low count in the morning is a hint at most, never proof.
+int flockFor(GameState state, PlayerId player) {
+  final u = _hash(state, player: player) / 0xffffffff;
   // Skewed towards small flocks: a few players get very little each night.
   return minFlock + (u * u * (maxFlock - minFlock)).round();
+}
+
+/// The sign on [player]'s door in this night: [doorSignLength] symbols, each
+/// `0 <= s < doorSignSymbols`, new every night. Only [player] is ever shown
+/// it (see [GameSettings.doorSigns]).
+List<int> doorSignFor(GameState state, PlayerId player) => List.unmodifiable([
+  for (var i = 0; i < doorSignLength; i++)
+    // Scaled down, not shifted: shifts are 32-bit on the web.
+    _avalanche(_hash(state, salt: 'door', player: player, extra: [i])) *
+        doorSignSymbols ~/
+        0x100000000,
+]);
+
+/// Whether a right door sign takes its player tonight: a coin, so a mark is
+/// a threat, never a sure kill.
+bool _markStrikes(GameState state) =>
+    _avalanche(_hash(state, salt: 'mark')) >> 31 == 1;
+
+/// Records the pack's door sign attempt of tonight. Unlike the hunt pick it
+/// is not a night choice: it neither ends the step nor counts as acting.
+GameUpdate _markDoor(GameState state, MarkDoor action) {
+  _expectPhase(state, Phase.night);
+  final wolf = _living(state, action.actor);
+  if (!state.settings.doorSigns) _refuse(Violation.disabled);
+  if (nightTask(state, wolf.id) != NightAbility.hunt) {
+    _refuse(Violation.notYourAction);
+  }
+  if (state.packMark != null) _refuse(Violation.markUsed);
+  final target =
+      state.player(action.target) ?? _refuse(Violation.unknownPlayer);
+  if (!target.isAlive ||
+      target.id == wolf.id ||
+      target.role?.faction == Faction.werewolves) {
+    _refuse(Violation.invalidTarget);
+  }
+  final sign = action.sign;
+  if (sign.length != doorSignLength ||
+      sign.any((s) => s < 0 || s >= doorSignSymbols)) {
+    _refuse(Violation.outOfRange);
+  }
+  final real = doorSignFor(state, target.id);
+  var correct = true;
+  for (var i = 0; i < doorSignLength; i++) {
+    if (sign[i] != real[i]) correct = false;
+  }
+  return GameUpdate(
+    state.copyWith(packMark: (target: target.id, correct: correct)),
+  );
 }
 
 GameUpdate _countSheep(GameState state, CountSheep action) {
@@ -477,7 +557,8 @@ GameUpdate _countSheep(GameState state, CountSheep action) {
 }
 
 /// Morning: the werewolves' victim dies unless the witch saved them, her
-/// poison kills, and the sheep counts become public.
+/// poison kills, a right door sign may kill, and the sheep counts become
+/// public.
 GameUpdate _resolveNight(GameState state) {
   final victim = state.nightVictim;
   final brew = state.nightStep == NightStep.brew
@@ -492,6 +573,7 @@ GameUpdate _resolveNight(GameState state) {
     nightStep: NightStep.hunt,
     nightChoices: const {},
     nightVictim: null,
+    packMark: null,
     potionsUsed: {
       ...state.potionsUsed,
       if (healed) Potion.heal,
@@ -509,6 +591,19 @@ GameUpdate _resolveNight(GameState state) {
     if (victim != null && !healed) (victim, DeathCause.night),
     if (poisoned != null) (poisoned, DeathCause.night),
   ];
+  // The witch only ever sees the pack's victim, so she cannot save a marked
+  // player. Whoever dies tonight anyway (also of grief) is left alone.
+  final mark = state.packMark;
+  if (mark != null && mark.correct) {
+    final dying = {for (final (id, _) in deaths) id};
+    final target = mark.target;
+    if (state.player(target)!.isAlive &&
+        !dying.contains(target) &&
+        !dying.contains(state.loverOf(target)) &&
+        _markStrikes(state)) {
+      deaths.add((target, DeathCause.night));
+    }
+  }
   if (deaths.isEmpty) {
     return GameUpdate(cleared.copyWith(phase: Phase.day), [
       const NobodyDied(),

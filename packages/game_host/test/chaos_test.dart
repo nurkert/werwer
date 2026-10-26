@@ -163,7 +163,11 @@ class _End implements Connection {
 
 /// A player who acts on what it sees, a little randomly.
 class Bot {
-  Bot(this.name, this.random, this.table, {this.settings});
+  Bot(this.name, this.random, this.table, {this.settings, this.peek});
+
+  /// For one cheating bot: reads a door sign off the host, so that right
+  /// marks happen too. Honest bots can only guess.
+  final List<int> Function(PlayerId player)? peek;
 
   /// What the owner plays with (the others leave it alone).
   final GameSettings? settings;
@@ -214,6 +218,22 @@ class Bot {
           case NightAbility.hunt:
             final prey = others.where((s) => s.role != Role.werewolf).toList();
             if (prey.isEmpty) return;
+            final door = prey[random.nextInt(prey.length)].id;
+            if (v.settings.doorSigns &&
+                v.packMark == null &&
+                random.nextInt(3) == 0) {
+              send(
+                'mark${v.round}',
+                MarkIntent(
+                  door,
+                  peek?.call(door) ??
+                      [
+                        for (var i = 0; i < doorSignLength; i++)
+                          random.nextInt(doorSignSymbols),
+                      ],
+                ),
+              );
+            }
             send(key, NightIntent(prey[random.nextInt(prey.length)].id));
           case NightAbility.link:
             send(key, NightIntent.of([v.you, pick()]));
@@ -324,6 +344,7 @@ class Table {
       Random(seed * 31 + bots.length),
       6,
       settings: owner ? rules[seed % rules.length] : null,
+      peek: bots.length == 1 ? (p) => doorSignFor(host.state, p) : null,
     );
     bot.link = PlayerLink(
       name: name,
@@ -469,6 +490,16 @@ Future<void> playChaos(int seed) async {
       }
       if (v.victim != null || v.potions.isNotEmpty) {
         expect(v.yourRole, Role.witch, reason: 'seed $seed: ${bot.name}');
+      }
+      // Door signs are one's own and only at night; the pack's mark only
+      // reaches living werewolves.
+      if (v.yourDoorSign != null) {
+        expect(v.phase, Phase.night, reason: 'seed $seed: ${bot.name}');
+        expect(v.yourSeat.isAlive, isTrue, reason: 'seed $seed: ${bot.name}');
+      }
+      if (v.packMark != null) {
+        expect(v.yourRole, Role.werewolf, reason: 'seed $seed: ${bot.name}');
+        expect(v.yourSeat.isAlive, isTrue, reason: 'seed $seed: ${bot.name}');
       }
     }
   }

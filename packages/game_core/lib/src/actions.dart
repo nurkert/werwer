@@ -172,6 +172,31 @@ final class NightDecoy extends GameAction {
   final PlayerId target;
 }
 
+/// How many symbols a door sign has.
+const doorSignLength = 3;
+
+/// How many different symbols a door sign is made of; each symbol of a
+/// sign is a number `0 <= s < doorSignSymbols`.
+const doorSignSymbols = 16;
+
+/// A werewolf guesses [target]'s door sign tonight (see
+/// [GameSettings.doorSigns]). The pack has one attempt per night; it is not
+/// the werewolf's night pick. A right guess may take [target] in the
+/// morning as well.
+final class MarkDoor extends GameAction {
+  /// Creates the action.
+  const MarkDoor(this.actor, this.target, this.sign);
+
+  /// The guessing werewolf.
+  final PlayerId actor;
+
+  /// Whose door is marked.
+  final PlayerId target;
+
+  /// The guessed sign: [doorSignLength] symbols.
+  final List<int> sign;
+}
+
 /// Most sheep (or least, negative) a player can count in one night.
 const maxSheepPerNight = 500;
 

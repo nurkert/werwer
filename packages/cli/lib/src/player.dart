@@ -117,6 +117,22 @@ class CliPlayer {
             _ => '"pick <name>" for anyone (it has no effect)',
           };
           _say('Night: type $action.');
+          if (v.yourDoorSign case final sign?) {
+            _say('Your door sign: ${sign.join(' ')}.');
+          }
+          final mark = v.packMark;
+          if (mark != null) {
+            _say(
+              "The pack marked ${_nameOf(mark.target)}'s door: "
+              '${mark.correct ? 'right' : 'wrong'} sign.',
+            );
+          } else if (v.yourNightTask == NightAbility.hunt &&
+              v.settings.doorSigns) {
+            _say(
+              'Guess a door: "mark <name>${' <0-15>' * doorSignLength}"'
+              ' (once per night for the pack).',
+            );
+          }
         }
       case Phase.day:
         final died = v.deaths.where(
@@ -176,6 +192,15 @@ class CliPlayer {
         intent = ids.contains(null)
             ? null
             : NightIntent.of([for (final id in ids) ?id]);
+      case 'mark' when parts.length > 1 + doorSignLength:
+        final sign = [
+          for (final part in parts.skip(parts.length - doorSignLength))
+            int.tryParse(part) ?? -1,
+        ];
+        final id = _find(
+          parts.sublist(1, parts.length - doorSignLength).join(' '),
+        );
+        intent = id == null ? null : MarkIntent(id, sign);
       case 'shoot':
         final id = arg.toLowerCase() == 'none' ? null : _find(arg);
         intent = id == null && arg.toLowerCase() != 'none'
@@ -200,7 +225,8 @@ class CliPlayer {
         return;
       default:
         _say(
-          'Commands: start, confirm, pick <name…>, shoot <name|none>, vote, '
+          'Commands: start, confirm, pick <name…>, mark <name> <sign…>, '
+          'shoot <name|none>, vote, '
           'vote <name|none>, '
           'admit <id>, refuse <id>, again, table',
         );

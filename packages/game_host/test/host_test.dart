@@ -518,7 +518,11 @@ void main() {
       final players = await table(5);
       final ids = [for (final p in players) p.id!, const PlayerId('p99')];
       PlayerId anyId() => ids[random.nextInt(ids.length)];
-      ClientMessage anyIntent() => switch (random.nextInt(15)) {
+      ClientMessage anyIntent() => switch (random.nextInt(16)) {
+        14 => MarkIntent(anyId(), [
+          for (var i = 0; i < doorSignLength; i++)
+            random.nextInt(doorSignSymbols),
+        ]),
         11 => ShootIntent(random.nextBool() ? null : anyId()),
         12 => SettingsIntent(
           Preset.values[random.nextInt(Preset.values.length)].settings,
@@ -586,6 +590,66 @@ void main() {
       transport = MemoryTransport();
       host.serve(transport);
     }
+  });
+
+  test('a door mark acts for the sender only, once per night', () async {
+    final players = await table(6);
+    players.first.send(
+      SettingsIntent(Preset.whowolf.settings.copyWith(werewolves: 2)),
+    );
+    await settle();
+    await start(players);
+    final wolves = [
+      for (final p in players)
+        if (p.view.yourRole == Role.werewolf) p,
+    ];
+    expect(wolves, hasLength(2));
+    final villagers = players.where((p) => !wolves.contains(p)).toList();
+    final target = villagers.first;
+    final sign = target.view.yourDoorSign!;
+    expect(sign, doorSignFor(host.state, target.id!));
+    // Nobody else ever gets this sign; only wolves see the pack's mark.
+    for (final p in players.where((p) => p != target)) {
+      expect(p.view.yourDoorSign, doorSignFor(host.state, p.id!));
+    }
+
+    // A villager cannot mark, whatever the message says.
+    villagers.last.connection.send(MarkIntent(target.id!, sign).encode(seq: 1));
+    await settle();
+    expect(villagers.last.refused, [Violation.notYourAction]);
+    expect(villagers.last.acks, [1]);
+    expect(host.state.packMark, isNull);
+
+    wolves.first.connection.send(MarkIntent(target.id!, sign).encode(seq: 1));
+    await settle();
+    expect(wolves.first.acks, [1]);
+    expect(host.state.packMark, (target: target.id!, correct: true));
+    for (final p in players) {
+      expect(
+        p.view.packMark,
+        wolves.contains(p) ? host.state.packMark : isNull,
+        reason: '${p.id}',
+      );
+      expect(p.view.youActed, isFalse);
+    }
+    // A resend is confirmed again, never applied twice; a second try by the
+    // pack is refused.
+    wolves.first.connection.send(MarkIntent(target.id!, sign).encode(seq: 1));
+    wolves.last.send(MarkIntent(villagers.last.id!, const [0, 0, 0]));
+    await settle();
+    expect(wolves.first.acks, [1, 1]);
+    expect(wolves.first.refused, isEmpty);
+    expect(wolves.last.refused, [Violation.markUsed]);
+    expect(host.state.packMark!.target, target.id);
+
+    // The attempt survives a restart of the host.
+    final restored = GameHost.restore(
+      host.snapshot(),
+      random: Random(1),
+      startTimer: timers.start,
+    );
+    expect(restored.state.packMark, host.state.packMark);
+    await restored.close();
   });
 
   test('a numbered intent is applied exactly once and confirmed', () async {

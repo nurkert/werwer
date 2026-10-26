@@ -31,6 +31,9 @@ extension type const JsonReader(Map<String, Object?> _map) {
     return JsonReader(decoded);
   }
 
+  /// Whether [key] is present and not `null`.
+  bool has(String key) => _map[key] != null;
+
   /// A required string of at most [max] characters.
   String string(String key, {int max = 64}) {
     final value = _map[key];
@@ -101,6 +104,27 @@ extension type const JsonReader(Map<String, Object?> _map) {
         else
           throw ProtocolError('bad item in "$key"'),
     ];
+  }
+
+  /// A required list of exactly [length] integers, each within
+  /// [min]..[max].
+  List<int> integers(
+    String key, {
+    required int length,
+    int min = 0,
+    int max = 1 << 31,
+  }) {
+    final value = _map[key];
+    if (value is! List<Object?> || value.length != length) {
+      throw ProtocolError('bad list "$key"');
+    }
+    return List.unmodifiable([
+      for (final item in value)
+        if (item is int && item >= min && item <= max)
+          item
+        else
+          throw ProtocolError('bad item in "$key"'),
+    ]);
   }
 
   /// A required enum value by name.

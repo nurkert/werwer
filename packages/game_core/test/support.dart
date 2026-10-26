@@ -142,6 +142,20 @@ void expectNoLeaks(GameState state) {
       expect(view.potions, isEmpty);
     }
     if (view.victim != null) expect(state.nightStep, NightStep.brew);
+    // Each player sees only their own door sign, and only at night; the
+    // pack's attempt only the living werewolves.
+    final signed =
+        state.phase == Phase.night &&
+        viewer.isAlive &&
+        state.settings.doorSigns;
+    expect(
+      view.yourDoorSign,
+      signed ? doorSignFor(state, viewer.id) : isNull,
+      reason: '${viewer.id} door sign',
+    );
+    if (!isWolf || !viewer.isAlive) {
+      expect(view.packMark, isNull, reason: '${viewer.id} sees the mark');
+    }
     // Own choices only.
     expect(view.yourNightTargets, state.nightChoices[viewer.id] ?? []);
     expect(view.yourVote, state.votes[viewer.id]);
@@ -150,6 +164,8 @@ void expectNoLeaks(GameState state) {
   expect(public.packChoices, isEmpty);
   expect(public.victim, isNull);
   expect(public.potions, isEmpty);
+  expect(public.yourDoorSign, isNull);
+  expect(public.packMark, isNull);
   if (!over) {
     expect(public.couple, isEmpty);
     for (final seat in public.seats) {

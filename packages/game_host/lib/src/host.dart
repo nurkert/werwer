@@ -203,7 +203,7 @@ class GameHost {
   /// Counts every broadcast state, so players drop states that arrive late.
   int _version = 0;
 
-  static const _snapshotVersion = 2;
+  static const _snapshotVersion = 3;
 
   /// Called with a fresh [snapshot] after every change, so the app can save
   /// it. It holds every secret of the game: keep it on the host device only.
@@ -576,6 +576,8 @@ class GameHost {
           _commit(apply(_state, SwapSeats(first, second)));
         case PersonaIntent(:final persona):
           _commit(apply(_state, ChoosePersona(me, persona)));
+        case MarkIntent(:final target, :final sign):
+          _commit(apply(_state, MarkDoor(me, target, sign)));
         case SheepIntent(:final count):
           _commit(apply(_state, CountSheep(me, count)));
         case RematchIntent():

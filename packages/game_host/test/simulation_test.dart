@@ -153,8 +153,13 @@ void expectOwnSecretsOnly(PlayerView view, String reason) {
   if (view.victim != null || view.potions.isNotEmpty) {
     expect(view.yourRole, Role.witch, reason: '$reason sees the victim');
   }
-  if (view.packChoices.isNotEmpty) {
+  if (view.packChoices.isNotEmpty || view.packMark != null) {
     expect(view.yourRole, Role.werewolf, reason: '$reason sees the pack');
+    expect(view.yourSeat.isAlive, isTrue, reason: '$reason sees the pack');
+  }
+  if (view.yourDoorSign != null) {
+    expect(view.phase, Phase.night, reason: '$reason keeps a door sign');
+    expect(view.yourSeat.isAlive, isTrue, reason: '$reason keeps a sign');
   }
 }
 
@@ -541,6 +546,21 @@ Future<void> _simulate(int seed) async {
       case Phase.night:
         if (random.nextInt(4) == 0) return SheepIntent(random.nextInt(31));
         if (others.isEmpty) return null;
+        // Anyone may try a door (only a werewolf's first try of the night
+        // counts); the test reads the host, so half of the signs are right.
+        final wolf = nightTask(state, me) == NightAbility.hunt;
+        if (random.nextInt(wolf ? 2 : 12) == 0) {
+          final door = pick(others).id;
+          return MarkIntent(
+            door,
+            random.nextBool()
+                ? doorSignFor(state, door)
+                : [
+                    for (var i = 0; i < doorSignLength; i++)
+                      random.nextInt(doorSignSymbols),
+                  ],
+          );
+        }
         final victim = state.nightVictim;
         final poisonable = [
           for (final p in others)
