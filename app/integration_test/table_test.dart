@@ -79,6 +79,13 @@ Future<Connection> dialRoom(HostedRoom room, {bool scanned = true}) async {
   );
 }
 
+/// Lets the stage card of a phase change fade away (about two seconds).
+Future<void> pastStageCard(WidgetTester tester) async {
+  for (var i = 0; i < 22; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
 Future<void> until(
   WidgetTester tester,
   bool Function() done, {
@@ -151,10 +158,12 @@ void main() {
     await tester.scrollUntilVisible(find.text('Rollen verteilen'), 300);
     await tester.tap(find.text('Rollen verteilen'));
     await until(tester, () => session.view!.phase == Phase.roleReveal);
+    await pastStageCard(tester);
     await tester.tap(find.textContaining('Tippe, um deine Rolle'));
     await tester.pump();
     await tester.tap(find.text('Verstanden'));
     await until(tester, () => session.view!.phase == Phase.night);
+    await pastStageCard(tester);
 
     // Night: the narrator speaks, everyone has a meadow with a flock.
     expect(find.textContaining('Die Nacht legt sich'), findsOneWidget);

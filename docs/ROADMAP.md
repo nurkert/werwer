@@ -33,11 +33,11 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Stilrichtung festlegen: **Mondbühne** (Referenz `design/reference/mondbuehne.jpg`)
 - [x] D1 – Stil-Bibel: Referenzblätter (Werwolf, Seherin, Dorfbewohner), Figuren für alle geplanten Rollen, CI-Schrift Lilita One
 - [x] D2 – Bühne in freigestellten Ebenen erzeugen (Prospekt, Kulissen, Figuren, Vordergrund, Rahmen); Figuren in Teilen für Gelenk-Animation folgt mit der App
-- [ ] D3 – Design-Tokens als eine Quelle für Website (CSS-Variablen) und App (Flutter-Theme)
+- [x] D3 – Design-Tokens als eine Quelle für Website (CSS-Variablen) und App (Flutter-Theme)
 - [x] D4 – Website v1 gebaut (Deploy-Workflow steht; live, sobald DNS/Pages eingerichtet sind) unter **whowolf.de**: Astro, statisch, Bühnen-Hero mit Parallaxe, „Bald verfügbar“, Idee, Wolfsspur, Open Source; Lighthouse 100, keine Tracker
 - [x] D5 – Logo (Schriftzug) und Emblem im Mondbühnen-Stil; App-Icon-Varianten folgen mit der App
 - [x] D4b – Website ausgebaut: Theaterzettel-Look mit Papierstruktur, Schäfchen-Zählen zum Ausprobieren, Besetzung mit allen Rollen, Docs-Wiki, Download-Seite aus Releases, Impressum/Datenschutz, Deutsch + Englisch (weitere Sprachen per Datei), SEO (hreflang, Sitemap, JSON-LD)
-- [ ] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente, Schäfchen-Zählen) für M3
+- [x] D6 – App-Theme und Kernkomponenten (Rollenkarte, Tischkreis, Bühnen-Momente, Schäfchen-Zählen) für M3
 
 > **Stand 2026-10-25:** Eine minimal spielbare Testversion steht: WLAN und Relay-Server (Docker Compose), QR-Beitritt, Rejoin nach Neustart; noch ohne Ende-zu-Ende-Verschlüsselung, ohne Tischkreis und ohne Host-Absturzsicherung. Siehe DECISIONS.md.
 

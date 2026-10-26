@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/stage_moment.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
@@ -117,60 +118,63 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_leave());
       },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Palette.night900,
-          foregroundColor: Palette.moon100,
-          title: const Text(
-            'Whowolf',
-            style: TextStyle(fontFamily: displayFont, fontSize: 24),
-          ),
-          actions: [
-            if (_voice != null)
-              IconButton(
-                tooltip: _voice.muted ? l10n.unmute : l10n.mute,
-                icon: Icon(
-                  _voice.muted
-                      ? Icons.volume_off_outlined
-                      : Icons.volume_up_outlined,
-                ),
-                onPressed: () => setState(() {
-                  _voice.muted = !_voice.muted;
-                  if (_voice.muted) _voice.stop();
-                }),
-              ),
-            if (session.status != SessionStatus.ended)
-              TextButton(onPressed: _leave, child: Text(l10n.leave)),
-          ],
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              if (session.status == SessionStatus.reconnecting)
-                MaterialBanner(
-                  backgroundColor: Palette.curtain600,
-                  content: Text(
-                    l10n.reconnecting,
-                    style: const TextStyle(color: Palette.moon100),
+      child: StageMoment(
+        view: view,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Palette.night900,
+            foregroundColor: Palette.moon100,
+            title: const Text(
+              'Whowolf',
+              style: TextStyle(fontFamily: displayFont, fontSize: 24),
+            ),
+            actions: [
+              if (_voice != null)
+                IconButton(
+                  tooltip: _voice.muted ? l10n.unmute : l10n.mute,
+                  icon: Icon(
+                    _voice.muted
+                        ? Icons.volume_off_outlined
+                        : Icons.volume_up_outlined,
                   ),
-                  actions: const [SizedBox.shrink()],
+                  onPressed: () => setState(() {
+                    _voice.muted = !_voice.muted;
+                    if (_voice.muted) _voice.stop();
+                  }),
                 ),
-              if (_narration != null &&
-                  session.status != SessionStatus.ended &&
-                  view?.phase != Phase.lobby)
-                _NarratorLine(text: _narration!),
-              Expanded(
-                child: session.status == SessionStatus.ended
-                    ? _Ended(reason: session.byeReason)
-                    : session.nameRefused
-                    ? _Rename(session: session)
-                    : session.waitingForHost && view == null
-                    ? _WaitingForHost(code: session.checkCode)
-                    : view == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : _phase(view),
-              ),
+              if (session.status != SessionStatus.ended)
+                TextButton(onPressed: _leave, child: Text(l10n.leave)),
             ],
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                if (session.status == SessionStatus.reconnecting)
+                  MaterialBanner(
+                    backgroundColor: Palette.curtain600,
+                    content: Text(
+                      l10n.reconnecting,
+                      style: const TextStyle(color: Palette.moon100),
+                    ),
+                    actions: const [SizedBox.shrink()],
+                  ),
+                if (_narration != null &&
+                    session.status != SessionStatus.ended &&
+                    view?.phase != Phase.lobby)
+                  _NarratorLine(text: _narration!),
+                Expanded(
+                  child: session.status == SessionStatus.ended
+                      ? _Ended(reason: session.byeReason)
+                      : session.nameRefused
+                      ? _Rename(session: session)
+                      : session.waitingForHost && view == null
+                      ? _WaitingForHost(code: session.checkCode)
+                      : view == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : _phase(view),
+                ),
+              ],
+            ),
           ),
         ),
       ),
