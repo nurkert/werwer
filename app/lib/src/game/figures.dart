@@ -1,11 +1,20 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
+import 'package:whowolf/src/game/stage.dart';
+import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/theme.dart';
 
 /// The cardboard figure of a role.
 String figureAsset(Role role) => switch (role) {
   Role.villager => 'assets/figures/dorfbewohner.webp',
   Role.werewolf => 'assets/figures/werwolf.webp',
   Role.seer => 'assets/figures/seherin.webp',
+  Role.witch => 'assets/figures/hexe.webp',
+  Role.hunter => 'assets/figures/jaeger.webp',
+  Role.cupid => 'assets/figures/amor.webp',
 };
 
 /// The cardboard figure of a persona.
@@ -73,12 +82,26 @@ const _faces = <Persona, (double, double, double)>{
   Persona.greyWolf: (0.72, 0.20, 512 / 640),
 };
 
-/// A round portrait of a persona, zoomed onto the face.
+/// A round portrait of a persona, zoomed onto the face, cut from card with
+/// a pale edge like the figures. [grey] for players who are out.
 class Portrait extends StatelessWidget {
-  const Portrait({required this.persona, this.size = 40, super.key});
+  const Portrait({
+    required this.persona,
+    this.size = 40,
+    this.grey = false,
+    super.key,
+  });
 
   final Persona persona;
   final double size;
+  final bool grey;
+
+  static const _greyscale = ColorFilter.matrix([
+    0.30, 0.59, 0.11, 0, 0, //
+    0.30, 0.59, 0.11, 0, 0, //
+    0.30, 0.59, 0.11, 0, 0, //
+    0, 0, 0, 1, 0,
+  ]);
 
   /// Alignment that puts [focus] (0..1 along the child) at the centre of a
   /// parent of [parent] size holding a child of [child] size.
@@ -92,11 +115,11 @@ class Portrait extends StatelessWidget {
     final (fx, fy, aspect) = _faces[persona]!;
     final height = size * 2.6;
     final width = height * aspect;
-    return ClipOval(
+    final face = ClipOval(
       child: SizedBox.square(
         dimension: size,
         child: ColoredBox(
-          color: const Color(0xFF2B3A6E),
+          color: Palette.night500,
           child: OverflowBox(
             maxWidth: width,
             minWidth: width,
@@ -110,6 +133,187 @@ class Portrait extends StatelessWidget {
           ),
         ),
       ),
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Palette.card200, width: size / 18),
+        boxShadow: const [
+          BoxShadow(color: Color(0x80000000), offset: Offset(0, 2)),
+        ],
+      ),
+      child: grey ? ColorFiltered(colorFilter: _greyscale, child: face) : face,
+    );
+  }
+}
+
+/// What a turned-around cutout shows.
+enum CardBack {
+  /// Plain grey board in the figure's outline, with grain and a stamp.
+  board,
+
+  /// Printed on both sides: the mirrored face.
+  print,
+}
+
+/// A cardboard cutout that turns around its vertical axis: mid-turn its cut
+/// edge shows (a few layers of brown card), then its back. [showBack] picks
+/// the side; changes animate unless the system asks for reduced motion.
+///
+/// The back is cut to [backAsset]'s outline (default: the front's), so a
+/// hidden role can stand as a persona seen from behind and turn into the
+/// role's figure: at the edge-on moment nobody sees the swap.
+class TurningFigure extends StatefulWidget {
+  const TurningFigure({
+    required this.asset,
+    required this.height,
+    this.showBack = false,
+    this.backAsset,
+    this.back = CardBack.board,
+    this.stamp = 'Whowolf',
+    super.key,
+  });
+
+  final String asset;
+  final String? backAsset;
+  final double height;
+  final bool showBack;
+  final CardBack back;
+
+  /// Printed on the grey board (only for [CardBack.board]).
+  final String stamp;
+
+  @override
+  State<TurningFigure> createState() => _TurningFigureState();
+}
+
+class _TurningFigureState extends State<TurningFigure>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _turn = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 750),
+    value: widget.showBack ? 1 : 0,
+  );
+
+  @override
+  void didUpdateWidget(TurningFigure old) {
+    super.didUpdateWidget(old);
+    if (old.showBack == widget.showBack) return;
+    final target = widget.showBack ? 1.0 : 0.0;
+    if (MediaQuery.of(context).disableAnimations) {
+      _turn.value = target;
+    } else {
+      unawaited(
+        _turn.animateTo(target, curve: const Cubic(0.45, 0, 0.2, 1)),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _turn.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _turn,
+    builder: (context, _) {
+      final angle = _turn.value * pi;
+      final facing = cos(angle) >= 0;
+      // The edge is thin: a few pixels at a phone's figure size, most
+      // visible edge-on.
+      final thickness = widget.height * 0.014 * sin(angle).abs();
+      final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
+      return Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.0011)
+          ..rotateY(angle),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var i = 3; i >= 1; i--)
+              Transform.translate(
+                offset: Offset((facing ? 1 : -1) * thickness * i / 3, 0),
+                child: _tinted(asset, i == 2 ? _edgeDark : _edgeLight),
+              ),
+            if (facing)
+              _image(asset)
+            else if (widget.back == CardBack.print)
+              _image(asset)
+            else
+              _Board(
+                asset: asset,
+                height: widget.height,
+                stamp: widget.stamp,
+              ),
+          ],
+        ),
+      );
+    },
+  );
+
+  static const _edgeLight = Color(0xFF7A5A3A);
+  static const _edgeDark = Color(0xFF5A3F27);
+
+  Widget _image(String asset) =>
+      Image.asset(asset, height: widget.height, fit: BoxFit.contain);
+
+  Widget _tinted(String asset, Color color) => ColorFiltered(
+    colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    child: _image(asset),
+  );
+}
+
+/// The grey back of a cutout: the outline in board grey, a soft grain and a
+/// crooked stamp (counter-mirrored, as the turn mirrors everything).
+class _Board extends StatelessWidget {
+  const _Board({
+    required this.asset,
+    required this.height,
+    required this.stamp,
+  });
+
+  final String asset;
+  final double height;
+  final String stamp;
+
+  static const _board = Color(0xFFA7A196);
+
+  @override
+  Widget build(BuildContext context) {
+    final grain = Grain.softImage;
+    final outline = ColorFiltered(
+      colorFilter: const ColorFilter.mode(_board, BlendMode.srcIn),
+      child: Image.asset(asset, height: height, fit: BoxFit.contain),
+    );
+    return Stack(
+      alignment: const Alignment(0, -0.05),
+      children: [
+        if (grain == null)
+          outline
+        else
+          // Multiplied in (the default blend), so only the board gets grain.
+          ShaderMask(
+            shaderCallback: (_) => ImageShader(
+              grain,
+              TileMode.repeated,
+              TileMode.repeated,
+              Matrix4.identity().storage,
+            ),
+            child: outline,
+          ),
+        Transform.flip(
+          flipX: true,
+          child: Stamp(
+            stamp,
+            color: Palette.curtain700.withValues(alpha: 0.6),
+            size: height * 0.06,
+            angle: -0.14,
+          ),
+        ),
+      ],
     );
   }
 }

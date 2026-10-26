@@ -208,14 +208,10 @@ class _PendingPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Palette.moon100,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
+                child: SecondaryButton(
+                  label: l10n.refuse,
                   onPressed: () =>
                       session.send(AdmitIntent(join.id, admit: false)),
-                  child: Text(l10n.refuse),
                 ),
               ),
               const SizedBox(width: 12),
@@ -310,13 +306,10 @@ class _PersonaPicker extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Palette.lantern400,
-                    side: const BorderSide(color: Palette.lantern400),
-                  ),
+                SecondaryButton(
+                  label: l10n.changePersona,
+                  expand: false,
                   onPressed: () => _pick(context),
-                  child: Text(l10n.changePersona),
                 ),
               ],
             ),
@@ -393,7 +386,7 @@ class _Invite extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Panel(
-      highlight: true,
+      paper: true,
       child: Column(
         children: [
           Headline(l10n.inviteTitle),
@@ -403,7 +396,8 @@ class _Invite extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(Radii.s),
+              border: Border.all(color: Palette.inkSoft, width: 2),
             ),
             child: Padding(
               padding: const EdgeInsets.all(10),
@@ -421,12 +415,12 @@ class _Invite extends StatelessWidget {
               type: MaterialType.transparency,
               child: ExpansionTile(
                 tilePadding: EdgeInsets.zero,
-                iconColor: Palette.moon200,
-                collapsedIconColor: Palette.moon200,
+                iconColor: Palette.inkSoft,
+                collapsedIconColor: Palette.inkSoft,
                 title: Text(
                   l10n.connectionDetails,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Palette.moon200, fontSize: 13),
+                  style: const TextStyle(color: Palette.inkSoft, fontSize: 13),
                 ),
                 children: [
                   Wrap(
@@ -460,11 +454,11 @@ class _SmallLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Text(label, style: const TextStyle(color: Palette.moon200, fontSize: 12)),
+      Text(label, style: const TextStyle(color: Palette.inkSoft, fontSize: 12)),
       SelectableText(
         value,
         style: const TextStyle(
-          color: Palette.moon100,
+          color: Palette.ink,
           fontSize: 16,
           fontWeight: FontWeight.w700,
         ),
@@ -490,6 +484,7 @@ class _RevealPhaseState extends State<RevealPhase> {
     final l10n = AppLocalizations.of(context);
     final view = widget.session.view!;
     final role = view.yourRole!;
+    final wolf = role.faction == Faction.werewolves;
     final mates = [
       for (final s in view.seats)
         if (s.id != view.you && s.role == Role.werewolf) s.name,
@@ -497,48 +492,64 @@ class _RevealPhaseState extends State<RevealPhase> {
     return PhaseBody(
       children: [
         Headline(l10n.revealTitle),
-        GestureDetector(
-          onTap: () => setState(() => _shown = !_shown),
-          child: Panel(
-            highlight: _shown,
-            child: SizedBox(
-              width: double.infinity,
-              height: 430,
-              child: Center(
-                child: _shown
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          RoleFigure(role: role, height: 220),
-                          const SizedBox(height: 8),
-                          Headline(
-                            l10n.role(role),
-                            color: role.faction == Faction.werewolves
-                                ? Palette.curtain400
-                                : Palette.lantern400,
-                          ),
-                          const SizedBox(height: 10),
-                          Body(l10n.roleText(role)),
-                          if (mates.isNotEmpty) ...[
-                            const SizedBox(height: 10),
-                            Body(l10n.pack(mates.join(', '))),
-                          ],
-                        ],
-                      )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Opacity(
-                            opacity: 0.8,
-                            child: Image.asset(
-                              'assets/brand/emblem.png',
-                              height: 160,
+        // Your persona stands with its back to the table (grey board, so
+        // onlookers learn nothing); a tap turns it into your role.
+        Semantics(
+          button: true,
+          label: _shown ? l10n.role(role) : l10n.revealTap,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => setState(() => _shown = !_shown),
+            child: Panel(
+              paper: true,
+              highlight: _shown,
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    TurningFigure(
+                      asset: figureAsset(role),
+                      backAsset: personaAsset(view.yourSeat.persona),
+                      showBack: !_shown,
+                      height: 240,
+                    ),
+                    const SizedBox(height: 14),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: _shown
+                          ? Column(
+                              key: const ValueKey('shown'),
+                              children: [
+                                Headline(
+                                  l10n.role(role),
+                                  color: wolf
+                                      ? Palette.curtain600
+                                      : Palette.forest700,
+                                ),
+                                const SizedBox(height: 6),
+                                Stamp(
+                                  l10n.faction(role.faction),
+                                  color: wolf
+                                      ? Palette.curtain600
+                                      : Palette.forest700,
+                                ),
+                                const SizedBox(height: 12),
+                                Body(l10n.roleText(role)),
+                                if (mates.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Body(l10n.pack(mates.join(', '))),
+                                ],
+                              ],
+                            )
+                          : Padding(
+                              key: const ValueKey('hidden'),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Body(l10n.revealTap),
                             ),
-                          ),
-                          const SizedBox(height: 18),
-                          Body(l10n.revealTap),
-                        ],
-                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -581,7 +592,9 @@ class LastNews extends StatelessWidget {
       text = night ? l10n.killedAtNight(name) : l10n.eliminated(name);
     }
     final role = death?.role;
+    // Morning news is read out like a notice; at night the stage stays dark.
     return Panel(
+      paper: night,
       child: SizedBox(
         width: double.infinity,
         child: Column(
@@ -688,7 +701,9 @@ class _NightPhaseState extends State<NightPhase> {
     final prompt = switch (role.nightAbility) {
       NightAbility.hunt => l10n.nightHunt,
       NightAbility.inspect => l10n.nightInspect,
-      NightAbility.decoy => l10n.nightSheep,
+      NightAbility.decoy ||
+      NightAbility.link ||
+      NightAbility.brew => l10n.nightSheep,
     };
     final seen = view.seerResults.where((r) => r.round == view.round);
     final choice = view.yourNightChoice;
@@ -809,19 +824,11 @@ class VotePhase extends StatelessWidget {
             selected: vote,
             onTap: (seat) => session.send(VoteIntent(seat.id)),
           ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Palette.moon100,
-              side: BorderSide(
-                color: view.youVoted && vote == null
-                    ? Palette.lantern400
-                    : Palette.night700,
-                width: 2,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-            ),
+          SecondaryButton(
+            label: l10n.abstain,
+            expand: false,
+            selected: view.youVoted && vote == null,
             onPressed: () => session.send(const VoteIntent(null)),
-            child: Text(l10n.abstain),
           ),
           if (view.youVoted)
             Body(
@@ -856,7 +863,7 @@ class EndedPhase extends StatelessWidget {
           color: villageWon ? Palette.lantern400 : Palette.curtain400,
         ),
         if (_bestDreamer(view) case (final name, final points))
-          Panel(highlight: true, child: Body(l10n.bestDreamer(name, points))),
+          Panel(paper: true, child: Body(l10n.bestDreamer(name, points))),
         Body(l10n.everyRole),
         SeatGrid(
           view: view,

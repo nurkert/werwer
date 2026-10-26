@@ -5,6 +5,7 @@ import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
+import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -222,7 +223,7 @@ class _StartScreenState extends State<StartScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final resume = _resume;
-    return Scaffold(
+    return StageScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Palette.moon200,
@@ -286,30 +287,9 @@ class _StartScreenState extends State<StartScreen> {
                     onPressed: _busy ? null : _open,
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Palette.moon100,
-                        side: const BorderSide(
-                          color: Palette.lantern400,
-                          width: 2,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        textStyle: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                      ),
-                      onPressed: _join,
-                      child: Text(l10n.joinRoom),
-                    ),
-                  ),
+                  SecondaryButton(label: l10n.joinRoom, onPressed: _join),
                   const SizedBox(height: 28),
-                  _Stamp(label: l10n.devStamp(widget.version)),
+                  Stamp(l10n.devStamp(widget.version), size: 18),
                   const SizedBox(height: 12),
                   Body(l10n.testNote, muted: true),
                 ],
@@ -346,34 +326,4 @@ class _Cast extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _Stamp extends StatelessWidget {
-  const _Stamp({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: -0.05,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(color: Palette.lantern400, width: 2),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontFamily: displayFont,
-              fontSize: 18,
-              color: Palette.lantern400,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

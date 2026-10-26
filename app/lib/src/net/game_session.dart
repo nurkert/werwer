@@ -85,7 +85,8 @@ class GameSession extends ChangeNotifier {
   }
 
   /// Sends an intent; it arrives exactly once, even across reconnects.
-  void send(ClientMessage message) => _link.send(message);
+  /// `false` if too many are still waiting for the host.
+  bool send(ClientMessage message) => _link.send(message);
 
   void rename(String name) => _link.rename(name);
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -135,13 +137,12 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       },
       child: StageMoment(
         view: view,
-        child: Scaffold(
+        child: StageScaffold(
           appBar: AppBar(
-            backgroundColor: Palette.night900,
-            foregroundColor: Palette.moon100,
-            title: const Text(
-              'Whowolf',
-              style: TextStyle(fontFamily: displayFont, fontSize: 24),
+            title: Image.asset(
+              'assets/brand/wordmark.png',
+              height: 34,
+              semanticLabel: 'Whowolf',
             ),
             actions: [
               if (_voice != null)
@@ -211,7 +212,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     ),
     Phase.roleReveal => RevealPhase(session: session),
     Phase.night => NightPhase(session: session),
-    Phase.day => DayPhase(session: session),
+    Phase.day || Phase.hunterShot => DayPhase(session: session),
     Phase.vote => VotePhase(session: session),
     Phase.ended => EndedPhase(session: session, onLeave: _leave),
   };
@@ -234,8 +235,12 @@ class _NarratorLine extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 560),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Palette.night700,
-          borderRadius: BorderRadius.circular(16),
+          color: Palette.night800.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(Radii.m),
+          border: Border.all(
+            color: Palette.gold500.withValues(alpha: 0.45),
+            width: 1.5,
+          ),
         ),
         child: Row(
           children: [
@@ -346,7 +351,8 @@ class _Ended extends StatelessWidget {
     };
     return PhaseBody(
       children: [
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
+        Image.asset('assets/brand/emblem.png', height: 120),
         Body(text),
         if (reason == null) const HelpLink(),
         PrimaryButton(
@@ -358,8 +364,6 @@ class _Ended extends StatelessWidget {
   }
 }
 
-/// The host is out of reach: a calm pause over the last view, never an
-/// error. Everything typed meanwhile is kept and sent when it is back.
 /// The host is out of reach: a calm pause over the last view. After a long
 /// while a quiet way out appears, in case the room is really gone.
 class _Paused extends StatefulWidget {
@@ -424,35 +428,50 @@ class _PausedState extends State<_Paused> {
           child: AnimatedOpacity(
             opacity: paused ? 1 : 0,
             duration: const Duration(milliseconds: 400),
-            child: ColoredBox(
-              color: Palette.night950.withValues(alpha: 0.82),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.nightlight_round,
-                        size: 64,
-                        color: Palette.lantern400,
-                      ),
-                      const SizedBox(height: 16),
-                      Headline(l10n.pauseTitle),
-                      const SizedBox(height: 8),
-                      Body(l10n.pauseText),
-                      AnimatedOpacity(
-                        opacity: _offerLeave ? 1 : 0,
-                        duration: const Duration(milliseconds: 600),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 24),
-                          child: TextButton(
-                            onPressed: _offerLeave ? widget.onLeave : null,
-                            child: Text(l10n.pauseLeave),
+            // The last view stays, softly out of focus behind a card.
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                child: ColoredBox(
+                  color: Palette.night950.withValues(alpha: 0.6),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Panel(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.nightlight_round,
+                                size: 56,
+                                color: Palette.lantern400,
+                              ),
+                              const SizedBox(height: 12),
+                              Headline(l10n.pauseTitle),
+                              const SizedBox(height: 8),
+                              Body(l10n.pauseText),
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 300),
+                                child: _offerLeave
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 16,
+                                        ),
+                                        child: TextButton(
+                                          onPressed: widget.onLeave,
+                                          child: Text(l10n.pauseLeave),
+                                        ),
+                                      )
+                                    : const SizedBox(width: double.infinity),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

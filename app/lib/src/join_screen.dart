@@ -7,6 +7,7 @@ import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/help.dart';
+import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
@@ -209,9 +210,8 @@ class _JoinScreenState extends State<JoinScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
+    return StageScaffold(
       appBar: AppBar(
-        backgroundColor: Palette.night900,
         foregroundColor: Palette.moon100,
         title: Text(l10n.joinTitle),
       ),

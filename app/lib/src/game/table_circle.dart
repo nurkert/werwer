@@ -40,23 +40,7 @@ class TableCircle extends StatelessWidget {
           dimension: size,
           child: Stack(
             children: [
-              Center(
-                child: Container(
-                  width: radius * 1.35,
-                  height: radius * 1.35,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFF3B2414),
-                    border: Border.all(
-                      color: const Color(0xFF6B4423),
-                      width: 6,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x66000000), blurRadius: 24),
-                    ],
-                  ),
-                ),
-              ),
+              Center(child: _Table(diameter: radius * 1.15)),
               for (final (i, seat) in ordered.indexed)
                 () {
                   // Start at the bottom, go round clockwise on screen.
@@ -119,16 +103,21 @@ class _Seat extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: selected
-                    ? Palette.lantern400
-                    : isYou
-                    ? Palette.moon100
-                    : Palette.night700,
-                width: selected || isYou ? 3 : 2,
+              border: selected || isYou
+                  ? Border.all(
+                      color: selected ? Palette.lantern400 : Palette.moon100,
+                      width: 3,
+                    )
+                  : null,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Portrait(
+                persona: seat.persona,
+                size: portrait,
+                grey: !seat.isAlive,
               ),
             ),
-            child: Portrait(persona: seat.persona, size: portrait),
           ),
           const SizedBox(height: 4),
           Text(
@@ -144,14 +133,81 @@ class _Seat extends StatelessWidget {
             ),
           ),
           if (subtitle.isNotEmpty)
-            Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Palette.moon200, fontSize: 11),
+            // A little tag, readable even where it overlaps the table.
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Palette.night950.withValues(alpha: 0.75),
+                borderRadius: BorderRadius.circular(99),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+                child: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Palette.moon200,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
         ],
+      ),
+    ),
+  );
+}
+
+/// The round wooden table in the middle, a gold inlay and the emblem burnt
+/// into its centre.
+class _Table extends StatelessWidget {
+  const _Table({required this.diameter});
+
+  final double diameter;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: diameter,
+    height: diameter,
+    decoration: const BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: RadialGradient(
+        center: Alignment(-0.3, -0.35),
+        colors: [Color(0xFF6B4528), Palette.wood700, Color(0xFF3B2414)],
+        stops: [0, 0.55, 1],
+      ),
+      boxShadow: [
+        BoxShadow(color: Palette.night950, offset: Offset(0, 5)),
+        BoxShadow(
+          color: Color(0x80000000),
+          blurRadius: 28,
+          offset: Offset(0, 12),
+        ),
+      ],
+    ),
+    child: Padding(
+      padding: EdgeInsets.all(diameter * 0.06),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Palette.gold500.withValues(alpha: 0.55),
+            width: 1.5,
+          ),
+        ),
+        child: Center(
+          child: Opacity(
+            opacity: 0.22,
+            child: Image.asset(
+              'assets/brand/emblem.png',
+              width: diameter * 0.42,
+              color: const Color(0xFF2A170B),
+              colorBlendMode: BlendMode.srcIn,
+            ),
+          ),
+        ),
       ),
     ),
   );

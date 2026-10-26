@@ -25,7 +25,7 @@ String? narration(
       .firstOrNull;
 
   return switch (after.phase) {
-    Phase.lobby => null,
+    Phase.lobby || Phase.hunterShot => null,
     Phase.roleReveal => l10n.narrateReveal,
     Phase.night => () {
       final parts = <String>[];

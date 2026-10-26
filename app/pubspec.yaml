@@ -48,10 +48,18 @@ flutter:
     - assets/brand/
     - assets/figures/
     - assets/sheep/
+    - assets/licenses/
   fonts:
     - family: LilitaOne
       fonts:
         - asset: assets/fonts/LilitaOne-Regular.ttf
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
+          weight: 800
 
 # App icons for every platform from the emblem (dart run flutter_launcher_icons).
 flutter_launcher_icons:
