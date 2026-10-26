@@ -26,6 +26,8 @@ class Player {
           bye = message.reason;
         case Refused():
           refused.add(message.reason);
+        case Ack() || Pong():
+          break;
         case Waiting():
           waiting = true;
       }
@@ -58,14 +60,19 @@ class FakeTimers {
     return () => pending.remove(entry);
   }
 
-  /// Fires every pending timer that is exactly [after] long.
+  /// Fires every pending phase timer of at most [after]: a restored host
+  /// runs a phase timer with the time that was left, so it can be shorter.
+  /// (Hello timeouts of a few seconds are not phase timers.)
   void fire(Duration after) {
     for (final entry in [...pending]) {
-      if (entry.$1 == after && pending.remove(entry)) entry.$2();
+      if (_phase(entry.$1, after) && pending.remove(entry)) entry.$2();
     }
   }
 
-  bool has(Duration after) => pending.any((e) => e.$1 == after);
+  bool has(Duration after) => pending.any((e) => _phase(e.$1, after));
+
+  static bool _phase(Duration timer, Duration phase) =>
+      timer <= phase && timer > const HostConfig().helloTimeout;
 }
 
 /// A connection that came in encrypted but without the QR code's secret.
@@ -90,6 +97,9 @@ class _Unverified implements Connection, PeerTrust {
 
   @override
   List<int> get checkCode => const [1, 2, 3];
+
+  @override
+  List<int>? get peerKey => null;
 
   @override
   Stream<String> get messages => _raw.messages;

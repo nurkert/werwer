@@ -25,6 +25,10 @@ class Player {
           bye = message.reason;
         case Refused():
           refused.add(message.reason);
+        case Ack(:final seq):
+          acks.add(seq);
+        case Pong():
+          break;
         case Waiting():
           waiting = true;
       }
@@ -34,6 +38,7 @@ class Player {
   final Connection connection;
   final received = <HostMessage>[];
   final refused = <Violation>[];
+  final acks = <int>[];
   String? token;
   PlayerId? id;
   StateMessage? last;
@@ -87,6 +92,9 @@ class _Unverified implements Connection, PeerTrust {
 
   @override
   List<int> get checkCode => const [1, 2, 3];
+
+  @override
+  List<int>? get peerKey => null;
 
   @override
   Stream<String> get messages => _raw.messages;
@@ -502,6 +510,51 @@ void main() {
       transport = MemoryTransport();
       host.serve(transport);
     }
+  });
+
+  test('a numbered intent is applied exactly once and confirmed', () async {
+    final players = await table(4);
+    await start(players);
+    final bo = players[1];
+    final target = players[2].id!;
+    // Sent three times (resends after reconnects, doubled on the way).
+    for (var i = 0; i < 3; i++) {
+      bo.connection.send(NightIntent(target).encode(seq: 1));
+    }
+    await settle();
+    expect(bo.acks, [1, 1, 1]);
+    expect(host.state.nightChoices[bo.id], target);
+    // A gap (seq 3 before 2) is not applied; the player resends in order.
+    bo.connection.send(const NightIntent(PlayerId('p1')).encode(seq: 3));
+    await settle();
+    expect(bo.acks, [1, 1, 1]);
+    expect(host.state.nightChoices[bo.id], target);
+    // Another session's numbers are its own.
+    players[3].connection.send(NightIntent(players[1].id!).encode(seq: 1));
+    await settle();
+    expect(players[3].acks, [1]);
+  });
+
+  test('a restored host goes on with the time the phase had left', () async {
+    String? saved;
+    host.onSnapshot = (s) => saved = s;
+    final players = await table(4);
+    await start(players);
+    timers.now += 60000;
+    players.first.send(const PersonaIntent(Persona.hunter)); // any broadcast
+    players[1].send(NightIntent(players[2].id!));
+    await settle();
+    await host.close();
+    final timersAfter = FakeTimers();
+    final restored = GameHost.restore(
+      saved!,
+      random: Random(2),
+      startTimer: timersAfter.start,
+      clock: () => timersAfter.now,
+    );
+    final left = timersAfter.pending.map((e) => e.$1).toList();
+    expect(left, [const Duration(seconds: 30)]);
+    await restored.close();
   });
 
   test('a real WebSocket on localhost carries a lobby', () async {

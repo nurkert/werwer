@@ -322,6 +322,9 @@ class SecureConnection implements Connection, PeerTrust {
   final Uint8List? hostKey;
 
   @override
+  List<int>? get peerKey => hostKey;
+
+  @override
   Stream<String> get messages => _messages.stream;
 
   Future<void> _read(StreamIterator<Uint8List> plain) async {

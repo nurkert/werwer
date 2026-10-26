@@ -26,12 +26,29 @@ void main() {
         const PersonaIntent(Persona.hunter),
         const SwapSeatsIntent(PlayerId('p1'), PlayerId('p2')),
         const AdmitIntent(3, admit: true),
+        const PingIntent(12),
       ];
       for (final m in messages) {
         final back = ClientMessage.parse(m.encode());
         expect(back.runtimeType, m.runtimeType);
         expect(back.encode(), m.encode());
       }
+    });
+
+    test('intents carry an optional sequence number', () {
+      final numbered = ClientMessage.parseNumbered(
+        const NightIntent(PlayerId('p3')).encode(seq: 7),
+      );
+      expect(numbered.seq, 7);
+      expect(numbered.message, isA<NightIntent>());
+      expect(
+        ClientMessage.parseNumbered(const ConfirmRoleIntent().encode()).seq,
+        isNull,
+      );
+      expect(
+        () => ClientMessage.parse('{"v":1,"type":"confirm","seq":0}'),
+        throwsA(isA<ProtocolError>()),
+      );
     });
 
     test('anything not exactly valid is refused', () {
@@ -98,6 +115,7 @@ void main() {
         view: viewFor(state, wolf.id),
         isOwner: true,
         phaseEndsInMs: 4200,
+        version: 17,
         pending: const [
           PendingJoin(id: 2, name: 'Eve', checkCode: [3, 15, 0]),
         ],
@@ -121,6 +139,8 @@ void main() {
         const Refused(Violation.invalidTarget),
         const Bye(ByeReason.kicked),
         const Waiting(),
+        const Ack(4, version: 9),
+        const Pong(3),
       ]) {
         expect(HostMessage.parse(m.encode()).encode(), m.encode());
       }

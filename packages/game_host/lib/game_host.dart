@@ -4,4 +4,5 @@
 library;
 
 export 'src/host.dart';
+export 'src/player_link.dart';
 export 'src/transport.dart';

@@ -60,10 +60,20 @@ sealed class ClientMessage {
 
   /// Parses and validates [raw]. Throws a [ProtocolError] for anything that
   /// is not exactly a valid message.
-  static ClientMessage parse(String raw) {
+  static ClientMessage parse(String raw) => parseNumbered(raw).message;
+
+  /// Like [parse], and also returns the intent's sequence number (`seq`),
+  /// if the sender numbered it (see [encode]).
+  static ({ClientMessage message, int? seq}) parseNumbered(String raw) {
     final json = JsonReader.decode(raw, maxBytes: maxClientMessage);
     _expectVersion(json);
+    final seq = json.maybeInteger('seq', min: 1, max: maxSeq);
+    return (message: _parseBody(json), seq: seq);
+  }
+
+  static ClientMessage _parseBody(JsonReader json) {
     return switch (json.string('type', max: 16)) {
+      'ping' => PingIntent(json.integer('version', max: maxSeq)),
       'hello' => Hello._parse(json),
       'start' => const StartGameIntent(),
       'confirm' => const ConfirmRoleIntent(),
@@ -98,9 +108,33 @@ sealed class ClientMessage {
 
   String get _type;
 
-  /// Encodes this message for sending.
-  String encode() =>
-      jsonEncode({'v': protocolVersion, 'type': _type, ..._fields});
+  /// Encodes this message for sending. Intents carry a [seq] number per
+  /// session, so the host applies each exactly once and confirms it.
+  String encode({int? seq}) => jsonEncode({
+    'v': protocolVersion,
+    'type': _type,
+    'seq': ?seq,
+    ..._fields,
+  });
+}
+
+/// Largest sequence or state version number.
+const int maxSeq = 1 << 40;
+
+/// "I am still here and have seen state [version]": the host answers with
+/// the current state if the player missed one. Keeps the link alive.
+final class PingIntent extends ClientMessage {
+  /// Creates the message.
+  const PingIntent(this.version);
+
+  /// The newest state version this player has.
+  final int version;
+
+  @override
+  String get _type => 'ping';
+
+  @override
+  Map<String, Object?> get _fields => {'version': version};
 }
 
 /// First message on every connection: join a room, or come back with a token.
@@ -344,8 +378,14 @@ sealed class HostMessage {
         token: _readToken(json, 'token'),
         you: _readPlayerId(json, 'you'),
         roomSecret: _readSecret(json.maybeString('secret')),
+        lastSeq: json.maybeInteger('lastSeq', max: maxSeq) ?? 0,
+      ),
+      'ack' => Ack(
+        json.integer('seq', min: 1, max: maxSeq),
+        version: json.integer('version', max: maxSeq),
       ),
       'state' => StateMessage(
+        version: json.maybeInteger('version', max: maxSeq) ?? 0,
         view: decodeView(json.object('view')),
         isOwner: json.boolean('owner'),
         phaseEndsInMs: json.maybeInteger('endsIn'),
@@ -362,6 +402,7 @@ sealed class HostMessage {
         ],
       ),
       'waiting' => const Waiting(),
+      'pong' => Pong(json.integer('version', max: maxSeq)),
       'refused' => Refused(json.enumValue('reason', Violation.values)),
       'bye' => Bye(json.enumValue('reason', ByeReason.values)),
       _ => throw const ProtocolError('unknown type'),
@@ -380,7 +421,16 @@ sealed class HostMessage {
 /// You are in: keep the token to come back after a disconnect.
 final class Welcome extends HostMessage {
   /// Creates the message.
-  const Welcome({required this.token, required this.you, this.roomSecret});
+  const Welcome({
+    required this.token,
+    required this.you,
+    this.roomSecret,
+    this.lastSeq = 0,
+  });
+
+  /// The highest intent number the host has applied for this session, so a
+  /// returning player knows which of its queued intents arrived.
+  final int lastSeq;
 
   /// Secret session token. Never log or show it.
   final String token;
@@ -401,7 +451,41 @@ final class Welcome extends HostMessage {
     'token': token,
     'you': you.value,
     'secret': ?(roomSecret == null ? null : base64Url.encode(roomSecret!)),
+    'lastSeq': lastSeq,
   };
+}
+
+/// Answer to a [PingIntent] when the player is up to date.
+final class Pong extends HostMessage {
+  /// Creates the message.
+  const Pong(this.version);
+
+  /// The host's current state version.
+  final int version;
+
+  @override
+  String get _type => 'pong';
+
+  @override
+  Map<String, Object?> get _fields => {'version': version};
+}
+
+/// The host applied (or had already applied) intent [seq].
+final class Ack extends HostMessage {
+  /// Creates the message.
+  const Ack(this.seq, {required this.version});
+
+  /// The confirmed intent number.
+  final int seq;
+
+  /// The host's current state version, to notice a missed state.
+  final int version;
+
+  @override
+  String get _type => 'ack';
+
+  @override
+  Map<String, Object?> get _fields => {'seq': seq, 'version': version};
 }
 
 /// Someone who wants to join without the QR code's secret.
@@ -429,12 +513,16 @@ final class StateMessage extends HostMessage {
   const StateMessage({
     required this.view,
     required this.isOwner,
+    this.version = 0,
     this.phaseEndsInMs,
     this.pending = const [],
   });
 
   /// For the room owner: people waiting to be let in.
   final List<PendingJoin> pending;
+
+  /// Counts up with every change; older states arriving late are dropped.
+  final int version;
 
   /// Your filtered view.
   final PlayerView view;
@@ -452,6 +540,7 @@ final class StateMessage extends HostMessage {
   Map<String, Object?> get _fields => {
     'view': encodeView(view),
     'owner': isOwner,
+    'version': version,
     'endsIn': ?phaseEndsInMs,
     'pending': [
       for (final p in pending)

@@ -21,6 +21,9 @@ abstract interface class PeerTrust {
   /// A short code both sides derive from the handshake. Without [verified],
   /// players compare it at the table before the host lets them in.
   List<int> get checkCode;
+
+  /// The other side's public key, as proven by the handshake.
+  List<int>? get peerKey;
 }
 
 /// Something that brings new connections to the host. A host can serve

@@ -59,12 +59,16 @@ class HostConfig {
 }
 
 class _Session {
-  _Session(this.token, this.player, {required this.owner});
+  _Session(this.token, this.player, {required this.owner, this.lastSeq = 0});
 
   final String token;
   final PlayerId player;
   final bool owner;
   _Link? link;
+
+  /// Highest intent number applied for this session: each intent counts
+  /// exactly once, however often it arrives.
+  int lastSeq;
 }
 
 class _Pending {
@@ -111,7 +115,7 @@ class GameHost {
 
   /// Restores a room from a [snapshot] written earlier (e.g. before the host
   /// app crashed). Players come back with their tokens and find exactly
-  /// their state; a running phase timer starts again from the beginning.
+  /// their state; a running phase timer goes on with the time it had left.
   ///
   /// Throws a [ProtocolError] if the snapshot is not valid.
   factory GameHost.restore(
@@ -142,16 +146,21 @@ class GameHost {
           s.string('token', max: tokenLength),
           PlayerId(s.string('player', max: 16)),
           owner: s.boolean('owner'),
+          lastSeq: s.maybeInteger('lastSeq', max: maxSeq) ?? 0,
         ),
     };
     if (sessions.values.any((s) => state.player(s.player) == null)) {
       throw const ProtocolError('session for unknown player');
     }
+    final remaining = json.maybeInteger('phaseLeftMs');
     return host
       .._state = state
       .._nextId = json.integer('nextId', min: 1, max: 1 << 20)
+      .._version = json.maybeInteger('version', max: maxSeq) ?? 0
       .._sessions.addAll(sessions)
-      .._schedulePhaseTimer();
+      .._schedulePhaseTimer(
+        remaining: remaining == null ? null : Duration(milliseconds: remaining),
+      );
   }
 
   /// The code players type to join.
@@ -181,6 +190,9 @@ class GameHost {
   int? _phaseDeadline;
   bool _closed = false;
 
+  /// Counts every broadcast state, so players drop states that arrive late.
+  int _version = 0;
+
   static const _snapshotVersion = 1;
 
   /// Called with a fresh [snapshot] after every change, so the app can save
@@ -192,12 +204,24 @@ class GameHost {
     'v': _snapshotVersion,
     'room': roomCode,
     'nextId': _nextId,
+    'version': _version,
+    'phaseLeftMs': ?_phaseLeft(),
     'state': encodeState(_state),
     'sessions': [
       for (final s in _sessions.values)
-        {'token': s.token, 'player': s.player.value, 'owner': s.owner},
+        {
+          'token': s.token,
+          'player': s.player.value,
+          'owner': s.owner,
+          'lastSeq': s.lastSeq,
+        },
     ],
   });
+
+  int? _phaseLeft() {
+    final deadline = _phaseDeadline;
+    return deadline == null ? null : max(0, deadline - _clock());
+  }
 
   /// The session token of the room owner, so the host player's own app can
   /// rejoin a restored room.
@@ -288,8 +312,9 @@ class GameHost {
     if (link.closed) return;
     if (_overLimit(link)) return _bye(link, ByeReason.misbehaved);
     final ClientMessage message;
+    final int? seq;
     try {
-      message = ClientMessage.parse(raw);
+      (:message, :seq) = ClientMessage.parseNumbered(raw);
     } on ProtocolError {
       link.badMessages++;
       if (link.badMessages > config.maxBadMessages) {
@@ -302,7 +327,30 @@ class GameHost {
       if (message is Hello) return _hello(link, message);
       return _bye(link, ByeReason.misbehaved);
     }
+    if (message is PingIntent) {
+      if (message.version < _version) {
+        _sendState(session);
+      } else {
+        link.connection.send(Pong(_version).encode());
+      }
+      return;
+    }
+    if (seq == null) return _intent(link, session, message);
+    if (seq <= session.lastSeq) {
+      // Already applied (resent after a reconnect, or doubled on the way):
+      // confirm again, never apply twice.
+      link.connection.send(Ack(seq, version: _version).encode());
+      return;
+    }
+    // A gap means an earlier intent got lost; the player resends in order.
+    if (seq != session.lastSeq + 1) return;
+    // Counted before applying, so the snapshot written while applying already
+    // knows it: a restored host never applies it a second time.
+    session.lastSeq = seq;
     _intent(link, session, message);
+    if (!link.closed) {
+      link.connection.send(Ack(seq, version: _version).encode());
+    }
   }
 
   void _hello(_Link link, Hello hello) {
@@ -427,6 +475,7 @@ class GameHost {
         token: session.token,
         you: session.player,
         roomSecret: unverified ? roomSecret : null,
+        lastSeq: session.lastSeq,
       ).encode(),
     );
     if (_pending.length != waited) {
@@ -450,6 +499,8 @@ class GameHost {
       switch (message) {
         case Hello():
           throw const RuleViolation(Violation.alreadyActed);
+        case PingIntent():
+          return;
         case StartGameIntent():
           _ownerOnly(session);
           _commit(apply(_state, StartGame(random: _random)));
@@ -527,17 +578,18 @@ class GameHost {
     _broadcast();
   }
 
-  void _schedulePhaseTimer() {
+  void _schedulePhaseTimer({Duration? remaining}) {
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
-    final duration = switch (_state.phase) {
+    final full = switch (_state.phase) {
       Phase.night => config.nightTime,
       Phase.day => config.dayTime,
       Phase.vote => config.voteTime,
       _ => null,
     };
-    if (duration == null) return;
+    if (full == null) return;
+    final duration = remaining == null || remaining > full ? full : remaining;
     final phase = _state.phase;
     final round = _state.round;
     _phaseDeadline = _clock() + duration.inMilliseconds;
@@ -548,6 +600,7 @@ class GameHost {
   }
 
   void _broadcast() {
+    _version++;
     onSnapshot?.call(snapshot());
     _sessions.values.forEach(_sendState);
   }
@@ -555,12 +608,12 @@ class GameHost {
   void _sendState(_Session session) {
     final link = session.link;
     if (link == null) return;
-    final deadline = _phaseDeadline;
     link.connection.send(
       StateMessage(
+        version: _version,
         view: viewFor(_state, session.player),
         isOwner: session.owner,
-        phaseEndsInMs: deadline == null ? null : max(0, deadline - _clock()),
+        phaseEndsInMs: _phaseLeft(),
         pending: session.owner
             ? [
                 for (final p in _pending.values)

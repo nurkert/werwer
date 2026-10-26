@@ -51,6 +51,8 @@ class CliPlayer {
       case Welcome(:final token):
         _token = token;
         _say('Joined room $room as $name.');
+      case Ack() || Pong():
+        break;
       case Waiting():
         _say(
           'Waiting for the host. Show them this check code: '

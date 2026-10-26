@@ -1,0 +1,394 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:game_core/game_core.dart';
+import 'package:game_host/src/host.dart';
+import 'package:game_host/src/transport.dart';
+import 'package:protocol/protocol.dart';
+
+/// Opens a connection to the host; called again for every reconnect.
+typedef Dialer = Future<Connection> Function();
+
+/// Where a player's link to the host stands.
+enum LinkStatus {
+  /// First connection, not joined yet.
+  connecting,
+
+  /// Joined and connected.
+  connected,
+
+  /// The host is out of reach: a calm pause, the link keeps trying.
+  paused,
+
+  /// Over for good (left, removed, or the host closed the room).
+  ended,
+}
+
+/// Timings of a [PlayerLink].
+class LinkConfig {
+  /// Creates a configuration; the defaults suit a table in one Wi-Fi.
+  const LinkConfig({
+    this.ping = const Duration(seconds: 3),
+    this.resend = const Duration(seconds: 2),
+    this.answer = const Duration(seconds: 8),
+    this.firstRetry = const Duration(milliseconds: 500),
+    this.maxRetry = const Duration(seconds: 5),
+    this.maxQueue = 64,
+  });
+
+  /// How often a connected player says "still here" with its state version.
+  final Duration ping;
+
+  /// How often unconfirmed intents are sent again.
+  final Duration resend;
+
+  /// A connection that says nothing for this long is given up and redialled.
+  final Duration answer;
+
+  /// First pause before redialling; it doubles up to [maxRetry].
+  final Duration firstRetry;
+
+  /// Longest pause between redials.
+  final Duration maxRetry;
+
+  /// Most unconfirmed intents kept; older ones are dropped beyond that.
+  final int maxQueue;
+}
+
+/// One player's side of a room, in pure Dart: it joins, keeps the newest
+/// state, numbers every intent and resends it until the host confirms it,
+/// and reconnects by itself, as long as it takes. The app, the command-line
+/// client and the chaos tests all use it.
+///
+/// The host being gone for a while is a normal state ([LinkStatus.paused]),
+/// not an error: the last view stays, nothing typed in the meantime is lost.
+class PlayerLink {
+  /// Starts joining [roomCode] under the given name through the dialer.
+  PlayerLink({
+    required this._name,
+    required this.roomCode,
+    required this._dial,
+    this._token,
+    this.config = const LinkConfig(),
+    this.onChange,
+    this.onWelcome,
+    this.onRoomKeys,
+    this.onEnded,
+    this._startTimer = _timer,
+    this._clock = _now,
+    Random? random,
+  }) : _random = random ?? Random() {
+    unawaited(_connect());
+  }
+
+  static void Function() _timer(Duration after, void Function() callback) =>
+      Timer(after, callback).cancel;
+
+  static int _now() => DateTime.now().millisecondsSinceEpoch;
+
+  /// The room code.
+  final String roomCode;
+
+  /// Timings.
+  final LinkConfig config;
+
+  /// Called after every change of what the player sees.
+  final void Function()? onChange;
+
+  /// Called with the session token and the accepted name once welcomed.
+  final void Function(String token, String name)? onWelcome;
+
+  /// Called with the room's key and secret when the host let this player in
+  /// after comparing the check code; later dials should use them.
+  final void Function(List<int> hostKey, List<int> roomSecret)? onRoomKeys;
+
+  /// Called once when the link ends for good.
+  final void Function()? onEnded;
+
+  final Dialer _dial;
+  final StartTimer _startTimer;
+  final Clock _clock;
+  final Random _random;
+
+  String _name;
+  String? _token;
+  Connection? _connection;
+  StreamSubscription<String>? _subscription;
+  final _timers = <void Function()>[];
+  void Function()? _cancelRetry;
+  void Function()? _cancelSilence;
+  int _attempt = 0;
+  bool _closed = false;
+
+  /// Intents not yet confirmed, oldest first.
+  final _queue = <({int seq, ClientMessage intent})>[];
+  int _nextSeq = 1;
+
+  /// Where the link stands.
+  LinkStatus status = LinkStatus.connecting;
+
+  /// The newest view of the game (kept during a pause).
+  PlayerView? view;
+
+  /// Version of [view]; older states are dropped.
+  int version = -1;
+
+  /// Whether this player opened the room.
+  bool isOwner = false;
+
+  /// For the owner: people waiting to be let in.
+  List<PendingJoin> pending = const [];
+
+  /// When the phase timer runs out, on this device's clock (milliseconds).
+  int? phaseEndsAtMs;
+
+  /// Joined without the QR code's secret: waiting for the host's check.
+  bool waitingForHost = false;
+
+  /// Symbols to compare with the host, from the encrypted handshake.
+  List<int> checkCode = const [];
+
+  /// The host refused the name; [rename] tries another one.
+  bool nameRefused = false;
+
+  /// The last refused intent; the UI clears it after showing it.
+  Violation? refused;
+
+  /// Why the link ended, if the host said so.
+  ByeReason? byeReason;
+
+  /// The name this player joins with.
+  String get name => _name;
+
+  /// Number of intents still waiting for the host's confirmation.
+  int get unconfirmed => _queue.length;
+
+  void _changed() => onChange?.call();
+
+  Future<void> _connect() async {
+    if (_closed) return;
+    final Connection connection;
+    try {
+      connection = await _dial();
+    } on Object {
+      return _lost();
+    }
+    if (_closed) {
+      await connection.close();
+      return;
+    }
+    if (connection case final PeerTrust trust) {
+      checkCode = trust.checkCode;
+      // A token never goes over a channel nobody checked: someone in the
+      // middle could take it and play as us.
+      if (_token != null && !trust.verified) {
+        await connection.close();
+        return _end(ByeReason.unknownSession);
+      }
+    }
+    _connection = connection;
+    _subscription = connection.messages.listen(
+      (raw) => _receive(connection, raw),
+      onDone: () => _dropped(connection),
+      onError: (Object _) => _dropped(connection),
+      cancelOnError: true,
+    );
+    _expectAnswer(connection);
+    connection.send(Hello(name: _name, room: roomCode, token: _token).encode());
+  }
+
+  /// Redials if [connection] stays silent: a half-dead link (e.g. after the
+  /// phone slept) is noticed without waiting for the operating system.
+  void _expectAnswer(Connection connection) {
+    _cancelSilence?.call();
+    _cancelSilence = _startTimer(config.answer, () {
+      if (_connection == connection) unawaited(connection.close());
+    });
+  }
+
+  void _receive(Connection connection, String raw) {
+    if (_closed || _connection != connection) return;
+    final HostMessage message;
+    try {
+      message = HostMessage.parse(raw);
+    } on ProtocolError {
+      return;
+    }
+    _expectAnswer(connection);
+    switch (message) {
+      case Waiting():
+        waitingForHost = true;
+      case Welcome(:final token, :final roomSecret, :final lastSeq):
+        _welcomed(connection, token, roomSecret, lastSeq);
+      case Ack(:final seq, version: final hostVersion):
+        _queue.removeWhere((q) => q.seq <= seq);
+        if (hostVersion > version) _send(PingIntent(max(version, 0)));
+        return;
+      case Pong(version: final hostVersion):
+        if (hostVersion > version) _send(PingIntent(max(version, 0)));
+        return;
+      case StateMessage():
+        if (message.version < version) return;
+        version = message.version;
+        view = message.view;
+        isOwner = message.isOwner;
+        pending = message.pending;
+        final endsIn = message.phaseEndsInMs;
+        phaseEndsAtMs = endsIn == null ? null : _clock() + endsIn;
+      case Refused(:final reason):
+        if (reason == Violation.invalidName && _token == null) {
+          nameRefused = true;
+        } else {
+          refused = reason;
+        }
+      case Bye(:final reason):
+        return _end(reason);
+    }
+    _changed();
+  }
+
+  void _welcomed(
+    Connection connection,
+    String token,
+    List<int>? roomSecret,
+    int lastSeq,
+  ) {
+    waitingForHost = false;
+    nameRefused = false;
+    if (connection case PeerTrust(
+      verified: false,
+      :final peerKey?,
+    ) when roomSecret != null) {
+      onRoomKeys?.call(peerKey, roomSecret);
+    }
+    _token = token;
+    _attempt = 0;
+    status = LinkStatus.connected;
+    // Everything up to lastSeq arrived; send the rest again, in order.
+    _queue.removeWhere((q) => q.seq <= lastSeq);
+    _nextSeq = max(_nextSeq, lastSeq + 1);
+    _flush();
+    _startLoops(connection);
+    onWelcome?.call(token, _name);
+  }
+
+  void _startLoops(Connection connection) {
+    _stopLoops();
+    void every(Duration period, void Function() action) {
+      void tick() {
+        if (_closed || _connection != connection) return;
+        action();
+        _timers.add(_startTimer(period, tick));
+      }
+
+      _timers.add(_startTimer(period, tick));
+    }
+
+    every(config.ping, () => _send(PingIntent(max(version, 0))));
+    every(config.resend, _flush);
+  }
+
+  void _stopLoops() {
+    for (final cancel in _timers) {
+      cancel();
+    }
+    _timers.clear();
+  }
+
+  void _flush() {
+    for (final q in _queue) {
+      _connection?.send(q.intent.encode(seq: q.seq));
+    }
+  }
+
+  void _send(ClientMessage message) => _connection?.send(message.encode());
+
+  void _dropped(Connection connection) {
+    if (_connection != connection) return;
+    _lost();
+  }
+
+  void _lost() {
+    if (_closed) return;
+    unawaited(_subscription?.cancel());
+    _subscription = null;
+    _connection = null;
+    _cancelSilence?.call();
+    _stopLoops();
+    // Never joined and the host never answered: there is nothing to wait for.
+    if (_token == null && status == LinkStatus.connecting && !waitingForHost) {
+      return _end(null);
+    }
+    status = LinkStatus.paused;
+    _changed();
+    // Back off with some randomness, so a table of phones does not hammer a
+    // host that just came back all at the same moment.
+    final base = config.firstRetry.inMilliseconds * pow(2, min(_attempt, 8));
+    final capped = min(base.toInt(), config.maxRetry.inMilliseconds);
+    final delay = (capped * (0.5 + _random.nextDouble() / 2)).round();
+    _attempt++;
+    _cancelRetry?.call();
+    _cancelRetry = _startTimer(Duration(milliseconds: delay), () {
+      if (!_closed && _connection == null) unawaited(_connect());
+    });
+  }
+
+  void _end(ByeReason? reason) {
+    if (_closed) return;
+    byeReason ??= reason;
+    status = LinkStatus.ended;
+    _closed = true;
+    _stopLoops();
+    _cancelRetry?.call();
+    _cancelSilence?.call();
+    unawaited(_subscription?.cancel());
+    unawaited(_connection?.close());
+    _connection = null;
+    onEnded?.call();
+    _changed();
+  }
+
+  /// Sends an intent; it is numbered and sent again until the host confirms
+  /// it, across reconnects, and applied exactly once.
+  void send(ClientMessage intent) {
+    if (_closed) return;
+    if (intent is Hello || intent is PingIntent) return _send(intent);
+    _queue.add((seq: _nextSeq++, intent: intent));
+    if (_queue.length > config.maxQueue) _queue.removeAt(0);
+    _connection?.send(_queue.last.intent.encode(seq: _queue.last.seq));
+  }
+
+  /// Joins with another name after the host refused the first one.
+  void rename(String name) {
+    _name = name.trim();
+    nameRefused = false;
+    _send(Hello(name: _name, room: roomCode));
+    _changed();
+  }
+
+  /// Redials at once if the host is out of reach (the app came back to the
+  /// front, or the network changed).
+  void reconnectNow() {
+    if (_closed || _connection != null) return;
+    _cancelRetry?.call();
+    _attempt = 0;
+    unawaited(_connect());
+  }
+
+  /// Leaves for good: tells the host (in the lobby) and stops.
+  void leave() {
+    if (view?.phase == Phase.lobby) _send(const LeaveIntent());
+    _end(ByeReason.left);
+  }
+
+  /// Stops without telling the host (the app is closing this screen).
+  void close() {
+    if (_closed) return;
+    _closed = true;
+    _stopLoops();
+    _cancelRetry?.call();
+    _cancelSilence?.call();
+    unawaited(_subscription?.cancel());
+    unawaited(_connection?.close());
+  }
+}
