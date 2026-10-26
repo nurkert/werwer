@@ -12,6 +12,9 @@ flutter --version | head -1
 echo "→ Dependencies"
 flutter pub get
 
+echo "→ Design tokens"
+dart run tool/tokens.dart --check
+
 echo "→ Format"
 dart format --output=none --set-exit-if-changed app/lib app/test packages server
 

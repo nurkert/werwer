@@ -1,6 +1,6 @@
-/* Design tokens "Mondbühne" – keep in sync with docs/DESIGN.md. */
+/* Design tokens. Colours and radii come from design/tokens.json (dart run tool/tokens.dart). */
 :root {
-  /* Night cardstock */
+  /* tokens:start (generated from design/tokens.json) */
   --night-950: #0f1428;
   --night-900: #141a33;
   --night-800: #1a2142;
@@ -8,22 +8,23 @@
   --night-500: #3a4677;
   --moon-100: #f6e7c1;
   --moon-200: #e9d8ad;
-
-  /* Playbill paper and its ink */
   --paper: #f3e6c8;
   --paper-deep: #e1cd9f;
   --ink: #2a1b12;
   --ink-soft: #4d3726;
-
-  /* Accents */
   --lantern-400: #f2a93b;
   --lantern-300: #f7c46e;
+  --curtain-400: #e0605a;
   --curtain-600: #9e1f24;
   --curtain-700: #7f171c;
   --gold-500: #c9973f;
   --card-200: #e9d6ac;
   --wood-700: #5a3a22;
   --forest-700: #22382f;
+  --radius-s: 10px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+  /* tokens:end */
 
   --font-display: 'Ancizar Serif', Georgia, serif;
   --font-ui: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -35,9 +36,6 @@
   --step-body: 1.0625rem;
   --step-small: 0.9rem;
 
-  --radius-s: 10px;
-  --radius-m: 18px;
-  --radius-l: 28px;
   --space-1: 0.5rem;
   --space-2: 1rem;
   --space-3: 1.5rem;
