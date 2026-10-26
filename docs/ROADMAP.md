@@ -157,7 +157,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Fertig, wenn:** Alle Chaos-Tests grün sind, eine Runde mit 6 Rollen auf echten Geräten ohne Abbruch durchläuft, auch wenn der Host die App kurz schließt, und 0.1 veröffentlicht ist.
 
-## M6 – Release 0.1 ([Task 007](tasks/007-release-0-1.md))
+## M6 – Release 0.1 ([Task 007](tasks/007-release-0-1.md)) – erschienen 2026-10-26
 
 **Ziel:** Whowolf ist öffentlich herunterladbar und verständlich präsentiert.
 
