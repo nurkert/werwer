@@ -146,9 +146,9 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ### F – Rollen, Einstellungen, Figuren ([Task 004](tasks/004-rollen-und-einstellungen.md), [Task 005](tasks/005-figuren.md))
 
-- [ ] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core`, mit Tarnaufgaben für alle
-- [ ] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln
-- [ ] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme
+- [x] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core`, mit Tarnaufgaben für alle
+- [x] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln (Regeln und Protokoll; Bildschirme in der App folgen)
+- [x] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme (`GameSettings` und Absicht `settings`; Einstellungsseite in der App folgt)
 - [ ] Gleich viele weibliche und männliche Figuren (neue Figurenbilder im Mondbühnen-Stil)
 
 ### W – Wolfsspur light ([Task 006](tasks/006-wolfsspur-light.md))

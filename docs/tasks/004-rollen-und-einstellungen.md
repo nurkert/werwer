@@ -1,6 +1,6 @@
 # Task 004 – Hexe, Jäger, Amor und Spiel-Einstellungen
 
-**Status:** offen
+**Status:** in Arbeit (Regeln, Einstellungen, Protokoll und Host fertig; App-Bildschirme offen)
 **Roadmap:** MVP-Sprint, Spur F
 
 ## Ziel
@@ -35,6 +35,7 @@ Genug Rollen für richtige Runden und Einstellungen, mit denen der Gastgeber den
 
 - Sichten: Liebende sehen nur ihren Partner; die Hexe sieht nur das aktuelle Opfer; nichts davon taucht in fremden Sichten auf. Der bestehende Leak-Test für jeden Spieler deckt die neuen Rollen ab.
 - Einstellungen werden streng geprüft (Grenzen für Zeiten und Anzahl) und nur von der Owner-Sitzung angenommen.
+- Umsetzung: `viewFor` gibt `couple` nur den Liebenden und Amor, `victim` und `potions` nur der lebenden Hexe (in ihrem Schritt); `settings` nimmt der Host nur von der Owner-Sitzung und nur in der Lobby an, `GameSettings.validate` prüft die Grenzen; der Parser nimmt höchstens zwei Ziele, nur Sonderrollen ohne Doppelte und Zeiten bis 3600 s. Tests: `expectNoLeaks` für jeden Spieler (u. a. 300 Zufallspartien mit allen Rollen in `game_core/test/roles_test.dart`), Simulations- und Chaos-Test prüfen jede empfangene Sicht, `host_test` („only the owner changes the settings“), `protocol_test` („anything not exactly valid is refused“).
 
 ## Fertig, wenn
 
