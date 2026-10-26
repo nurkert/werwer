@@ -13,6 +13,16 @@ abstract interface class Connection {
   Future<void> close();
 }
 
+/// What an encrypted connection knows about its peer.
+abstract interface class PeerTrust {
+  /// Whether the peer proved it was invited (it had the QR code's secret).
+  bool get verified;
+
+  /// A short code both sides derive from the handshake. Without [verified],
+  /// players compare it at the table before the host lets them in.
+  List<int> get checkCode;
+}
+
 /// Something that brings new connections to the host. A host can serve
 /// several transports at once (e.g. LAN and, later, a relay).
 abstract interface class Transport {

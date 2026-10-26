@@ -3,4 +3,5 @@
 /// padded messages afterwards. Pure Dart; works over LAN, relay and browser.
 library;
 
+export 'src/channel.dart';
 export 'src/noise.dart';

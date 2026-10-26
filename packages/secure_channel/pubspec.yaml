@@ -11,3 +11,5 @@ dev_dependencies:
   very_good_analysis: 10.3.0
 dependencies:
   cryptography: ^2.9.0
+  game_host:
+    path: ../game_host
