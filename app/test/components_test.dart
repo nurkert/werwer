@@ -74,13 +74,8 @@ void main() {
         ),
       ),
     );
-    expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
-      isFalse,
-    );
-    expect(
-      tester.widget<OutlinedButton>(find.byType(OutlinedButton)).enabled,
-      isFalse,
-    );
+    final buttons = tester.widgetList<TextButton>(find.byType(TextButton));
+    expect(buttons, hasLength(2));
+    expect(buttons.every((b) => !b.enabled), isTrue);
   });
 }
