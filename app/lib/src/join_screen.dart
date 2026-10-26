@@ -22,6 +22,8 @@ GameSession playerSession({
   LanAddress? lan,
   String? relayRoom,
   Uri? server,
+  List<int>? hostKey,
+  List<int>? roomSecret,
   String? token,
 }) {
   const store = Store();
@@ -29,7 +31,13 @@ GameSession playerSession({
     name: name,
     roomCode: room,
     token: token,
-    dial: dialerFor(lan: lan, relayRoom: relayRoom, server: server),
+    dial: dialerFor(
+      lan: lan,
+      relayRoom: relayRoom,
+      server: server,
+      hostKey: hostKey,
+      roomSecret: roomSecret,
+    ),
     onWelcome: (token, name) => unawaited(
       store.saveResume(
         ResumeInfo(
@@ -39,6 +47,8 @@ GameSession playerSession({
           lan: lan,
           relayRoom: relayRoom,
           server: server,
+          hostKey: hostKey,
+          roomSecret: roomSecret,
         ),
       ),
     ),
@@ -136,6 +146,8 @@ class _JoinScreenState extends State<JoinScreen> {
         lan: link.lan,
         relayRoom: link.relayRoom,
         server: link.server,
+        hostKey: link.hostKey,
+        roomSecret: link.roomSecret,
       ),
     );
   }

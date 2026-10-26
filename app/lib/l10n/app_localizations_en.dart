@@ -558,4 +558,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreRoom => 'Restore your room';
+
+  @override
+  String get waitingForHost => 'Almost in! Show the host these symbols:';
+
+  @override
+  String get waitingHint =>
+      'The host lets you in as soon as the symbols match.';
+
+  @override
+  String wantsToJoin(String name) {
+    return '$name wants to join';
+  }
+
+  @override
+  String get compareSymbols =>
+      'Do these symbols match the ones on their phone?';
+
+  @override
+  String get letIn => 'Let in';
+
+  @override
+  String get refuse => 'Refuse';
 }

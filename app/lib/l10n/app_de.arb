@@ -153,5 +153,11 @@
   "helpWindows": "Windows: Wenn die Firewall fragt, Whowolf in privaten Netzwerken erlauben.",
   "helpVpn": "VPNs und Werbeblocker ausschalten, die das lokale Netz filtern.",
   "helpQr": "Immer noch nichts? Scannt stattdessen den QR-Code am Gastgeber-Handy.",
-  "restoreRoom": "Deinen Raum wiederherstellen"
+  "restoreRoom": "Deinen Raum wiederherstellen",
+  "waitingForHost": "Gleich bist du drin! Zeig dem Gastgeber diese Zeichen:",
+  "waitingHint": "Der Gastgeber lässt dich rein, sobald die Zeichen übereinstimmen.",
+  "wantsToJoin": "{name} möchte mitspielen",
+  "compareSymbols": "Stimmen diese Zeichen mit denen auf dem anderen Handy überein?",
+  "letIn": "Reinlassen",
+  "refuse": "Ablehnen"
 }

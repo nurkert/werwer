@@ -153,13 +153,16 @@
 - **Vor jedem Release:** Diese Datei durchgehen, das Bedrohungsmodell aktualisieren und `osv-scanner` sowie den Secret-Scan prüfen.
 - **Vor 1.0** ist ein externer Blick wünschenswert, etwa ein Review des Handshakes durch jemanden mit Krypto-Erfahrung.
 
-## Stand der Testversion (2026-10-25)
+## Stand der Umsetzung (2026-10-26)
 
-Was schon umgesetzt ist und was noch fehlt, damit niemand die Testversion für fertig hält:
-
-- **Umgesetzt:** gefilterte Sichten (getestet für jeden Spieler), Identität nur aus der Sitzung, 128-Bit-Sitzungstokens aus `Random.secure()` im sicheren Speicher, strenges Parsen mit Größenlimits, Ratenlimits, Hello-Timeout, Verbindungslimit, LAN-Socket nur für private/Loopback-Adressen, strenge Prüfung des QR-Links mit Bestätigung vor dem Verbinden, Relay ohne Spielwissen und ohne Logs der Inhalte, Container ohne Root und ohne Shell.
-- **Fehlt noch:** Ende-zu-Ende-Verschlüsselung (Noise). Bis dahin können Mitspieler im selben WLAN und der Betreiber des Relays die Nachrichten mitlesen. Außerdem fehlen gleicher Nachrichtentakt mit Padding, Host-Bestätigung bei manuellem Beitritt mit Prüfbild und Fuzz-Tests für den Host.
-- **Folge:** nur im eigenen WLAN bzw. mit eigenem Relay unter Freunden testen; kein offizieller Release, bevor diese Punkte erledigt sind.
+- **Ende-zu-Ende-Verschlüsselung:** Jede Verbindung über WLAN oder Relay läuft durch `packages/secure_channel`: Noise `NKpsk2_25519_ChaChaPoly_BLAKE2s`, wenn der QR-Code gescannt wurde (Host-Schlüssel und 256-Bit-Raumgeheimnis im Fragment `#k=…&s=…`), sonst `Noise_NN` mit Prüfbild (3 von 16 Symbolen aus dem Handshake-Hash), das der Gastgeber vor dem Reinlassen vergleicht. Primitive aus dem Paket `cryptography` (X25519, ChaCha20-Poly1305, BLAKE2s); HMAC-BLAKE2s ist nach RFC 2104 selbst aufgebaut, weil das Paket für BLAKE2s eine falsche Blocklänge meldet. Beide Muster sind gegen die offiziellen Noise-Testvektoren (Cacophony) getestet. Schlüssel pro Raum, gespeichert nur zusammen mit dem Raum-Schnappschuss im App-Ordner.
+- **Padding:** Jede Nachricht wird vor der Verschlüsselung auf feste Größenstufen (512 B, 2 KiB, 8 KiB, 32 KiB, ~64 KiB) aufgefüllt. **Takt:** Der Host schickt bei jeder Änderung allen denselben Zustand, die Anzahl der Nachrichten hängt also nicht von der Rolle ab.
+- **Manipulation** einer Nachricht beendet die Verbindung; eine falsche Antwort im Handshake ebenso.
+- **Weiter umgesetzt:** gefilterte Sichten (getestet für jeden Spieler), Identität nur aus der Sitzung, 128-Bit-Sitzungstokens im sicheren Speicher, strenges Parsen mit Größenlimits, Ratenlimits, Handshake- und Hello-Timeout, Verbindungslimit, LAN-Socket nur für private/Loopback-Adressen, strenge Prüfung des QR-Links mit Bestätigung vor dem Verbinden, Relay ohne Spielwissen (sieht nur Chiffretext), Container ohne Root und ohne Shell, Fuzz-Tests für Protokoll und Host.
+- **Grenzen:**
+  - Beim NKpsk2-Muster prüft der Host das Raumgeheimnis erst an der ersten verschlüsselten Nachricht; ohne Geheimnis kommt keine Nachricht durch.
+  - Wer ohne QR-Code beitritt, ist bis zum Vergleich des Prüfbilds nicht authentisch; ein späterer Rejoin mit Token über einen nicht geprüften Kanal wird akzeptiert (das Token ist 128 Bit geheim).
+  - Ein externer Review des Handshakes steht vor 1.0 noch aus.
 
 ## Offene Entscheidungen
 

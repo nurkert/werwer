@@ -11,6 +11,7 @@ import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:protocol/protocol.dart';
+import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/game/game_screen.dart';
@@ -27,6 +28,7 @@ class Bot {
     connection.messages.listen((raw) {
       final message = HostMessage.parse(raw);
       if (message is Welcome) this.token = message.token;
+      if (message is Waiting) waiting = true;
       if (message is StateMessage) {
         view = message.view;
         _act();
@@ -40,6 +42,7 @@ class Bot {
   final Connection connection;
   PlayerView? view;
   String? token;
+  bool waiting = false;
   final _done = <String>{};
 
   void _once(String key, ClientMessage message) {
@@ -63,6 +66,17 @@ class Bot {
       _once('vote${v.round}', const VoteIntent(null));
     }
   }
+}
+
+/// Dials the host like a player who scanned the QR code (verified), or like
+/// one who found the room nearby (unverified).
+Future<Connection> dialRoom(HostedRoom room, {bool scanned = true}) async {
+  final raw = await dialHost('127.0.0.1', room.link.lan!.port);
+  return connectSecure(
+    raw,
+    hostKey: scanned ? room.link.hostKey : null,
+    roomSecret: scanned ? room.link.roomSecret : null,
+  );
 }
 
 Future<void> until(
@@ -122,13 +136,12 @@ void main() {
     );
     await until(tester, () => session.view != null);
 
-    final lan = room.link.lan!;
     final bots = <Bot>[];
     await tester.runAsync(() async {
       for (final name in ['Bo', 'Cem', 'Dina', 'Eli']) {
         // Loopback: a desktop firewall may block the Wi-Fi address for an
         // unsigned test build; the network path is the same otherwise.
-        bots.add(Bot(name, await dialHost('127.0.0.1', lan.port)));
+        bots.add(Bot(name, await dialRoom(room)));
       }
     });
     await until(tester, () => session.view!.seats.length == 5);
@@ -180,11 +193,10 @@ void main() {
     await const RoomStore().clear();
     final room = await HostedRoom.open(hostName: 'Ada');
     Bot.room = room.roomCode;
-    final port = room.link.lan!.port;
     final bots = <Bot>[];
     await tester.runAsync(() async {
       for (final name in ['Bo', 'Cem', 'Dina']) {
-        bots.add(Bot(name, await dialHost('127.0.0.1', port)));
+        bots.add(Bot(name, await dialRoom(room)));
       }
       await Future<void>.delayed(const Duration(milliseconds: 800));
     });
@@ -204,13 +216,7 @@ void main() {
     final back = <Bot>[];
     await tester.runAsync(() async {
       for (final bot in bots) {
-        back.add(
-          Bot(
-            bot.name,
-            await dialHost('127.0.0.1', restored!.link.lan!.port),
-            token: bot.token,
-          ),
-        );
+        back.add(Bot(bot.name, await dialRoom(restored!), token: bot.token));
       }
       await Future<void>.delayed(const Duration(milliseconds: 500));
     });
@@ -221,5 +227,42 @@ void main() {
     expect(restored!.roomCode, room.roomCode);
     await tester.runAsync(restored.close);
     expect(await tester.runAsync(() => const RoomStore().load()), isNull);
+  });
+
+  testWidgets('without the QR code the host lets a player in by tapping', (
+    tester,
+  ) async {
+    final room = await HostedRoom.open(hostName: 'Ada');
+    Bot.room = room.roomCode;
+    final session = GameSession(
+      name: 'Ada',
+      roomCode: room.roomCode,
+      dial: () async => room.host.connectOwner(),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('de'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: supportedLocales,
+        theme: buildTheme(),
+        home: GameScreen(session: session, room: room),
+      ),
+    );
+    await until(tester, () => session.view != null);
+    late Bot eve;
+    await tester.runAsync(() async {
+      eve = Bot('Eve', await dialRoom(room, scanned: false));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
+    await until(tester, () => eve.waiting && session.pending.isNotEmpty);
+    expect(find.text('Eve möchte mitspielen'), findsOneWidget);
+    await tester.tap(find.text('Reinlassen'));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 500)),
+    );
+    await until(tester, () => session.view!.seats.length == 2);
+    expect(eve.token, isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(eve.connection.close);
   });
 }

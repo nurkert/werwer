@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
@@ -163,6 +164,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                     ? _Ended(reason: session.byeReason)
                     : session.nameRefused
                     ? _Rename(session: session)
+                    : session.waitingForHost && view == null
+                    ? _WaitingForHost(code: session.checkCode)
                     : view == null
                     ? const Center(child: CircularProgressIndicator())
                     : _phase(view),
@@ -227,6 +230,27 @@ class _NarratorLine extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Joined without the QR code: wait until the host has compared the code.
+class _WaitingForHost extends StatelessWidget {
+  const _WaitingForHost({required this.code});
+
+  final List<int> code;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return PhaseBody(
+      children: [
+        const SizedBox(height: 32),
+        Headline(l10n.waitingForHost),
+        CheckCode(code: code),
+        Body(l10n.waitingHint, muted: true),
+        const CircularProgressIndicator(),
+      ],
+    );
+  }
 }
 
 /// The name was taken: pick another one right here, still connected.

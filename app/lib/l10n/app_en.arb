@@ -341,5 +341,18 @@
   "helpWindows": "Windows: when the firewall asks, allow Whowolf on private networks.",
   "helpVpn": "Switch off VPNs and ad blockers that filter the local network.",
   "helpQr": "Still nothing? Scan the QR code on the host phone instead.",
-  "restoreRoom": "Restore your room"
+  "restoreRoom": "Restore your room",
+  "waitingForHost": "Almost in! Show the host these symbols:",
+  "waitingHint": "The host lets you in as soon as the symbols match.",
+  "wantsToJoin": "{name} wants to join",
+  "@wantsToJoin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "compareSymbols": "Do these symbols match the ones on their phone?",
+  "letIn": "Let in",
+  "refuse": "Refuse"
 }

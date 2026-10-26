@@ -59,6 +59,16 @@ class GameSession extends ChangeNotifier {
   /// Why the host ended the session; `null` if the connection just broke.
   ByeReason? byeReason;
 
+  /// Waiting for the host to let this player in (joined without the QR
+  /// code's secret); show [checkCode] meanwhile.
+  bool waitingForHost = false;
+
+  /// Symbols to compare with the host, from the encrypted handshake.
+  List<int> checkCode = const [];
+
+  /// For the room owner: people waiting to be let in.
+  List<PendingJoin> pending = const [];
+
   /// The latest view of the game.
   PlayerView? view;
 
@@ -79,6 +89,7 @@ class GameSession extends ChangeNotifier {
         return;
       }
       _connection = connection;
+      if (connection case final PeerTrust trust) checkCode = trust.checkCode;
       _subscription = connection.messages.listen(
         _receive,
         onDone: _lost,
@@ -101,7 +112,10 @@ class GameSession extends ChangeNotifier {
       return;
     }
     switch (message) {
+      case Waiting():
+        waitingForHost = true;
       case Welcome(:final token):
+        waitingForHost = false;
         _token = token;
         _failedReconnects = 0;
         status = SessionStatus.connected;
@@ -110,6 +124,7 @@ class GameSession extends ChangeNotifier {
       case StateMessage():
         view = message.view;
         isOwner = message.isOwner;
+        pending = message.pending;
         final endsIn = message.phaseEndsInMs;
         phaseEndsAt = endsIn == null
             ? null

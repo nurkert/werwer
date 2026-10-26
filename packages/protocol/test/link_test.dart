@@ -9,8 +9,13 @@ void main() {
         lan: const LanAddress('192.168.1.5', 47470),
         relayRoom: 'abcd2345',
         server: parseRelayServer('wss://relay.example.org'),
+        hostKey: List.filled(32, 7),
+        roomSecret: List.filled(32, 9),
       );
       final back = JoinLink.tryParse(link.encode())!;
+      expect(back.hostKey, List.filled(32, 7));
+      expect(back.roomSecret, List.filled(32, 9));
+      expect(link.encode(), contains('#k='));
       expect(back.room, '1234');
       expect(back.lan.toString(), '192.168.1.5:47470');
       expect(back.relayRoom, 'abcd2345');
@@ -33,6 +38,8 @@ void main() {
         'https://whowolf.de/join?room=1234&lan=192.168.1.5:1&x=1',
         'https://u:p@whowolf.de/join?room=1234&lan=192.168.1.5:1',
         'whatever',
+        'https://whowolf.de/join?room=1234&lan=192.168.1.5:1#k=abc&s=def',
+        'https://whowolf.de/join?room=1234&lan=192.168.1.5:1#x=1',
       ]) {
         expect(JoinLink.tryParse(raw), isNull, reason: raw);
       }

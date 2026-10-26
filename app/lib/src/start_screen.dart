@@ -28,7 +28,7 @@ class _StartScreenState extends State<StartScreen> {
   String? _error;
   bool _busy = false;
   ResumeInfo? _resume;
-  String? _savedRoom;
+  SavedRoom? _savedRoom;
 
   @override
   void initState() {
@@ -56,6 +56,8 @@ class _StartScreenState extends State<StartScreen> {
         lan: resume.lan,
         relayRoom: resume.relayRoom,
         server: resume.server,
+        hostKey: resume.hostKey,
+        roomSecret: resume.roomSecret,
         token: resume.token,
       ),
     );
@@ -63,13 +65,13 @@ class _StartScreenState extends State<StartScreen> {
   }
 
   /// The host app was closed during a game: bring the room back.
-  Future<void> _restore(String snapshot) async {
+  Future<void> _restore(SavedRoom saved) async {
     if (_busy) return;
     setState(() => _busy = true);
     final l10n = AppLocalizations.of(context);
     try {
       final room = await HostedRoom.restore(
-        snapshot,
+        saved,
         hostName: _name.text.trim(),
         relayServer: await const Store().relayServer(),
       );

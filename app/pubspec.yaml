@@ -28,6 +28,8 @@ dependencies:
     path: ../packages/protocol
   qr_flutter: ^4.1.0
   # 1.8.1+ needs dbus 0.8, which bonsoir_linux does not support yet.
+  secure_channel:
+    path: ../packages/secure_channel
   wakelock_plus: ">=1.3.0 <1.8.1"
 
 dev_dependencies:

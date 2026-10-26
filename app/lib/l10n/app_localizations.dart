@@ -1021,6 +1021,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore your room'**
   String get restoreRoom;
+
+  /// No description provided for @waitingForHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost in! Show the host these symbols:'**
+  String get waitingForHost;
+
+  /// No description provided for @waitingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The host lets you in as soon as the symbols match.'**
+  String get waitingHint;
+
+  /// No description provided for @wantsToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to join'**
+  String wantsToJoin(String name);
+
+  /// No description provided for @compareSymbols.
+  ///
+  /// In en, this message translates to:
+  /// **'Do these symbols match the ones on their phone?'**
+  String get compareSymbols;
+
+  /// No description provided for @letIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Let in'**
+  String get letIn;
+
+  /// No description provided for @refuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Refuse'**
+  String get refuse;
 }
 
 class _AppLocalizationsDelegate

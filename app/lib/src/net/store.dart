@@ -18,6 +18,8 @@ class ResumeInfo {
     this.lan,
     this.relayRoom,
     this.server,
+    this.hostKey,
+    this.roomSecret,
   });
 
   static ResumeInfo? fromJson(String raw) {
@@ -25,6 +27,8 @@ class ResumeInfo {
       final json = jsonDecode(raw) as Map<String, Object?>;
       final lan = json['lan'] as String?;
       final server = json['server'] as String?;
+      final key = json['hostKey'] as String?;
+      final secret = json['roomSecret'] as String?;
       return ResumeInfo(
         name: json['name']! as String,
         room: json['room']! as String,
@@ -32,6 +36,8 @@ class ResumeInfo {
         lan: lan == null ? null : LanAddress.tryParse(lan),
         relayRoom: json['relayRoom'] as String?,
         server: server == null ? null : parseRelayServer(server),
+        hostKey: key == null ? null : base64Url.decode(key),
+        roomSecret: secret == null ? null : base64Url.decode(secret),
       );
     } on Object {
       return null;
@@ -44,6 +50,8 @@ class ResumeInfo {
   final LanAddress? lan;
   final String? relayRoom;
   final Uri? server;
+  final List<int>? hostKey;
+  final List<int>? roomSecret;
 
   String toJson() => jsonEncode({
     'name': name,
@@ -52,6 +60,8 @@ class ResumeInfo {
     'lan': ?lan?.toString(),
     'relayRoom': ?relayRoom,
     'server': ?server?.toString(),
+    'hostKey': ?(hostKey == null ? null : base64Url.encode(hostKey!)),
+    'roomSecret': ?(roomSecret == null ? null : base64Url.encode(roomSecret!)),
   });
 }
 

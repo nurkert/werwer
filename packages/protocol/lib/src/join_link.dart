@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:protocol/src/messages.dart';
 import 'package:protocol/src/relay.dart';
 
@@ -7,11 +9,18 @@ const defaultLanPort = 47470;
 /// Everything needed to join a room, as carried by the QR code:
 /// `https://whowolf.de/join?room=1234&lan=192.168.1.5:47470&relay=abcd2345&srv=wss://relay.example.org`.
 ///
-/// Secrets (later the host key for the Noise handshake) will go into the
-/// fragment, which browsers never send to a server.
+/// The host's public key and the room secret for the encrypted handshake are
+/// in the fragment (`#k=…&s=…`), which browsers never send to a server.
 class JoinLink {
   /// Creates a link; at least one of [lan] or [relayRoom] must be set.
-  const JoinLink({required this.room, this.lan, this.relayRoom, this.server});
+  const JoinLink({
+    required this.room,
+    this.lan,
+    this.relayRoom,
+    this.server,
+    this.hostKey,
+    this.roomSecret,
+  });
 
   /// Parses a scanned link strictly; returns `null` for anything else.
   static JoinLink? tryParse(String raw) {
@@ -38,7 +47,23 @@ class JoinLink {
     if (q['srv'] != null && server == null) return null;
     if (lan == null && relay == null) return null;
     if ((relay == null) != (server == null)) return null;
-    return JoinLink(room: room, lan: lan, relayRoom: relay, server: server);
+    List<int>? key;
+    List<int>? secret;
+    if (uri.fragment.isNotEmpty) {
+      final f = Uri.splitQueryString(uri.fragment);
+      if (f.keys.any((k) => k != 'k' && k != 's')) return null;
+      key = _key32(f['k']);
+      secret = _key32(f['s']);
+      if (key == null || secret == null) return null;
+    }
+    return JoinLink(
+      room: room,
+      lan: lan,
+      relayRoom: relay,
+      server: server,
+      hostKey: key,
+      roomSecret: secret,
+    );
   }
 
   /// Host name of join links.
@@ -56,6 +81,12 @@ class JoinLink {
   /// The relay server (`ws://` or `wss://` origin).
   final Uri? server;
 
+  /// The host's public key for this room (32 bytes).
+  final List<int>? hostKey;
+
+  /// The room secret (32 bytes).
+  final List<int>? roomSecret;
+
   /// The link as text for the QR code.
   String encode() => Uri(
     scheme: 'https',
@@ -67,7 +98,20 @@ class JoinLink {
       'relay': ?relayRoom,
       'srv': ?server?.toString(),
     },
+    fragment: hostKey == null || roomSecret == null
+        ? null
+        : 'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}',
   ).toString();
+}
+
+List<int>? _key32(String? value) {
+  if (value == null || value.length > 64) return null;
+  try {
+    final bytes = base64Url.decode(value);
+    return bytes.length == 32 ? bytes : null;
+  } on FormatException {
+    return null;
+  }
 }
 
 /// A host address on the local network: a private IPv4 address and a port.

@@ -6,6 +6,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/sheep.dart';
@@ -140,6 +141,8 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     final swapFrom = _swapFrom;
     return PhaseBody(
       children: [
+        for (final p in session.pending)
+          _PendingPanel(session: session, join: p),
         if (session.isOwner && link != null) _Invite(link: link),
         if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
         if (session.isOwner && count < 2) const HelpLink(),
@@ -171,6 +174,55 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         ] else
           Body(l10n.waitingForOwner, muted: true),
       ],
+    );
+  }
+}
+
+/// Someone joined without the QR code: compare the symbols, then decide.
+class _PendingPanel extends StatelessWidget {
+  const _PendingPanel({required this.session, required this.join});
+
+  final GameSession session;
+  final PendingJoin join;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Panel(
+      highlight: true,
+      child: Column(
+        children: [
+          Headline(l10n.wantsToJoin(join.name)),
+          const SizedBox(height: 8),
+          Body(l10n.compareSymbols),
+          const SizedBox(height: 12),
+          CheckCode(code: join.checkCode, size: 32),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Palette.moon100,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: () =>
+                      session.send(AdmitIntent(join.id, admit: false)),
+                  child: Text(l10n.refuse),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PrimaryButton(
+                  label: l10n.letIn,
+                  onPressed: () =>
+                      session.send(AdmitIntent(join.id, admit: true)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

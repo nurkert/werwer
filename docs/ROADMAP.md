@@ -84,7 +84,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] **Protokoll:** versionierte JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), eigenes Paket `packages/protocol`
 - [x] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
 - [x] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
-- [ ] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
+- [x] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
   - Ende-zu-Ende-Verschlüsselung per Noise-Handshake (Host-Schlüssel + Raumgeheimnis aus dem QR-Code), Bibliothek prüfen und auswählen
   - Identität nur aus der Sitzung, Rechteprüfung jeder Absicht
   - Limits: Nachrichtengröße, Verbindungen, Handshake-Zeit, Rate; strenges Parsen
@@ -100,7 +100,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 - [x] Flutter-App im Workspace, Mehrsprachigkeit (Deutsch/Englisch) von Anfang an
 - [x] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
-- [ ] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
+- [x] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
 - [x] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
 - [x] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
 - [x] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg

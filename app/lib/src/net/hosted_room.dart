@@ -5,6 +5,7 @@ import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:game_host/relay.dart';
 import 'package:protocol/protocol.dart';
+import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/room_store.dart';
 
@@ -32,6 +33,7 @@ class HostedRoom {
     ).join();
     return _start(
       GameHost(roomCode: code, random: random),
+      keys: null,
       hostName: hostName,
       relayServer: relayServer,
     );
@@ -40,26 +42,33 @@ class HostedRoom {
   /// Brings back a room from its saved snapshot after the host app crashed
   /// or was closed. The players' apps reconnect by themselves.
   static Future<HostedRoom> restore(
-    String snapshot, {
+    SavedRoom saved, {
     required String hostName,
     Uri? relayServer,
-  }) => _start(
-    GameHost.restore(snapshot, random: Random.secure()),
+  }) async => _start(
+    GameHost.restore(saved.snapshot, random: Random.secure()),
+    keys: await HostKeys.fromJson(saved.keys),
     hostName: hostName,
     relayServer: relayServer,
   );
 
   static Future<HostedRoom> _start(
     GameHost host, {
+    required HostKeys? keys,
     required String hostName,
     Uri? relayServer,
   }) async {
     final code = host.roomCode;
+    // Every remote connection is end-to-end encrypted; the QR code carries
+    // the key and secret that prove this host to the players.
+    final roomKeys = keys ?? await HostKeys.generate();
+    final keysJson = await roomKeys.toJson();
     // The default port first: players who lost the host reconnect to it.
     final lan = await LanTransport.bind();
-    host.serve(lan);
+    host.serve(SecureTransport(lan, roomKeys));
     const store = RoomStore();
-    host.onSnapshot = (snapshot) => unawaited(store.save(snapshot));
+    host.onSnapshot = (snapshot) =>
+        unawaited(store.save(SavedRoom(snapshot, keysJson)));
     final addresses = await privateAddresses();
     final ip = addresses.isEmpty ? null : addresses.first.address;
 
@@ -67,7 +76,7 @@ class HostedRoom {
     if (relayServer != null) {
       try {
         relay = await RelayTransport.open(relayServer);
-        host.serve(relay);
+        host.serve(SecureTransport(relay, roomKeys));
       } on Object {
         relay = null;
       }
@@ -77,6 +86,8 @@ class HostedRoom {
       lan: ip == null ? null : LanAddress(ip, lan.port),
       relayRoom: relay?.roomId,
       server: relay?.server,
+      hostKey: roomKeys.publicKey,
+      roomSecret: roomKeys.roomSecret,
     );
     // Others see the room under "Join a room" without typing anything.
     final announcer = RoomAnnouncer();

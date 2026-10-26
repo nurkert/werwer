@@ -564,4 +564,27 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreRoom => 'Deinen Raum wiederherstellen';
+
+  @override
+  String get waitingForHost =>
+      'Gleich bist du drin! Zeig dem Gastgeber diese Zeichen:';
+
+  @override
+  String get waitingHint =>
+      'Der Gastgeber lässt dich rein, sobald die Zeichen übereinstimmen.';
+
+  @override
+  String wantsToJoin(String name) {
+    return '$name möchte mitspielen';
+  }
+
+  @override
+  String get compareSymbols =>
+      'Stimmen diese Zeichen mit denen auf dem anderen Handy überein?';
+
+  @override
+  String get letIn => 'Reinlassen';
+
+  @override
+  String get refuse => 'Ablehnen';
 }
