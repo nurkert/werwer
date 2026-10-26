@@ -31,6 +31,8 @@ class Player {
           break;
         case Waiting():
           waiting = true;
+        case Custody() || Witness():
+          break;
       }
     }, onDone: () => closed = true);
   }

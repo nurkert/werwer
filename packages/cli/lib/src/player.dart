@@ -55,7 +55,9 @@ class CliPlayer {
       case Welcome(:final token):
         _token = token;
         _say('Joined room $room as $name.');
-      case Ack() || Pong():
+      // The command line never offers to take over the room, so it is never
+      // chosen as successor or witness.
+      case Ack() || Pong() || Custody() || Witness():
         break;
       case Waiting():
         _say(

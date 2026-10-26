@@ -74,6 +74,8 @@ class PlayerLink {
     required this.roomCode,
     required this._dial,
     this._token,
+    this.candidate,
+    this._epoch = 0,
     this.config = const LinkConfig(),
     this.onChange,
     this.onWelcome,
@@ -110,7 +112,11 @@ class PlayerLink {
   /// Called once when the link ends for good.
   final void Function()? onEnded;
 
-  final Dialer _dial;
+  /// This device's keys for taking over the room, if it can host (see
+  /// [Custody]); sent with every hello.
+  final Candidate? candidate;
+
+  Dialer _dial;
   final StartTimer _startTimer;
   final Clock _clock;
   final Random _random;
@@ -188,6 +194,33 @@ class PlayerLink {
   /// Why the link ended, if the host said so.
   ByeReason? byeReason;
 
+  /// How many times the room changed hands, as far as this link knows. A
+  /// host with a smaller epoch is out of date and not joined.
+  int get epoch => _epoch;
+  int _epoch;
+
+  /// For the successor: the sealed room, if the host chose this player.
+  HeldCustody? custody;
+
+  /// For the witness: the key to the successor's room and how to reach it.
+  HeldWitness? witness;
+
+  /// Since when the host has been out of reach (this device's clock), or
+  /// `null` while connected.
+  int? pausedSinceMs;
+
+  final _changes = StreamController<void>.broadcast(sync: true);
+
+  /// Fires after every change, like [onChange], for more than one listener
+  /// (the takeover watches the link too).
+  Stream<void> get changes => _changes.stream;
+
+  /// The session token, once welcomed. Never log or show it.
+  String? get token => _token;
+
+  /// This player's id, once welcomed.
+  PlayerId? you;
+
   /// The name this player joins with.
   String get name => _name;
 
@@ -197,7 +230,10 @@ class PlayerLink {
   /// The highest intent number the host has confirmed.
   int get confirmed => _confirmed;
 
-  void _changed() => onChange?.call();
+  void _changed() {
+    onChange?.call();
+    if (!_changes.isClosed) _changes.add(null);
+  }
 
   Future<void> _connect() async {
     if (_closed) return;
@@ -234,7 +270,14 @@ class PlayerLink {
     );
     _expectAnswer(connection);
     connection.send(
-      Hello(name: _name, room: roomCode, token: _token, join: _join).encode(),
+      Hello(
+        name: _name,
+        room: roomCode,
+        token: _token,
+        join: _join,
+        candidate: candidate,
+        epoch: _epoch,
+      ).encode(),
     );
   }
 
@@ -276,10 +319,56 @@ class PlayerLink {
     switch (message) {
       case Waiting():
         waitingForHost = true;
-      case Welcome(:final token, :final roomSecret, :final lastSeq):
+      case Welcome(
+        :final token,
+        :final roomSecret,
+        :final lastSeq,
+        epoch: final hostEpoch,
+        you: final me,
+      ):
         // One welcome per connection; a late copy would rewind the count.
         if (_joined) return;
+        // A host from before a takeover (it came back late): not ours any
+        // more. Hang up and keep looking for the current one.
+        if (hostEpoch < _epoch) {
+          unawaited(connection.close());
+          return;
+        }
+        if (hostEpoch > _epoch) {
+          _epoch = hostEpoch;
+          // Whatever we held belonged to the old host.
+          custody = null;
+          witness = null;
+        }
+        you = me;
         _welcomed(connection, token, roomSecret, lastSeq);
+      case Custody(
+        :final epoch,
+        :final version,
+        :final sealed,
+        :final takeOver,
+      ):
+        if (epoch != _epoch) return;
+        if (sealed.isEmpty) {
+          custody = null;
+        } else if (custody == null || version >= custody!.version || takeOver) {
+          custody = HeldCustody(
+            epoch: epoch,
+            version: version,
+            sealed: sealed,
+            takeOver: takeOver,
+          );
+        }
+      case Witness(:final epoch, :final key, :final successor, :final release):
+        if (epoch != _epoch) return;
+        witness = key == null || successor == null
+            ? null
+            : HeldWitness(
+                epoch: epoch,
+                key: key,
+                successor: successor,
+                release: release,
+              );
       case Ack(:final seq, version: final hostVersion):
         _queue.removeWhere((q) => q.seq != null && q.seq! <= seq);
         _confirmed = max(_confirmed, seq);
@@ -325,6 +414,7 @@ class PlayerLink {
     _token = token;
     _attempt = 0;
     status = LinkStatus.connected;
+    pausedSinceMs = null;
     // Everything up to lastSeq arrived. If the host lost some confirmed
     // intents (restored from an older save), the rest continues from its
     // count instead of leaving a gap it would wait for forever.
@@ -391,7 +481,10 @@ class PlayerLink {
     // seat (only the welcome got lost) has a place to come back to.
     final joining = _token == null && !waitingForHost && view == null;
     if (joining && _attempt + 1 >= config.joinAttempts) return _end(null);
-    if (!joining) status = LinkStatus.paused;
+    if (!joining) {
+      status = LinkStatus.paused;
+      pausedSinceMs ??= _clock();
+    }
     _changed();
     // Back off with some randomness, so a table of phones does not hammer a
     // host that just came back all at the same moment.
@@ -410,6 +503,8 @@ class PlayerLink {
     byeReason ??= reason;
     status = LinkStatus.ended;
     _closed = true;
+    custody = null;
+    witness = null;
     _stopLoops();
     _cancelRetry?.call();
     _cancelSilence?.call();
@@ -473,6 +568,19 @@ class PlayerLink {
     unawaited(_connect());
   }
 
+  /// From now on dials through [dial] (this device took over the room and
+  /// hosts it itself), at once. Queued intents go to the new host.
+  void redirect(Dialer dial) {
+    if (_closed) return;
+    _dial = dial;
+    final connection = _connection;
+    if (connection != null) {
+      unawaited(connection.close());
+    } else {
+      reconnectNow();
+    }
+  }
+
   /// Leaves for good: tells the host (in the lobby) and stops.
   void leave() {
     if (view?.phase == Phase.lobby) _send(const LeaveIntent());
@@ -483,6 +591,9 @@ class PlayerLink {
   void close() {
     if (_closed) return;
     _closed = true;
+    custody = null;
+    witness = null;
+    unawaited(_changes.close());
     _stopLoops();
     _cancelRetry?.call();
     _cancelSilence?.call();
@@ -496,4 +607,51 @@ class _Queued {
 
   final ClientMessage intent;
   int? seq;
+}
+
+/// The successor's copy of the room: sealed, so only the witness's key
+/// opens it.
+class HeldCustody {
+  /// Creates the copy.
+  const HeldCustody({
+    required this.epoch,
+    required this.version,
+    required this.sealed,
+    this.takeOver = false,
+  });
+
+  /// The room epoch it belongs to.
+  final int epoch;
+
+  /// The state version inside.
+  final int version;
+
+  /// The sealed room.
+  final String sealed;
+
+  /// The host left on purpose: take over without waiting.
+  final bool takeOver;
+}
+
+/// The witness's part: the key and the successor to give it to.
+class HeldWitness {
+  /// Creates the part.
+  const HeldWitness({
+    required this.epoch,
+    required this.key,
+    required this.successor,
+    this.release = false,
+  });
+
+  /// The room epoch it belongs to.
+  final int epoch;
+
+  /// The key to the sealed room. Never log it.
+  final List<int> key;
+
+  /// How to reach the successor.
+  final Candidate successor;
+
+  /// The host left on purpose: hand the key over without waiting.
+  final bool release;
 }

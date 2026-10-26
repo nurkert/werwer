@@ -10,7 +10,9 @@ import 'package:protocol/src/view_codec.dart';
 /// 2: night picks carry a list of targets; hunter's shot, settings and the
 /// views for witch, hunter and lovers.
 /// 3: door signs (the mark intent, the door sign setting and views).
-const protocolVersion = 3;
+/// 4: host takeover (candidates in the hello, the room's epoch in the
+/// welcome, custody for the successor and the key for the witness).
+const protocolVersion = 4;
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;
@@ -58,6 +60,50 @@ List<int> _readSign(JsonReader json) => json.integers(
   length: doorSignLength,
   max: doorSignSymbols - 1,
 );
+
+/// A player's key pair and secret for taking over the room (see
+/// [Custody]): the public half and the secret go to the host, which passes
+/// them only to the witness, so the witness can open an authenticated
+/// channel to exactly this player.
+class Candidate {
+  /// Creates a candidate from its public [key] and [secret] (32 bytes each).
+  Candidate({required List<int> key, required List<int> secret})
+    : key = List.unmodifiable(key),
+      secret = List.unmodifiable(secret) {
+    if (key.length != 32 || secret.length != 32) {
+      throw ArgumentError('a candidate needs a 32-byte key and secret');
+    }
+  }
+
+  /// The candidate's public key.
+  final List<int> key;
+
+  /// The secret a witness shows to the candidate. Never log it.
+  final List<int> secret;
+
+  static Candidate? _read(JsonReader json, String key, String secret) {
+    final k = json.maybeString(key);
+    final s = json.maybeString(secret);
+    if (k == null && s == null) return null;
+    final keyBytes = _readSecret(k);
+    final secretBytes = _readSecret(s);
+    if (keyBytes == null || secretBytes == null) {
+      throw const ProtocolError('bad candidate');
+    }
+    return Candidate(key: keyBytes, secret: secretBytes);
+  }
+
+  Map<String, Object?> _fields(String key, String secret) => {
+    key: base64Url.encode(this.key),
+    secret: base64Url.encode(this.secret),
+  };
+}
+
+/// Largest sealed room in a [Custody] message (base64 characters).
+const int maxCustody = 48 * 1024;
+
+/// Largest room epoch (takeovers in one room).
+const int maxEpoch = 1 << 20;
 
 void _expectVersion(JsonReader json) {
   if (json.integer('v') != protocolVersion) {
@@ -164,7 +210,14 @@ final class PingIntent extends ClientMessage {
 /// First message on every connection: join a room, or come back with a token.
 final class Hello extends ClientMessage {
   /// Creates the message.
-  const Hello({required this.name, required this.room, this.token, this.join});
+  const Hello({
+    required this.name,
+    required this.room,
+    this.token,
+    this.join,
+    this.candidate,
+    this.epoch = 0,
+  });
 
   factory Hello._parse(JsonReader json) {
     final room = json.string('room', max: roomCodeLength);
@@ -178,8 +231,18 @@ final class Hello extends ClientMessage {
           ? null
           : _readToken(json, 'token'),
       join: json.maybeString('join') == null ? null : _readToken(json, 'join'),
+      candidate: Candidate._read(json, 'ck', 'cs'),
+      epoch: json.maybeInteger('epoch', max: maxEpoch) ?? 0,
     );
   }
+
+  /// This device can take over the room if the host goes away: its
+  /// candidate keys. Only apps that can host on the local network send it.
+  final Candidate? candidate;
+
+  /// The newest room epoch this player has seen. Only a hint: a host never
+  /// trusts it without checking (see the host takeover in ARCHITECTURE).
+  final int epoch;
 
   /// Display name for a new player.
   final String name;
@@ -204,6 +267,8 @@ final class Hello extends ClientMessage {
     'room': room,
     'token': ?token,
     'join': ?join,
+    ...?candidate?._fields('ck', 'cs'),
+    if (epoch > 0) 'epoch': epoch,
   };
 }
 
@@ -468,6 +533,19 @@ sealed class HostMessage {
         you: _readPlayerId(json, 'you'),
         roomSecret: _readSecret(json.maybeString('secret')),
         lastSeq: json.maybeInteger('lastSeq', max: maxSeq) ?? 0,
+        epoch: json.maybeInteger('epoch', max: maxEpoch) ?? 0,
+      ),
+      'custody' => Custody(
+        epoch: json.integer('epoch', max: maxEpoch),
+        version: json.integer('version', max: maxSeq),
+        sealed: json.string('sealed', max: maxCustody),
+        takeOver: json.maybeBoolean('takeOver') ?? false,
+      ),
+      'witness' => Witness(
+        epoch: json.integer('epoch', max: maxEpoch),
+        key: _readSecret(json.maybeString('key')),
+        successor: Candidate._read(json, 'sk', 'ss'),
+        release: json.maybeBoolean('release') ?? false,
       ),
       'ack' => Ack(
         json.integer('seq', min: 1, max: maxSeq),
@@ -515,7 +593,12 @@ final class Welcome extends HostMessage {
     required this.you,
     this.roomSecret,
     this.lastSeq = 0,
+    this.epoch = 0,
   });
+
+  /// How many times the room changed hands. A player never goes back to a
+  /// host with a smaller epoch than one it has seen.
+  final int epoch;
 
   /// The highest intent number the host has applied for this session, so a
   /// returning player knows which of its queued intents arrived.
@@ -541,7 +624,120 @@ final class Welcome extends HostMessage {
     'you': you.value,
     'secret': ?(roomSecret == null ? null : base64Url.encode(roomSecret!)),
     'lastSeq': lastSeq,
+    if (epoch > 0) 'epoch': epoch,
   };
+}
+
+/// For the successor: the whole room, sealed with a key only the witness
+/// holds. Kept in memory and replaced by every newer [version]; an empty
+/// [sealed] means "you are no longer the successor, forget it".
+final class Custody extends HostMessage {
+  /// Creates the message.
+  const Custody({
+    required this.epoch,
+    required this.version,
+    required this.sealed,
+    this.takeOver = false,
+  });
+
+  /// Tells a former successor to drop what it holds.
+  const Custody.drop({required this.epoch})
+    : version = 0,
+      sealed = '',
+      takeOver = false;
+
+  /// The room epoch this belongs to.
+  final int epoch;
+
+  /// The state version sealed inside.
+  final int version;
+
+  /// The sealed room (opaque to everyone but the holder of the key).
+  final String sealed;
+
+  /// The host is leaving on purpose: take over now, without waiting.
+  final bool takeOver;
+
+  @override
+  String get _type => 'custody';
+
+  @override
+  Map<String, Object?> get _fields => {
+    'epoch': epoch,
+    'version': version,
+    'sealed': sealed,
+    if (takeOver) 'takeOver': true,
+  };
+}
+
+/// For the witness: the key to the successor's sealed room and how to
+/// reach the successor. Without a [key] it means "forget it".
+final class Witness extends HostMessage {
+  /// Creates the message.
+  const Witness({
+    required this.epoch,
+    this.key,
+    this.successor,
+    this.release = false,
+  });
+
+  /// The room epoch this belongs to.
+  final int epoch;
+
+  /// The key (32 bytes). Never log it.
+  final List<int>? key;
+
+  /// The successor's candidate keys, to open a channel to it.
+  final Candidate? successor;
+
+  /// The host is leaving on purpose: hand the key over now.
+  final bool release;
+
+  @override
+  String get _type => 'witness';
+
+  @override
+  Map<String, Object?> get _fields => {
+    'epoch': epoch,
+    'key': ?(key == null ? null : base64Url.encode(key!)),
+    ...?successor?._fields('sk', 'ss'),
+    if (release) 'release': true,
+  };
+}
+
+/// What the witness sends the successor over the candidate channel: the
+/// key to the sealed room of [epoch]. The only message on that channel.
+class Release {
+  /// Creates the message.
+  const Release({required this.epoch, required this.key});
+
+  /// Parses and validates [raw]; throws a [ProtocolError] otherwise.
+  factory Release.parse(String raw) {
+    final json = JsonReader.decode(raw, maxBytes: 512);
+    _expectVersion(json);
+    if (json.string('type', max: 16) != 'release') {
+      throw const ProtocolError('unknown type');
+    }
+    final key = _readSecret(json.string('key'));
+    return Release(
+      epoch: json.integer('epoch', max: maxEpoch),
+      key: key!,
+    );
+  }
+
+  /// The room epoch the key belongs to.
+  final int epoch;
+
+  /// The key (32 bytes). Never log it.
+  final List<int> key;
+
+  /// Encodes this message for sending.
+  String encode() => jsonEncode({
+    'v': protocolVersion,
+    'type': 'release',
+    'epoch': epoch,
+    'key': base64Url.encode(key),
+  });
 }
 
 /// Answer to a [PingIntent] when the player is up to date.

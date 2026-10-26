@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:game_core/game_core.dart';
+import 'package:game_host/src/custody.dart';
 import 'package:game_host/src/transport.dart';
 import 'package:protocol/protocol.dart';
 
@@ -63,6 +64,7 @@ class _Session {
     required this.owner,
     this.lastSeq = 0,
     this.join,
+    this.candidate,
   });
 
   /// The join number of the hello that created this session.
@@ -70,7 +72,10 @@ class _Session {
 
   final String token;
   final PlayerId player;
-  final bool owner;
+  bool owner;
+
+  /// This player's device can take over the room (see [Candidate]).
+  Candidate? candidate;
   _Link? link;
 
   /// Highest intent number applied for this session: each intent counts
@@ -127,10 +132,16 @@ class GameHost {
   /// their state; a running phase timer goes on with the time it had left.
   ///
   /// Throws a [ProtocolError] if the snapshot is not valid.
+  ///
+  /// With [takeOver] this device takes the room over from a host that went
+  /// away: the epoch counts up (players never go back to the old host) and
+  /// [newOwner], this device's player, becomes the room owner.
   factory GameHost.restore(
     String snapshot, {
     required Random random,
     List<int>? roomSecret,
+    bool takeOver = false,
+    PlayerId? newOwner,
     HostConfig config = const HostConfig(),
     StartTimer startTimer = _realTimer,
     Clock clock = _realClock,
@@ -157,24 +168,68 @@ class GameHost {
           owner: s.boolean('owner'),
           lastSeq: s.maybeInteger('lastSeq', max: maxSeq) ?? 0,
           join: s.maybeString('join', max: tokenLength),
+          candidate: _readCandidate(s),
         ),
     };
     if (sessions.values.any((s) => state.player(s.player) == null)) {
       throw const ProtocolError('session for unknown player');
+    }
+    final epoch = json.maybeInteger('epoch', max: maxEpoch) ?? 0;
+    if (takeOver) {
+      if (epoch >= maxEpoch) throw const ProtocolError('too many takeovers');
+      for (final s in sessions.values) {
+        s.owner = s.player == newOwner;
+        // This device hosts now; it is nobody's successor any more.
+        if (s.owner) s.candidate = null;
+      }
     }
     final remaining = json.maybeInteger('phaseLeftMs');
     return host
       .._state = state
       .._nextId = json.integer('nextId', min: 1, max: 1 << 20)
       .._version = json.maybeInteger('version', max: maxSeq) ?? 0
+      ..epoch = takeOver ? epoch + 1 : epoch
       .._sessions.addAll(sessions)
       .._schedulePhaseTimer(
         remaining: remaining == null ? null : Duration(milliseconds: remaining),
       );
   }
 
+  static Candidate? _readCandidate(JsonReader json) {
+    final key = json.maybeString('ck');
+    final secret = json.maybeString('cs');
+    if (key == null || secret == null) return null;
+    try {
+      return Candidate(
+        key: base64Url.decode(key),
+        secret: base64Url.decode(secret),
+      );
+    } on Object {
+      throw const ProtocolError('bad candidate');
+    }
+  }
+
   /// The code players type to join.
   final String roomCode;
+
+  /// How many times this room changed hands (see [GameHost.restore]).
+  int epoch = 0;
+
+  /// Lets another player take over if this host goes away; without it
+  /// nobody can.
+  CustodyConfig? custody;
+
+  /// Called when a player says it has seen a newer epoch: maybe this host
+  /// was replaced while it was away. Only a hint, anyone can claim it; the
+  /// app checks by connecting to the newer host with the room keys.
+  void Function(int epoch)? onNewerEpoch;
+
+  _Session? _successor;
+  _Session? _witness;
+  List<int>? _custodyKey;
+  int _sealedVersion = -1;
+  bool _sealing = false;
+  bool _resealAgain = false;
 
   /// The room secret from the QR code. Players the host let in without it
   /// (after comparing the check code) get it with their welcome, so they
@@ -213,6 +268,7 @@ class GameHost {
   String snapshot() => jsonEncode({
     'v': _snapshotVersion,
     'room': roomCode,
+    'epoch': epoch,
     'nextId': _nextId,
     'version': _version,
     'phaseLeftMs': ?_phaseLeft(),
@@ -225,6 +281,10 @@ class GameHost {
           'owner': s.owner,
           'lastSeq': s.lastSeq,
           'join': ?s.join,
+          if (s.candidate case final c?) ...{
+            'ck': base64Url.encode(c.key),
+            'cs': base64Url.encode(c.secret),
+          },
         },
     ],
   });
@@ -266,14 +326,159 @@ class GameHost {
   }
 
   /// Ends the room: says goodbye to everyone and closes all transports.
-  Future<void> close() async {
+  ///
+  /// [quietly] closes without the goodbye: the players see a lost host and
+  /// look for it again (after [handOver], they find the successor).
+  Future<void> close({bool quietly = false}) async {
     if (_closed) return;
     _closed = true;
     _cancelPhaseTimer?.call();
     for (final link in [..._links]) {
-      _bye(link, ByeReason.closed);
+      if (quietly) {
+        _drop(link);
+      } else {
+        _bye(link, ByeReason.closed);
+      }
     }
     await Future.wait([for (final t in _transports) t.close()]);
+  }
+
+  /// Before this host goes away on purpose: gives the successor the newest
+  /// room and tells both successor and witness to take over now, without
+  /// waiting for the host to be missed. With [leave] in the lobby, the
+  /// owner's own seat goes too. Returns whether someone takes over; then
+  /// [close] quietly.
+  Future<bool> handOver({bool leave = false}) async {
+    final custody = this.custody;
+    if (_closed || custody == null) return false;
+    if (leave && _state.phase == Phase.lobby) {
+      final owner = _sessions.values.where((s) => s.owner).firstOrNull;
+      if (owner != null) {
+        try {
+          _state = apply(_state, RemovePlayer(owner.player)).state;
+          _sessions.remove(owner.token);
+        } on RuleViolation {
+          // Not removable: the seat just stays empty.
+        }
+      }
+    }
+    _reviewSuccession();
+    final successor = _successor;
+    final witness = _witness;
+    final key = _custodyKey;
+    final candidate = successor?.candidate;
+    if (successor == null || witness == null || key == null) return false;
+    if (candidate == null) return false;
+    final sealed = await custody.sealer.seal(
+      custody.room(snapshot()),
+      key,
+      epoch: epoch,
+    );
+    final s = successor.link;
+    final w = witness.link;
+    if (_closed || s == null || w == null) return false;
+    s.connection.send(
+      Custody(
+        epoch: epoch,
+        version: _version,
+        sealed: sealed,
+        takeOver: true,
+      ).encode(),
+    );
+    w.connection.send(
+      Witness(
+        epoch: epoch,
+        key: key,
+        successor: candidate,
+        release: true,
+      ).encode(),
+    );
+    return true;
+  }
+
+  /// Picks successor and witness: the first two players, in seat order,
+  /// whose devices can host and are connected (never this device's own
+  /// player). A new pair gets a new key; whoever loses a part is told to
+  /// forget it.
+  void _reviewSuccession() {
+    final custody = this.custody;
+    if (custody == null || _closed) return;
+    final order = <_Session>[
+      for (final p in _state.players)
+        for (final s in _sessions.values)
+          if (s.player == p.id &&
+              s.candidate != null &&
+              s.link != null &&
+              !s.link!.owner)
+            s,
+    ];
+    final successor = order.elementAtOrNull(0);
+    final witness = order.elementAtOrNull(1);
+    if (!identical(successor, _successor) || !identical(witness, _witness)) {
+      final before = (_successor, _witness);
+      _successor = successor;
+      _witness = witness;
+      if (before.$1 != null && !identical(before.$1, successor)) {
+        before.$1!.link?.connection.send(Custody.drop(epoch: epoch).encode());
+      }
+      if (before.$2 != null && !identical(before.$2, witness)) {
+        before.$2!.link?.connection.send(Witness(epoch: epoch).encode());
+      }
+      _custodyKey = successor != null && witness != null
+          ? custody.sealer.newKey()
+          : null;
+      _sealedVersion = -1;
+      _sendWitness();
+    }
+    _reseal();
+  }
+
+  void _sendWitness() {
+    final key = _custodyKey;
+    final candidate = _successor?.candidate;
+    if (key == null || candidate == null) return;
+    _witness?.link?.connection.send(
+      Witness(epoch: epoch, key: key, successor: candidate).encode(),
+    );
+  }
+
+  /// Seals the newest state for the successor; one sealing at a time, the
+  /// newest wins.
+  void _reseal() {
+    final custody = this.custody;
+    final key = _custodyKey;
+    final successor = _successor;
+    if (custody == null || key == null || successor == null) return;
+    if (_sealedVersion == _version) return;
+    if (_sealing) {
+      _resealAgain = true;
+      return;
+    }
+    _sealing = true;
+    final version = _version;
+    unawaited(
+      custody.sealer
+          .seal(custody.room(snapshot()), key, epoch: epoch)
+          .then((sealed) {
+            if (_closed ||
+                !identical(_successor, successor) ||
+                !identical(_custodyKey, key)) {
+              return;
+            }
+            successor.link?.connection.send(
+              Custody(epoch: epoch, version: version, sealed: sealed).encode(),
+            );
+            _sealedVersion = version;
+          })
+          .catchError((Object _) {})
+          .whenComplete(() {
+            _sealing = false;
+            if (_resealAgain) {
+              _resealAgain = false;
+              _reseal();
+            }
+          }),
+    );
   }
 
   void _accept(Connection connection, {required bool owner}) {
@@ -306,6 +511,7 @@ class GameHost {
     if (_pending.length != before && !_closed) _broadcast();
     if (link.session?.link == link) link.session!.link = null;
     unawaited(link.connection.close());
+    _reviewSuccession();
   }
 
   void _bye(_Link link, ByeReason reason) {
@@ -374,6 +580,7 @@ class GameHost {
 
   void _hello(_Link link, Hello hello) {
     if (hello.room != roomCode) return _bye(link, ByeReason.wrongRoom);
+    if (hello.epoch > epoch) onNewerEpoch?.call(hello.epoch);
     final connection = link.connection;
     final unverified = switch (connection) {
       PeerTrust(verified: false) => true,
@@ -392,7 +599,7 @@ class GameHost {
       if (previous != null && previous != link) {
         _bye(previous, ByeReason.replaced);
       }
-      _bind(link, session);
+      _bind(link, session, candidate: hello.candidate);
       return;
     }
     // The same join attempt again (its welcome got lost on the way): bind to
@@ -403,7 +610,7 @@ class GameHost {
     if (again != null) {
       final previous = again.link;
       if (previous != null && previous != link) _drop(previous);
-      _bind(link, again);
+      _bind(link, again, candidate: hello.candidate);
       return;
     }
     if (_state.phase != Phase.lobby) return _bye(link, ByeReason.gameRunning);
@@ -431,7 +638,7 @@ class GameHost {
       _broadcast();
       return;
     }
-    _join(link, hello.name, join: hello.join);
+    _join(link, hello.name, join: hello.join, candidate: hello.candidate);
   }
 
   /// Checks [name] without joining; on a taken name the player may retry.
@@ -470,7 +677,12 @@ class GameHost {
     _join(pending.link, pending.name);
   }
 
-  void _join(_Link link, String name, {String? join}) {
+  void _join(
+    _Link link,
+    String name, {
+    String? join,
+    Candidate? candidate,
+  }) {
     final id = PlayerId('p${_nextId++}');
     try {
       _state = apply(_state, AddPlayer(id, name)).state;
@@ -496,14 +708,16 @@ class GameHost {
       join: join,
     );
     _sessions[session.token] = session;
-    _bind(link, session);
+    _bind(link, session, candidate: candidate);
     _broadcast();
   }
 
-  void _bind(_Link link, _Session session) {
+  void _bind(_Link link, _Session session, {Candidate? candidate}) {
     link.cancelHello?.call();
     link.session = session;
     session.link = link;
+    // The device may have changed (or lost its keys) since the last time.
+    if (!link.owner) session.candidate = candidate;
     final waited = _pending.length;
     _pending.removeWhere((_, p) => p.link == link);
     final unverified = switch (link.connection) {
@@ -516,12 +730,17 @@ class GameHost {
         you: session.player,
         roomSecret: unverified ? roomSecret : null,
         lastSeq: session.lastSeq,
+        epoch: epoch,
       ).encode(),
     );
+    // A successor or witness that came back may have lost what it held.
+    if (identical(session, _successor)) _sealedVersion = -1;
+    if (identical(session, _witness)) _sendWitness();
     if (_pending.length != waited) {
       _broadcast();
     } else {
       _sendState(session);
+      _reviewSuccession();
     }
   }
 
@@ -655,6 +874,7 @@ class GameHost {
     _version++;
     onSnapshot?.call(snapshot());
     _sessions.values.forEach(_sendState);
+    _reviewSuccession();
   }
 
   void _sendState(_Session session) {

@@ -5,3 +5,4 @@
 library;
 
 export 'src/channel.dart';
+export 'src/custody.dart';

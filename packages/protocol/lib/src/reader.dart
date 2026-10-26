@@ -67,6 +67,9 @@ extension type const JsonReader(Map<String, Object?> _map) {
     return value;
   }
 
+  /// An optional boolean.
+  bool? maybeBoolean(String key) => _map[key] == null ? null : boolean(key);
+
   /// A required nested object.
   JsonReader object(String key) {
     final value = _map[key];
