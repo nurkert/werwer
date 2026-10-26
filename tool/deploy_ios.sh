@@ -50,7 +50,9 @@ bundle_id="de.whowolf.app"
 version="$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
 
 echo "→ Building ($mode, version $version)"
-flutter build ios "$mode" --dart-define=APP_VERSION="$version"
+# Icon tree shaking (font-subset) sometimes hangs on this machine; it
+# saves only a few kilobytes, so it is off for device builds.
+flutter build ios "$mode" --no-tree-shake-icons --dart-define=APP_VERSION="$version"
 
 echo "→ Installing on $device"
 xcrun devicectl device install app --device "$device" build/ios/iphoneos/Runner.app
