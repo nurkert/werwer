@@ -5,22 +5,30 @@ import 'package:protocol/protocol.dart';
 import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/game_session.dart';
 
+/// The room's public key and secret. From the QR code, or filled in by the
+/// host's welcome for players it let in after comparing the check code.
+class RoomKeys {
+  RoomKeys({this.hostKey, this.roomSecret});
+
+  List<int>? hostKey;
+  List<int>? roomSecret;
+}
+
 /// Dials a host: directly on the local network if possible, else through the
 /// relay server. The session does not care which one worked.
 ///
-/// Every connection is end-to-end encrypted. With [hostKey] and [roomSecret]
-/// (from the QR code) the host is authenticated; without them the host lets
-/// the player in after comparing the check code.
+/// Every connection is end-to-end encrypted. With the [keys] the host is
+/// authenticated; without them the host lets the player in after comparing
+/// the check code.
 Dial dialerFor({
+  required RoomKeys keys,
   LanAddress? lan,
   String? relayRoom,
   Uri? server,
-  List<int>? hostKey,
-  List<int>? roomSecret,
 }) {
   final relay = relayRoom != null && server != null;
   Future<Connection> secure(Connection raw) =>
-      connectSecure(raw, hostKey: hostKey, roomSecret: roomSecret);
+      connectSecure(raw, hostKey: keys.hostKey, roomSecret: keys.roomSecret);
   return () async {
     if (lan != null) {
       try {
@@ -31,7 +39,7 @@ Dial dialerFor({
             timeout: Duration(seconds: relay ? 3 : 6),
           ),
         );
-      } on NoiseError {
+      } on SecureChannelError {
         // Someone else answered at that address: never fall back silently.
         rethrow;
       } on Object {

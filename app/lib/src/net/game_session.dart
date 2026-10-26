@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:game_core/game_core.dart';
 import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
+import 'package:secure_channel/secure_channel.dart';
 
 /// Opens a connection to the host; called again to reconnect.
 typedef Dial = Future<Connection> Function();
@@ -20,6 +21,7 @@ class GameSession extends ChangeNotifier {
     required this._dial,
     this._token,
     this.onWelcome,
+    this.onRoomKeys,
     this.onEnded,
     this.reconnectDelay = const Duration(seconds: 2),
     this.maxReconnects = 90,
@@ -42,6 +44,10 @@ class GameSession extends ChangeNotifier {
 
   /// Called with the session token and the accepted name once welcomed.
   final void Function(String token, String name)? onWelcome;
+
+  /// Called with the room's key and secret when the host let this player in
+  /// after comparing the check code; reconnects should use them.
+  final void Function(List<int> hostKey, List<int> roomSecret)? onRoomKeys;
 
   /// Called when the session ends for good.
   final void Function()? onEnded;
@@ -89,7 +95,18 @@ class GameSession extends ChangeNotifier {
         return;
       }
       _connection = connection;
-      if (connection case final PeerTrust trust) checkCode = trust.checkCode;
+      if (connection case final PeerTrust trust) {
+        checkCode = trust.checkCode;
+        // The token must never go over a channel nobody checked: someone in
+        // the middle could take it and play as us.
+        if (_token != null && !trust.verified) {
+          byeReason = ByeReason.unknownSession;
+          _end();
+          notifyListeners();
+          await connection.close();
+          return;
+        }
+      }
       _subscription = connection.messages.listen(
         _receive,
         onDone: _lost,
@@ -114,8 +131,14 @@ class GameSession extends ChangeNotifier {
     switch (message) {
       case Waiting():
         waitingForHost = true;
-      case Welcome(:final token):
+      case Welcome(:final token, :final roomSecret):
         waitingForHost = false;
+        if (_connection case SecureConnection(
+          verified: false,
+          :final hostKey?,
+        ) when roomSecret != null) {
+          onRoomKeys?.call(hostKey, roomSecret);
+        }
         _token = token;
         _failedReconnects = 0;
         status = SessionStatus.connected;

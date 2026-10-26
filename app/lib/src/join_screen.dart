@@ -27,17 +27,20 @@ GameSession playerSession({
   String? token,
 }) {
   const store = Store();
+  final keys = RoomKeys(hostKey: hostKey, roomSecret: roomSecret);
   return GameSession(
     name: name,
     roomCode: room,
     token: token,
     dial: dialerFor(
+      keys: keys,
       lan: lan,
       relayRoom: relayRoom,
       server: server,
-      hostKey: hostKey,
-      roomSecret: roomSecret,
     ),
+    onRoomKeys: (hostKey, roomSecret) => keys
+      ..hostKey = hostKey
+      ..roomSecret = roomSecret,
     onWelcome: (token, name) => unawaited(
       store.saveResume(
         ResumeInfo(
@@ -47,8 +50,8 @@ GameSession playerSession({
           lan: lan,
           relayRoom: relayRoom,
           server: server,
-          hostKey: hostKey,
-          roomSecret: roomSecret,
+          hostKey: keys.hostKey,
+          roomSecret: keys.roomSecret,
         ),
       ),
     ),

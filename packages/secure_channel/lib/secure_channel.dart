@@ -1,7 +1,7 @@
-/// End-to-end encryption for Whowolf connections: a Noise handshake (NN, or
-/// NKpsk2 with the host key and room secret from the QR code) and encrypted,
-/// padded messages afterwards. Pure Dart; works over LAN, relay and browser.
+/// End-to-end encryption for Whowolf connections, built from libsodium:
+/// crypto_kx for the keys, the room secret from the QR code bound in with a
+/// keyed BLAKE2b hash, and crypto_secretstream for padded messages
+/// afterwards. Works natively and in the browser (sodium.js).
 library;
 
 export 'src/channel.dart';
-export 'src/noise.dart';

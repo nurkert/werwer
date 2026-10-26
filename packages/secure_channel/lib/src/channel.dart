@@ -1,18 +1,46 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
 import 'package:game_host/game_host.dart';
-import 'package:secure_channel/src/noise.dart';
+import 'package:sodium/sodium.dart';
 
-/// Bound into every handshake, so keys from other protocols never fit.
-const _prologue = 'whowolf-secure-1';
+// Everything cryptographic here is a documented libsodium construction:
+//
+// * crypto_kx: the player's fresh key pair and the room's key pair give two
+//   session keys (one per direction). Only the holder of the room key can
+//   derive them, so the host is authenticated by its public key.
+// * crypto_generichash (keyed BLAKE2b): binds the room secret from the QR
+//   code into both session keys, so only invited players get a working
+//   channel; also hashes the commitment and the check code.
+// * crypto_secretstream_xchacha20poly1305: one stream per direction with
+//   its own nonces, ordering and tamper detection.
+//
+// Handshake (version 2), all frames are text:
+//
+//   QR code (host key S and room secret known):
+//     player → host  {"secure":2,"p":"qr","e":E}, header, confirm
+//     host → player  header, confirm
+//
+//   Without QR code (players compare the check code):
+//     player → host  {"secure":2,"p":"nn","c":H(E)}
+//     host → player  {"s":S}
+//     player → host  {"e":E}, header, confirm
+//     host → player  header, confirm
+//
+// The commitment H(E) fixes the player's key before the host's key is
+// known, and the host's key is sent before the player reveals E, so a
+// man in the middle cannot search for keys that give both sides the same
+// check code; it can only guess (1 in 16^4).
+
+const _version = 2;
 
 /// Plaintexts are padded to one of these sizes, so message sizes say
 /// nothing about their content (e.g. whether someone is a werewolf).
 const paddingSteps = [512, 2048, 8192, 32768, 65000];
+
+/// Largest frame accepted from the wire (base64 of the largest step).
+const maxFrame = 90000;
 
 /// How long a peer may take for the handshake.
 const handshakeTimeout = Duration(seconds: 5);
@@ -21,79 +49,245 @@ const handshakeTimeout = Duration(seconds: 5);
 const checkSymbols = 16;
 
 /// Symbols in a check code.
-const checkLength = 3;
+const checkLength = 4;
 
-/// The keys of one room: a fresh key pair and a room secret, both shown only
-/// in the QR code at the table.
+/// A handshake or decryption failed: the peer is not who it claims to be, or
+/// the data was tampered with. The connection must be closed.
+class SecureChannelError implements Exception {
+  /// Creates the error.
+  const SecureChannelError(this.message);
+
+  /// What went wrong.
+  final String message;
+
+  @override
+  String toString() => 'SecureChannelError: $message';
+}
+
+Future<Sodium>? _sodium;
+
+/// libsodium, loaded once (natively bundled; sodium.js on the web).
+Future<Sodium> loadSodium() => _sodium ??= Future(SodiumInit.init);
+
+/// The keys of one room: a key pair and a room secret, both shown only in
+/// the QR code at the table.
 class HostKeys {
-  HostKeys._(this.keyPair, this.publicKey, this.roomSecret);
+  HostKeys._(this._seed, this._keyPair, this.roomSecret);
+
+  factory HostKeys._fromSeed(
+    Sodium sodium,
+    Uint8List seed,
+    Uint8List secret,
+  ) {
+    final seedKey = SecureKey.fromList(sodium, seed);
+    try {
+      return HostKeys._(seed, sodium.crypto.kx.seedKeyPair(seedKey), secret);
+    } finally {
+      seedKey.dispose();
+    }
+  }
 
   /// New random keys for a new room.
   static Future<HostKeys> generate() async {
-    final keyPair = await X25519().newKeyPair();
-    final random = Random.secure();
-    return HostKeys._(
-      keyPair,
-      (await keyPair.extractPublicKey()).bytes,
-      List.generate(32, (_) => random.nextInt(256)),
+    final sodium = await loadSodium();
+    return HostKeys._fromSeed(
+      sodium,
+      sodium.randombytes.buf(sodium.crypto.kx.seedBytes),
+      sodium.randombytes.buf(32),
     );
   }
 
   /// Keys saved with [toJson], e.g. to restore a room after a crash.
   static Future<HostKeys> fromJson(Map<String, Object?> json) async {
-    final private = base64Url.decode(json['private']! as String);
+    final seed = base64Url.decode(json['seed']! as String);
     final secret = base64Url.decode(json['secret']! as String);
-    if (private.length != 32 || secret.length != 32) {
+    final sodium = await loadSodium();
+    if (seed.length != sodium.crypto.kx.seedBytes || secret.length != 32) {
       throw const FormatException('bad host keys');
     }
-    final keyPair = await X25519().newKeyPairFromSeed(private);
-    return HostKeys._(
-      keyPair,
-      (await keyPair.extractPublicKey()).bytes,
-      secret,
-    );
+    return HostKeys._fromSeed(sodium, seed, secret);
   }
 
-  /// The key pair.
-  final SimpleKeyPair keyPair;
+  final Uint8List _seed;
+  final KeyPair _keyPair;
 
   /// The public key for the QR code.
-  final List<int> publicKey;
+  Uint8List get publicKey => _keyPair.publicKey;
 
   /// The room secret for the QR code.
-  final List<int> roomSecret;
+  final Uint8List roomSecret;
 
-  /// The keys as JSON, including the private key: store on this device only.
+  /// The keys as JSON, including the private seed: store on this device only.
   Future<Map<String, Object?>> toJson() async => {
-    'private': base64Url.encode(await keyPair.extractPrivateKeyBytes()),
+    'seed': base64Url.encode(_seed),
     'secret': base64Url.encode(roomSecret),
   };
 }
 
-List<int> _checkCode(List<int> handshakeHash) => [
-  for (var i = 0; i < checkLength; i++) handshakeHash[i] % checkSymbols,
-];
+Uint8List _label(String text) => utf8.encode('whowolf-secure-$_version $text');
+
+Uint8List _concat(List<List<int>> parts) =>
+    Uint8List.fromList([for (final p in parts) ...p]);
+
+/// The send key for one direction: the crypto_kx key, keyed with the room
+/// secret if there is one.
+SecureKey _directionKey(
+  Sodium sodium,
+  SecureKey kxKey,
+  String direction,
+  List<int>? roomSecret,
+) {
+  final secret = roomSecret == null
+      ? null
+      : SecureKey.fromList(sodium, Uint8List.fromList(roomSecret));
+  try {
+    final bytes = kxKey.runUnlockedSync(
+      (key) => sodium.crypto.genericHash(
+        message: _concat([_label(direction), key]),
+        outLen: sodium.crypto.secretStream.keyBytes,
+        key: secret,
+      ),
+    );
+    return SecureKey.fromList(sodium, bytes);
+  } finally {
+    secret?.dispose();
+    kxKey.dispose();
+  }
+}
+
+Uint8List _commitment(Sodium sodium, List<int> playerKey) => sodium.crypto
+    .genericHash(message: _concat([_label('commit'), playerKey]), outLen: 32);
+
+List<int> _checkCode(Sodium sodium, List<int> playerKey, List<int> hostKey) {
+  final hash = sodium.crypto.genericHash(
+    message: _concat([_label('check'), playerKey, hostKey]),
+    outLen: 16,
+  );
+  return [for (var i = 0; i < checkLength; i++) hash[i] % checkSymbols];
+}
 
 Uint8List _pad(String message) {
   final data = utf8.encode(message);
   final needed = data.length + 4;
   final size = paddingSteps.firstWhere(
     (s) => s >= needed,
-    orElse: () => throw ArgumentError('message too large'),
+    orElse: () => throw const SecureChannelError('message too large'),
   );
   final out = Uint8List(size);
-  ByteData.view(out.buffer).setUint32(0, data.length);
+  ByteData.sublistView(out).setUint32(0, data.length);
   out.setAll(4, data);
   return out;
 }
 
 String _unpad(Uint8List padded) {
-  if (padded.length < 4 || !paddingSteps.contains(padded.length)) {
-    throw const NoiseError('bad padding');
+  if (!paddingSteps.contains(padded.length)) {
+    throw const SecureChannelError('bad padding');
   }
-  final length = ByteData.view(padded.buffer).getUint32(0);
-  if (length > padded.length - 4) throw const NoiseError('bad padding');
+  final length = ByteData.sublistView(padded).getUint32(0);
+  if (length > padded.length - 4) {
+    throw const SecureChannelError('bad padding');
+  }
   return utf8.decode(padded.sublist(4, 4 + length));
+}
+
+Uint8List _decodeFrame(String frame) {
+  if (frame.length > maxFrame) throw const SecureChannelError('too long');
+  return base64Url.decode(frame);
+}
+
+/// Both directions of encrypted frames: one secretstream each way.
+class _Streams {
+  _Streams(
+    Sodium sodium,
+    Connection wire,
+    StreamIterator<String> frames, {
+    required SecureKey sendKey,
+    required SecureKey receiveKey,
+  }) : _wire = wire,
+       _frames = frames {
+    final stream = sodium.crypto.secretStream;
+    _push.stream
+        .transform(stream.createPushEx(sendKey))
+        .listen((cipher) => _wire.send(base64Url.encode(cipher.message)));
+    // Both transformers copy their key when they are listened to, so listen
+    // before the keys are wiped.
+    _pull.stream
+        .transform(stream.createPullEx(receiveKey, requireFinalized: false))
+        .listen(
+          (plain) => _plain.add(plain.message),
+          onError: _plain.addError,
+          onDone: _plain.close,
+        );
+    sendKey.dispose();
+    receiveKey.dispose();
+  }
+
+  final Connection _wire;
+  final StreamIterator<String> _frames;
+  final _push = StreamController<SecretStreamPlainMessage>();
+  final _pull = StreamController<SecretStreamCipherMessage>();
+  final _plain = StreamController<Uint8List>();
+
+  /// The handshake's confirm message, bound to the protocol version.
+  static final Uint8List _confirm = _label('confirm');
+
+  void sendConfirm() => _push.add(
+    SecretStreamPlainMessage(_confirm, additionalData: _confirm),
+  );
+
+  void send(Uint8List data) => _push.add(SecretStreamPlainMessage(data));
+
+  /// Reads the peer's header and confirm message from the wire: only the
+  /// right keys decrypt it.
+  Future<StreamIterator<Uint8List>> receiveConfirm() async {
+    final plain = StreamIterator(_plain.stream);
+    for (var i = 0; i < 2; i++) {
+      if (!await _frames.moveNext()) {
+        throw const SecureChannelError('connection closed');
+      }
+      _pull.add(
+        SecretStreamCipherMessage(
+          _decodeFrame(_frames.current),
+          additionalData: i == 1 ? _confirm : null,
+        ),
+      );
+    }
+    if (!await plain.moveNext()) throw const SecureChannelError('no confirm');
+    if (!_same(plain.current, _confirm)) {
+      throw const SecureChannelError('bad confirm');
+    }
+    return plain;
+  }
+
+  /// Feeds the rest of the wire into the decryption.
+  void pump() {
+    unawaited(() async {
+      try {
+        while (await _frames.moveNext()) {
+          // Closed from our side while a frame was on its way.
+          if (_pull.isClosed) return;
+          _pull.add(SecretStreamCipherMessage(_decodeFrame(_frames.current)));
+        }
+      } on Object catch (error) {
+        if (!_pull.isClosed) _pull.addError(error);
+      }
+      await _pull.close();
+    }());
+  }
+
+  Future<void> close() async {
+    await _push.close();
+    await _pull.close();
+  }
+}
+
+bool _same(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  var diff = 0;
+  for (var i = 0; i < a.length; i++) {
+    diff |= a[i] ^ b[i];
+  }
+  return diff == 0;
 }
 
 /// An encrypted [Connection]: every message is padded and encrypted with
@@ -101,26 +295,20 @@ String _unpad(Uint8List padded) {
 /// noise.
 class SecureConnection implements Connection, PeerTrust {
   SecureConnection._(
-    this._inner,
-    this._send,
-    this._receive, {
+    this._wire,
+    this._streams,
+    StreamIterator<Uint8List> plain, {
     required this.verified,
     required this.checkCode,
+    this.hostKey,
   }) {
-    _subscription = _inner.messages.listen(
-      (frame) => _queue = _queue.then((_) => _decrypt(frame)),
-      onDone: () => _queue = _queue.then((_) => _close()),
-      onError: (Object _) => _queue = _queue.then((_) => _close()),
-    );
+    unawaited(_read(plain));
+    _streams.pump();
   }
 
-  final Connection _inner;
-  final NoiseCipher _send;
-  final NoiseCipher _receive;
+  final Connection _wire;
+  final _Streams _streams;
   final _messages = StreamController<String>();
-  late final StreamSubscription<String> _subscription;
-  Future<void> _queue = Future.value();
-  Future<void> _sending = Future.value();
   bool _closed = false;
 
   @override
@@ -129,46 +317,45 @@ class SecureConnection implements Connection, PeerTrust {
   @override
   final List<int> checkCode;
 
+  /// The host's public key as seen in the handshake (player side only).
+  /// After the host let this player in, it is the authentic room key.
+  final Uint8List? hostKey;
+
   @override
   Stream<String> get messages => _messages.stream;
 
-  Future<void> _decrypt(String frame) async {
-    if (_closed) return;
+  Future<void> _read(StreamIterator<Uint8List> plain) async {
     try {
-      final bytes = base64Url.decode(frame);
-      if (bytes.length > maxNoiseMessage) throw const NoiseError('too long');
-      _messages.add(_unpad(await _receive.decrypt(bytes)));
+      while (await plain.moveNext()) {
+        if (_closed) return;
+        _messages.add(_unpad(plain.current));
+      }
     } on Object {
-      // Tampered, replayed or garbage: the channel is not trustworthy.
-      await _close();
+      // Tampered, replayed, reordered or garbage: not trustworthy anymore.
     }
+    await _close();
   }
 
   @override
   void send(String message) {
     if (_closed) return;
-    // Encryption is async; keep the order (nonces must stay in sequence).
-    _sending = _sending.then((_) async {
-      if (_closed) return;
-      _inner.send(base64Url.encode(await _send.encrypt(_pad(message))));
-    });
+    try {
+      _streams.send(_pad(message));
+    } on SecureChannelError {
+      unawaited(_close());
+    }
   }
 
   Future<void> _close() async {
     if (_closed) return;
     _closed = true;
-    // Close the wire first: that ends the incoming stream, so cancelling the
-    // subscription afterwards never waits on a read that cannot finish.
-    await _inner.close();
-    unawaited(_subscription.cancel());
+    await _wire.close();
+    unawaited(_streams.close());
     unawaited(_messages.close());
   }
 
   @override
-  Future<void> close() async {
-    await _sending;
-    await _close();
-  }
+  Future<void> close() => _close();
 }
 
 /// Opens an encrypted channel to the host over [raw]. With [hostKey] and
@@ -176,48 +363,88 @@ class SecureConnection implements Connection, PeerTrust {
 /// is [SecureConnection.verified]; without them the channel is encrypted but
 /// the players must compare the check code.
 ///
-/// Throws a [NoiseError] if the host is not who the QR code says.
+/// Throws a [SecureChannelError] if the host is not who the QR code says.
 Future<SecureConnection> connectSecure(
   Connection raw, {
   List<int>? hostKey,
   List<int>? roomSecret,
   Duration timeout = handshakeTimeout,
 }) async {
-  final pattern = hostKey != null && roomSecret != null
-      ? NoisePattern.nkPsk2
-      : NoisePattern.nn;
-  final handshake = await NoiseHandshake.initiator(
-    pattern,
-    prologue: utf8.encode('$_prologue ${pattern.name}'),
-    remoteStatic: hostKey,
-    psk: roomSecret,
-  );
-  final replies = StreamIterator(raw.messages);
-  try {
-    final first = await handshake.writeMessage();
-    raw.send(
-      jsonEncode({'noise': 1, 'p': pattern.name, 'm': base64Url.encode(first)}),
-    );
-    if (!await replies.moveNext().timeout(timeout)) {
-      throw const NoiseError('host closed the connection');
-    }
-    await handshake.readMessage(base64Url.decode(replies.current));
-  } on NoiseError {
-    await raw.close();
-    rethrow;
-  } on Object catch (error) {
-    await raw.close();
-    throw NoiseError('handshake failed: $error');
+  final sodium = await loadSodium();
+  final kx = sodium.crypto.kx;
+  final qr = hostKey != null && roomSecret != null;
+  if (qr && (hostKey.length != kx.publicKeyBytes || roomSecret.length != 32)) {
+    throw ArgumentError('the QR code needs the host key and a 32-byte secret');
   }
-  final (send, receive) = await handshake.split();
-  // The rest of the stream belongs to the secure connection.
-  return SecureConnection._(
-    _IteratorConnection(raw, replies),
-    send,
-    receive,
-    verified: pattern == NoisePattern.nkPsk2,
-    checkCode: _checkCode(handshake.handshakeHash),
-  );
+  final mine = kx.keyPair();
+  final frames = StreamIterator(raw.messages);
+  try {
+    return await () async {
+      final Uint8List serverKey;
+      if (qr) {
+        serverKey = Uint8List.fromList(hostKey);
+        raw.send(
+          jsonEncode({
+            'secure': _version,
+            'p': 'qr',
+            'e': base64Url.encode(mine.publicKey),
+          }),
+        );
+      } else {
+        raw.send(
+          jsonEncode({
+            'secure': _version,
+            'p': 'nn',
+            'c': base64Url.encode(_commitment(sodium, mine.publicKey)),
+          }),
+        );
+        if (!await frames.moveNext()) {
+          throw const SecureChannelError('host closed the connection');
+        }
+        serverKey = _readKey(frames.current, 's', kx.publicKeyBytes);
+        raw.send(jsonEncode({'e': base64Url.encode(mine.publicKey)}));
+      }
+      final keys = kx.clientSessionKeys(
+        clientPublicKey: mine.publicKey,
+        clientSecretKey: mine.secretKey,
+        serverPublicKey: serverKey,
+      );
+      final secret = qr ? roomSecret : null;
+      final streams = _Streams(
+        sodium,
+        raw,
+        frames,
+        sendKey: _directionKey(sodium, keys.tx, 'to host', secret),
+        receiveKey: _directionKey(sodium, keys.rx, 'to player', secret),
+      )..sendConfirm();
+      final plain = await streams.receiveConfirm();
+      return SecureConnection._(
+        raw,
+        streams,
+        plain,
+        verified: qr,
+        checkCode: _checkCode(sodium, mine.publicKey, serverKey),
+        hostKey: serverKey,
+      );
+    }().timeout(timeout);
+  } on Object catch (error) {
+    await frames.cancel();
+    await raw.close();
+    if (error is SecureChannelError) rethrow;
+    throw SecureChannelError('handshake failed: $error');
+  } finally {
+    mine.secretKey.dispose();
+  }
+}
+
+Uint8List _readKey(String frame, String field, int length) {
+  if (frame.length > 1024) throw const SecureChannelError('frame too large');
+  final json = jsonDecode(frame);
+  final value = json is Map<String, Object?> ? json[field] : null;
+  if (value is! String) throw const SecureChannelError('bad handshake');
+  final key = base64Url.decode(value);
+  if (key.length != length) throw const SecureChannelError('bad key');
+  return key;
 }
 
 /// Accepts encrypted connections from an inner transport (LAN, relay, …).
@@ -242,37 +469,14 @@ class SecureTransport implements Transport {
   Future<void> _accept(Connection raw) async {
     final frames = StreamIterator(raw.messages);
     try {
-      if (!await frames.moveNext().timeout(handshakeTimeout)) return;
-      final hello = frames.current;
-      if (hello.length > 1024) throw const NoiseError('hello too large');
-      final json = jsonDecode(hello);
-      if (json is! Map<String, Object?> || json['noise'] != 1) {
-        throw const NoiseError('not a handshake');
+      final connection = await _handshake(raw, frames).timeout(
+        handshakeTimeout,
+      );
+      if (_incoming.isClosed) {
+        await connection.close();
+        return;
       }
-      final pattern = switch (json['p']) {
-        'nn' => NoisePattern.nn,
-        'nkPsk2' => NoisePattern.nkPsk2,
-        _ => throw const NoiseError('unknown pattern'),
-      };
-      final handshake = await NoiseHandshake.responder(
-        pattern,
-        prologue: utf8.encode('$_prologue ${pattern.name}'),
-        staticKeys: pattern == NoisePattern.nkPsk2 ? _keys.keyPair : null,
-        psk: pattern == NoisePattern.nkPsk2 ? _keys.roomSecret : null,
-      );
-      await handshake.readMessage(base64Url.decode(json['m']! as String));
-      raw.send(base64Url.encode(await handshake.writeMessage()));
-      final (send, receive) = await handshake.split();
-      if (_incoming.isClosed) return raw.close();
-      _incoming.add(
-        SecureConnection._(
-          _IteratorConnection(raw, frames),
-          send,
-          receive,
-          verified: pattern == NoisePattern.nkPsk2,
-          checkCode: _checkCode(handshake.handshakeHash),
-        ),
-      );
+      _incoming.add(connection);
     } on Object {
       // Wrong secret, garbage or too slow: drop silently.
       await frames.cancel();
@@ -280,42 +484,62 @@ class SecureTransport implements Transport {
     }
   }
 
+  Future<SecureConnection> _handshake(
+    Connection raw,
+    StreamIterator<String> frames,
+  ) async {
+    final sodium = await loadSodium();
+    final kxBytes = sodium.crypto.kx.publicKeyBytes;
+    if (!await frames.moveNext()) throw const SecureChannelError('closed');
+    final hello = frames.current;
+    if (hello.length > 1024) throw const SecureChannelError('hello too large');
+    final json = jsonDecode(hello);
+    if (json is! Map<String, Object?> || json['secure'] != _version) {
+      throw const SecureChannelError('not a handshake');
+    }
+    final qr = switch (json['p']) {
+      'qr' => true,
+      'nn' => false,
+      _ => throw const SecureChannelError('unknown pattern'),
+    };
+    final Uint8List playerKey;
+    if (qr) {
+      playerKey = _readKey(hello, 'e', kxBytes);
+    } else {
+      final commitment = _readKey(hello, 'c', 32);
+      raw.send(jsonEncode({'s': base64Url.encode(_keys.publicKey)}));
+      if (!await frames.moveNext()) throw const SecureChannelError('closed');
+      playerKey = _readKey(frames.current, 'e', kxBytes);
+      if (!_same(_commitment(sodium, playerKey), commitment)) {
+        throw const SecureChannelError('commitment broken');
+      }
+    }
+    final keys = sodium.crypto.kx.serverSessionKeys(
+      serverPublicKey: _keys.publicKey,
+      serverSecretKey: _keys._keyPair.secretKey,
+      clientPublicKey: playerKey,
+    );
+    final secret = qr ? _keys.roomSecret : null;
+    final streams = _Streams(
+      sodium,
+      raw,
+      frames,
+      sendKey: _directionKey(sodium, keys.tx, 'to player', secret),
+      receiveKey: _directionKey(sodium, keys.rx, 'to host', secret),
+    );
+    // The player proves the room secret (or, without QR code, just a
+    // working key) before the host says anything encrypted.
+    final plain = await streams.receiveConfirm();
+    streams.sendConfirm();
+    return SecureConnection._(
+      raw,
+      streams,
+      plain,
+      verified: qr,
+      checkCode: _checkCode(sodium, playerKey, _keys.publicKey),
+    );
+  }
+
   @override
   Future<void> close() => _inner.close();
-}
-
-/// A connection whose first messages were already read through `_frames`
-/// during the handshake; it hands on the rest.
-class _IteratorConnection implements Connection {
-  _IteratorConnection(this._raw, this._frames);
-
-  final Connection _raw;
-  final StreamIterator<String> _frames;
-
-  @override
-  Stream<String> get messages {
-    final out = StreamController<String>();
-    Future<void> pump() async {
-      try {
-        while (await _frames.moveNext()) {
-          out.add(_frames.current);
-        }
-      } on Object {
-        // The wire broke; the stream simply ends.
-      }
-      await out.close();
-    }
-
-    out.onListen = () => unawaited(pump());
-    return out.stream;
-  }
-
-  @override
-  void send(String message) => _raw.send(message);
-
-  @override
-  Future<void> close() async {
-    await _raw.close();
-    unawaited(_frames.cancel());
-  }
 }

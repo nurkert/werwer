@@ -85,7 +85,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
 - [x] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
 - [x] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
-  - Ende-zu-Ende-Verschlüsselung per Noise-Handshake (Host-Schlüssel + Raumgeheimnis aus dem QR-Code), Bibliothek prüfen und auswählen
+  - Ende-zu-Ende-Verschlüsselung aus libsodium-Bausteinen (Host-Schlüssel + Raumgeheimnis aus dem QR-Code; ohne QR Prüfbild mit Commitment)
   - Identität nur aus der Sitzung, Rechteprüfung jeder Absicht
   - Limits: Nachrichtengröße, Verbindungen, Handshake-Zeit, Rate; strenges Parsen
   - Gleicher Nachrichtentakt + Padding in geheimen Phasen (kein Seitenkanal)
@@ -151,6 +151,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Visuelle Identität aus Spur D in der App angekommen
 - [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
 - [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
+- [ ] **Externer Review des Handshakes** (`packages/secure_channel`) durch jemanden mit Krypto-Erfahrung
 - [ ] iOS über **TestFlight** von Anfang an (Apple Developer Account vorhanden), macOS signiert und notarisiert
 - [ ] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen

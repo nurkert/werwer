@@ -37,7 +37,7 @@ Future<void> main(List<String> args) async {
     final CliPlayer? p;
     try {
       p = await _join(name, args.skip(2).toList());
-    } on NoiseError {
+    } on SecureChannelError {
       stderr.writeln(
         'That is not the host from the link (wrong key or room secret).',
       );
@@ -71,8 +71,11 @@ Future<CliPlayer> _host(String name) async {
   final code = List.generate(roomCodeLength, (_) => random.nextInt(10)).join();
   final keys = await HostKeys.generate();
   final lan = await LanTransport.bind();
-  final host = GameHost(roomCode: code, random: random)
-    ..serve(SecureTransport(lan, keys));
+  final host = GameHost(
+    roomCode: code,
+    random: random,
+    roomSecret: keys.roomSecret,
+  )..serve(SecureTransport(lan, keys));
   final addresses = await privateAddresses();
   final ip = addresses.isEmpty ? '127.0.0.1' : addresses.first.address;
   final link = JoinLink(

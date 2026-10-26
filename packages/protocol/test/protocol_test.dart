@@ -111,6 +111,13 @@ void main() {
     test('other host messages round-trip', () {
       for (final m in <HostMessage>[
         const Welcome(token: token, you: PlayerId('p1')),
+        Welcome(
+          token: token,
+          you: const PlayerId('p1'),
+          roomSecret: [
+            for (var i = 0; i < 32; i++) i,
+          ],
+        ),
         const Refused(Violation.invalidTarget),
         const Bye(ByeReason.kicked),
         const Waiting(),
@@ -122,6 +129,7 @@ void main() {
     test('invalid host messages are refused', () {
       for (final raw in [
         '{"v":1,"type":"welcome","token":"x","you":"p1"}',
+        '{"v":1,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
         '{"v":1,"type":"bye","reason":"whatever"}',
         '{"v":1,"type":"state","owner":true}',
       ]) {

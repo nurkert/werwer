@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// The 16 symbols of a check code (see `secure_channel`: 3 of 16).
+/// The 16 symbols of a check code (see `secure_channel`: 4 of 16).
 const List<IconData> _symbols = [
   Icons.nightlight_round,
   Icons.star_rounded,

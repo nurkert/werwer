@@ -45,12 +45,19 @@ class HostedRoom {
     SavedRoom saved, {
     required String hostName,
     Uri? relayServer,
-  }) async => _start(
-    GameHost.restore(saved.snapshot, random: Random.secure()),
-    keys: await HostKeys.fromJson(saved.keys),
-    hostName: hostName,
-    relayServer: relayServer,
-  );
+  }) async {
+    final keys = await HostKeys.fromJson(saved.keys);
+    return _start(
+      GameHost.restore(
+        saved.snapshot,
+        random: Random.secure(),
+        roomSecret: keys.roomSecret,
+      ),
+      keys: keys,
+      hostName: hostName,
+      relayServer: relayServer,
+    );
+  }
 
   static Future<HostedRoom> _start(
     GameHost host, {

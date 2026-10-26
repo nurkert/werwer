@@ -37,6 +37,17 @@ String _readToken(JsonReader json, String key) {
   return value;
 }
 
+List<int>? _readSecret(String? value) {
+  if (value == null) return null;
+  try {
+    final bytes = base64Url.decode(value);
+    if (bytes.length == 32) return bytes;
+  } on FormatException {
+    // Falls through to the error below.
+  }
+  throw const ProtocolError('bad secret');
+}
+
 void _expectVersion(JsonReader json) {
   if (json.integer('v') != protocolVersion) {
     throw const ProtocolError('unsupported version');
@@ -332,6 +343,7 @@ sealed class HostMessage {
       'welcome' => Welcome(
         token: _readToken(json, 'token'),
         you: _readPlayerId(json, 'you'),
+        roomSecret: _readSecret(json.maybeString('secret')),
       ),
       'state' => StateMessage(
         view: decodeView(json.object('view')),
@@ -368,7 +380,7 @@ sealed class HostMessage {
 /// You are in: keep the token to come back after a disconnect.
 final class Welcome extends HostMessage {
   /// Creates the message.
-  const Welcome({required this.token, required this.you});
+  const Welcome({required this.token, required this.you, this.roomSecret});
 
   /// Secret session token. Never log or show it.
   final String token;
@@ -376,11 +388,20 @@ final class Welcome extends HostMessage {
   /// Your player id.
   final PlayerId you;
 
+  /// The room secret (32 bytes), only for players the host let in after
+  /// comparing the check code: with it they come back over a channel that
+  /// proves the room key, never again over an unchecked one. Never log it.
+  final List<int>? roomSecret;
+
   @override
   String get _type => 'welcome';
 
   @override
-  Map<String, Object?> get _fields => {'token': token, 'you': you.value};
+  Map<String, Object?> get _fields => {
+    'token': token,
+    'you': you.value,
+    'secret': ?(roomSecret == null ? null : base64Url.encode(roomSecret!)),
+  };
 }
 
 /// Someone who wants to join without the QR code's secret.

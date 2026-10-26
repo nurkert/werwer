@@ -10,6 +10,7 @@ dev_dependencies:
   test: ^1.31.0
   very_good_analysis: 10.3.0
 dependencies:
-  cryptography: ^2.9.0
   game_host:
     path: ../game_host
+  # libsodium bindings (Skycoder42, BSD-3/ISC); 4.1 needs Dart 3.13.
+  sodium: 4.0.4

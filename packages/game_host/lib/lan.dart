@@ -83,6 +83,7 @@ class WebSocketConnection implements Connection {
   WebSocketConnection(this._socket);
 
   final WebSocket _socket;
+  bool _closed = false;
 
   @override
   Stream<String> get messages => _socket.map(
@@ -91,11 +92,15 @@ class WebSocketConnection implements Connection {
 
   @override
   void send(String message) {
-    if (_socket.readyState == WebSocket.open) _socket.add(message);
+    // The socket stays "open" for a moment after close(); adding then throws.
+    if (!_closed && _socket.readyState == WebSocket.open) _socket.add(message);
   }
 
   @override
-  Future<void> close() => _socket.close();
+  Future<void> close() {
+    _closed = true;
+    return _socket.close();
+  }
 }
 
 /// Connects to a host at [address]:[port].

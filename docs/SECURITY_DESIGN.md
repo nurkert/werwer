@@ -8,7 +8,7 @@
 2. **Dem Netz wird nichts geglaubt.** Jede Nachricht wird geprüft: Format, Größe, Absender, Phase, Regel.
 3. **Identität kommt von der Verbindung, nie aus der Nachricht.** Eine Nachricht „ich bin Spieler X“ zählt nichts. Es zählt nur die Sitzung, an die die Verbindung gebunden ist.
 4. **Kleine Angriffsfläche.** Nur ein offener Port, nur während eines Spiels, nur im lokalen Netz, nur ein Protokoll.
-5. **Keine eigene Kryptografie.** Nur etablierte Protokollmuster und geprüfte Bibliotheken.
+5. **Keine eigene Kryptografie.** Nur geprüfte Bibliotheken (libsodium) und deren dokumentierte Bausteine; keine selbst gebauten Primitive, Schlüsselableitungen, MACs oder Nonce-Verwaltung.
 6. **Datensparsam.** Kein Konto, kein Tracking, keine Analytics. Im MVP verlässt nichts das lokale Netz.
 7. **Sichere Voreinstellungen.** Alles Sicherheitsrelevante ist ab Werk an und nicht abschaltbar.
 8. **Lieferkette absichern.** Wenige Abhängigkeiten, gepinnte Versionen, nachvollziehbare Releases.
@@ -55,15 +55,14 @@
   - die Adresse des Hosts im WLAN
   - den **öffentlichen Schlüssel** (bzw. dessen Fingerabdruck) des Hosts für diese Partie
   - ein **Raumgeheimnis** mit hoher Zufälligkeit (≥ 128 Bit)
-- **Handshake nach einem etablierten Muster:** Vorgesehen ist ein Noise-Protokoll mit bekanntem Host-Schlüssel und Raumgeheimnis, etwa `NKpsk`. Das ergibt:
+- **Handshake aus libsodium-Bausteinen** (`crypto_kx`, schlüsselbehafteter BLAKE2b-Hash, `crypto_secretstream`). Das ergibt:
   - Der Client prüft, dass er wirklich mit diesem Host spricht. Damit sind Man-in-the-Middle-Angriffe im WLAN ausgeschlossen.
   - Nur wer den QR-Code hat, kommt in die Verschlüsselung.
-  - Forward Secrecy und authentifizierte Verschlüsselung (AEAD) für jede Nachricht.
-  - Umgesetzt wird das mit einer geprüften Bibliothek, Auswahl und Review in M2.
+  - Authentifizierte Verschlüsselung für jede Nachricht, Schutz gegen Wiederholen und Vertauschen. Forward Secrecy pro Raum: Jeder Raum hat ein neues Schlüsselpaar, das mit dem Raum gelöscht wird.
 - **Warum nicht einfach TLS?** Browser akzeptieren keine selbst signierten Zertifikate ohne Warnung. Unsere eigene Verschlüsselung funktioniert dagegen gleich über LAN, über das spätere Relay und im Browser. Das Relay sieht dann **nur Chiffretext**.
 - **Geheimnisse im QR-Link** stehen im **Fragment** (`#…`). Browser schicken es nie an einen Server, auch nicht später an `whowolf.de`.
 - **Schlüssel pro Partie:** Der Host erzeugt für jeden Raum ein neues Schlüsselpaar. Wird ein QR-Code abfotografiert, ist er nach der Runde wertlos.
-- **Manueller Beitritt ohne QR** (Raumcode + IP): Hier fehlt der vertrauenswürdige Kanal. Deshalb muss der Host **jeden Beitritt bestätigen**, und beide Geräte zeigen ein kurzes Prüfbild an (z. B. drei Symbole), das man am Tisch vergleicht.
+- **Manueller Beitritt ohne QR** (Raumcode + IP): Hier fehlt der vertrauenswürdige Kanal. Deshalb muss der Host **jeden Beitritt bestätigen**, und beide Geräte zeigen ein kurzes Prüfbild an (z. B. drei Symbole), das man am Tisch vergleicht. Ein Commitment im Handshake verhindert, dass ein Angreifer in der Mitte passende Schlüssel durchprobiert. Nach dem Reinlassen bekommt der Spieler das Raumgeheimnis, damit jeder spätere Rejoin über den geprüften Kanal läuft.
 - **Sitzungstokens:** 128 Bit zufällig, pro Spieler und Raum. Sie liegen im sicheren Speicher des Geräts (Keychain/Keystore) und werden nie protokolliert. Ein Rejoin geht nur mit dem Token. Eine neue Verbindung mit dem Token löst die alte ab.
 - **Rechteprüfung jeder Absicht:** Der Host prüft immer, ob diese Sitzung das darf (richtige Phase, lebendig, passende Rolle). Die Spielregeln selbst prüft `game_core`.
 
@@ -151,21 +150,24 @@
 - **Jede neue Netzwerk- oder Speicherfunktion** bekommt vor dem Merge einen kurzen Abschnitt „Sicherheit“: Was kann schiefgehen? Was schützt dagegen? Welcher Test prüft das?
 - **Sicherheitsrelevante Tests** (Informationslecks, Parser-Fuzzing, Rechteprüfung, Handshake mit falschem Schlüssel oder Geheimnis) laufen in der normalen CI und blockieren den Merge.
 - **Vor jedem Release:** Diese Datei durchgehen, das Bedrohungsmodell aktualisieren und `osv-scanner` sowie den Secret-Scan prüfen.
-- **Vor 1.0** ist ein externer Blick wünschenswert, etwa ein Review des Handshakes durch jemanden mit Krypto-Erfahrung.
+- **Vor 0.1** soll jemand mit Krypto-Erfahrung den Handshake in `packages/secure_channel/lib/src/channel.dart` reviewen (rund 500 Zeilen, nur libsodium-Bausteine).
 
 ## Stand der Umsetzung (2026-10-26)
 
-- **Ende-zu-Ende-Verschlüsselung:** Jede Verbindung über WLAN oder Relay läuft durch `packages/secure_channel`: Noise `NKpsk2_25519_ChaChaPoly_BLAKE2s`, wenn der QR-Code gescannt wurde (Host-Schlüssel und 256-Bit-Raumgeheimnis im Fragment `#k=…&s=…`), sonst `Noise_NN` mit Prüfbild (3 von 16 Symbolen aus dem Handshake-Hash), das der Gastgeber vor dem Reinlassen vergleicht. Primitive aus dem Paket `cryptography` (X25519, ChaCha20-Poly1305, BLAKE2s); HMAC-BLAKE2s ist nach RFC 2104 selbst aufgebaut, weil das Paket für BLAKE2s eine falsche Blocklänge meldet. Beide Muster sind gegen die offiziellen Noise-Testvektoren (Cacophony) getestet. Schlüssel pro Raum, gespeichert nur zusammen mit dem Raum-Schnappschuss im App-Ordner.
+- **Ende-zu-Ende-Verschlüsselung (Handshake Version 2):** Jede Verbindung über WLAN oder Relay läuft durch `packages/secure_channel`, gebaut nur aus libsodium (Paket `sodium`, nativ mitgebaut, im Browser sodium.js):
+  - **Mit QR-Code** (Host-Schlüssel und 256-Bit-Raumgeheimnis im Fragment `#k=…&s=…`): `crypto_kx` zwischen einem frischen Spielerschlüssel und dem Raumschlüssel; beide Sitzungsschlüssel werden mit dem Raumgeheimnis per schlüsselbehaftetem BLAKE2b gebunden. Der Spieler schickt zuerst eine Bestätigungsnachricht, der Host antwortet erst, wenn sie sich entschlüsseln lässt. Damit beweist der Spieler das Geheimnis und der Host seinen Schlüssel.
+  - **Ohne QR-Code:** Der Spieler legt sich mit einem Hash seines Schlüssels fest (Commitment), bevor der Host seinen Schlüssel zeigt. Das Prüfbild (4 von 16 Symbolen, 16 Bit) ergibt sich aus beiden Schlüsseln; ein Angreifer in der Mitte kann es nicht passend rechnen, nur raten (1 zu 65 536), und der Gastgeber muss trotzdem zustimmen.
+  - **Danach** `crypto_secretstream_xchacha20poly1305` pro Richtung (eigene Nonces, Manipulations-, Wiederholungs- und Reihenfolgeschutz).
+  - Schlüssel pro Raum, gespeichert nur zusammen mit dem Raum-Schnappschuss im App-Ordner (Seed, nicht der Schlüssel selbst).
 - **Padding:** Jede Nachricht wird vor der Verschlüsselung auf feste Größenstufen (512 B, 2 KiB, 8 KiB, 32 KiB, ~64 KiB) aufgefüllt. **Takt:** Der Host schickt bei jeder Änderung allen denselben Zustand, die Anzahl der Nachrichten hängt also nicht von der Rolle ab.
 - **Manipulation** einer Nachricht beendet die Verbindung; eine falsche Antwort im Handshake ebenso.
 - **Weiter umgesetzt:** gefilterte Sichten (getestet für jeden Spieler), Identität nur aus der Sitzung, 128-Bit-Sitzungstokens im sicheren Speicher, strenges Parsen mit Größenlimits, Ratenlimits, Handshake- und Hello-Timeout, Verbindungslimit, LAN-Socket nur für private/Loopback-Adressen, strenge Prüfung des QR-Links mit Bestätigung vor dem Verbinden, Relay ohne Spielwissen (sieht nur Chiffretext), Container ohne Root und ohne Shell, Fuzz-Tests für Protokoll und Host.
 - **Grenzen:**
-  - Beim NKpsk2-Muster prüft der Host das Raumgeheimnis erst an der ersten verschlüsselten Nachricht; ohne Geheimnis kommt keine Nachricht durch.
-  - Wer ohne QR-Code beitritt, ist bis zum Vergleich des Prüfbilds nicht authentisch; ein späterer Rejoin mit Token über einen nicht geprüften Kanal wird akzeptiert (das Token ist 128 Bit geheim).
-  - Ein externer Review des Handshakes steht vor 1.0 noch aus.
+  - Wer ohne QR-Code beitritt, ist bis zum Vergleich des Prüfbilds nicht authentisch. Danach bekommt er mit dem Welcome das Raumgeheimnis; ein Rejoin mit Token über einen nicht geprüften Kanal wird abgelehnt, und die App schickt ihr Token dort gar nicht erst.
+  - Wer den Raumschlüssel stiehlt (er liegt bis zum Schließen des Raums im App-Ordner des Hosts), kann aufgezeichnete Verbindungen dieses Raums entschlüsseln; kein Forward Secrecy innerhalb eines Raums.
+  - Die Komposition der libsodium-Bausteine ist unsere; ein externer Review steht vor 0.1 noch aus.
 
 ## Offene Entscheidungen
 
-- Konkrete Bibliothek bzw. Implementierung für den Noise-Handshake in Dart, auch im Browser lauffähig (M2).
 - Größenstufen und Takt für das Padding in geheimen Phasen (M2).
 - Prüfbild beim manuellen Beitritt: Symbole oder Zahlen (M3).

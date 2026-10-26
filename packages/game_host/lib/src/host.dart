@@ -103,6 +103,7 @@ class GameHost {
   GameHost({
     required this.roomCode,
     required this._random,
+    this.roomSecret,
     this.config = const HostConfig(),
     this._startTimer = _realTimer,
     this._clock = _realClock,
@@ -116,6 +117,7 @@ class GameHost {
   factory GameHost.restore(
     String snapshot, {
     required Random random,
+    List<int>? roomSecret,
     HostConfig config = const HostConfig(),
     StartTimer startTimer = _realTimer,
     Clock clock = _realClock,
@@ -128,6 +130,7 @@ class GameHost {
     final host = GameHost(
       roomCode: room,
       random: random,
+      roomSecret: roomSecret,
       config: config,
       startTimer: startTimer,
       clock: clock,
@@ -153,6 +156,11 @@ class GameHost {
 
   /// The code players type to join.
   final String roomCode;
+
+  /// The room secret from the QR code. Players the host let in without it
+  /// (after comparing the check code) get it with their welcome, so they
+  /// come back over a verified channel. Opaque to the host.
+  final List<int>? roomSecret;
 
   /// Timings and limits.
   final HostConfig config;
@@ -299,8 +307,18 @@ class GameHost {
 
   void _hello(_Link link, Hello hello) {
     if (hello.room != roomCode) return _bye(link, ByeReason.wrongRoom);
+    final connection = link.connection;
+    final unverified = switch (connection) {
+      PeerTrust(verified: false) => true,
+      _ => false,
+    };
     final token = hello.token;
     if (token != null) {
+      // A token over an unchecked channel may have been read by someone in
+      // the middle; players who were let in come back with the room secret.
+      if (unverified && !link.owner) {
+        return _bye(link, ByeReason.unknownSession);
+      }
       final session = _sessions[token];
       if (session == null) return _bye(link, ByeReason.unknownSession);
       final previous = session.link;
@@ -312,11 +330,6 @@ class GameHost {
     }
     if (_state.phase != Phase.lobby) return _bye(link, ByeReason.gameRunning);
     // Joined without the QR code's secret: the host checks the code first.
-    final connection = link.connection;
-    final unverified = switch (connection) {
-      PeerTrust(verified: false) => true,
-      _ => false,
-    };
     if (!link.owner && unverified) {
       if (!_nameAvailable(link, hello.name)) return;
       final waiting = _pending.values.where((p) => p.link == link).firstOrNull;
@@ -366,8 +379,10 @@ class GameHost {
       _bye(pending.link, ByeReason.refused);
       return _broadcast();
     }
+    if (pending.link.session != null) return _broadcast();
     if (_state.phase != Phase.lobby) {
-      return _bye(pending.link, ByeReason.gameRunning);
+      _bye(pending.link, ByeReason.gameRunning);
+      return _broadcast();
     }
     _join(pending.link, pending.name);
   }
@@ -401,10 +416,24 @@ class GameHost {
     link.cancelHello?.call();
     link.session = session;
     session.link = link;
+    final waited = _pending.length;
+    _pending.removeWhere((_, p) => p.link == link);
+    final unverified = switch (link.connection) {
+      PeerTrust(verified: false) => true,
+      _ => false,
+    };
     link.connection.send(
-      Welcome(token: session.token, you: session.player).encode(),
+      Welcome(
+        token: session.token,
+        you: session.player,
+        roomSecret: unverified ? roomSecret : null,
+      ).encode(),
     );
-    _sendState(session);
+    if (_pending.length != waited) {
+      _broadcast();
+    } else {
+      _sendState(session);
+    }
   }
 
   String _newToken() {

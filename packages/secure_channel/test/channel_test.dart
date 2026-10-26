@@ -101,7 +101,7 @@ void main() {
         hostKey: keys.publicKey,
         roomSecret: other.roomSecret,
       ),
-      throwsA(isA<NoiseError>()),
+      throwsA(isA<SecureChannelError>()),
     );
     await expectLater(
       connectSecure(
@@ -109,12 +109,11 @@ void main() {
         hostKey: other.publicKey,
         roomSecret: keys.roomSecret,
       ),
-      throwsA(isA<NoiseError>()),
+      throwsA(isA<SecureChannelError>()),
     );
     await settle();
-    // NKpsk2 checks the secret with the first real message: a connection
-    // with the wrong secret may get past the handshake but never delivers
-    // anything, and it is closed.
+    // The host checks the secret before it lets the connection through.
+    expect(accepted, isEmpty);
     expect(received, isEmpty);
   });
 
@@ -131,7 +130,7 @@ void main() {
       ..send('a much longer message about who the werewolf might be');
     await settle();
     final sizes = wire.seen.map((f) => base64Url.decode(f).length).toSet();
-    expect(sizes, {paddingSteps.first + 16});
+    expect(sizes, {paddingSteps.first + 17}); // secretstream adds 17 bytes
   });
 
   test('a tampered frame ends the connection', () async {
@@ -149,6 +148,94 @@ void main() {
     };
     client.send('vote for Bo');
     await done.future.timeout(const Duration(seconds: 2));
+  });
+
+  test('a replayed or reordered frame ends the connection', () async {
+    for (final attack in ['replay', 'reorder']) {
+      accepted.clear();
+      final raw = wire.connect();
+      final client = await connectSecure(
+        raw,
+        hostKey: keys.publicKey,
+        roomSecret: keys.roomSecret,
+      );
+      // The host drops the connection, so the player's stream ends.
+      final done = Completer<void>();
+      client.messages.listen((_) {}, onDone: done.complete);
+      final held = <String>[];
+      wire.tamper = (frame) {
+        held.add(frame);
+        return frame;
+      };
+      client
+        ..send('one')
+        ..send('two');
+      await settle();
+      wire.tamper = null;
+      // Write the captured frames straight onto the wire again.
+      if (attack == 'replay') {
+        raw.send(held.first);
+      } else {
+        raw
+          ..send(held.last)
+          ..send(held.first);
+      }
+      await done.future.timeout(const Duration(seconds: 2));
+      wire.tamper = null;
+    }
+  });
+
+  test(
+    'without the QR code a man in the middle gets other check codes',
+    () async {
+      // The attacker sits on the wire and runs its own handshakes with both
+      // sides; the codes it produces only match by chance (1 in 65536).
+      final attackerKeys = await HostKeys.generate();
+      final towardsPlayer = Wire();
+      final fake = SecureTransport(towardsPlayer, attackerKeys);
+      final relayed = Completer<SecureConnection>();
+      fake.connections.listen((c) => relayed.complete(c as SecureConnection));
+      final player = await connectSecure(towardsPlayer.connect());
+      final towardsHost = await connectSecure(wire.connect());
+      await settle();
+      // What the attacker sees matches each side, but the two screens at
+      // the table (player and real host) disagree.
+      expect(player.checkCode, (await relayed.future).checkCode);
+      expect(towardsHost.checkCode, accepted.single.checkCode);
+      expect(player.checkCode, isNot(accepted.single.checkCode));
+    },
+  );
+
+  test('a reveal that does not match the commitment is refused', () async {
+    // Swap the player's key after the host has shown its own.
+    wire.tamper = (frame) {
+      final json = frame.startsWith('{') ? jsonDecode(frame) : null;
+      if (json is Map && json['e'] is String) {
+        return jsonEncode({'e': base64Url.encode(List.filled(32, 7))});
+      }
+      return frame;
+    };
+    await expectLater(
+      connectSecure(wire.connect()),
+      throwsA(isA<SecureChannelError>()),
+    );
+    await settle();
+    expect(accepted, isEmpty);
+  });
+
+  test('old or unknown handshakes are dropped', () async {
+    for (final hello in [
+      jsonEncode({'noise': 1, 'p': 'nn', 'm': 'AAAA'}),
+      jsonEncode({'secure': 2, 'p': 'xx'}),
+      'x' * 5000,
+    ]) {
+      final raw = wire.connect();
+      final done = Completer<void>();
+      raw.messages.listen((_) {}, onDone: done.complete);
+      raw.send(hello);
+      await done.future.timeout(const Duration(seconds: 2));
+    }
+    expect(accepted, isEmpty);
   });
 
   test('host keys survive saving and loading', () async {
