@@ -78,7 +78,7 @@ Alle Ansagen stehen als Text auf jedem Handy. Das Gastgeber-Gerät liest sie zus
 
 ## Wenn jemand rausfliegt
 
-Geht der Bildschirm aus oder bricht das WLAN kurz weg, verbindet sich die App von selbst neu. Selbst nach einem Neustart der App bietet der Startbildschirm „Zurück ins Spiel“ an, und ihr seid wieder mit genau eurer Rolle dabei. Nur der Gastgeber sollte die App nicht schließen: Verlässt er den Raum, endet die Runde für alle.
+Geht der Bildschirm aus oder bricht das WLAN kurz weg, verbindet sich die App von selbst neu. Selbst nach einem Neustart der App bietet der Startbildschirm „Zurück ins Spiel“ an, und ihr seid wieder mit genau eurer Rolle dabei. Auch der Gastgeber darf gehen: Fällt sein Handy aus oder tippt er auf „Verlassen“, übernimmt das Handy eines anderen Spielers den Tisch, und dieselbe Runde geht weiter. Das klappt im WLAN, solange mindestens zwei weitere Spieler die App nutzen.
 
 ## Die Wolfsspur (geplant)
 

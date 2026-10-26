@@ -27,7 +27,7 @@ const de = {
     pillars: [
       { icon: 'phone', title: 'Jeder hat sein Handy', text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du.' },
       { icon: 'scroll', title: 'Die App erzählt', text: 'Sie führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.' },
-      { icon: 'mask', title: 'Niemand verrät sich', text: 'Nachts tippen alle etwas. Von außen sieht man nicht, wer Werwolf ist.' },
+      { icon: 'mask', title: 'Niemand verrät sich', text: 'Nachts ruft der Erzähler die Rollen auf, alle anderen halten die Augen zu. Wer mag, spielt die Whowolf-Nacht: Dann tippen alle etwas, und von außen sieht man nicht, wer Werwolf ist.' },
     ],
   },
   evening: {
@@ -36,7 +36,7 @@ const de = {
     acts: [
       { icon: 'qr', act: 'Vorspiel', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Ein Konto oder Internet braucht dafür niemand.' },
       { icon: 'circle', act: 'Erster Akt', title: 'Platz nehmen', text: 'Die App zeigt den Tischkreis aus deiner Sicht. So stimmt die Sitzordnung sofort.' },
-      { icon: 'moon', act: 'Zweiter Akt', title: 'Die Nacht', text: 'Die Wölfe wählen ihr Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
+      { icon: 'moon', act: 'Zweiter Akt', title: 'Die Nacht', text: 'Die Wölfe wählen ihr Opfer, die Seherin blickt in eine Seele, die Hexe greift zu ihren Tränken.' },
       { icon: 'sun', act: 'Dritter Akt', title: 'Der Morgen', text: 'Jedes Handy gähnt. Dann verkündet die App, wen es erwischt hat.' },
       { icon: 'vote', act: 'Finale', title: 'Der Tag', text: 'Handys weg, Gesichter lesen, anklagen, lügen. Abgestimmt wird geheim.' },
     ],
@@ -44,7 +44,7 @@ const de = {
   sheep: {
     title: 'Schäfchen zählen.',
     intro:
-      'Was machen Dorfbewohner nachts, während die Wölfe jagen? Sie zählen Schäfchen. So tippen alle, und niemand fällt auf. Probier es aus.',
+      'In der Whowolf-Nacht haben alle ihr Handy in der Hand. Was machen die Dorfbewohner, während die Wölfe jagen? Sie zählen Schäfchen. So tippen alle, und niemand fällt auf. Probier es aus.',
     rule: 'Tippe die weißen Schafe an. Die schwarzen lässt du besser springen.',
     score: 'Traumpunkte',
     best: 'Bester Traum',
@@ -232,7 +232,7 @@ const de = {
     captions: [
       { title: 'Auspacken.', text: 'Rollenkarten, Regeln und für jeden ein Handy.' },
       { title: 'Deine Rolle siehst nur du.', text: 'Sie erscheint auf deinem eigenen Handy und sonst nirgends.' },
-      { title: 'Nachts tippen alle.', text: 'Wölfe wählen ein Opfer, das Dorf zählt Schäfchen. Von außen sieht das gleich aus.' },
+      { title: 'Nachts ruft der Erzähler.', text: 'Wer aufgerufen wird, öffnet die Augen und nimmt sein Handy. Alle anderen schlafen.' },
       { title: 'Abgestimmt wird geheim.', text: 'Am Tag wird diskutiert, gezählt wird in der App.' },
     ],
     youAre: 'Du bist',
@@ -296,7 +296,7 @@ const de = {
       { title: 'Ein Dorf bei Nacht.', text: 'Alle sitzen am Tisch. Keiner weiß, wem er trauen kann.' },
       { title: 'Einer von ihnen ist ein Werwolf.', text: 'Vielleicht auch zwei. Tagsüber sehen sie aus wie alle anderen.' },
       { title: 'Jeder hat sein Handy.', text: 'Darauf steht deine Rolle. Nur du siehst sie.' },
-      { title: 'Nachts tippen alle.', text: 'Die Wölfe wählen ein Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
+      { title: 'Nachts ruft der Erzähler.', text: 'Die Wölfe wählen ein Opfer, die Seherin blickt in eine Seele, die Hexe greift zu ihren Tränken.' },
       { title: 'Am Tag wird abgestimmt.', text: 'Ihr streitet am Tisch, die App zählt die geheimen Stimmen.' },
     ],
   },

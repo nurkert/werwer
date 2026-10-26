@@ -28,7 +28,7 @@ const en: Copy = {
     pillars: [
       { icon: 'phone', title: 'Everyone has a phone', text: 'Scan the QR code, type your name, done. Only you see your role.' },
       { icon: 'scroll', title: 'The app narrates', text: 'It leads you through night and day, counts the votes and never forgets a rule.' },
-      { icon: 'mask', title: 'Nobody gives it away', text: 'At night everyone taps something. From the outside you can’t tell who the werewolf is.' },
+      { icon: 'mask', title: 'Nobody gives it away', text: 'At night the narrator calls the roles while everyone else keeps their eyes closed. Or play Whowolf’s night: everyone taps something, and from the outside you can’t tell who the werewolf is.' },
     ],
   },
   evening: {
@@ -37,7 +37,7 @@ const en: Copy = {
     acts: [
       { icon: 'qr', act: 'Prologue', title: 'Open a room', text: 'One phone opens the room, everyone else scans the code. Nobody needs an account or internet for it.' },
       { icon: 'circle', act: 'Act one', title: 'Take your seats', text: 'The app shows the table circle from your point of view, so the seating is right at once.' },
-      { icon: 'moon', act: 'Act two', title: 'The night', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
+      { icon: 'moon', act: 'Act two', title: 'The night', text: 'The wolves pick a victim, the seer looks into a soul, the witch reaches for her potions.' },
       { icon: 'sun', act: 'Act three', title: 'The morning', text: 'Every phone yawns. Then the app announces who was caught.' },
       { icon: 'vote', act: 'Finale', title: 'The day', text: 'Phones down, read faces, accuse, lie. The vote is secret.' },
     ],
@@ -45,7 +45,7 @@ const en: Copy = {
   sheep: {
     title: 'Counting sheep.',
     intro:
-      'What do villagers do at night while the wolves are hunting? They count sheep. That way everyone taps, and nobody stands out. Give it a try.',
+      'In Whowolf’s night everyone keeps their phone in hand. What do the villagers do while the wolves are hunting? They count sheep. That way everyone taps, and nobody stands out. Give it a try.',
     rule: 'Tap the white sheep. Better let the black ones jump.',
     score: 'Dream points',
     best: 'Best dream',
@@ -233,7 +233,7 @@ const en: Copy = {
     captions: [
       { title: 'Unbox it.', text: 'Role cards, rules, and a phone for everyone.' },
       { title: 'Only you see your role.', text: 'It appears on your own phone and nowhere else.' },
-      { title: 'At night, everyone taps.', text: 'Wolves pick a victim, the village counts sheep. From outside, it all looks the same.' },
+      { title: 'At night, the narrator calls.', text: 'Whoever is called opens their eyes and picks up their phone. Everyone else sleeps.' },
       { title: 'The vote is secret.', text: 'You argue at the table, the app counts.' },
     ],
     youAre: 'You are',
@@ -297,7 +297,7 @@ const en: Copy = {
       { title: 'A village at night.', text: 'Everyone sits at the table. Nobody knows whom to trust.' },
       { title: 'One of them is a werewolf.', text: 'Maybe two. By day they look like everyone else.' },
       { title: 'Everyone has a phone.', text: 'It shows your role. Only you can see it.' },
-      { title: 'At night, everyone taps.', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
+      { title: 'At night, the narrator calls.', text: 'The wolves pick a victim, the seer looks into a soul, the witch reaches for her potions.' },
       { title: 'By day, you vote.', text: 'You argue at the table, and the app counts the secret votes.' },
     ],
   },

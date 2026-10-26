@@ -78,7 +78,7 @@ Every announcement appears as text on every phone. The host device also reads th
 
 ## If someone drops out
 
-If a screen turns off or the Wi-Fi drops for a moment, the app reconnects by itself. Even after restarting the app, the start screen offers “Back to the game”, and you are back with exactly your role. Only the host should not close the app: if the host leaves the room, the round ends for everyone.
+If a screen turns off or the Wi-Fi drops for a moment, the app reconnects by itself. Even after restarting the app, the start screen offers “Back to the game”, and you are back with exactly your role. The host may leave too: if their phone goes away or they tap “Leave”, another player’s phone takes over the table and the same round goes on. This works in the Wi-Fi as long as at least two other players use the app.
 
 ## The wolf trail (planned)
 
