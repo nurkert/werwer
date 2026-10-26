@@ -1,9 +1,9 @@
 # Changelog
 
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
-0.0.x are test versions, 0.1.0 will be the first release ("MVP").
+0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
-## 0.1.0 – unreleased
+## 0.1.0 – 2026-10-26
 
 The first release: a developer beta you can play with friends.
 
