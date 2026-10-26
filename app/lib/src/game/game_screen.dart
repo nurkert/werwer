@@ -204,8 +204,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                         ? _Ended(reason: session.byeReason)
                         : session.nameRefused
                         ? _Rename(session: session)
-                        : session.waitingForHost && view == null
-                        ? _WaitingForHost(code: session.checkCode)
+                        : (session.waitingForHost ||
+                                  session.needsCodeConfirmation) &&
+                              view == null
+                        ? _WaitingForHost(session: session)
                         : view == null
                         ? const Center(child: CircularProgressIndicator())
                         : _phase(view),
@@ -293,20 +295,31 @@ class _NarratorLine extends StatelessWidget {
 
 /// Joined without the QR code: wait until the host has compared the code.
 class _WaitingForHost extends StatelessWidget {
-  const _WaitingForHost({required this.code});
+  const _WaitingForHost({required this.session});
 
-  final List<int> code;
+  final GameSession session;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final confirm = session.needsCodeConfirmation;
     return PhaseBody(
       children: [
         const SizedBox(height: 32),
         Headline(l10n.waitingForHost),
-        CheckCode(code: code),
-        Body(l10n.waitingHint, muted: true),
-        const CircularProgressIndicator(),
+        CheckCode(code: session.checkCode),
+        if (confirm) ...[
+          // Both sides compare: only if the host's screen asks about you
+          // with these very symbols is it really the host.
+          Body(l10n.codeConfirmHint),
+          PrimaryButton(
+            label: l10n.codeConfirm,
+            onPressed: session.confirmCheckCode,
+          ),
+        ] else ...[
+          Body(l10n.waitingHint, muted: true),
+          const CircularProgressIndicator(),
+        ],
       ],
     );
   }

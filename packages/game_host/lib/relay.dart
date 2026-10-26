@@ -30,6 +30,9 @@ class RelayTransport implements Transport {
   }) async {
     final socket = await WebSocket.connect(
       server.replace(path: '/host').toString(),
+      // Ciphertext does not compress, and inflating untrusted frames lets a
+      // peer blow up memory with one small message.
+      compression: CompressionOptions.compressionOff,
     ).timeout(timeout);
     socket.pingInterval = const Duration(seconds: 10);
     final transport = RelayTransport._(socket, server);
@@ -145,6 +148,7 @@ Future<Connection> dialRelay(
   if (!isRelayRoomId(roomId)) throw ArgumentError.value(roomId, 'roomId');
   final socket = await WebSocket.connect(
     server.replace(path: '/join/$roomId').toString(),
+    compression: CompressionOptions.compressionOff,
   ).timeout(timeout);
   socket.pingInterval = const Duration(seconds: 10);
   return WebSocketConnection(socket);

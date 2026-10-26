@@ -1585,6 +1585,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Door signs (peeking at screens can cost a life)'**
   String get settingsDoorSigns;
+
+  /// No description provided for @codeConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the host\'s screen ask about you with exactly these symbols? Only then is it really the host. If the host sees no request from you, do not confirm.'**
+  String get codeConfirmHint;
+
+  /// No description provided for @codeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'The host sees the same symbols'**
+  String get codeConfirm;
 }
 
 class _AppLocalizationsDelegate

@@ -203,7 +203,7 @@ class GameHost {
   /// Counts every broadcast state, so players drop states that arrive late.
   int _version = 0;
 
-  static const _snapshotVersion = 3;
+  static const _snapshotVersion = 4;
 
   /// Called with a fresh [snapshot] after every change, so the app can save
   /// it. It holds every secret of the game: keep it on the host device only.

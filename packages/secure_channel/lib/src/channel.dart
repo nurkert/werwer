@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:game_host/game_host.dart';
@@ -43,6 +44,11 @@ const _version = 3;
 /// Plaintexts are padded to one of these sizes, so message sizes say
 /// nothing about their content (e.g. whether someone is a werewolf).
 const paddingSteps = [512, 2048, 8192, 32768, 65000];
+
+/// The host pads everything it sends to at least this size: every view of
+/// the game fits, so a werewolf's state (with the pack's picks) looks just
+/// like a villager's on the wire.
+const hostPadding = 8192;
 
 /// Largest frame accepted from the wire (base64 of the largest step).
 const maxFrame = 90000;
@@ -189,9 +195,9 @@ List<int> _checkCode(
   return [for (var i = 0; i < checkLength; i++) hash[i] % checkSymbols];
 }
 
-Uint8List _pad(String message) {
+Uint8List _pad(String message, {int minimum = 0}) {
   final data = utf8.encode(message);
-  final needed = data.length + 4;
+  final needed = max(data.length + 4, minimum);
   final size = paddingSteps.firstWhere(
     (s) => s >= needed,
     orElse: () => throw const SecureChannelError('message too large'),
@@ -366,7 +372,8 @@ class SecureConnection implements Connection, PeerTrust {
   void send(String message) {
     if (_closed) return;
     try {
-      _streams.send(_pad(message));
+      // The host's messages all share one size; a player's stay small.
+      _streams.send(_pad(message, minimum: hostKey == null ? hostPadding : 0));
     } on SecureChannelError {
       unawaited(_close());
     }

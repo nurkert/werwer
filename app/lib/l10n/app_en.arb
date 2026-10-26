@@ -564,5 +564,7 @@
       }
     }
   },
-  "settingsDoorSigns": "Door signs (peeking at screens can cost a life)"
+  "settingsDoorSigns": "Door signs (peeking at screens can cost a life)",
+  "codeConfirmHint": "Does the host's screen ask about you with exactly these symbols? Only then is it really the host. If the host sees no request from you, do not confirm.",
+  "codeConfirm": "The host sees the same symbols"
 }

@@ -166,6 +166,19 @@ class PlayerLink {
   /// Symbols to compare with the host, from the encrypted handshake.
   List<int> checkCode = const [];
 
+  /// Joining over a channel nobody checked (no QR code): until the player
+  /// confirms that the host's screen shows the same [checkCode], nothing
+  /// from the host counts. Someone in the middle could otherwise answer in
+  /// the host's place, skip the comparison and hand over keys of his own.
+  bool get needsCodeConfirmation => _unchecked && !_codeConfirmed;
+
+  bool _unchecked = false;
+  bool _codeConfirmed = false;
+
+  /// Messages that arrived on an unchecked channel before the player
+  /// confirmed the check code; they count once [confirmCheckCode] is called.
+  final _held = <String>[];
+
   /// The host refused the name; [rename] tries another one.
   bool nameRefused = false;
 
@@ -198,8 +211,13 @@ class PlayerLink {
       await connection.close();
       return;
     }
+    _unchecked = false;
+    _codeConfirmed = false;
+    _held.clear();
     if (connection case final PeerTrust trust) {
       checkCode = trust.checkCode;
+      // Every unchecked channel has its own code: it is confirmed anew.
+      _unchecked = !trust.verified;
       // A token never goes over a channel nobody checked: someone in the
       // middle could take it and play as us.
       if (_token != null && !trust.verified) {
@@ -237,7 +255,24 @@ class PlayerLink {
     } on ProtocolError {
       return;
     }
-    _expectAnswer(connection);
+    // Until the code is confirmed, the host's answers wait: a welcome,
+    // state or keys from an unchecked channel could come from anyone.
+    if (needsCodeConfirmation &&
+        message is! Waiting &&
+        message is! Bye &&
+        message is! Refused) {
+      _cancelSilence?.call();
+      _held.add(raw);
+      _changed();
+      return;
+    }
+    // While the owner compares the code nothing more comes; that silence is
+    // expected, not a dead connection.
+    if (message is Waiting) {
+      _cancelSilence?.call();
+    } else {
+      _expectAnswer(connection);
+    }
     switch (message) {
       case Waiting():
         waitingForHost = true;
@@ -405,6 +440,20 @@ class PlayerLink {
       _connection?.send(intent.encode(seq: q.seq));
     }
     return true;
+  }
+
+  /// The player saw the same symbols on the host's screen: what the host
+  /// sent meanwhile counts now, and the join goes on.
+  void confirmCheckCode() {
+    final connection = _connection;
+    if (!needsCodeConfirmation || connection == null) return;
+    _codeConfirmed = true;
+    final held = [..._held];
+    _held.clear();
+    for (final raw in held) {
+      _receive(connection, raw);
+    }
+    _changed();
   }
 
   /// Joins with another name after the host refused the first one.

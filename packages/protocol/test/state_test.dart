@@ -106,6 +106,12 @@ void main() {
         'potionsUsed': ['love'],
       },
       {...good, 'nightStep': 'dawn'},
+      // The game's secret is 32 bytes or none, never a guessable stub.
+      {
+        ...good,
+        'secret': base64Url.encode([1, 2, 3, 4]),
+      },
+      {...good, 'secret': '%%%'},
     ]) {
       expect(
         () => decodeState(JsonReader.decode(jsonEncode(bad), maxBytes: 4096)),

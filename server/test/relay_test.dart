@@ -102,4 +102,20 @@ void main() {
       await h.close();
     }
   });
+
+  test('rooms opened at the same moment still respect the limit', () async {
+    final limit = const RelayConfig().maxRoomsPerAddress;
+    final tries = await Future.wait([
+      for (var i = 0; i < limit + 3; i++)
+        RelayTransport.open(server).then<RelayTransport?>(
+          (t) => t,
+          onError: (Object _) => null,
+        ),
+    ]);
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    expect(relay.roomCount, lessThanOrEqualTo(limit));
+    for (final t in tries.nonNulls) {
+      await t.close();
+    }
+  });
 }

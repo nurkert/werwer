@@ -15,8 +15,11 @@ Whowolf on the command line.
   whowolf host <your name>
       Opens a room on this computer and lets you play in it.
 
-  whowolf join <your name> <join link>
-      Joins with the link the host prints (encrypted and verified).
+  whowolf join <your name>
+      Joins with the link the host prints (encrypted and verified): paste it
+      when asked, or set it in the environment as WHOWOLF_LINK. It holds the
+      room's secret, so it stays out of the command line, where the process
+      list and the shell history would show it.
 
   whowolf join <your name> <host address> <room code>
       Joins by address, e.g. 192.168.1.5 or 192.168.1.5:47470; the host has
@@ -36,7 +39,7 @@ Future<void> main(List<String> args) async {
   } else {
     final CliPlayer? p;
     try {
-      p = await _join(name, args.skip(2).toList());
+      p = await _join(name, _joinArgs(args.skip(2).toList()));
     } on SecureChannelError {
       stderr.writeln(
         'That is not the host from the link (wrong key or room secret).',
@@ -66,6 +69,25 @@ Future<void> main(List<String> args) async {
   exit(0);
 }
 
+/// The join arguments: a link from the environment or the terminal when
+/// none is given, so the room secret never sits in the command line.
+List<String> _joinArgs(List<String> rest) {
+  if (rest.isNotEmpty) {
+    if (rest.length == 1) {
+      stderr.writeln(
+        'Note: a link on the command line shows up in the process list and '
+        'the shell history. Next time run "whowolf join <name>" and paste it.',
+      );
+    }
+    return rest;
+  }
+  final fromEnv = Platform.environment['WHOWOLF_LINK'];
+  if (fromEnv != null && fromEnv.trim().isNotEmpty) return [fromEnv.trim()];
+  stdout.write('Join link: ');
+  final line = stdin.readLineSync()?.trim() ?? '';
+  return line.isEmpty ? const [] : [line];
+}
+
 Future<CliPlayer> _host(String name) async {
   final random = Random.secure();
   final code = List.generate(roomCodeLength, (_) => random.nextInt(10)).join();
@@ -87,7 +109,9 @@ Future<CliPlayer> _host(String name) async {
   stdout
     ..writeln('Room $code is open on $ip:${lan.port}.')
     ..writeln('Others join with:')
-    ..writeln('  whowolf join <name> "${link.encode()}"');
+    ..writeln('  whowolf join <name>')
+    ..writeln('and paste this link when asked (it holds the room secret):')
+    ..writeln('  ${link.encode()}');
   return CliPlayer(
     name: name,
     room: code,

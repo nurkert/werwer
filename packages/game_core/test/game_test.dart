@@ -62,6 +62,27 @@ void main() {
         () => apply(state, AddPlayer(id(9), 'x' * (maxNameLength + 1))),
         refuses(Violation.invalidName),
       );
+      // No terminal escapes, no invisible direction marks.
+      for (final sneaky in [
+        'Bo\u001b[2J',
+        'Bo\u0007',
+        'Bo\u202eadA',
+        'B\u200bo',
+      ]) {
+        expect(
+          () => apply(state, AddPlayer(id(9), sneaky)),
+          refuses(Violation.invalidName),
+          reason: sneaky,
+        );
+      }
+      // Emoji built with the zero-width joiner stay allowed.
+      expect(
+        apply(
+          state,
+          AddPlayer(id(9), 'Fam \u{1F468}\u200d\u{1F469}'),
+        ).state.players,
+        hasLength(2),
+      );
       expect(
         () => apply(state, AddPlayer(id(0), 'Zoe')),
         refuses(Violation.duplicatePlayer),

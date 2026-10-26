@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:game_core/game_core.dart';
 import 'package:protocol/src/reader.dart';
 import 'package:protocol/src/settings_codec.dart';
@@ -88,7 +90,7 @@ Map<String, Object?> encodeState(GameState state) => {
   'sheep': _pairs(state.sheep),
   'lastNightSheep': _pairs(state.lastNightSheep),
   'dreams': _pairs(state.dreams),
-  'seed': state.seed,
+  'secret': base64Url.encode(state.secret),
   'winner': ?state.winner?.name,
 };
 
@@ -165,7 +167,21 @@ GameState decodeState(JsonReader json) {
     sheep: _readPairs(json, 'sheep'),
     lastNightSheep: _readPairs(json, 'lastNightSheep'),
     dreams: _readPairs(json, 'dreams'),
-    seed: json.integer('seed', max: 0xffffffff),
+    secret: _secret(json.string('secret')),
     winner: json.maybeEnum('winner', Faction.values),
   );
+}
+
+/// The game's secret: [secretLength] bytes or none (before the start).
+List<int> _secret(String text) {
+  final List<int> bytes;
+  try {
+    bytes = base64Url.decode(text);
+  } on FormatException {
+    throw const ProtocolError('bad secret');
+  }
+  if (bytes.isNotEmpty && bytes.length != secretLength) {
+    throw const ProtocolError('bad secret');
+  }
+  return bytes;
 }

@@ -167,9 +167,10 @@ class GameState {
     Map<PlayerId, int> sheep = const {},
     Map<PlayerId, int> lastNightSheep = const {},
     Map<PlayerId, int> dreams = const {},
-    this.seed = 0,
+    List<int> secret = const [],
     this.winner,
   }) : players = List.unmodifiable(players),
+       secret = List.unmodifiable(secret),
        sheep = Map.unmodifiable(sheep),
        lastNightSheep = Map.unmodifiable(lastNightSheep),
        dreams = Map.unmodifiable(dreams),
@@ -253,8 +254,10 @@ class GameState {
   /// Dream points (all sheep counted) per player over the whole game.
   final Map<PlayerId, int> dreams;
 
-  /// Random seed drawn when the game starts; decides the flock sizes.
-  final int seed;
+  /// 32 random bytes drawn when the game starts. Flocks, door signs and the
+  /// mark's coin are derived from it with a keyed hash, so nobody can work
+  /// them out from what they see. Kept by the host only, never in a view.
+  final List<int> secret;
 
   /// The winning faction once [phase] is [Phase.ended].
   final Faction? winner;
@@ -305,7 +308,7 @@ class GameState {
     Map<PlayerId, int>? sheep,
     Map<PlayerId, int>? lastNightSheep,
     Map<PlayerId, int>? dreams,
-    int? seed,
+    List<int>? secret,
     Faction? winner,
   }) => GameState(
     players: players ?? this.players,
@@ -333,7 +336,7 @@ class GameState {
     sheep: sheep ?? this.sheep,
     lastNightSheep: lastNightSheep ?? this.lastNightSheep,
     dreams: dreams ?? this.dreams,
-    seed: seed ?? this.seed,
+    secret: secret ?? this.secret,
     winner: winner ?? this.winner,
   );
 }

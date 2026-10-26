@@ -130,7 +130,9 @@ void main() {
       ..send('a much longer message about who the werewolf might be');
     await settle();
     final sizes = wire.seen.map((f) => base64Url.decode(f).length).toSet();
-    expect(sizes, {paddingSteps.first + 17}); // secretstream adds 17 bytes
+    // The player's two messages share the smallest size, the host's echoes
+    // the host size (secretstream adds 17 bytes each).
+    expect(sizes, {paddingSteps.first + 17, hostPadding + 17});
   });
 
   test('a tampered frame ends the connection', () async {

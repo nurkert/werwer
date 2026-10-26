@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:game_core/src/actions.dart';
 import 'package:game_core/src/events.dart';
 import 'package:game_core/src/model.dart';
@@ -7,6 +10,14 @@ import 'package:game_core/src/violation.dart';
 
 /// Longest allowed player name, in characters.
 const maxNameLength = 24;
+
+/// Characters a name may not hold: control characters (a terminal would run
+/// them as commands) and the invisible marks that flip text direction (a
+/// name could pretend to be another). Names reach every player's screen.
+final _unprintable = RegExp(
+  '[\u0000-\u001f\u007f-\u009f' // control characters
+  '\u200b\u200e\u200f\u2028-\u202e\u2060-\u2069\ufeff]', // invisible
+);
 
 /// The result of [apply]: the new state and what happened.
 class GameUpdate {
@@ -167,7 +178,10 @@ GameUpdate _addPlayer(GameState state, AddPlayer action) {
   final taken = state.players.any(
     (p) => p.name.toLowerCase() == name.toLowerCase(),
   );
-  if (name.isEmpty || name.length > maxNameLength || taken) {
+  if (name.isEmpty ||
+      name.length > maxNameLength ||
+      taken ||
+      _unprintable.hasMatch(name)) {
     _refuse(Violation.invalidName);
   }
   return GameUpdate(
@@ -273,7 +287,9 @@ GameUpdate _startGame(GameState state, StartGame action) {
   return GameUpdate(
     state.copyWith(
       phase: Phase.roleReveal,
-      seed: action.random.nextInt(1 << 32),
+      secret: [
+        for (var i = 0; i < secretLength; i++) action.random.nextInt(256),
+      ],
       players: [
         for (var i = 0; i < count; i++)
           state.players[i].copyWith(role: roles[i]),
@@ -445,52 +461,33 @@ PlayerId? _majority(Iterable<PlayerId> votes) {
   return leaders.length == 1 ? leaders.single.key : null;
 }
 
-/// A 32-bit FNV-1a hash over [salt], the game's seed, the round, [player]
-/// and [extra]: stable, serializable, no `Random`. Each use has its own
-/// salt, so flocks, door signs and the mark's coin do not depend on each
-/// other.
-int _hash(
+/// Bytes of [GameState.secret].
+const secretLength = 32;
+
+/// 32 bits of HMAC-SHA256 under the game's secret over [salt], the round,
+/// [player] and [extra]: stable and serializable without a `Random`, and
+/// without the secret no player can predict another's values from their
+/// own. Each use has its own salt, so flocks, door signs and the mark's coin
+/// do not depend on each other.
+int _keyed(
   GameState state, {
-  String salt = '',
+  required String salt,
   PlayerId? player,
   List<int> extra = const [],
 }) {
-  var hash = 0x811c9dc5;
-  void mix(int value) {
-    hash = _mul32(hash ^ (value & 0xff), 0x01000193);
-  }
-
-  salt.codeUnits.forEach(mix);
-  for (var shift = 0; shift < 32; shift += 8) {
-    mix(state.seed >> shift);
-  }
-  mix(state.round);
-  player?.value.codeUnits.forEach(mix);
-  extra.forEach(mix);
-  return hash;
-}
-
-/// [a] times [b] modulo 2^32, exact also on the web, where integers above
-/// 2^53 lose precision.
-int _mul32(int a, int b) =>
-    ((((a * (b >> 16)) & 0xffff) << 16) + a * (b & 0xffff)) & 0xffffffff;
-
-/// Spreads every input bit of a 32-bit [hash] over all output bits
-/// (MurmurHash3's finalizer). FNV alone barely changes the high bits when
-/// only the last bytes differ.
-int _avalanche(int hash) {
-  var h = hash ^ (hash >> 16);
-  h = _mul32(h, 0x85ebca6b);
-  h ^= h >> 13;
-  h = _mul32(h, 0xc2b2ae35);
-  return h ^ (h >> 16);
+  final message = utf8.encode(
+    [salt, state.round, player?.value ?? '', ...extra].join('|'),
+  );
+  final mac = Hmac(sha256, state.secret).convert(message).bytes;
+  // Assembled by multiplication, not shifts: shifts are 32-bit on the web.
+  return ((mac[0] * 256 + mac[1]) * 256 + mac[2]) * 256 + mac[3];
 }
 
 /// How many sheep run across [player]'s meadow in this night. Decided by the
 /// game, not by the role: some nights bring a big flock, some only a few
 /// sheep, so a low count in the morning is a hint at most, never proof.
 int flockFor(GameState state, PlayerId player) {
-  final u = _hash(state, player: player) / 0xffffffff;
+  final u = _keyed(state, salt: 'flock', player: player) / 0xffffffff;
   // Skewed towards small flocks: a few players get very little each night.
   return minFlock + (u * u * (maxFlock - minFlock)).round();
 }
@@ -501,15 +498,14 @@ int flockFor(GameState state, PlayerId player) {
 List<int> doorSignFor(GameState state, PlayerId player) => List.unmodifiable([
   for (var i = 0; i < doorSignLength; i++)
     // Scaled down, not shifted: shifts are 32-bit on the web.
-    _avalanche(_hash(state, salt: 'door', player: player, extra: [i])) *
+    _keyed(state, salt: 'door', player: player, extra: [i]) *
         doorSignSymbols ~/
         0x100000000,
 ]);
 
 /// Whether a right door sign takes its player tonight: a coin, so a mark is
 /// a threat, never a sure kill.
-bool _markStrikes(GameState state) =>
-    _avalanche(_hash(state, salt: 'mark')) >> 31 == 1;
+bool _markStrikes(GameState state) => _keyed(state, salt: 'mark') >= 0x80000000;
 
 /// Records the pack's door sign attempt of tonight. Unlike the hunt pick it
 /// is not a night choice: it neither ends the step nor counts as acting.

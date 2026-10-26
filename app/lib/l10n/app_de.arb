@@ -247,5 +247,7 @@
   "markTry": "Zeichen versuchen",
   "markRight": "Das Zeichen von {name} stimmte. Vielleicht erwischt das Rudel sie heute Nacht.",
   "markWrong": "Das Zeichen von {name} war falsch. Die nächste Nacht bringt neue Zeichen.",
-  "settingsDoorSigns": "Türzeichen (wer aufs Display schauen lässt, riskiert sein Leben)"
+  "settingsDoorSigns": "Türzeichen (wer aufs Display schauen lässt, riskiert sein Leben)",
+  "codeConfirmHint": "Fragt der Bildschirm des Gastgebers mit genau diesen Zeichen nach dir? Nur dann ist es wirklich der Gastgeber. Sieht er keine Anfrage von dir, bestätige nicht.",
+  "codeConfirm": "Der Gastgeber sieht dieselben Zeichen"
 }

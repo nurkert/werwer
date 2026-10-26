@@ -3,6 +3,25 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
+## Unreleased
+
+### Security
+- Joining without the QR code now asks you to confirm that the host's screen
+  shows your symbols before anything from the host counts; someone on the
+  same Wi-Fi could otherwise pose as the room. Waiting for the host no longer
+  drops the connection (and changes the symbols) after 8 seconds.
+- Door signs, flocks and the mark's coin come from a 256-bit game secret via
+  HMAC-SHA256; before, a player could work out everyone's signs from their own.
+- WebSocket compression is off everywhere and the relay checks its room
+  limits again after the upgrade.
+- Names may not contain control or invisible direction characters; the CLI
+  filters its output and reads the join link from input instead of the
+  command line. Every host message is padded to the same size.
+
+### Changed
+- Figures stand on corrugated board with a visible edge and a kraft back,
+  and rock gently so the thickness shows.
+
 ## 0.1.0 – 2026-10-26
 
 The first release: a developer beta you can play with friends.

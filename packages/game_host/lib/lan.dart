@@ -58,7 +58,12 @@ class LanTransport implements Transport {
       return;
     }
     try {
-      final socket = await WebSocketTransformer.upgrade(request);
+      // No compression: ciphertext does not compress, and inflating a
+      // stranger's frame could blow up memory from one small message.
+      final socket = await WebSocketTransformer.upgrade(
+        request,
+        compression: CompressionOptions.compressionOff,
+      );
       socket.pingInterval = const Duration(seconds: 5);
       if (_incoming.isClosed) {
         await socket.close();
@@ -111,6 +116,7 @@ Future<Connection> dialHost(
 }) async {
   final socket = await WebSocket.connect(
     Uri(scheme: 'ws', host: address, port: port, path: socketPath).toString(),
+    compression: CompressionOptions.compressionOff,
   ).timeout(timeout);
   socket.pingInterval = const Duration(seconds: 5);
   return WebSocketConnection(socket);

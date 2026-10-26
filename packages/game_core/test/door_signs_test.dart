@@ -18,7 +18,7 @@ GameState signNight({int seed = 0, Role extra = v}) => night([
   v,
   v,
   Role.seer,
-], settings: signs).copyWith(seed: seed);
+], settings: signs).copyWith(secret: secretOf(seed));
 
 /// Plays only the werewolves' step: they pick [victim], everyone else the
 /// first other living player.
@@ -59,6 +59,11 @@ bool strikes(int seed) {
 int seedWhere({required bool strike}) =>
     Iterable<int>.generate(1000).firstWhere((s) => strikes(s) == strike);
 
+/// A distinct game secret per test number.
+List<int> secretOf(int n) => [
+  for (var i = 0; i < secretLength; i++) (n * 131 + i * 37 + (n >> 8)) & 0xff,
+];
+
 void main() {
   group('door signs', () {
     test('are three symbols, stable per night, new every night', () {
@@ -75,7 +80,7 @@ void main() {
         for (var round = 1; round < 4; round++) {
           for (var p = 0; p < 7; p++) {
             final s = doorSignFor(
-              state.copyWith(seed: seed, round: round),
+              state.copyWith(secret: secretOf(seed), round: round),
               id(p),
             );
             all.add(s.join(','));

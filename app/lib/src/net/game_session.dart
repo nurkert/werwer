@@ -59,6 +59,13 @@ class GameSession extends ChangeNotifier {
   /// Joined without the QR code's secret: waiting for the host's check.
   bool get waitingForHost => _link.waitingForHost;
 
+  /// Joined without the QR code: the player still has to confirm that the
+  /// host's screen shows the same symbols.
+  bool get needsCodeConfirmation => _link.needsCodeConfirmation;
+
+  /// The host's screen shows the same symbols as ours.
+  void confirmCheckCode() => _link.confirmCheckCode();
+
   /// Symbols to compare with the host, from the encrypted handshake.
   List<int> get checkCode => _link.checkCode;
 

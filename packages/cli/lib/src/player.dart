@@ -34,7 +34,11 @@ class CliPlayer {
 
   String? get token => _token;
 
-  void _say(String line) => _out.writeln(line);
+  /// Writes [line] without control characters: names and texts come from
+  /// other players, and a terminal would run escape sequences hidden in them.
+  void _say(String line) => _out.writeln(
+    line.replaceAll(RegExp('[\u0000-\u0008\u000b-\u001f\u007f-\u009f]'), ''),
+  );
 
   String _nameOf(PlayerId id) =>
       view?.seats.where((s) => s.id == id).map((s) => s.name).firstOrNull ??

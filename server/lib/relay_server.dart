@@ -117,36 +117,57 @@ class RelayServer {
       return;
     }
     final address = request.connectionInfo?.remoteAddress.address;
-    final perAddress = config.maxRoomsPerAddress;
-    if (isHost &&
-        (_rooms.length >= config.maxRooms ||
-            (perAddress > 0 &&
-                _rooms.values.where((r) => r.address == address).length >=
-                    perAddress))) {
+    if (isHost && !_mayOpenRoom(address)) {
       request.response.statusCode = HttpStatus.serviceUnavailable;
       await request.response.close();
       return;
     }
     final room = joinMatch == null ? null : _rooms[joinMatch.group(1)];
-    if (!isHost &&
-        (room == null || room.peers.length >= config.maxPeersPerRoom)) {
+    if (!isHost && (room == null || !_mayJoin(room))) {
       request.response.statusCode = HttpStatus.notFound;
       await request.response.close();
       return;
     }
     final WebSocket socket;
     try {
-      socket = await WebSocketTransformer.upgrade(request);
+      // No compression: the payloads are ciphertext, and inflating an
+      // attacker's frame could turn one small message into gigabytes.
+      socket = await WebSocketTransformer.upgrade(
+        request,
+        compression: CompressionOptions.compressionOff,
+      );
     } on Object {
       return;
     }
     socket.pingInterval = const Duration(seconds: 10);
+    // The upgrade took a moment: other requests may have opened rooms or the
+    // room may be gone by now, so the limits are checked again before the
+    // socket counts.
+    if (isHost ? !_mayOpenRoom(address) : !_mayJoin(room!)) {
+      unawaited(socket.close());
+      return;
+    }
     if (isHost) {
       _openRoom(socket, address);
     } else {
       _joinRoom(room!, socket);
     }
   }
+
+  /// Room for one more room, overall and for [address].
+  bool _mayOpenRoom(String? address) {
+    final perAddress = config.maxRoomsPerAddress;
+    return _rooms.length < config.maxRooms &&
+        (perAddress <= 0 ||
+            _rooms.values.where((r) => r.address == address).length <
+                perAddress);
+  }
+
+  /// [room] is still open and has a free seat.
+  bool _mayJoin(_Room room) =>
+      _rooms[room.id] == room &&
+      room.host.readyState == WebSocket.open &&
+      room.peers.length < config.maxPeersPerRoom;
 
   String _newRoomId() {
     while (true) {
@@ -203,7 +224,9 @@ class RelayServer {
   void _joinRoom(_Room room, WebSocket peer) {
     final id = room.nextPeer++;
     room.peers[id] = peer;
-    room.host.add(PeerJoined(id).encode());
+    if (room.host.readyState == WebSocket.open) {
+      room.host.add(PeerJoined(id).encode());
+    }
     final meter = _Meter(config.maxMessagesPerSecond);
     void leave() {
       if (room.peers.remove(id) != null &&

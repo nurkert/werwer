@@ -891,4 +891,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsDoorSigns =>
       'Door signs (peeking at screens can cost a life)';
+
+  @override
+  String get codeConfirmHint =>
+      'Does the host\'s screen ask about you with exactly these symbols? Only then is it really the host. If the host sees no request from you, do not confirm.';
+
+  @override
+  String get codeConfirm => 'The host sees the same symbols';
 }
