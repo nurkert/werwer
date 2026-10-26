@@ -136,7 +136,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Android: Vordergrund-Dienst für den Host; iOS: Hinweis, die App offen zu lassen
 - [x] Chaos-Tests: simuliertes Netz mit Verlust, Verzögerung, Doppelungen, Vertauschen und Host-Abstürzen; jede Partie endet regelkonform, alle Sichten stimmen überein
 - [x] Nahtlos zurück: Wer rausfliegt, verbindet sich von selbst neu; nach einem App-Neustart springt die App direkt zurück an den Tisch (Spieler und Gastgeber); eine abwesende Person hält keine Phase auf
-- [ ] Auf echten Geräten: Host schließt die App mitten in der Abstimmung und öffnet sie nach 30 s wieder
+- [x] Auf echten Geräten: Host schließt die App und öffnet sie wieder (2026-10-26 vom Eigentümer mit iPhone als Host und Mac geprüft; das volle Szenario mitten in der Abstimmung nach 30 s läuft automatisiert in `app/integration_test/host_return_test.dart`)
 
 ### D – Mondbühne in der App ([Task 003](tasks/003-mondbuehne-app.md))
 

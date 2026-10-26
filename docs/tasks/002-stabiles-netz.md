@@ -1,6 +1,6 @@
 # Task 002 – Stabiles Netz: Fehler ausgleichen, ohne dass es jemand merkt
 
-**Status:** umgesetzt; offen ist nur der Test auf echten Geräten (siehe „Fertig, wenn“)
+**Status:** fertig (Gerätetest 2026-10-26: iPhone als Host, Mac als Spieler; Abstimmungs-Szenario automatisiert in `app/integration_test/host_return_test.dart`)
 **Roadmap:** MVP-Sprint, Spur S
 
 ## Ziel
