@@ -203,7 +203,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Hybrid: Spieler im WLAN bleiben lokal, nur die anderen gehen über den Server
 - [ ] **Wandernder Erzähler** (vorgezogen, Wunsch des Eigentümers): synchrones Abspielen auf allen Handys und eine Stimme, die hörbar um den Tisch läuft; die Aufnahmen liefert der Eigentümer ([Task 010](tasks/010-wandernder-erzaehler.md))
 - [ ] **Eigene Stimmen:** Jeder kann die Erzählersätze auf seinem Handy selbst einsprechen; hat jemand am Tisch eine eigene Stimme, kann der Spielleiter sie auswählen, und sie wird mit der Runde geteilt (nur Audiodaten, feste Größen- und Formatgrenzen, Zustimmung pro Gerät)
-- [ ] Beitritt im Browser ohne Installation (angefangen: Web-Plattform und sodium.js eingerichtet)
+- [x] Beitritt im Browser ohne Installation, im WLAN: Das Host-Handy liefert die Web-App selbst aus, der QR-Code öffnet sie mit der Handykamera (über mobile Daten: später, offen)
 
 ---
 
@@ -211,7 +211,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.
 
-1. **Beitritt im Browser ohne Installation:** Der Host liefert die Flutter-Web-App im WLAN aus. Das ist der stärkste Wachstumshebel laut Marktanalyse.
+1. ~~**Beitritt im Browser ohne Installation**~~ im WLAN: erledigt in 0.1.2; offen ist der Beitritt im Browser über mobile Daten (Web-App z. B. auf whowolf.de, Spiel über das Relay).
 2. **Volle Wolfsspur** (früher M4, [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)): Uhrabgleich mit dem Host, synchrones Abspielen, Spur-Regel, Überdecken, Stummschalter auf iOS umgehen, Kopfhörer erkennen, Startwerte per Simulation mit Bots, eigene bzw. lizenzfreie Geräusche.
 3. **Mehr Spiel:**
    - Eulenspur und eigene Whowolf-Rollen (Fährtenleger, Lauscher, Stille Pfote)

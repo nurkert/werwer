@@ -612,5 +612,11 @@
   "extraSheep": "counting sheep",
   "extraDoorSigns": "door signs",
   "extraAtmosphere": "night sounds",
-  "extraPersonas": "free choice of figures"
+  "extraPersonas": "free choice of figures",
+  "webJoinTitle": "Play in the browser",
+  "webJoinHint": "No app needed: enter your name and take your seat at the table.",
+  "webJoinNoLink": "Scan the QR code at the table with your phone's camera to continue here.",
+  "webJoinButton": "Join",
+  "webJoinApp": "The app can do even more: whowolf.de",
+  "inviteHintWeb": "Scan the code with the Whowolf app, or without the app with your phone's camera to play in the browser."
 }

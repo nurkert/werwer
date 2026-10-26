@@ -27,6 +27,12 @@ for package in packages/*/ server/; do
   echo "  $package"
   (cd "$package" && dart test --reporter=compact)
 done
+# The rules and the protocol also run in browsers (players join there):
+# numbers behave differently in JavaScript, so they are tested there too.
+for package in packages/game_core packages/protocol; do
+  echo "▶ $package (browser)"
+  (cd "$package" && dart test --platform chrome --reporter=compact)
+done
 (cd app && flutter test)
 
 echo "✓ All checks passed"

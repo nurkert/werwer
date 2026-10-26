@@ -1063,4 +1063,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get extraPersonas => 'freie Figurenwahl';
+
+  @override
+  String get webJoinTitle => 'Mitspielen im Browser';
+
+  @override
+  String get webJoinHint =>
+      'Ohne App: Gib deinen Namen ein, und du sitzt mit am Tisch.';
+
+  @override
+  String get webJoinNoLink =>
+      'Scanne den QR-Code am Tisch mit der Kamera deines Handys, dann geht es hier weiter.';
+
+  @override
+  String get webJoinButton => 'Mitspielen';
+
+  @override
+  String get webJoinApp => 'Mit der App geht noch mehr: whowolf.de';
+
+  @override
+  String get inviteHintWeb =>
+      'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
 }

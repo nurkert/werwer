@@ -295,5 +295,11 @@
   "extraSheep": "Schäfchen zählen",
   "extraDoorSigns": "Türzeichen",
   "extraAtmosphere": "Nachtgeräusche",
-  "extraPersonas": "freie Figurenwahl"
+  "extraPersonas": "freie Figurenwahl",
+  "webJoinTitle": "Mitspielen im Browser",
+  "webJoinHint": "Ohne App: Gib deinen Namen ein, und du sitzt mit am Tisch.",
+  "webJoinNoLink": "Scanne den QR-Code am Tisch mit der Kamera deines Handys, dann geht es hier weiter.",
+  "webJoinButton": "Mitspielen",
+  "webJoinApp": "Mit der App geht noch mehr: whowolf.de",
+  "inviteHintWeb": "Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los."
 }

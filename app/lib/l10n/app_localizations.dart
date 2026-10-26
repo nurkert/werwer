@@ -1861,6 +1861,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'free choice of figures'**
   String get extraPersonas;
+
+  /// No description provided for @webJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play in the browser'**
+  String get webJoinTitle;
+
+  /// No description provided for @webJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No app needed: enter your name and take your seat at the table.'**
+  String get webJoinHint;
+
+  /// No description provided for @webJoinNoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the QR code at the table with your phone\'s camera to continue here.'**
+  String get webJoinNoLink;
+
+  /// No description provided for @webJoinButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get webJoinButton;
+
+  /// No description provided for @webJoinApp.
+  ///
+  /// In en, this message translates to:
+  /// **'The app can do even more: whowolf.de'**
+  String get webJoinApp;
+
+  /// No description provided for @inviteHintWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.'**
+  String get inviteHintWeb;
 }
 
 class _AppLocalizationsDelegate

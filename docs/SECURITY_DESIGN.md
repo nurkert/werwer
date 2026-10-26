@@ -112,6 +112,19 @@
   - `packages/secure_channel/test/custody_test.dart`: Siegel und Eingang.
   - `app/integration_test/takeover_test.dart`: alles echt auf macOS.
 
+### Die Web-App vom Host (A2, A3)
+
+- **Lieferung:** Das Host-Handy liefert die Web-App an Browser im lokalen Netz aus, über denselben LAN-Server und nur an private Adressen. Erlaubt sind nur GET und HEAD.
+- **Strenge Pfade:** nur Buchstaben, Ziffern, `._-/`, keine Punkt-Segmente, höchstens 200 Zeichen. Ausgeliefert wird nur, was im App-Bundle liegt; es gibt keinen Dateisystemzugriff.
+- **Header:**
+  - CSP `default-src 'self'`, Skripte nur vom Host (plus `wasm-unsafe-eval` für CanvasKit und libsodium)
+  - Verbindungen nur zum Host selbst
+  - `frame-ancestors 'none'`, `nosniff`, `no-referrer`, COOP
+- **Keine Drittanbieter:** Die Web-App lädt nichts aus dem Internet, weder CDN noch Schriftendienst noch Service Worker.
+- **Schlüssel:** Der QR-Code verweist auf `http://<private Adresse>/join?…#k=…&s=…`. Die Schlüssel stehen im Fragment, das der Browser nie sendet. Ein solcher Link gilt nur mit Schlüssel, der Handshake beweist also, dass die Seite vom echten Host stammt. Nach dem Lesen entfernt die Seite den Schlüssel aus Adresszeile und Verlauf.
+- **Restrisiko:** Die Seite selbst kommt über unverschlüsseltes HTTP im WLAN. Ein aktiver Angreifer im selben Netz könnte eine veränderte Web-App ausliefern. Das ist dasselbe Vertrauen wie bei jeder lokal ausgelieferten Seite; die Spieldaten bleiben Ende-zu-Ende verschlüsselt, solange die Seite echt ist. Wer das ausschließen will, nimmt die App.
+- **Tests:** `packages/game_host/test/site_test.dart` (Header, Ausbruchsversuche, nur lesen), `packages/protocol/test/link_test.dart` (lokale Links nur mit Schlüssel und privater Adresse).
+
 ### QR-Codes und Links (A3)
 
 - **Strikte Prüfung:**

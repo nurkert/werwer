@@ -1,0 +1,35 @@
+{
+  "name": "Whowolf",
+  "short_name": "Whowolf",
+  "start_url": "/join",
+  "display": "standalone",
+  "background_color": "#141A33",
+  "theme_color": "#141A33",
+  "description": "Werwolf am Tisch, jeder mit seinem Handy.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

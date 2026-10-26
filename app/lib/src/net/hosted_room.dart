@@ -12,6 +12,7 @@ import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/keep_alive.dart';
 import 'package:whowolf/src/net/room_store.dart';
+import 'package:whowolf/src/net/web_app.dart';
 
 /// A room this device hosts: the game host with its LAN socket and, if a
 /// relay server is configured and reachable, a room on the relay for remote
@@ -119,7 +120,10 @@ class HostedRoom {
     final roomKeys = keys ?? await HostKeys.generate();
     final keysJson = await roomKeys.toJson();
     // The default port first: players who lost the host reconnect to it.
-    final lan = await LanTransport.bind();
+    // With the web app in this build, phones without the app join in the
+    // browser from the same address.
+    final site = await bundledWebApp();
+    final lan = await LanTransport.bind(site: site);
     host.serve(SecureTransport(lan, roomKeys));
     const store = RoomStore();
     final sealer = SodiumSealer(await loadSodium());
@@ -166,7 +170,7 @@ class HostedRoom {
       announcer,
       relayFailed: relayServer != null && relay == null,
       keptAlive: keptAlive,
-    );
+    ).._webApp = site;
   }
 
   static Future<JoinLink> _linkFor(
@@ -204,6 +208,16 @@ class HostedRoom {
   /// after [revive] (new port or Wi-Fi address).
   JoinLink get link => _link;
 
+  /// The web app this room serves to browsers, if this build has it.
+  Site? get _site => _webApp;
+  Site? _webApp;
+
+  /// What the QR code says: the host's own address when it serves the web
+  /// app (a phone without the app opens it in the browser and joins),
+  /// otherwise the usual link. The app reads both.
+  String get qrText =>
+      (_webApp == null ? null : _link.encodeLocal()) ?? _link.encode();
+
   /// A relay server was configured but could not be reached.
   final bool relayFailed;
 
@@ -232,7 +246,7 @@ class HostedRoom {
     } on Object {
       // The socket was already dead.
     }
-    final lan = await LanTransport.bind(port: _port);
+    final lan = await LanTransport.bind(port: _port, site: _site);
     if (_closed) {
       await lan.close();
       return;

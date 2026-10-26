@@ -76,6 +76,12 @@ jobs:
           fi
           echo "NAME=$version" >> "$GITHUB_ENV"
           echo "FLAGS=--release --build-name=$version --build-number=${{ github.run_number }} --dart-define=APP_VERSION=$version" >> "$GITHUB_ENV"
+      - name: Web app for joining in the browser
+        # Bundled into the app: the host's phone serves it on the local
+        # network (tool/build_webapp.sh, app/assets/webapp/README.md).
+        env:
+          APP_VERSION: ${{ env.NAME }}
+        run: tool/build_webapp.sh
       - name: Signed Apple build
         # With the App Store Connect key in the repository secrets, macOS is
         # signed with Developer ID and notarized, and iOS goes to TestFlight.

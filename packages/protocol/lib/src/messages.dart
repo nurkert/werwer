@@ -18,7 +18,7 @@ const protocolVersion = 5;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
-const int maxClock = 1 << 50;
+const int maxClock = 1125899906842624; // 2^50; no shift: 32 bit on the web
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;
@@ -198,7 +198,7 @@ sealed class ClientMessage {
 }
 
 /// Largest sequence or state version number.
-const int maxSeq = 1 << 40;
+const int maxSeq = 1099511627776; // 2^40; no shift: 32 bit on the web
 
 /// "I am still here and have seen state [version]": the host answers with
 /// the current state if the player missed one. Keeps the link alive.

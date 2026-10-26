@@ -273,6 +273,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     Phase.lobby => LobbyPhase(
       session: session,
       link: session.hosted?.link,
+      qr: session.hosted?.qrText,
       relayFailed: session.hosted?.relayFailed ?? false,
       keepAppOpen: _mustStayOpen,
     ),

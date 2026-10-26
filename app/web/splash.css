@@ -1,0 +1,11 @@
+/* Shown while the app loads from the host's phone: the night stage. */
+html, body { margin: 0; height: 100%; background: #141A33; }
+#splash { position: fixed; inset: 0; display: grid; place-items: center; }
+#splash .moon {
+  width: 56px; height: 56px; border-radius: 50%;
+  box-shadow: -12px 6px 0 0 #F2C46B;
+  animation: glow 1.6s ease-in-out infinite alternate;
+}
+@keyframes glow { from { opacity: .45; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { #splash .moon { animation: none; } }
+flt-glass-pane ~ #splash, body:has(flutter-view) #splash { display: none; }

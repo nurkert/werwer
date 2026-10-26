@@ -11,6 +11,11 @@ const defaultLanPort = 47470;
 ///
 /// The host's public key and the room secret for the encrypted handshake are
 /// in the fragment (`#k=…&s=…`), which browsers never send to a server.
+///
+/// A host that serves the web app links to itself instead
+/// (`http://192.168.1.5:47470/join?room=1234#k=…&s=…`): a phone without
+/// the app opens it in the browser and joins, even without internet. The
+/// address must be a private one, and such a link always carries the key.
 class JoinLink {
   /// Creates a link; at least one of [lan] or [relayRoom] must be set.
   const JoinLink({
@@ -26,20 +31,23 @@ class JoinLink {
   static JoinLink? tryParse(String raw) {
     if (raw.length > 512) return null;
     final uri = Uri.tryParse(raw.trim());
-    if (uri == null ||
-        uri.scheme != 'https' ||
-        uri.host != linkHost ||
-        uri.path != '/join' ||
-        uri.hasPort ||
-        uri.userInfo.isNotEmpty) {
+    if (uri == null || uri.path != '/join' || uri.userInfo.isNotEmpty) {
       return null;
     }
+    // The host itself, on the local network: its address is the link's.
+    final local = uri.scheme == 'http'
+        ? LanAddress.tryParse('${uri.host}:${uri.hasPort ? uri.port : 80}')
+        : null;
+    final official =
+        uri.scheme == 'https' && uri.host == linkHost && !uri.hasPort;
+    if (local == null && !official) return null;
     final q = uri.queryParameters;
-    final allowed = {'room', 'lan', 'relay', 'srv'};
+    final allowed = {'room', 'relay', 'srv', if (official) 'lan'};
     if (q.keys.any((k) => !allowed.contains(k))) return null;
     final room = q['room'] ?? '';
     if (!RegExp('^[0-9]{$roomCodeLength}\$').hasMatch(room)) return null;
-    final lan = q['lan'] == null ? null : LanAddress.tryParse(q['lan']!);
+    final lan =
+        local ?? (q['lan'] == null ? null : LanAddress.tryParse(q['lan']!));
     if (q['lan'] != null && lan == null) return null;
     final relay = q['relay'];
     if (relay != null && !isRelayRoomId(relay)) return null;
@@ -60,6 +68,9 @@ class JoinLink {
     // secret from the same link (end-to-end encrypted and authenticated);
     // a bare server could be anyone's.
     if (server != null && key == null) return null;
+    // Whoever serves a page could serve any page: from the host's own
+    // address only with the key, so the handshake proves it is the host.
+    if (local != null && key == null) return null;
     return JoinLink(
       room: room,
       lan: lan,
@@ -90,6 +101,26 @@ class JoinLink {
 
   /// The room secret (32 bytes).
   final List<int>? roomSecret;
+
+  /// The link to the host itself (see the class comment), for phones that
+  /// join in the browser; `null` without a local address or the key.
+  String? encodeLocal() {
+    final lan = this.lan;
+    if (lan == null || hostKey == null || roomSecret == null) return null;
+    return Uri(
+      scheme: 'http',
+      host: lan.ip,
+      port: lan.port,
+      path: '/join',
+      queryParameters: {
+        'room': room,
+        'relay': ?relayRoom,
+        'srv': ?server?.toString(),
+      },
+      fragment:
+          'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}',
+    ).toString();
+  }
 
   /// The link as text for the QR code.
   String encode() => Uri(

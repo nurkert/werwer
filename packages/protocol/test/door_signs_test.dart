@@ -70,7 +70,7 @@ void main() {
         mark([1, 2.5, 3]),
         mark([1, '2', 3]),
         mark([1, null, 3]),
-        mark([1, 2, 1 << 40]),
+        mark([1, 2, 1099511627776]),
         mark([1, 2, 3], target: null),
         mark([1, 2, 3], target: 'P3'),
         mark([1, 2, 3], target: 3),

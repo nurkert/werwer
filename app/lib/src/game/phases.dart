@@ -102,6 +102,7 @@ class LobbyPhase extends StatefulWidget {
   const LobbyPhase({
     required this.session,
     this.link,
+    this.qr,
     this.relayFailed = false,
     this.keepAppOpen = false,
     super.key,
@@ -111,6 +112,9 @@ class LobbyPhase extends StatefulWidget {
 
   /// How others reach this room (only on the host device).
   final JoinLink? link;
+
+  /// The QR code's text (see `HostedRoom.qrText`).
+  final String? qr;
   final bool relayFailed;
 
   /// This device hosts and the system may suspend the room in the
@@ -207,7 +211,8 @@ class _LobbyPhaseState extends State<LobbyPhase> {
       children: [
         for (final p in session.pending)
           _PendingPanel(session: session, join: p),
-        if (session.isOwner && link != null) _Invite(link: link),
+        if (session.isOwner && link != null)
+          _Invite(link: link, qr: widget.qr ?? link.encode()),
         if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
         if (session.isOwner && widget.keepAppOpen)
           Body(l10n.keepAppOpenHint, muted: true),
@@ -480,9 +485,10 @@ class _PersonaChoice extends StatelessWidget {
 }
 
 class _Invite extends StatelessWidget {
-  const _Invite({required this.link});
+  const _Invite({required this.link, required this.qr});
 
   final JoinLink link;
+  final String qr;
 
   @override
   Widget build(BuildContext context) {
@@ -493,7 +499,7 @@ class _Invite extends StatelessWidget {
         children: [
           Headline(l10n.inviteTitle),
           const SizedBox(height: 8),
-          Body(l10n.inviteHint),
+          Body(qr.startsWith('http:') ? l10n.inviteHintWeb : l10n.inviteHint),
           const SizedBox(height: 14),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -504,7 +510,7 @@ class _Invite extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: QrImageView(
-                data: link.encode(),
+                data: qr,
                 size: 210,
                 semanticsLabel: l10n.inviteHint,
               ),

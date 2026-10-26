@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
@@ -45,6 +47,48 @@ void main() {
       ]) {
         expect(JoinLink.tryParse(raw), isNull, reason: raw);
       }
+    });
+
+    test('a host links to itself for the browser', () {
+      final link = JoinLink(
+        room: '1234',
+        lan: const LanAddress('192.168.1.5', 47470),
+        relayRoom: 'abcd2345',
+        server: parseRelayServer('wss://relay.example.org'),
+        hostKey: List.filled(32, 7),
+        roomSecret: List.filled(32, 9),
+      );
+      final local = link.encodeLocal()!;
+      expect(local, startsWith('http://192.168.1.5:47470/join?room=1234'));
+      final back = JoinLink.tryParse(local)!;
+      expect(back.lan.toString(), '192.168.1.5:47470');
+      expect(back.hostKey, List.filled(32, 7));
+      expect(back.relayRoom, 'abcd2345');
+      // Without the key, or from anything but a private address: no.
+      expect(
+        const JoinLink(
+          room: '1234',
+          lan: LanAddress('192.168.1.5', 1),
+        ).encodeLocal(),
+        isNull,
+      );
+      final k =
+          'k=${base64Url.encode(List.filled(32, 1))}'
+          '&s=${base64Url.encode(List.filled(32, 2))}';
+      for (final raw in [
+        'http://192.168.1.5:47470/join?room=1234',
+        'http://8.8.8.8:47470/join?room=1234#$k',
+        'http://192.168.1.5:47470/other?room=1234#$k',
+        'http://192.168.1.5:47470/join?room=1234&lan=10.0.0.1:1#$k',
+        'https://192.168.1.5:47470/join?room=1234#$k',
+        'http://u:p@192.168.1.5:47470/join?room=1234#$k',
+      ]) {
+        expect(JoinLink.tryParse(raw), isNull, reason: raw);
+      }
+      expect(
+        JoinLink.tryParse('http://192.168.1.5:47470/join?room=1234#$k'),
+        isNotNull,
+      );
     });
 
     test('LAN addresses must be private', () {
