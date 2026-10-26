@@ -8,6 +8,7 @@ import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
+import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/net/room_store.dart';
@@ -224,6 +225,7 @@ class _StartScreenState extends State<StartScreen> {
     final l10n = AppLocalizations.of(context);
     final resume = _resume;
     return StageScaffold(
+      floatingAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Palette.moon200,
@@ -235,68 +237,97 @@ class _StartScreenState extends State<StartScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
+      body: Builder(
+        builder: (context) {
+          final layout = StageLayout.of(context);
+          final stage = [
+            Image.asset(
+              'assets/brand/wordmark.png',
+              semanticLabel: 'Whowolf',
+              height: layout.twoColumns ? null : 150,
+            ),
+            const SizedBox(height: 12),
+            _Cast(height: layout.twoColumns ? 200 : (layout.short ? 90 : 120)),
+            const SizedBox(height: 16),
+            Text(
+              l10n.tagline,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ];
+          final form = [
+            if (_savedRoom case final saved?) ...[
+              PrimaryButton(
+                label: l10n.restoreRoom,
+                onPressed: _busy ? null : () => _restore(saved),
+              ),
+              const SizedBox(height: 20),
+            ],
+            if (resume != null) ...[
+              PrimaryButton(
+                label: l10n.resume(resume.room),
+                onPressed: () => _continue(resume),
+              ),
+              const SizedBox(height: 20),
+            ],
+            TextField(
+              controller: _name,
+              maxLength: 24,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                labelText: l10n.nameLabel,
+                errorText: _error,
+              ),
+              onSubmitted: (_) => _open(),
+            ),
+            const SizedBox(height: 12),
+            PrimaryButton(
+              label: l10n.createRoom,
+              onPressed: _busy ? null : _open,
+            ),
+            const SizedBox(height: 12),
+            SecondaryButton(label: l10n.joinRoom, onPressed: _join),
+            const SizedBox(height: 28),
+            Stamp(l10n.devStamp(widget.version), size: 18),
+            const SizedBox(height: 12),
+            Body(l10n.testNote, muted: true),
+          ];
+          if (!layout.twoColumns) {
+            return StageScroll(
+              maxWidth: 440,
+              horizontal: 28,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                children: [...stage, const SizedBox(height: 28), ...form],
+              ),
+            );
+          }
+          // Wide: the stage with its ensemble on the left, the form beside.
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1180),
+              child: Row(
                 children: [
-                  Image.asset(
-                    'assets/brand/wordmark.png',
-                    semanticLabel: 'Whowolf',
-                  ),
-                  const SizedBox(height: 12),
-                  const _Cast(),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.tagline,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 28),
-                  if (_savedRoom case final saved?) ...[
-                    PrimaryButton(
-                      label: l10n.restoreRoom,
-                      onPressed: _busy ? null : () => _restore(saved),
+                  Expanded(
+                    flex: 6,
+                    child: StageScroll(
+                      maxWidth: 620,
+                      horizontal: 32,
+                      child: Column(children: stage),
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                  if (resume != null) ...[
-                    PrimaryButton(
-                      label: l10n.resume(resume.room),
-                      onPressed: () => _continue(resume),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                  TextField(
-                    controller: _name,
-                    maxLength: 24,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: l10n.nameLabel,
-                      errorText: _error,
-                    ),
-                    onSubmitted: (_) => _open(),
                   ),
-                  const SizedBox(height: 12),
-                  PrimaryButton(
-                    label: l10n.createRoom,
-                    onPressed: _busy ? null : _open,
+                  Expanded(
+                    flex: 4,
+                    child: StageScroll(
+                      maxWidth: 420,
+                      horizontal: 32,
+                      child: Column(children: form),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  SecondaryButton(label: l10n.joinRoom, onPressed: _join),
-                  const SizedBox(height: 28),
-                  Stamp(l10n.devStamp(widget.version), size: 18),
-                  const SizedBox(height: 12),
-                  Body(l10n.testNote, muted: true),
                 ],
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -304,22 +335,29 @@ class _StartScreenState extends State<StartScreen> {
 
 /// A row of cardboard figures, slightly overlapping.
 class _Cast extends StatelessWidget {
-  const _Cast();
+  const _Cast({this.height = 120});
+
+  /// The middle figure's height; the others stand a little smaller.
+  final double height;
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: SizedBox(
-      height: 120,
+    // Shrinks as a whole when the column is narrower than the ensemble.
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           for (final (i, asset) in castAssets.indexed)
             Transform.translate(
-              offset: Offset((2 - i) * 8.0, 0),
+              offset: Offset((2 - i) * height / 15, 0),
               child: Transform.rotate(
                 angle: (i - 2) * 0.03,
-                child: TurningFigure(asset: asset, height: i == 2 ? 120 : 100),
+                child: TurningFigure(
+                  asset: asset,
+                  height: i == 2 ? height : height * 0.83,
+                ),
               ),
             ),
         ],

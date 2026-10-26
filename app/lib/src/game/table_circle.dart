@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The table seen from the viewer's own seat: you at the bottom, your
@@ -32,9 +33,17 @@ class TableCircle extends StatelessWidget {
     final ordered = [...seats.skip(me), ...seats.take(me)];
     return LayoutBuilder(
       builder: (context, box) {
-        final size = min(box.maxWidth, 460).toDouble();
-        final portrait = size < 360 ? 46.0 : 56.0;
-        const label = 92.0;
+        // As big as the column allows, but never taller than the window
+        // shows at once (with room for a title and a line above it).
+        final space = ColumnSpace.heightOf(context);
+        final most = space == null ? 460.0 : (space - 150).clamp(300.0, 640.0);
+        final size = min(box.maxWidth, most);
+        final portrait = size < 360
+            ? 46.0
+            : size > 520
+            ? 68.0
+            : 56.0;
+        final label = size > 520 ? 108.0 : 92.0;
         final radius = size / 2 - label / 2 - 4;
         return SizedBox.square(
           dimension: size,

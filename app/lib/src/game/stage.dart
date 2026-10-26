@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The stock everything is printed on: a small tile of noise, made once and
@@ -244,17 +245,109 @@ class _ValancePainter extends CustomPainter {
 /// A screen on the stage: a [Scaffold] over the [StageBackground]. Pages
 /// stay opaque, so route transitions never show two screens at once.
 class StageScaffold extends StatelessWidget {
-  const StageScaffold({required this.body, this.appBar, super.key});
+  const StageScaffold({
+    required this.body,
+    this.appBar,
+    this.floatingAppBar = false,
+    super.key,
+  });
 
   final PreferredSizeWidget? appBar;
   final Widget body;
+
+  /// The body reaches up behind the app bar (its height arrives as top
+  /// padding), so content can scroll underneath instead of being cut off.
+  final bool floatingAppBar;
 
   @override
   Widget build(BuildContext context) => StageBackground(
     child: Scaffold(
       backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: floatingAppBar,
       appBar: appBar,
       body: body,
     ),
   );
+}
+
+/// A body with a [header] floating above it (the narrator's line). The
+/// header's height is added to the top padding the body sees, so a
+/// stage scroll starts below it and scrolls beneath it.
+class FloatingHeader extends StatefulWidget {
+  const FloatingHeader({required this.child, this.header, super.key});
+
+  final Widget? header;
+  final Widget child;
+
+  @override
+  State<FloatingHeader> createState() => _FloatingHeaderState();
+}
+
+class _FloatingHeaderState extends State<FloatingHeader> {
+  double _height = 0;
+
+  void _measured(Size size) {
+    if (size.height != _height && mounted) {
+      setState(() => _height = size.height);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final header = widget.header;
+    final extra = header == null ? 0.0 : _height;
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: MediaQuery(
+            data: media.copyWith(
+              padding: media.padding.copyWith(top: media.padding.top + extra),
+            ),
+            child: widget.child,
+          ),
+        ),
+        if (header != null)
+          Positioned(
+            top: media.padding.top,
+            left: media.padding.left,
+            right: media.padding.right,
+            child: _SizeReporter(onSize: _measured, child: header),
+          ),
+      ],
+    );
+  }
+}
+
+/// Tells its parent its size after every layout that changes it.
+class _SizeReporter extends SingleChildRenderObjectWidget {
+  const _SizeReporter({required this.onSize, super.child});
+
+  final ValueChanged<Size> onSize;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSizeReporter(onSize);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSizeReporter render) {
+    render.onSize = onSize;
+  }
+}
+
+class _RenderSizeReporter extends RenderProxyBox {
+  _RenderSizeReporter(this.onSize);
+
+  ValueChanged<Size> onSize;
+  Size? _last;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size != _last) {
+      _last = size;
+      final reported = size;
+      WidgetsBinding.instance.addPostFrameCallback((_) => onSize(reported));
+    }
+  }
 }

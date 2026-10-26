@@ -17,6 +17,7 @@ import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -37,7 +38,12 @@ class _Silence implements Sounds {
 }
 
 const _silence = _Silence();
-const _size = Size(390, 844);
+
+/// Phone by default; `SCREEN_SIZE=1280x800` renders a desktop window.
+final Size _size = () {
+  final parts = (Platform.environment['SCREEN_SIZE'] ?? '390x844').split('x');
+  return Size(double.parse(parts[0]), double.parse(parts[1]));
+}();
 
 Future<void> _loadFont(String family, List<String> files) async {
   final loader = FontLoader(family);
@@ -80,7 +86,7 @@ class _Shooter {
   Widget frame(Widget child) => RepaintBoundary(
     key: _boundary,
     child: MediaQuery(
-      data: const MediaQueryData(size: _size, disableAnimations: true),
+      data: MediaQueryData(size: _size, disableAnimations: true),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
@@ -266,7 +272,12 @@ void main() {
           await table.close();
           continue;
         }
-        if (first) await shot.shoot('03-role-hidden');
+        if (first) {
+          await shot.shoot('03-role-hidden');
+          await tester.tap(find.byType(TurningFigure));
+          await tester.pump(const Duration(seconds: 1));
+          await shot.shoot('03-role-shown');
+        }
         table.playRound(withYou: true);
         await tester.pump();
         await shot.shoot('04-night-${role.name}');

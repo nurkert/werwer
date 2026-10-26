@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/door_sign.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -144,18 +145,28 @@ class _NightPhaseState extends State<NightPhase> {
           // The meadow is the same on every phone: once your task is done
           // (or folded away), a werewolf's phone looks like anyone's.
           if (sheep) ...[
-            Body(l10n.nightSheep),
-            Countdown(endsAt: session.phaseEndsAt),
-            SheepMeadow(
-              key: ValueKey('meadow-${view.round}'),
-              flock: view.yourFlock,
-              score: _sheep,
-              onPoints: (delta) => setState(() => _sheep += delta),
+            Aside(child: Body(l10n.nightSheep)),
+            Aside(child: Countdown(endsAt: session.phaseEndsAt)),
+            Aside(
+              child: SheepMeadow(
+                key: ValueKey('meadow-${view.round}'),
+                flock: view.yourFlock,
+                score: _sheep,
+                height: figureHeight(
+                  context,
+                  phone: 220,
+                  share: 0.3,
+                  wideShare: 0.55,
+                ).clamp(200, 420),
+                onPoints: (delta) => setState(() => _sheep += delta),
+              ),
             ),
-            TextButton.icon(
-              onPressed: () => _ownCount(view),
-              icon: const Icon(Icons.edit_rounded, size: 18),
-              label: Text(l10n.ownCount),
+            Aside(
+              child: TextButton.icon(
+                onPressed: () => _ownCount(view),
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                label: Text(l10n.ownCount),
+              ),
             ),
           ],
           Body(l10n.nightHint, muted: true),

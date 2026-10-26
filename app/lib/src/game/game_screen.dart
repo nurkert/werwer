@@ -16,6 +16,7 @@ import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/theme.dart';
@@ -163,10 +164,12 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       child: StageMoment(
         view: view,
         child: StageScaffold(
+          floatingAppBar: true,
           appBar: AppBar(
+            toolbarHeight: StageLayout.of(context).short ? 44 : kToolbarHeight,
             title: Image.asset(
               'assets/brand/wordmark.png',
-              height: 34,
+              height: StageLayout.of(context).short ? 26 : 34,
               semanticLabel: 'Whowolf',
             ),
             actions: [
@@ -189,31 +192,45 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                 TextButton(onPressed: _leave, child: Text(l10n.leave)),
             ],
           ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                if (_narration != null &&
+          body: FloatingHeader(
+            header:
+                _narration != null &&
                     session.status != SessionStatus.ended &&
-                    view?.phase != Phase.lobby)
-                  _NarratorLine(text: _narration!),
-                Expanded(
-                  child: _Paused(
-                    paused: session.status == SessionStatus.reconnecting,
-                    onLeave: _leave,
-                    child: session.status == SessionStatus.ended
-                        ? _Ended(reason: session.byeReason)
-                        : session.nameRefused
-                        ? _Rename(session: session)
-                        : (session.waitingForHost ||
-                                  session.needsCodeConfirmation) &&
-                              view == null
-                        ? _WaitingForHost(session: session)
-                        : view == null
-                        ? const Center(child: CircularProgressIndicator())
-                        : _phase(view),
+                    view?.phase != Phase.lobby
+                ? _NarratorLine(text: _narration!)
+                : null,
+            child: _Paused(
+              paused: session.status == SessionStatus.reconnecting,
+              onLeave: _leave,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 380),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: Tween<double>(
+                      begin: 0.97,
+                      end: 1,
+                    ).animate(animation),
+                    child: child,
                   ),
                 ),
-              ],
+                child: KeyedSubtree(
+                  key: ValueKey(_screenKey(view)),
+                  child: session.status == SessionStatus.ended
+                      ? _Ended(reason: session.byeReason)
+                      : session.nameRefused
+                      ? _Rename(session: session)
+                      : (session.waitingForHost ||
+                                session.needsCodeConfirmation) &&
+                            view == null
+                      ? _WaitingForHost(session: session)
+                      : view == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : _phase(view),
+                ),
+              ),
             ),
           ),
         ),
@@ -230,6 +247,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       TargetPlatform.iOS || TargetPlatform.android => true,
       _ => false,
     };
+  }
+
+  /// Which screen is up: a new one fades in, updates within one stay put.
+  String _screenKey(PlayerView? view) {
+    if (session.status == SessionStatus.ended) return 'ended';
+    if (session.nameRefused) return 'rename';
+    return view?.phase.name ?? 'waiting';
   }
 
   Widget _phase(PlayerView view) => switch (view.phase) {
@@ -255,42 +279,56 @@ class _NarratorLine extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-    child: AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      child: Container(
-        key: ValueKey(text),
-        width: double.infinity,
-        constraints: const BoxConstraints(maxWidth: 560),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Palette.night800.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(Radii.m),
-          border: Border.all(
-            color: Palette.gold500.withValues(alpha: 0.45),
-            width: 1.5,
+  Widget build(BuildContext context) {
+    // Sideways phones have little height: one slim line instead of a card.
+    final short = StageLayout.of(context).short;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, short ? 0 : 4, 16, 4),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: Container(
+          key: ValueKey(text),
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 640),
+          padding: EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: short ? 6 : 12,
           ),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.nightlight_round, color: Palette.lantern400),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: Palette.moon100,
-                  fontStyle: FontStyle.italic,
-                  height: 1.35,
+          decoration: BoxDecoration(
+            color: Palette.night800.withValues(alpha: 0.92),
+            borderRadius: BorderRadius.circular(Radii.m),
+            border: Border.all(
+              color: Palette.gold500.withValues(alpha: 0.45),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.nightlight_round,
+                color: Palette.lantern400,
+                size: short ? 18 : 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  text,
+                  maxLines: short ? 2 : null,
+                  overflow: short ? TextOverflow.ellipsis : null,
+                  style: TextStyle(
+                    color: Palette.moon100,
+                    fontStyle: FontStyle.italic,
+                    fontSize: short ? 13 : null,
+                    height: 1.35,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// Joined without the QR code: wait until the host has compared the code.

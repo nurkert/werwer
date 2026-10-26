@@ -229,20 +229,37 @@ class _TurningFigureState extends State<TurningFigure>
   );
   late final AnimationController _sway = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 6400),
+    duration: const Duration(milliseconds: 5200),
   );
+  static final _random = Random();
+  Timer? _nextRock;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final calm = MediaQuery.of(context).disableAnimations;
-    if (widget.sway && !calm && !_sway.isAnimating) {
-      unawaited(_sway.repeat());
-    } else if (calm && _sway.isAnimating) {
+    if (widget.sway && !calm && _nextRock == null && !_sway.isAnimating) {
+      _scheduleRock(first: true);
+    } else if (calm) {
+      _nextRock?.cancel();
+      _nextRock = null;
       _sway
         ..stop()
         ..value = 0;
     }
+  }
+
+  /// Now and then the figure rocks once, so the board's thickness shows;
+  /// in between it stands still facing front and costs nothing to draw.
+  void _scheduleRock({bool first = false}) {
+    final wait = first
+        ? 600 + _random.nextInt(4000)
+        : 9000 + _random.nextInt(9000);
+    _nextRock = Timer(Duration(milliseconds: wait), () async {
+      if (!mounted) return;
+      await _sway.forward(from: 0).orCancel.catchError((Object _) {});
+      if (mounted) _scheduleRock();
+    });
   }
 
   @override
@@ -261,6 +278,7 @@ class _TurningFigureState extends State<TurningFigure>
 
   @override
   void dispose() {
+    _nextRock?.cancel();
     _turn.dispose();
     _sway.dispose();
     super.dispose();
@@ -270,10 +288,29 @@ class _TurningFigureState extends State<TurningFigure>
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: Listenable.merge([_turn, _sway]),
     builder: (context, _) {
-      final rock = sin(_sway.value * 2 * pi) * 0.26; // about ±15°
+      // One rock, easing in and out of the upright: about ±15°.
+      final v = _sway.value;
+      final rock = sin(v * 2 * pi) * sin(v * pi) * 0.3;
       final angle = _turn.value * pi + rock;
       final facing = cos(angle) >= 0;
       final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
+      // Facing (nearly) straight on, the edge is under a pixel wide: one
+      // flat picture instead of a dozen layers.
+      if ((_depth * sin(angle)).abs() < 0.6) {
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0011)
+            ..rotateY(angle),
+          child: facing || widget.back == CardBack.print
+              ? _image(asset)
+              : _Board(
+                  asset: asset,
+                  height: widget.height,
+                  stamp: widget.stamp,
+                ),
+        );
+      }
       // Every layer stands at its own depth and turns with the figure, so
       // the board is real 3D: drawn from the farthest layer to the nearest.
       final layers = [

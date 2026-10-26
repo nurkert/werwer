@@ -12,32 +12,89 @@ import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/settings_sheet.dart';
 import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// Shared scaffold of every phase: scrollable column, max width.
+/// Shared scaffold of every phase. On a phone it is one column; a wide
+/// window splits it: the [Aside] children (the table, the meadow, a big
+/// figure) move into a second column on the right, the rest stays on the
+/// left. Each column scrolls by itself and centres when it is short.
 class PhaseBody extends StatelessWidget {
   const PhaseBody({required this.children, super.key});
 
   final List<Widget> children;
 
+  static const double _gap = 18;
+
+  static Widget _stack(List<Widget> children) => Column(
+    children: [
+      for (final (i, child) in children.indexed) ...[
+        if (i > 0) const SizedBox(height: _gap),
+        child,
+      ],
+    ],
+  );
+
   @override
-  Widget build(BuildContext context) => Center(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+  Widget build(BuildContext context) {
+    final layout = StageLayout.of(context);
+    final aside = children.whereType<Aside>().toList();
+    if (!layout.twoColumns || aside.isEmpty) {
+      return StageScroll(
+        maxWidth: layout.columnWidth,
+        child: _stack(children),
+      );
+    }
+    final main = [
+      for (final child in children)
+        if (child is! Aside) child,
+    ];
+    final width = layout.size.width;
+    final insets = MediaQuery.paddingOf(context);
+    return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: Column(
-          children: [
-            for (final child in children) ...[
-              child,
-              const SizedBox(height: 18),
-            ],
-          ],
+        constraints: const BoxConstraints(maxWidth: 1240),
+        child: Padding(
+          padding: EdgeInsets.only(left: insets.left, right: insets.right),
+          child: MediaQuery.removePadding(
+            context: context,
+            removeLeft: true,
+            removeRight: true,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: (width * 0.4).clamp(340, 500),
+                  child: StageScroll(
+                    horizontal: 24,
+                    child: _stack(main),
+                  ),
+                ),
+                Expanded(
+                  child: StageScroll(
+                    maxWidth: 720,
+                    horizontal: 24,
+                    child: _stack(aside),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+/// A part of a phase that moves into the second column on wide windows
+/// (see [PhaseBody]); on a phone it stays where it is.
+class Aside extends StatelessWidget {
+  const Aside({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
 }
 
 class LobbyPhase extends StatefulWidget {
@@ -155,17 +212,21 @@ class _LobbyPhaseState extends State<LobbyPhase> {
           Body(l10n.keepAppOpenHint, muted: true),
         if (session.isOwner && count < 2) const HelpLink(),
         _PersonaPicker(session: session),
-        Headline(l10n.players(count)),
-        if (count > 1) Body(l10n.tableHint, muted: true),
+        Aside(child: Headline(l10n.players(count))),
+        if (count > 1) Aside(child: Body(l10n.tableHint, muted: true)),
         if (swapFrom != null)
-          Panel(
-            highlight: true,
-            child: Body(l10n.swapHint(view.nameOf(swapFrom))),
+          Aside(
+            child: Panel(
+              highlight: true,
+              child: Body(l10n.swapHint(view.nameOf(swapFrom))),
+            ),
           ),
-        TableCircle(
-          view: view,
-          selected: swapFrom,
-          onTap: session.isOwner ? _tapSeat : null,
+        Aside(
+          child: TableCircle(
+            view: view,
+            selected: swapFrom,
+            onTap: session.isOwner ? _tapSeat : null,
+          ),
         ),
         // What the table will play; the host can change it.
         Panel(
@@ -512,19 +573,63 @@ class _RevealPhaseState extends State<RevealPhase> {
       for (final s in view.seats)
         if (s.id != view.you && s.role == Role.werewolf) s.name,
     ];
+    final color = wolf ? Palette.curtain600 : Palette.forest700;
+    final wide = StageLayout.of(context).twoColumns;
+    void turn() => setState(() => _shown = !_shown);
+    final figure = TurningFigure(
+      asset: personaRoleAsset(view.yourSeat.persona, role),
+      backAsset: personaAsset(view.yourSeat.persona),
+      showBack: !_shown,
+      height: figureHeight(context, phone: 240, share: 0.36, wideShare: 0.7),
+    );
+    final text = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: _shown
+          ? Column(
+              key: const ValueKey('shown'),
+              children: [
+                Headline(l10n.role(role), color: color),
+                const SizedBox(height: 6),
+                Stamp(l10n.faction(role.faction), color: color),
+                const SizedBox(height: 12),
+                Body(l10n.roleText(role)),
+                if (mates.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Body(l10n.pack(mates.join(', '))),
+                ],
+              ],
+            )
+          : Padding(
+              key: const ValueKey('hidden'),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Body(l10n.revealTap),
+            ),
+    );
+    // Your persona stands with its back to the table (grey board, so
+    // onlookers learn nothing); a tap turns it around in your role's
+    // costume. Wide windows give the figure a column of its own.
+    Widget tappable(Widget child) => Semantics(
+      button: true,
+      label: _shown ? l10n.role(role) : l10n.revealTap,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: turn,
+        child: child,
+      ),
+    );
     return PhaseBody(
       children: [
         Headline(l10n.revealTitle),
-        // Your persona stands with its back to the table (grey board, so
-        // onlookers learn nothing); a tap turns it around in your role's
-        // costume.
-        Semantics(
-          button: true,
-          label: _shown ? l10n.role(role) : l10n.revealTap,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() => _shown = !_shown),
-            child: Panel(
+        if (wide) ...[
+          Panel(
+            paper: true,
+            highlight: _shown,
+            child: SizedBox(width: double.infinity, child: text),
+          ),
+          Aside(child: tappable(Center(child: figure))),
+        ] else
+          tappable(
+            Panel(
               paper: true,
               highlight: _shown,
               child: SizedBox(
@@ -532,52 +637,14 @@ class _RevealPhaseState extends State<RevealPhase> {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    TurningFigure(
-                      asset: personaRoleAsset(view.yourSeat.persona, role),
-                      backAsset: personaAsset(view.yourSeat.persona),
-                      showBack: !_shown,
-                      height: 240,
-                    ),
+                    figure,
                     const SizedBox(height: 14),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: _shown
-                          ? Column(
-                              key: const ValueKey('shown'),
-                              children: [
-                                Headline(
-                                  l10n.role(role),
-                                  color: wolf
-                                      ? Palette.curtain600
-                                      : Palette.forest700,
-                                ),
-                                const SizedBox(height: 6),
-                                Stamp(
-                                  l10n.faction(role.faction),
-                                  color: wolf
-                                      ? Palette.curtain600
-                                      : Palette.forest700,
-                                ),
-                                const SizedBox(height: 12),
-                                Body(l10n.roleText(role)),
-                                if (mates.isNotEmpty) ...[
-                                  const SizedBox(height: 10),
-                                  Body(l10n.pack(mates.join(', '))),
-                                ],
-                              ],
-                            )
-                          : Padding(
-                              key: const ValueKey('hidden'),
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Body(l10n.revealTap),
-                            ),
-                    ),
+                    text,
                   ],
                 ),
               ),
             ),
           ),
-        ),
         if (!view.youConfirmed)
           PrimaryButton(
             label: l10n.confirmRole,
@@ -681,14 +748,17 @@ class DayPhase extends StatelessWidget {
         if (!view.yourSeat.isAlive) Body(l10n.youAreDead),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
-        if (sheep) Headline(l10n.sleepTitle, size: 28),
-        TableCircle(
-          view: view,
-          badges: {
-            if (sheep)
-              for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
-                key: l10n.sheepCount(value),
-          },
+        if (sheep) Aside(child: Headline(l10n.sleepTitle, size: 28)),
+        Aside(
+          child: TableCircle(
+            view: view,
+            badges: {
+              if (sheep)
+                for (final MapEntry(:key, :value)
+                    in view.lastNightSheep.entries)
+                  key: l10n.sheepCount(value),
+            },
+          ),
         ),
         if (session.isOwner)
           PrimaryButton(
@@ -717,14 +787,16 @@ class HunterPhase extends StatelessWidget {
     final yours = shooter == view.you;
     return PhaseBody(
       children: [
-        TurningFigure(
-          asset: shooter == null
-              ? figureAsset(Role.hunter)
-              : personaRoleAsset(
-                  view.seats.firstWhere((s) => s.id == shooter).persona,
-                  Role.hunter,
-                ),
-          height: 180,
+        Aside(
+          child: TurningFigure(
+            asset: shooter == null
+                ? figureAsset(Role.hunter)
+                : personaRoleAsset(
+                    view.seats.firstWhere((s) => s.id == shooter).persona,
+                    Role.hunter,
+                  ),
+            height: figureHeight(context, phone: 180),
+          ),
         ),
         Headline(l10n.roleHunter),
         LastNews(view: view),
@@ -769,10 +841,12 @@ class VotePhase extends StatelessWidget {
         else ...[
           Body(l10n.votePrompt),
           Countdown(endsAt: session.phaseEndsAt),
-          SeatGrid(
-            view: view,
-            selected: vote,
-            onTap: (seat) => session.send(VoteIntent(seat.id)),
+          Aside(
+            child: SeatGrid(
+              view: view,
+              selected: vote,
+              onTap: (seat) => session.send(VoteIntent(seat.id)),
+            ),
           ),
           SecondaryButton(
             label: l10n.abstain,
@@ -808,18 +882,23 @@ class EndedPhase extends StatelessWidget {
     };
     return PhaseBody(
       children: [
-        RoleFigure(role: figure, height: 200),
+        RoleFigure(
+          role: figure,
+          height: figureHeight(context, phone: 200, wideShare: 0.36),
+        ),
         Headline(l10n.winner(view.winner), color: color),
         LastNews(view: view),
         if (_bestDreamer(view) case (final name, final points))
           Panel(paper: true, child: Body(l10n.bestDreamer(name, points))),
-        Body(l10n.everyRole),
-        SeatGrid(
-          view: view,
-          badges: {
-            for (final MapEntry(:key, :value) in view.dreams.entries)
-              if (view.settings.sheepCounting) key: l10n.dreamPoints(value),
-          },
+        Aside(child: Body(l10n.everyRole)),
+        Aside(
+          child: SeatGrid(
+            view: view,
+            badges: {
+              for (final MapEntry(:key, :value) in view.dreams.entries)
+                if (view.settings.sheepCounting) key: l10n.dreamPoints(value),
+            },
+          ),
         ),
         if (session.isOwner)
           PrimaryButton(

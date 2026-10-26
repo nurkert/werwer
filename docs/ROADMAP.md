@@ -175,6 +175,21 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ---
 
+## 0.1.1 – Jedes Gerät, echte Pappe (ab 2026-10-26)
+
+**Ziel:** Die App fühlt sich auf Handy, Tablet und Desktop gleich hochwertig an, und die Pappbühne der Website lebt auch in der App.
+
+- [x] Sicherheitsbefunde des Scans vom 2026-10-26 behoben (siehe DECISIONS)
+- [ ] **Layout pro Geräteklasse:** Handy (eine Spalte, Bilder passen sich der Höhe an), Tablet hochkant (breitere Spalte, größere Figuren), breite Fenster und Querformat (zwei Spalten: Handlung links, Bild/Tisch/Wiese rechts); keine Phase braucht Scrollen, um die Hauptsache zu sehen
+- [ ] **Scrollen ohne harte Kante:** Inhalte gleiten unter Kopfzeile und Erzählerzeile durch und blenden weich aus; elastisches Überscrollen
+- [ ] **Übergänge zwischen den Phasen** statt harter Schnitte
+- [ ] **Startbildschirm** auf breiten Fenstern zweispaltig (Bühne mit Ensemble links, Formular rechts)
+- [ ] **Pappe in der App-Oberfläche:** Karten, Knöpfe und Schilder als geschnittene Wellpappe (mit Codex erzeugte Texturen und Kanten), passend zu den Figuren
+- [ ] **Website mobil:** der Einstieg (Hero/Landing) auf Handys entschlacken, alles von 360 px bis Desktop sauber responsiv
+- [ ] Bildschirmfotos aller Phasen in drei Größen (Handy, Tablet, Desktop) als Prüfung im Screenshot-Test
+
+---
+
 ## Nach dem MVP
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.
