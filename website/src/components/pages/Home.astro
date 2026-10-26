@@ -2,6 +2,7 @@
 import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 
+import CardboardFigure from '../CardboardFigure.astro';
 import CountingSheep from '../CountingSheep.astro';
 import StoryHero from '../StoryHero.astro';
 import Icon from '../Icon.astro';
@@ -144,7 +145,7 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
                 <li class="role" data-reveal style={`--i: ${i}`}>
                   <div class="role__stage">
                     <div class="role__flip">
-                      <Picture class="role__face" src={figures[role.id]} alt="" formats={formats} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
+                      <CardboardFigure class="role__face" src={figures[role.id]} widths={[260, 520, 780]} sizes="(max-width: 760px) 62vw, 18rem" />
                     </div>
                   </div>
                   <div class="role__card">
@@ -406,26 +407,24 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     background: radial-gradient(circle, rgb(246 231 193 / 0.2), rgb(246 231 193 / 0.04) 62%, transparent 63%);
     transform: translateX(-50%);
   }
-  .role__stage :global(picture) {
-    position: relative;
-    display: block;
-    height: 100%;
-  }
   .role__stage :global(img) {
     height: 100%;
     width: auto;
-    filter: drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
-    transform-origin: 50% 100%;
-    transition: transform 0.5s var(--ease-puppet);
   }
-  .role__stage :global(picture) {
+  /* Only the printed front casts the shadow: a filter on the other layers
+     would flatten the cutout's depth. */
+  .role__stage :global(.cardboard__front) {
+    filter: drop-shadow(0 14px 16px rgb(0 0 0 / 0.5));
+  }
+  /* The whole puppet sways, all its layers together. */
+  .role__stage :global(.cardboard) {
     animation: idle 6.5s ease-in-out infinite;
     transform-origin: 50% 100%;
   }
-  .role:nth-child(2n) .role__stage :global(picture) {
+  .role:nth-child(2n) .role__stage :global(.cardboard) {
     animation-delay: -2.2s;
   }
-  .role:nth-child(3n) .role__stage :global(picture) {
+  .role:nth-child(3n) .role__stage :global(.cardboard) {
     animation-delay: -4.1s;
   }
   @keyframes idle {
@@ -781,7 +780,7 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .role__stage :global(picture),
+    .role__stage :global(.cardboard),
     .playbill__cast :global(.pc) {
       animation: none;
     }
@@ -983,6 +982,7 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .role__flip {
     position: relative;
     height: 100%;
+    transform-style: preserve-3d;
     transition: transform 0.9s cubic-bezier(0.45, 0, 0.2, 1);
   }
   .role__stage {
@@ -992,8 +992,6 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     height: 100%;
     width: auto;
     margin-inline: auto;
-    /* one cutout: turned around, it simply shows mirrored */
-    backface-visibility: visible;
   }
   .role:hover .role__flip,
   .role:focus-within .role__flip {

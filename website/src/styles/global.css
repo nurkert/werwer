@@ -309,3 +309,76 @@ p {
     font-size: 1.08rem;
   }
 }
+
+/* ---------- Cardboard cutouts (CardboardFigure.astro) ---------- */
+
+/* Front, three layers of edge and a grey back stand a few pixels apart in
+   depth, so a turning figure shows its cut edge and then its plain back. */
+.cardboard {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.cardboard picture {
+  display: contents;
+}
+.cardboard__front {
+  position: relative;
+  transform: translateZ(2px);
+  backface-visibility: hidden;
+}
+.cardboard__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  pointer-events: none;
+}
+/* The cut edge: brown card, darker towards the middle. */
+.cardboard__edge--1 {
+  transform: translateZ(1px);
+  filter: brightness(0) invert(0.42) sepia(0.7);
+}
+.cardboard__edge--2 {
+  transform: translateZ(0);
+  filter: brightness(0) invert(0.32) sepia(0.7);
+}
+.cardboard__edge--3 {
+  transform: translateZ(-1px);
+  filter: brightness(0) invert(0.42) sepia(0.7);
+}
+/* The back: grey board in the figure's (mirrored) outline, with the board's
+   grain and a crooked stamp. */
+.cardboard__back {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform: rotateY(180deg) translateZ(2px);
+  backface-visibility: hidden;
+  pointer-events: none;
+  background-color: #a7a196;
+  background-image: var(--grain), var(--fibre);
+  background-size: 160px, 400px;
+  background-blend-mode: soft-light, multiply;
+  -webkit-mask: var(--outline) bottom / contain no-repeat;
+  mask: var(--outline) bottom / contain no-repeat;
+}
+.cardboard__back span {
+  padding: 0.1em 0.45em 0;
+  border: 0.14em solid currentColor;
+  border-radius: 0.25em;
+  color: rgb(127 23 28 / 0.55);
+  font-family: var(--font-display);
+  font-size: clamp(0.6rem, 1.1vw, 1.2rem);
+  line-height: 1.2;
+  transform: rotate(-8deg);
+}
+/* Printed on both sides: faces backwards (z flipped, x kept), so it shows
+   only once turned, and then mirrored, in front of the edge. */
+.cardboard__print {
+  transform: translateZ(-2px) rotateY(180deg) scaleX(-1);
+  backface-visibility: hidden;
+}

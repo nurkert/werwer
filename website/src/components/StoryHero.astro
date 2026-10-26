@@ -7,6 +7,7 @@ import { Picture } from 'astro:assets';
 import { path, repoUrl, ui, type Lang } from '../i18n/ui';
 import { storyPhones } from '../lib/phone-screens';
 import PuppetPhone from './phone/PuppetPhone.astro';
+import CardboardFigure from './CardboardFigure.astro';
 import himmel from '../../../design/source/stage/ebene_himmel.png';
 import mond from '../../../design/source/stage/ebene_mond.png';
 import wolke1 from '../../../design/source/stage/ebene_wolke_1.png';
@@ -80,10 +81,10 @@ const formats = ['avif', 'webp'] as const;
       </div>
       <!-- the puppets, each held in from off-stage -->
       <div class="cast" aria-hidden="true">
-        <div class="pp pp--villager"><div class="flip"><Picture class="face" src={dorfbewohner} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
-        <div class="pp pp--maid"><div class="flip"><Picture class="face" src={magd} alt="" formats={formats} widths={[220, 440]} sizes="12vw" loading="eager" /></div></div>
-        <div class="pp pp--wolf"><div class="flip"><Picture class="face" src={werwolf} alt="" formats={formats} widths={[320, 640]} sizes="18vw" loading="eager" /></div></div>
-        <div class="pp pp--seer"><div class="flip"><Picture class="face" src={seherin} alt="" formats={formats} widths={[260, 520]} sizes="14vw" loading="eager" /></div></div>
+        <div class="pp pp--villager"><div class="flip"><CardboardFigure class="face" src={dorfbewohner} widths={[260, 520]} sizes="14vw" loading="eager" back="print" /></div></div>
+        <div class="pp pp--maid"><div class="flip"><CardboardFigure class="face" src={magd} widths={[220, 440]} sizes="12vw" loading="eager" back="print" /></div></div>
+        <div class="pp pp--wolf"><div class="flip"><CardboardFigure class="face" src={werwolf} widths={[320, 640]} sizes="18vw" loading="eager" back="print" /></div></div>
+        <div class="pp pp--seer"><div class="flip"><CardboardFigure class="face" src={seherin} widths={[260, 520]} sizes="14vw" loading="eager" back="print" /></div></div>
         <div class="pp pp--phone pp--phone-a"><PuppetPhone phone={phoneA} /></div>
         <div class="pp pp--phone pp--phone-b"><PuppetPhone phone={phoneB} /></div>
       </div>
@@ -555,20 +556,19 @@ const formats = ['avif', 'webp'] as const;
   }
 
 
-  /* ---------- Cardboard turn: the puppet spins around and shows its mirrored back ---------- */
+  /* ---------- Cardboard turn: the puppet spins around, its cut edge flashes, then its grey back shows ---------- */
   .pp {
     perspective: 80cqh;
   }
   .flip {
     position: relative;
+    transform-style: preserve-3d;
     transition: transform 0.75s cubic-bezier(0.45, 0, 0.2, 1);
   }
   .flip :global(.face) {
     display: block;
     width: 100%;
     height: auto;
-    /* one cutout: turned around, it simply shows mirrored */
-    backface-visibility: visible;
   }
   [data-beat='2'] .pp--villager .flip,
   [data-beat='3'] .pp--villager .flip,

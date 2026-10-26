@@ -1,0 +1,42 @@
+---
+// A cardboard cutout with real thickness: the printed front, a few layers of
+// darker card as its cut edge, and a plain grey back made from the figure's
+// own outline. Inside a turning parent (`transform: rotateY(…)`) it shows
+// its edge mid-turn and its back afterwards; no extra artwork needed.
+import type { ImageMetadata } from 'astro';
+import { Picture, getImage } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  widths: number[];
+  sizes: string;
+  /** Sizing class of the printed front (also used by the other layers). */
+  class: string;
+  loading?: 'eager' | 'lazy';
+  /**
+   * `board`: plain grey back (a cutout turned around).
+   * `print`: printed on both sides, so a puppet that turns to look the
+   * other way shows its mirrored face (the story on the start page).
+   */
+  back?: 'board' | 'print';
+}
+
+const { src, widths, sizes, class: face, loading = 'lazy', back = 'board' } = Astro.props;
+const formats = ['avif', 'webp'] as const;
+const layers = ['edge edge--1', 'edge edge--2', 'edge edge--3'];
+// The back is grey board cut to the figure's outline: one small image as
+// the mask, the board's grain and a stamp painted in CSS.
+const mask = back === 'board' ? await getImage({ src, format: 'webp', width: 360 }) : undefined;
+---
+
+<div class="cardboard">
+  <Picture class={`${face} cardboard__front`} src={src} alt="" formats={formats} widths={widths} sizes={sizes} loading={loading} />
+  {layers.map((layer) => (
+    <Picture class={`${face} cardboard__layer cardboard__${layer.split(' ')[1]}`} src={src} alt="" formats={formats} widths={widths} sizes={sizes} loading="lazy" aria-hidden="true" />
+  ))}
+  {back === 'board' ? (
+    <div class="cardboard__back" style={`--outline: url(${mask?.src})`} aria-hidden="true"><span>Whowolf</span></div>
+  ) : (
+    <Picture class={`${face} cardboard__layer cardboard__print`} src={src} alt="" formats={formats} widths={widths} sizes={sizes} loading={loading} aria-hidden="true" />
+  )}
+</div>
