@@ -4,13 +4,15 @@ FROM dart:3.12.2 AS build
 WORKDIR /src
 
 # Resolve dependencies first (cached unless a pubspec changes). The Flutter
-# app is not part of this image, so it is dropped from the workspace.
+# app, the encryption layer and the command-line client are not part of this
+# image (the relay only forwards ciphertext), so they leave the workspace.
 COPY pubspec.yaml pubspec.lock ./
 COPY packages/game_core/pubspec.yaml packages/game_core/
 COPY packages/protocol/pubspec.yaml packages/protocol/
 COPY packages/game_host/pubspec.yaml packages/game_host/
 COPY server/pubspec.yaml server/
-RUN sed -i '/^  - app$/d' pubspec.yaml && dart pub get
+RUN sed -i -e '/^  - app$/d' -e '/^  - packages\/secure_channel$/d' -e '/^  - packages\/cli$/d' pubspec.yaml \
+    && dart pub get
 
 COPY packages packages
 COPY server server
