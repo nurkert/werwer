@@ -140,17 +140,21 @@ void main() {
       expect(viewFor(state, id(1)).seats.last.persona, Persona.cupid);
     });
 
-    test('personas repeat only when all are taken', () {
+    test('a full table has a persona for everyone', () {
+      expect(Persona.values, hasLength(maxPlayers));
       var state = GameState.lobby();
-      for (var i = 0; i < Persona.values.length + 2; i++) {
+      for (var i = 0; i < maxPlayers; i++) {
         state = apply(state, AddPlayer(id(i), 'P$i')).state;
       }
-      final first = state.players
-          .take(Persona.values.length)
-          .map((p) => p.persona);
-      expect(first.toSet(), hasLength(Persona.values.length));
-      state = apply(state, ChoosePersona(id(12), Persona.maid)).state;
-      expect(state.player(id(12))!.persona, Persona.maid);
+      expect(
+        state.players.map((p) => p.persona).toSet(),
+        Persona.values.toSet(),
+      );
+      // Everyone has their own, so nobody can take another's.
+      expect(
+        () => apply(state, ChoosePersona(id(maxPlayers - 1), Persona.maid)),
+        refuses(Violation.personaTaken),
+      );
     });
 
     test('seats can be swapped in the lobby only', () {

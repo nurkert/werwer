@@ -1477,6 +1477,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take it'**
   String get ownCountSet;
+
+  /// No description provided for @persona_baker.
+  ///
+  /// In en, this message translates to:
+  /// **'Baker'**
+  String get persona_baker;
+
+  /// No description provided for @persona_fisher.
+  ///
+  /// In en, this message translates to:
+  /// **'Fisher'**
+  String get persona_fisher;
+
+  /// No description provided for @persona_seamstress.
+  ///
+  /// In en, this message translates to:
+  /// **'Seamstress'**
+  String get persona_seamstress;
+
+  /// No description provided for @persona_gooseGirl.
+  ///
+  /// In en, this message translates to:
+  /// **'Goose girl'**
+  String get persona_gooseGirl;
+
+  /// No description provided for @persona_innkeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Innkeeper'**
+  String get persona_innkeeper;
+
+  /// No description provided for @persona_smith.
+  ///
+  /// In en, this message translates to:
+  /// **'Smith'**
+  String get persona_smith;
+
+  /// No description provided for @persona_miller.
+  ///
+  /// In en, this message translates to:
+  /// **'Miller'**
+  String get persona_miller;
+
+  /// No description provided for @persona_minstrel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minstrel'**
+  String get persona_minstrel;
+
+  /// No description provided for @persona_beekeeper.
+  ///
+  /// In en, this message translates to:
+  /// **'Beekeeper'**
+  String get persona_beekeeper;
 }
 
 class _AppLocalizationsDelegate

@@ -11,6 +11,7 @@ import Base from '../../layouts/Base.astro';
 import { path, repoUrl, ui, type Lang } from '../../i18n/ui';
 import { devHref, docSummary, docTitle } from '../../lib/docs';
 import { loadReleases } from '../../lib/releases';
+import { figures as allFigures, type Figure } from '../../lib/figures';
 
 import werwolf from '../../../../design/source/figures/werwolf.png';
 import seherin from '../../../../design/source/figures/seherin.png';
@@ -163,6 +164,19 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
           </div>
         ))
       }
+      <!-- The ensemble: what players look like at the table. -->
+      <div class="container ensemble">
+        <h3 class="heading" data-reveal>{t.cast.ensemble.title}</h3>
+        <p class="lead" data-reveal style="--i: 1">{t.cast.ensemble.text}</p>
+        <ul class="ensemble__row">
+          {t.cast.ensemble.figures.map((f) => (
+            <li>
+              <Picture src={allFigures[f.id as Figure]} alt="" formats={formats} widths={[120, 240]} sizes="7rem" loading="lazy" />
+              <span>{f.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
 
     <!-- The wolf trail. -->
@@ -1001,5 +1015,40 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     .role__flip {
       transition: none;
     }
+  }
+
+  /* The ensemble: every persona, small, in one row that wraps. */
+  .ensemble {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-2);
+  }
+  .ensemble .lead {
+    max-width: 52ch;
+  }
+  .ensemble__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: var(--space-3) var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ensemble__row li {
+    display: grid;
+    justify-items: center;
+    align-content: end;
+    gap: 0.4rem;
+    text-align: center;
+  }
+  .ensemble__row :global(img) {
+    height: 8.5rem;
+    width: auto;
+    filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.45));
+  }
+  .ensemble__row span {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--moon-200);
   }
 </style>

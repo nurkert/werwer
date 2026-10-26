@@ -1,6 +1,6 @@
 # Task 005 – Gleich viele Frauen und Männer bei den Figuren
 
-**Status:** offen
+**Status:** fertig
 **Roadmap:** MVP-Sprint, Spur F
 
 ## Ziel

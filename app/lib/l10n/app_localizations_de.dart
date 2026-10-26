@@ -838,4 +838,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get ownCountSet => 'Übernehmen';
+
+  @override
+  String get persona_baker => 'Bäckerin';
+
+  @override
+  String get persona_fisher => 'Fischerin';
+
+  @override
+  String get persona_seamstress => 'Schneiderin';
+
+  @override
+  String get persona_gooseGirl => 'Gänsehirtin';
+
+  @override
+  String get persona_innkeeper => 'Wirtin';
+
+  @override
+  String get persona_smith => 'Schmied';
+
+  @override
+  String get persona_miller => 'Müller';
+
+  @override
+  String get persona_minstrel => 'Spielmann';
+
+  @override
+  String get persona_beekeeper => 'Imker';
 }

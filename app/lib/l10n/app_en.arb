@@ -525,5 +525,14 @@
   "ownCount": "Set the number yourself",
   "ownCountTitle": "How many sheep did you count?",
   "ownCountHint": "Everyone may do this, so fibbing is allowed. In the morning everyone sees the numbers.",
-  "ownCountSet": "Take it"
+  "ownCountSet": "Take it",
+  "persona_baker": "Baker",
+  "persona_fisher": "Fisher",
+  "persona_seamstress": "Seamstress",
+  "persona_gooseGirl": "Goose girl",
+  "persona_innkeeper": "Innkeeper",
+  "persona_smith": "Smith",
+  "persona_miller": "Miller",
+  "persona_minstrel": "Minstrel",
+  "persona_beekeeper": "Beekeeper"
 }

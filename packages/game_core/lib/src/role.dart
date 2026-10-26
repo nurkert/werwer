@@ -108,6 +108,33 @@ enum Persona {
 
   /// The quiet paw.
   quietPaw,
+
+  /// The baker with her bread peel.
+  baker,
+
+  /// The fisher with her net.
+  fisher,
+
+  /// The seamstress with her scissors.
+  seamstress,
+
+  /// The goose girl.
+  gooseGirl,
+
+  /// The innkeeper with two tankards.
+  innkeeper,
+
+  /// The young smith with his hammer.
+  smith,
+
+  /// The miller with a flour sack.
+  miller,
+
+  /// The minstrel with his lute.
+  minstrel,
+
+  /// The old beekeeper.
+  beekeeper,
 }
 
 /// Fewest players a game can start with (for play tests; fun starts at

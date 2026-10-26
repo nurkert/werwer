@@ -229,5 +229,14 @@
   "ownCount": "Zahl selbst festlegen",
   "ownCountTitle": "Wie viele Schäfchen hast du gezählt?",
   "ownCountHint": "Das darf jeder, also auch flunkern. Am Morgen sehen alle die Zahlen.",
-  "ownCountSet": "Übernehmen"
+  "ownCountSet": "Übernehmen",
+  "persona_baker": "Bäckerin",
+  "persona_fisher": "Fischerin",
+  "persona_seamstress": "Schneiderin",
+  "persona_gooseGirl": "Gänsehirtin",
+  "persona_innkeeper": "Wirtin",
+  "persona_smith": "Schmied",
+  "persona_miller": "Müller",
+  "persona_minstrel": "Spielmann",
+  "persona_beekeeper": "Imker"
 }

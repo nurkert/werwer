@@ -10,6 +10,15 @@ import magd from '../../../design/source/figures/magd.png';
 import seherin from '../../../design/source/figures/seherin.png';
 import stillePfote from '../../../design/source/figures/stille_pfote.png';
 import werwolf from '../../../design/source/figures/werwolf.png';
+import baeckerin from '../../../design/source/figures/baeckerin.png';
+import fischerin from '../../../design/source/figures/fischerin.png';
+import schneiderin from '../../../design/source/figures/schneiderin.png';
+import gaensehirtin from '../../../design/source/figures/gaensehirtin.png';
+import wirtin from '../../../design/source/figures/wirtin.png';
+import schmied from '../../../design/source/figures/schmied.png';
+import mueller from '../../../design/source/figures/mueller.png';
+import spielmann from '../../../design/source/figures/spielmann.png';
+import imker from '../../../design/source/figures/imker.png';
 
 export const figures = {
   amor,
@@ -23,6 +32,15 @@ export const figures = {
   seherin,
   stille_pfote: stillePfote,
   werwolf,
+  baeckerin,
+  fischerin,
+  schneiderin,
+  gaensehirtin,
+  wirtin,
+  schmied,
+  mueller,
+  spielmann,
+  imker,
 } satisfies Record<string, ImageMetadata>;
 
 export type Figure = keyof typeof figures;

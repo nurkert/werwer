@@ -30,6 +30,15 @@ String personaAsset(Persona persona) => switch (persona) {
   Persona.tracker => 'assets/figures/faehrtenleger.webp',
   Persona.listener => 'assets/figures/lauscherin.webp',
   Persona.quietPaw => 'assets/figures/stille_pfote.webp',
+  Persona.baker => 'assets/figures/baeckerin.webp',
+  Persona.fisher => 'assets/figures/fischerin.webp',
+  Persona.seamstress => 'assets/figures/schneiderin.webp',
+  Persona.gooseGirl => 'assets/figures/gaensehirtin.webp',
+  Persona.innkeeper => 'assets/figures/wirtin.webp',
+  Persona.smith => 'assets/figures/schmied.webp',
+  Persona.miller => 'assets/figures/mueller.webp',
+  Persona.minstrel => 'assets/figures/spielmann.webp',
+  Persona.beekeeper => 'assets/figures/imker.webp',
 };
 
 /// Figures for decoration (start screen), all facing right.
@@ -79,6 +88,15 @@ const _faces = <Persona, (double, double, double)>{
   Persona.maid: (0.50, 0.09, 313 / 640),
   Persona.lanternBearer: (0.56, 0.10, 426 / 640),
   Persona.quietPaw: (0.72, 0.15, 414 / 640),
+  Persona.baker: (0.55, 0.08, 404 / 640),
+  Persona.fisher: (0.55, 0.08, 367 / 640),
+  Persona.seamstress: (0.55, 0.07, 289 / 640),
+  Persona.gooseGirl: (0.55, 0.08, 385 / 640),
+  Persona.innkeeper: (0.55, 0.09, 415 / 640),
+  Persona.smith: (0.52, 0.09, 394 / 640),
+  Persona.miller: (0.55, 0.11, 410 / 640),
+  Persona.minstrel: (0.60, 0.13, 379 / 640),
+  Persona.beekeeper: (0.70, 0.17, 424 / 640),
   Persona.greyWolf: (0.72, 0.20, 512 / 640),
 };
 

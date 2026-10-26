@@ -39,6 +39,15 @@ extension RoleText on AppLocalizations {
     Persona.tracker => persona_tracker,
     Persona.listener => persona_listener,
     Persona.quietPaw => persona_quietPaw,
+    Persona.baker => persona_baker,
+    Persona.fisher => persona_fisher,
+    Persona.seamstress => persona_seamstress,
+    Persona.gooseGirl => persona_gooseGirl,
+    Persona.innkeeper => persona_innkeeper,
+    Persona.smith => persona_smith,
+    Persona.miller => persona_miller,
+    Persona.minstrel => persona_minstrel,
+    Persona.beekeeper => persona_beekeeper,
   };
 
   String faction(Faction faction) => switch (faction) {
