@@ -181,7 +181,10 @@ class _NightPhaseState extends State<NightPhase> {
 
   /// The night everyone knows: eyes closed, unless the narrator calls you.
   Widget _calledNight(PlayerView view, AppLocalizations l10n) {
-    final task = view.yourSeat.isAlive ? _task(view, l10n) : null;
+    // Not called: eyes closed (never the cover question of Whowolf's night).
+    final task = view.yourSeat.isAlive && view.yourNightTask != null
+        ? _task(view, l10n)
+        : null;
     // Last night's news belongs to the first call of the night.
     final cupidFirst =
         view.round == 1 && view.settings.roles.contains(Role.cupid);

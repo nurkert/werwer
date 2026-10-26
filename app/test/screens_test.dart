@@ -212,8 +212,11 @@ class _Table {
           case NightAbility.hunt:
             final prey = others.where((s) => s.role != Role.werewolf);
             send(NightIntent(prey.first.id));
-          case NightAbility.inspect || NightAbility.decoy || null:
+          case NightAbility.inspect || NightAbility.decoy:
             send(NightIntent(first));
+          case null:
+            // Eyes closed: not called in this step.
+            break;
         }
       case Phase.hunterShot when v.shooter == v.you:
         send(ShootIntent(others.first.id));
@@ -368,6 +371,34 @@ void main() {
               }
               if (scene != null && missing.remove(scene)) {
                 await shot.shoot('10-$scene');
+              }
+              table.playRound(withYou: true);
+              await tester.pump();
+            }
+            await tester.pumpWidget(const SizedBox());
+            await table.close();
+          }
+
+          // The classic night: eyes closed, and the moment you are called.
+          final classic = {'eyes', 'called'};
+          for (var seed = 1; classic.isNotEmpty && seed < 40; seed++) {
+            final table = _Table(seed);
+            await tester.pumpWidget(
+              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+            );
+            await tester.pump();
+            table.ownerSends(SettingsIntent(Preset.classic.settings));
+            await tester.pump();
+            table.ownerSends(const StartGameIntent());
+            await tester.pump();
+            for (var i = 0; i < 20; i++) {
+              final v = table.you.view!;
+              if (v.phase == Phase.ended) break;
+              if (v.phase == Phase.night && v.yourSeat.isAlive) {
+                final scene = v.yourNightTask == null ? 'eyes' : 'called';
+                if (!v.youActed && classic.remove(scene)) {
+                  await shot.shoot('11-classic-$scene');
+                }
               }
               table.playRound(withYou: true);
               await tester.pump();
