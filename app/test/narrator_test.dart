@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations_de.dart';
 import 'package:whowolf/src/game/narrator.dart';
+import 'package:whowolf/src/game/news.dart';
 
 void main() {
   final l10n = AppLocalizationsDe();
@@ -66,5 +67,67 @@ void main() {
       narration(view(Phase.night, 1), ended, l10n),
       endsWith('Die Werwölfe gewinnen!'),
     );
+  });
+
+  group('fresh news', () {
+    const seats3 = [
+      ...seats,
+      SeatView(id: PlayerId('p3'), name: 'Cem', isAlive: false),
+    ];
+    PlayerView at(Phase phase, int round, List<DeathView> deaths) => PlayerView(
+      you: const PlayerId('p1'),
+      phase: phase,
+      round: round,
+      seats: seats3,
+      deaths: deaths,
+      waitingFor: 0,
+    );
+    const voted = DeathView(
+      player: PlayerId('p3'),
+      round: 1,
+      cause: DeathCause.vote,
+    );
+    const grief = DeathView(
+      player: PlayerId('p2'),
+      round: 1,
+      cause: DeathCause.heartbreak,
+    );
+
+    test('the morning reports the night, the next night the vote', () {
+      expect(freshDeaths(at(Phase.day, 1, [night1])), [night1]);
+      expect(freshDeaths(at(Phase.night, 2, [voted, grief])), [voted, grief]);
+      // The night's victims are old news after the vote.
+      expect(freshDeaths(at(Phase.night, 2, [night1, voted])), [voted]);
+      expect(freshDeaths(at(Phase.night, 2, [night1])), isEmpty);
+    });
+
+    test('a death chain is told in order, with grief', () {
+      final line = narration(
+        at(Phase.vote, 1, const []),
+        at(Phase.night, 2, [voted, grief]),
+        l10n,
+      )!;
+      expect(line, contains('verbannt'));
+      expect(line, contains('Kummer'));
+      expect(line.indexOf('verbannt'), lessThan(line.indexOf('Kummer')));
+    });
+
+    test('the end names the lovers when they win', () {
+      const ended = PlayerView(
+        you: PlayerId('p1'),
+        phase: Phase.ended,
+        round: 2,
+        seats: seats3,
+        deaths: [],
+        waitingFor: 0,
+        winner: Faction.lovers,
+      );
+      expect(
+        narration(at(Phase.vote, 2, const []), ended, l10n),
+        contains(
+          'Liebespaar',
+        ),
+      );
+    });
   });
 }

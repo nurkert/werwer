@@ -603,4 +603,213 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get keepAppOpenHint =>
       'Du bist Gastgeber: Lass Whowolf bitte offen, solange ihr spielt. Wechselst du kurz in eine andere App, geht es weiter, sobald du zurück bist.';
+
+  @override
+  String get roleWitch => 'Hexe';
+
+  @override
+  String get roleHunter => 'Jäger';
+
+  @override
+  String get roleCupid => 'Amor';
+
+  @override
+  String get roleWitchText =>
+      'Du hast einen Heiltrank und einen Gifttrank, jeden für einmal. Nachts siehst du, wen die Werwölfe holen, und entscheidest nach ihnen.';
+
+  @override
+  String get roleHunterText =>
+      'Fällst du, ob nachts oder bei der Abstimmung, nimmst du sofort jemanden mit.';
+
+  @override
+  String get roleCupidText =>
+      'In der ersten Nacht verbindest du zwei Menschen als Liebespaar. Stirbt einer, stirbt auch der andere.';
+
+  @override
+  String get factionLovers => 'Liebespaar';
+
+  @override
+  String get nightLink =>
+      'Wen verbindest du als Liebespaar? Wähl zwei (auch dich selbst).';
+
+  @override
+  String get linkConfirm => 'Verbinden';
+
+  @override
+  String linked(String first, String second) {
+    return '$first und $second sind jetzt ein Liebespaar.';
+  }
+
+  @override
+  String get nightBrew => 'Die Werwölfe haben gewählt. Was braust du?';
+
+  @override
+  String brewVictim(String name) {
+    return 'Heute holen die Werwölfe $name.';
+  }
+
+  @override
+  String get brewNoVictim => 'Heute holen die Werwölfe niemanden.';
+
+  @override
+  String brewHeal(String name) {
+    return 'Heiltrank für $name';
+  }
+
+  @override
+  String get brewPoison =>
+      'Gift: Tipp jemanden an (noch einmal tippen nimmt es zurück).';
+
+  @override
+  String get brewDone => 'Fertig';
+
+  @override
+  String get brewNothing => 'Nichts brauen';
+
+  @override
+  String get brewEmpty => 'Deine Tränke sind aufgebraucht.';
+
+  @override
+  String get brewSent =>
+      'Du hast entschieden. Noch ein paar Schäfchen bis zum Morgen?';
+
+  @override
+  String get hunterYou => 'Du bist gefallen. Wen nimmst du mit?';
+
+  @override
+  String get hunterSpare => 'Niemanden';
+
+  @override
+  String hunterWait(String name) {
+    return '$name war der Jäger und legt an …';
+  }
+
+  @override
+  String diedOfGrief(String name) {
+    return '$name stirbt vor Kummer.';
+  }
+
+  @override
+  String shotByHunter(String name) {
+    return 'Der Jäger nimmt $name mit.';
+  }
+
+  @override
+  String inLove(String name) {
+    return 'Du bist verliebt in $name. Stirbt einer von euch, stirbt auch der andere.';
+  }
+
+  @override
+  String yourCouple(String first, String second) {
+    return 'Dein Liebespaar: $first und $second.';
+  }
+
+  @override
+  String get loversWin => 'Das Liebespaar gewinnt!';
+
+  @override
+  String get narrateHunter => 'Der Jäger ist gefallen und legt an …';
+
+  @override
+  String get settingsButton => 'Spiel einstellen';
+
+  @override
+  String get settingsTitle => 'Spiel einstellen';
+
+  @override
+  String get presetClassic => 'Klassisch';
+
+  @override
+  String get presetClassicText =>
+      'Wie das Kartenspiel: nur die Rollen. Die App erzählt und zählt die Stimmen.';
+
+  @override
+  String get presetWhowolf => 'Whowolf';
+
+  @override
+  String get presetWhowolfText =>
+      'Dazu Schäfchen zählen mit Morgenwertung und Atmosphäre.';
+
+  @override
+  String get presetFullStage => 'Volle Bühne';
+
+  @override
+  String get presetFullStageText =>
+      'Alles, was es gibt, mit Amor und Wolfsspur.';
+
+  @override
+  String get presetCustom => 'Eigene Mischung';
+
+  @override
+  String get settingsRoles => 'Rollen';
+
+  @override
+  String get settingsWolves => 'Werwölfe';
+
+  @override
+  String wolvesSuggested(int count) {
+    return 'Passend ($count)';
+  }
+
+  @override
+  String get settingsTimes => 'Zeiten';
+
+  @override
+  String get timeNight => 'Nacht';
+
+  @override
+  String get timeDay => 'Diskussion';
+
+  @override
+  String get timeVote => 'Abstimmung';
+
+  @override
+  String seconds(int count) {
+    return '$count s';
+  }
+
+  @override
+  String minutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get settingsRules => 'Regeln';
+
+  @override
+  String get settingsRevealRoles => 'Rollen der Toten aufdecken';
+
+  @override
+  String get settingsSeerRole =>
+      'Seherin sieht die Rolle (sonst nur das Lager)';
+
+  @override
+  String get settingsExtras => 'Whowolf-Extras';
+
+  @override
+  String get settingsSheep => 'Schäfchen zählen in der Nacht';
+
+  @override
+  String get settingsSheepOff =>
+      'Ohne Schäfchen beantworten nachts alle eine schlichte Frage, damit das Tippen niemanden verrät.';
+
+  @override
+  String get settingsWolfTrail => 'Wolfsspur light';
+
+  @override
+  String get settingsAtmosphere => 'Nacht-Atmosphäre';
+
+  @override
+  String get settingsPersonas => 'Figuren selbst wählen';
+
+  @override
+  String get settingsVoice => 'Erzählstimme auf dem Gastgeber-Gerät';
+
+  @override
+  String tooManyRoles(int count) {
+    return 'Für $count Spieler sind das zu viele Rollen.';
+  }
+
+  @override
+  String get presetBasic => 'Grundspiel';
 }

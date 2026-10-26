@@ -140,15 +140,15 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ### D – Mondbühne in der App ([Task 003](tasks/003-mondbuehne-app.md))
 
-- [ ] Einheitliches Design aus den gemeinsamen Tokens: Papier, Pappkarten, Bühnenrahmen, Lilita One; verspielt, aber ernst zu nehmen
-- [ ] Figuren als Pappmodell mit Tiefe: beim Drehen eine echte Kartonkante, Rückseite aus dem Umriss (graue Pappe, Stempel); in App und Website gleich
-- [ ] Jeder Bildschirm durchdacht: Start, Lobby, Rolle, Nacht, Morgen, Tag, Abstimmung, Ende, Pause
+- [x] Einheitliches Design aus den gemeinsamen Tokens: Papier, Pappkarten, Bühnenrahmen, Lilita One; verspielt, aber ernst zu nehmen
+- [x] Figuren als Pappmodell mit Tiefe: beim Drehen eine echte Kartonkante, Rückseite aus dem Umriss (graue Pappe, Stempel); in App und Website gleich
+- [x] Jeder Bildschirm durchdacht: Start, Lobby, Rolle, Nacht, Morgen, Tag, Abstimmung, Ende, Pause
 
 ### F – Rollen, Einstellungen, Figuren ([Task 004](tasks/004-rollen-und-einstellungen.md), [Task 005](tasks/005-figuren.md))
 
-- [x] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core`, mit Tarnaufgaben für alle
-- [x] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln (Regeln und Protokoll; Bildschirme in der App folgen)
-- [x] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme (`GameSettings` und Absicht `settings`; Einstellungsseite in der App folgt)
+- [x] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core` und der App, mit Tarnaufgaben für alle
+- [x] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln
+- [x] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme (`GameSettings`, Absicht `settings`, Einstellungsseite in der App)
 - [ ] Gleich viele weibliche und männliche Figuren (neue Figurenbilder im Mondbühnen-Stil)
 
 ### W – Wolfsspur light ([Task 006](tasks/006-wolfsspur-light.md))

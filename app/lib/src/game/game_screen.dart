@@ -10,6 +10,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
+import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
@@ -95,7 +96,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       _lastView = view;
       if (line != null) {
         _narration = line;
-        unawaited(_voice?.say(line, l10n.localeName));
+        // The table can switch the voice off in the settings; the line
+        // still shows on every screen.
+        if (view.settings.narratorVoice) {
+          unawaited(_voice?.say(line, l10n.localeName));
+        }
       }
     }
     setState(() {});
@@ -212,7 +217,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     ),
     Phase.roleReveal => RevealPhase(session: session),
     Phase.night => NightPhase(session: session),
-    Phase.day || Phase.hunterShot => DayPhase(session: session),
+    Phase.day => DayPhase(session: session),
+    Phase.hunterShot => HunterPhase(session: session),
     Phase.vote => VotePhase(session: session),
     Phase.ended => EndedPhase(session: session, onLeave: _leave),
   };

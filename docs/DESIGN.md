@@ -39,7 +39,7 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 
 - **Wippen:** Figuren kippen leicht um ihren Fußpunkt.
 - **Auftritt:** Figuren gleiten seitlich herein oder kommen von unten hoch.
-- **Wenden:** Eine Pappfigur dreht sich wie ein Aufsteller und zeigt danach ihre gespiegelte Seite. Es gibt nur ein Bild, keine eigene Rückseite.
+- **Wenden:** Eine Pappfigur dreht sich wie ein Aufsteller. Mitten in der Drehung sieht man ihre Kartonkante (ein paar Lagen brauner Pappe aus dem Umriss), danach ihre Rückseite: graue Pappe im Umriss der Figur mit Körnung und Whowolf-Stempel. Puppen, die sich in der Geschichte umdrehen, um in die andere Richtung zu schauen, sind beidseitig bedruckt und zeigen ihr gespiegeltes Bild. Keine eigenen Grafiken nötig (App: `TurningFigure`, Website: `CardboardFigure.astro`).
 - **Startbild-Geschichte:** Die fünf Szenen spielen einmal beim Laden ab (gut 4 Sekunden), unabhängig vom Scrollen.
 - **Schriftzug:** Der große Whowolf-Schriftzug wandert beim Scrollen in den Header und wird dort zum Logo.
 - **Bühnenmoment (App):** Bei jedem Phasenwechsel erscheint kurz eine Bühnenkarte: Mond bei Nacht, Sonne am Tag, Waage zur Abstimmung, Pokal am Ende. Ein Tipp schließt sie; bei reduzierter Bewegung entfällt sie.
@@ -63,7 +63,7 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 ## Logo und Schrift
 
 - **Logo:** handgeletterter Schriftzug „Whowolf“ als Pappfigur (Wolfsohren am „W“, Mondsichel im „o“, „wolf“ in Vorhangrot) plus rundes **Emblem** (Werwolfkopf vor dem Vollmond) für App-Icon, Favicon und kleine Flächen. Dateien: `design/source/brand/`.
-- **Überschriften App:** **Lilita One**. **Überschriften Website:** **Ancizar Serif**. **Text:** **Manrope**. Alle SIL OFL, mitgeliefert, nichts von fremden Servern.
+- **Überschriften App:** **Lilita One**. **Überschriften Website:** **Ancizar Serif**. **Text:** **Manrope** (App: statische Schnitte 400/600/800). Alle SIL OFL, mitgeliefert, nichts von fremden Servern.
 
 ## Website
 
@@ -73,6 +73,11 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 - **Anleitung (`/docs/`):** Regelbuch-Seiten auf Papier mit Seitenleiste, Figuren neben den Titeln; die Planungsdokumente getrennt unter „Für Entwickler“.
 
 ## App: Kernkomponenten
+
+- **Bühne:** jeder Bildschirm über `StageScaffold`: Nachtkarton mit Mondlicht von oben, feine Körnung (unter dem Inhalt) und ein Vorhang-Volant mit Goldborte am oberen Rand.
+- **Pappkarte (`Panel`):** dunkler Karton mit heller Schnittkante und sichtbarer Dicke; als **Papier** (`paper: true`) cremefarben mit goldener Doppellinie für Nachrichten am Morgen, Einladung und große Momente, nachts nie. Text darauf wird automatisch zu Tinte (`Surface`).
+- **Stempel:** schräger Stempel in Lilita One (Status, Lager, „tot“, Testversion).
+- **Knöpfe:** Hauptaktion laternenorange mit Holzrand, Nebenaktion als Umriss; beide geben beim Drücken leicht nach.
 
 - **Persona-Porträt:** rundes Porträt, auf das Gesicht der Pappfigur zugeschnitten (Brennpunkt pro Figur). Steht für den Spieler, verrät nie die Rolle.
 - **Tischkreis:** der Tisch aus der eigenen Perspektive, man selbst unten, die Nachbarn links und rechts. In der Lobby (der Gastgeber tauscht Plätze) und am Tag (mit Schäfchen-Zahlen).
@@ -102,4 +107,3 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 
 - Tag-Variante der Bühne (Morgenlicht).
 - Echte App-Screenshots statt nachgebauter Screens im Startbild.
-- Bühnenhintergrund auch in der App (bisher nur Nachtblau mit Figuren).

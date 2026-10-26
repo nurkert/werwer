@@ -1,6 +1,6 @@
 # Task 003 – Mondbühne in der App, Figuren als Pappmodell
 
-**Status:** offen
+**Status:** fertig
 **Roadmap:** MVP-Sprint, Spur D
 
 ## Ziel

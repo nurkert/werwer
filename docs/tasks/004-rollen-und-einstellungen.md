@@ -1,6 +1,6 @@
 # Task 004 – Hexe, Jäger, Amor und Spiel-Einstellungen
 
-**Status:** in Arbeit (Regeln, Einstellungen, Protokoll und Host fertig; App-Bildschirme offen)
+**Status:** fertig
 **Roadmap:** MVP-Sprint, Spur F
 
 ## Ziel

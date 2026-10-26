@@ -107,7 +107,8 @@ Future<void> _precache(WidgetTester tester) async {
 
 /// One game: "you" plus five bots that act on what they see.
 class _Table {
-  _Table(int seed)
+  /// [youOwn]: "you" opened the room (and see its settings button).
+  _Table(int seed, {this.youOwn = false})
     : host = GameHost(
         roomCode: '1234',
         random: Random(seed),
@@ -119,13 +120,15 @@ class _Table {
       final link = PlayerLink(
         name: name,
         roomCode: '1234',
-        dial: () async => i == 0 ? host.connectOwner() : lan.connect(),
+        dial: () async =>
+            i == 0 && !youOwn ? host.connectOwner() : lan.connect(),
       );
       bots.add(link);
     }
   }
 
   final GameHost host;
+  final bool youOwn;
   final lan = MemoryTransport();
   late final GameSession you;
   final bots = <PlayerLink>[];
@@ -134,7 +137,7 @@ class _Table {
 
   Future<Connection> _dialYou() async {
     if (hostAway) throw StateError('host away');
-    return _yours = lan.connect();
+    return _yours = youOwn ? host.connectOwner() : lan.connect();
   }
 
   /// The host disappears for "you": the calm pause shows.
@@ -143,7 +146,9 @@ class _Table {
     await _yours?.close();
   }
 
-  PlayerLink get owner => bots.first;
+  /// Sends as the room's owner, whoever that is at this table.
+  void ownerSends(ClientMessage intent) =>
+      youOwn ? you.send(intent) : bots.first.send(intent);
 
   /// Every bot does what its phase asks; [you] only when [withYou].
   void playRound({bool withYou = false}) {
@@ -165,12 +170,21 @@ class _Table {
     switch (v.phase) {
       case Phase.roleReveal:
         send(const ConfirmRoleIntent());
-      case Phase.night when me.isAlive:
-        final targets = v.yourRole == Role.werewolf
-            ? others.where((s) => s.role != Role.werewolf).toList()
-            : others;
-        send(SheepIntent(v.yourFlock ?? 0));
-        send(NightIntent(targets.first.id));
+      case Phase.night when me.isAlive && !v.youActed:
+        final first = others.first.id;
+        switch (v.yourNightTask) {
+          case NightAbility.link:
+            send(NightIntent.of([v.you, first]));
+          case NightAbility.brew:
+            send(NightIntent.of(const []));
+          case NightAbility.hunt:
+            final prey = others.where((s) => s.role != Role.werewolf);
+            send(NightIntent(prey.first.id));
+          case NightAbility.inspect || NightAbility.decoy || null:
+            send(NightIntent(first));
+        }
+      case Phase.hunterShot when v.shooter == v.you:
+        send(ShootIntent(others.first.id));
       case Phase.day when isOwner:
         send(const EndDiscussionIntent());
       case Phase.vote when me.isAlive:
@@ -179,8 +193,8 @@ class _Table {
           Phase.night ||
           Phase.day ||
           Phase.vote ||
-          Phase.hunterShot:
-      case Phase.ended:
+          Phase.hunterShot ||
+          Phase.ended:
         break;
     }
   }
@@ -228,7 +242,7 @@ void main() {
         await tester.pump();
         final first = seed == 1;
         if (first) await shot.shoot('02-lobby');
-        table.owner.send(const StartGameIntent());
+        table.ownerSends(const StartGameIntent());
         await tester.pump();
         final role = table.you.view!.yourRole!;
         if (!wanted.remove(role)) {
@@ -255,6 +269,54 @@ void main() {
           await table.leaveHost();
           await tester.pump(const Duration(seconds: 2));
           await shot.shoot('08-pause');
+        }
+        await tester.pumpWidget(const SizedBox());
+        await table.close();
+      }
+
+      // The host's settings, opened from the lobby.
+      final host = _Table(1, youOwn: true);
+      await tester.pumpWidget(shot.frame(GameScreen(session: host.you)));
+      await tester.pump();
+      final l10n = await AppLocalizations.delegate.load(Locale(locale));
+      await tester.ensureVisible(find.text(l10n.settingsButton));
+      await tester.tap(find.text(l10n.settingsButton));
+      await tester.pump(const Duration(milliseconds: 400));
+      await shot.shoot('09-settings');
+      await tester.pumpWidget(const SizedBox());
+      await host.close();
+
+      // Every role on the full stage: cupid's pick, the witch's table, the
+      // hunter's moment and the lovers' note, from whichever seed shows it.
+      final missing = {'cupid', 'witch', 'hunter', 'lovers'};
+      for (var seed = 1; missing.isNotEmpty && seed < 60; seed++) {
+        final table = _Table(seed);
+        await tester.pumpWidget(shot.frame(GameScreen(session: table.you)));
+        await tester.pump();
+        table.ownerSends(SettingsIntent(Preset.fullStage.settings));
+        await tester.pump();
+        table.ownerSends(const StartGameIntent());
+        await tester.pump();
+        for (var i = 0; i < 40; i++) {
+          final v = table.you.view!;
+          if (v.phase == Phase.ended) break;
+          final night = v.phase == Phase.night && v.yourSeat.isAlive;
+          final task = v.yourNightTask;
+          String? scene;
+          if (night && task == NightAbility.link && !v.youActed) {
+            scene = 'cupid';
+          } else if (night && task == NightAbility.brew && !v.youActed) {
+            scene = 'witch';
+          } else if (v.phase == Phase.hunterShot) {
+            scene = 'hunter';
+          } else if (v.phase == Phase.day && v.partner != null) {
+            scene = 'lovers';
+          }
+          if (scene != null && missing.remove(scene)) {
+            await shot.shoot('10-$scene');
+          }
+          table.playRound(withYou: true);
+          await tester.pump();
         }
         await tester.pumpWidget(const SizedBox());
         await table.close();

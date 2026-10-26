@@ -1081,6 +1081,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are hosting this room: please keep Whowolf open while you play. If you switch apps for a moment, the game simply carries on when you come back.'**
   String get keepAppOpenHint;
+
+  /// No description provided for @roleWitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Witch'**
+  String get roleWitch;
+
+  /// No description provided for @roleHunter.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunter'**
+  String get roleHunter;
+
+  /// No description provided for @roleCupid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cupid'**
+  String get roleCupid;
+
+  /// No description provided for @roleWitchText.
+  ///
+  /// In en, this message translates to:
+  /// **'You have one healing potion and one poison, each for one use. At night you see whom the werewolves take, and decide after them.'**
+  String get roleWitchText;
+
+  /// No description provided for @roleHunterText.
+  ///
+  /// In en, this message translates to:
+  /// **'If you fall, at night or by the vote, you take someone with you at once.'**
+  String get roleHunterText;
+
+  /// No description provided for @roleCupidText.
+  ///
+  /// In en, this message translates to:
+  /// **'In the first night you bind two people as lovers. If one of them dies, so does the other.'**
+  String get roleCupidText;
+
+  /// No description provided for @factionLovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Lovers'**
+  String get factionLovers;
+
+  /// No description provided for @nightLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Whom do you bind as lovers? Pick two (you may pick yourself).'**
+  String get nightLink;
+
+  /// No description provided for @linkConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Bind them'**
+  String get linkConfirm;
+
+  /// No description provided for @linked.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second} are lovers now.'**
+  String linked(String first, String second);
+
+  /// No description provided for @nightBrew.
+  ///
+  /// In en, this message translates to:
+  /// **'The werewolves have chosen. What do you brew?'**
+  String get nightBrew;
+
+  /// No description provided for @brewVictim.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight the werewolves take {name}.'**
+  String brewVictim(String name);
+
+  /// No description provided for @brewNoVictim.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight the werewolves take nobody.'**
+  String get brewNoVictim;
+
+  /// No description provided for @brewHeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Healing potion for {name}'**
+  String brewHeal(String name);
+
+  /// No description provided for @brewPoison.
+  ///
+  /// In en, this message translates to:
+  /// **'Poison: tap someone (tap again to take it back).'**
+  String get brewPoison;
+
+  /// No description provided for @brewDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get brewDone;
+
+  /// No description provided for @brewNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Brew nothing'**
+  String get brewNothing;
+
+  /// No description provided for @brewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your potions are used up.'**
+  String get brewEmpty;
+
+  /// No description provided for @brewSent.
+  ///
+  /// In en, this message translates to:
+  /// **'You have decided. Sheep until the morning?'**
+  String get brewSent;
+
+  /// No description provided for @hunterYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You have fallen. Whom do you take with you?'**
+  String get hunterYou;
+
+  /// No description provided for @hunterSpare.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody'**
+  String get hunterSpare;
+
+  /// No description provided for @hunterWait.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was the hunter and takes aim …'**
+  String hunterWait(String name);
+
+  /// No description provided for @diedOfGrief.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} dies of grief.'**
+  String diedOfGrief(String name);
+
+  /// No description provided for @shotByHunter.
+  ///
+  /// In en, this message translates to:
+  /// **'The hunter takes {name} along.'**
+  String shotByHunter(String name);
+
+  /// No description provided for @inLove.
+  ///
+  /// In en, this message translates to:
+  /// **'You are in love with {name}. If one of you dies, so does the other.'**
+  String inLove(String name);
+
+  /// No description provided for @yourCouple.
+  ///
+  /// In en, this message translates to:
+  /// **'Your lovers: {first} and {second}.'**
+  String yourCouple(String first, String second);
+
+  /// No description provided for @loversWin.
+  ///
+  /// In en, this message translates to:
+  /// **'The lovers win!'**
+  String get loversWin;
+
+  /// No description provided for @narrateHunter.
+  ///
+  /// In en, this message translates to:
+  /// **'The hunter has fallen and takes aim …'**
+  String get narrateHunter;
+
+  /// No description provided for @settingsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Game settings'**
+  String get settingsButton;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game settings'**
+  String get settingsTitle;
+
+  /// No description provided for @presetClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get presetClassic;
+
+  /// No description provided for @presetClassicText.
+  ///
+  /// In en, this message translates to:
+  /// **'Like the card game: only the roles. The app narrates and counts the votes.'**
+  String get presetClassicText;
+
+  /// No description provided for @presetWhowolf.
+  ///
+  /// In en, this message translates to:
+  /// **'Whowolf'**
+  String get presetWhowolf;
+
+  /// No description provided for @presetWhowolfText.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus counting sheep with the morning score, and atmosphere.'**
+  String get presetWhowolfText;
+
+  /// No description provided for @presetFullStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Full stage'**
+  String get presetFullStage;
+
+  /// No description provided for @presetFullStageText.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything there is, with Cupid and the wolf trail.'**
+  String get presetFullStageText;
+
+  /// No description provided for @presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own mix'**
+  String get presetCustom;
+
+  /// No description provided for @settingsRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get settingsRoles;
+
+  /// No description provided for @settingsWolves.
+  ///
+  /// In en, this message translates to:
+  /// **'Werewolves'**
+  String get settingsWolves;
+
+  /// No description provided for @wolvesSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested ({count})'**
+  String wolvesSuggested(int count);
+
+  /// No description provided for @settingsTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Times'**
+  String get settingsTimes;
+
+  /// No description provided for @timeNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get timeNight;
+
+  /// No description provided for @timeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get timeDay;
+
+  /// No description provided for @timeVote.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote'**
+  String get timeVote;
+
+  /// No description provided for @seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} s'**
+  String seconds(int count);
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String minutes(int count);
+
+  /// No description provided for @settingsRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get settingsRules;
+
+  /// No description provided for @settingsRevealRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal roles of the dead'**
+  String get settingsRevealRoles;
+
+  /// No description provided for @settingsSeerRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Seer sees the role (otherwise only the side)'**
+  String get settingsSeerRole;
+
+  /// No description provided for @settingsExtras.
+  ///
+  /// In en, this message translates to:
+  /// **'Whowolf extras'**
+  String get settingsExtras;
+
+  /// No description provided for @settingsSheep.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting sheep at night'**
+  String get settingsSheep;
+
+  /// No description provided for @settingsSheepOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Without sheep, everyone answers a plain question at night, so tapping gives nobody away.'**
+  String get settingsSheepOff;
+
+  /// No description provided for @settingsWolfTrail.
+  ///
+  /// In en, this message translates to:
+  /// **'Wolf trail light'**
+  String get settingsWolfTrail;
+
+  /// No description provided for @settingsAtmosphere.
+  ///
+  /// In en, this message translates to:
+  /// **'Night atmosphere'**
+  String get settingsAtmosphere;
+
+  /// No description provided for @settingsPersonas.
+  ///
+  /// In en, this message translates to:
+  /// **'Players choose their figure'**
+  String get settingsPersonas;
+
+  /// No description provided for @settingsVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator voice on the host device'**
+  String get settingsVoice;
+
+  /// No description provided for @tooManyRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'For {count} players these are too many roles.'**
+  String tooManyRoles(int count);
+
+  /// No description provided for @presetBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic game'**
+  String get presetBasic;
 }
 
 class _AppLocalizationsDelegate

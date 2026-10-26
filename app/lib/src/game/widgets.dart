@@ -12,14 +12,18 @@ extension RoleText on AppLocalizations {
     Role.villager => roleVillager,
     Role.werewolf => roleWerewolf,
     Role.seer => roleSeer,
-    Role.witch || Role.hunter || Role.cupid => role.name,
+    Role.witch => roleWitch,
+    Role.hunter => roleHunter,
+    Role.cupid => roleCupid,
   };
 
   String roleText(Role role) => switch (role) {
     Role.villager => roleVillagerText,
     Role.werewolf => roleWerewolfText,
     Role.seer => roleSeerText,
-    Role.witch || Role.hunter || Role.cupid => role.name,
+    Role.witch => roleWitchText,
+    Role.hunter => roleHunterText,
+    Role.cupid => roleCupidText,
   };
 
   String persona(Persona persona) => switch (persona) {
@@ -39,7 +43,7 @@ extension RoleText on AppLocalizations {
   String faction(Faction faction) => switch (faction) {
     Faction.village => factionVillage,
     Faction.werewolves => factionWerewolves,
-    Faction.lovers => faction.name,
+    Faction.lovers => factionLovers,
   };
 }
 
@@ -244,6 +248,7 @@ class SeatGrid extends StatelessWidget {
     required this.view,
     super.key,
     this.selected,
+    this.chosen = const {},
     this.onTap,
     this.enabled,
     this.badges = const {},
@@ -252,6 +257,9 @@ class SeatGrid extends StatelessWidget {
 
   final PlayerView view;
   final PlayerId? selected;
+
+  /// More than one picked seat (cupid's pair).
+  final Set<PlayerId> chosen;
   final void Function(SeatView seat)? onTap;
 
   /// Which seats can be tapped; all living others by default.
@@ -275,7 +283,7 @@ class SeatGrid extends StatelessWidget {
           _SeatTile(
             seat: seat,
             isYou: seat.id == view.you,
-            selected: seat.id == selected,
+            selected: seat.id == selected || chosen.contains(seat.id),
             enabled:
                 onTap != null &&
                 (enabled?.call(seat) ?? (seat.isAlive && seat.id != view.you)),

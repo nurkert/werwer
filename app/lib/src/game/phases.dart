@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
@@ -9,7 +8,8 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/help.dart';
-import 'package:whowolf/src/game/sheep.dart';
+import 'package:whowolf/src/game/news.dart';
+import 'package:whowolf/src/game/settings_sheet.dart';
 import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -130,9 +130,10 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
     final count = view.seats.length;
-    final canStart = count >= minPlayers && count <= maxPlayers;
-    String rolesLine() {
-      final roles = suggestRoles(count);
+    final settings = view.settings;
+    final roles = count >= minPlayers ? settings.rolesFor(count) : null;
+    final canStart = roles != null && count <= maxPlayers;
+    String rolesLine(List<Role> roles) {
       final tally = <Role, int>{};
       for (final r in roles) {
         tally[r] = (tally[r] ?? 0) + 1;
@@ -166,8 +167,28 @@ class _LobbyPhaseState extends State<LobbyPhase> {
           selected: swapFrom,
           onTap: session.isOwner ? _tapSeat : null,
         ),
+        // What the table will play; the host can change it.
+        Panel(
+          child: Column(
+            children: [
+              Stamp(l10n.settingsName(settings), size: 17),
+              const SizedBox(height: 10),
+              if (roles != null)
+                Body(rolesLine(roles))
+              else if (count >= minPlayers)
+                Body(l10n.tooManyRoles(count), muted: true),
+              if (session.isOwner) ...[
+                const SizedBox(height: 12),
+                SecondaryButton(
+                  label: l10n.settingsButton,
+                  expand: false,
+                  onPressed: () => showSettingsSheet(context, session),
+                ),
+              ],
+            ],
+          ),
+        ),
         if (session.isOwner) ...[
-          if (canStart) Body(rolesLine()),
           if (count < recommendedMinPlayers)
             Body(l10n.fewPlayersHint, muted: true),
           if (count < minPlayers)
@@ -305,12 +326,14 @@ class _PersonaPicker extends StatelessWidget {
                     color: Palette.moon100,
                   ),
                 ),
-                const SizedBox(height: 6),
-                SecondaryButton(
-                  label: l10n.changePersona,
-                  expand: false,
-                  onPressed: () => _pick(context),
-                ),
+                if (session.view!.settings.personaChoice) ...[
+                  const SizedBox(height: 6),
+                  SecondaryButton(
+                    label: l10n.changePersona,
+                    expand: false,
+                    onPressed: () => _pick(context),
+                  ),
+                ],
               ],
             ),
           ),
@@ -568,7 +591,9 @@ class _RevealPhaseState extends State<RevealPhase> {
   }
 }
 
-/// What happened since the last screen (night victim or vote result).
+/// What happened since the last screen: every death with its cause and,
+/// if roles are revealed, the role. Read out on paper in the morning; at
+/// night the stage stays dark.
 class LastNews extends StatelessWidget {
   const LastNews({required this.view, super.key});
 
@@ -577,30 +602,28 @@ class LastNews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final night = view.phase == Phase.day;
-    final death = view.deaths.where((d) {
-      return night
-          ? d.cause == DeathCause.night && d.round == view.round
-          : d.cause == DeathCause.vote && d.round == view.round - 1;
-    }).firstOrNull;
-    if (!night && view.round <= 1) return const SizedBox.shrink();
-    final String text;
-    if (death == null) {
-      text = night ? l10n.nobodyDied : l10n.nobodyEliminated;
-    } else {
-      final name = view.nameOf(death.player);
-      text = night ? l10n.killedAtNight(name) : l10n.eliminated(name);
-    }
-    final role = death?.role;
-    // Morning news is read out like a notice; at night the stage stays dark.
+    final phase = view.phase;
+    if (phase == Phase.night && view.round <= 1) return const SizedBox.shrink();
+    final deaths = freshDeaths(view);
+    final nobody = switch (phase) {
+      Phase.day => l10n.nobodyDied,
+      Phase.night => l10n.nobodyEliminated,
+      _ => null,
+    };
+    if (deaths.isEmpty && nobody == null) return const SizedBox.shrink();
     return Panel(
-      paper: night,
+      paper: phase == Phase.day,
       child: SizedBox(
         width: double.infinity,
         child: Column(
           children: [
-            Body(text),
-            if (role != null) Body(l10n.roleWas(l10n.role(role)), muted: true),
+            if (deaths.isEmpty) Body(nobody!),
+            for (final (i, d) in deaths.indexed) ...[
+              if (i > 0) const SizedBox(height: 8),
+              Body(l10n.death(view, d)),
+              if (d.role != null)
+                Body(l10n.roleWas(l10n.role(d.role!)), muted: true),
+            ],
           ],
         ),
       ),
@@ -608,159 +631,33 @@ class LastNews extends StatelessWidget {
   }
 }
 
-class NightPhase extends StatefulWidget {
-  const NightPhase({required this.session, super.key});
+/// For the lovers (and cupid): who belongs to whom. Nobody else sees it.
+class CoupleNote extends StatelessWidget {
+  const CoupleNote({required this.view, super.key});
 
-  final GameSession session;
-
-  @override
-  State<NightPhase> createState() => _NightPhaseState();
-}
-
-class _NightPhaseState extends State<NightPhase> {
-  final _random = Random();
-  Timer? _decoy;
-  late final Timer _report;
-  int _sheep = 0;
-  int _sentSheep = 0;
-  int _round = 0;
-
-  GameSession get session => widget.session;
-
-  @override
-  void initState() {
-    super.initState();
-    _round = session.view!.round;
-    _planDecoy();
-    // Tonight's sheep go to the host as a running total, at most once a
-    // second; everyone sees the totals in the morning.
-    _report = Timer.periodic(const Duration(seconds: 1), (_) => _sendSheep());
-  }
-
-  void _sendSheep() {
-    if (_sheep == _sentSheep) return;
-    _sentSheep = _sheep;
-    session.send(
-      SheepIntent(_sheep.clamp(-maxSheepPerNight, maxSheepPerNight)),
-    );
-  }
-
-  @override
-  void didUpdateWidget(NightPhase oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final round = session.view!.round;
-    if (round != _round) {
-      _round = round;
-      _sheep = 0;
-      _sentSheep = 0;
-      _decoy?.cancel();
-      _decoy = null;
-    }
-    _planDecoy();
-  }
-
-  @override
-  void dispose() {
-    _decoy?.cancel();
-    _report.cancel();
-    super.dispose();
-  }
-
-  /// Without a night ability the player counts sheep; after a while the app
-  /// sends the (effectless) decoy pick, at a random moment like a real pick.
-  void _planDecoy() {
-    final view = session.view!;
-    final needed =
-        view.yourRole?.nightAbility == NightAbility.decoy &&
-        view.yourSeat.isAlive &&
-        view.yourNightChoice == null;
-    if (!needed || _decoy != null) return;
-    _decoy = Timer(Duration(milliseconds: 8000 + _random.nextInt(7000)), () {
-      final now = session.view;
-      if (now == null ||
-          now.phase != Phase.night ||
-          now.yourNightChoice != null) {
-        return;
-      }
-      final others = now.seats
-          .where((s) => s.isAlive && s.id != now.you)
-          .toList();
-      if (others.isEmpty) return;
-      _sendSheep();
-      session.send(NightIntent(others[_random.nextInt(others.length)].id));
-    });
-  }
+  final PlayerView view;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final view = session.view!;
-    final role = view.yourRole!;
-    final alive = view.yourSeat.isAlive;
-    final decoy = role.nightAbility == NightAbility.decoy;
-    final prompt = switch (role.nightAbility) {
-      NightAbility.hunt => l10n.nightHunt,
-      NightAbility.inspect => l10n.nightInspect,
-      NightAbility.decoy ||
-      NightAbility.link ||
-      NightAbility.brew => l10n.nightSheep,
-    };
-    final seen = view.seerResults.where((r) => r.round == view.round);
-    final choice = view.yourNightChoice;
-    final inspected =
-        role.nightAbility == NightAbility.inspect && choice != null;
-    final meadow = SheepMeadow(
-      key: ValueKey('meadow-${view.round}'),
-      flock: view.yourFlock,
-      onPoints: (delta) => _sheep += delta,
-    );
-    return PhaseBody(
-      children: [
-        Headline(l10n.nightTitle(view.round)),
-        LastNews(view: view),
-        if (!alive)
-          Body(l10n.youAreDead)
-        else ...[
-          Body(prompt),
-          Countdown(endsAt: session.phaseEndsAt),
-          if (decoy)
-            meadow
-          else ...[
-            SeatGrid(
-              view: view,
-              selected: choice,
-              enabled: (seat) =>
-                  seat.isAlive &&
-                  seat.id != view.you &&
-                  !inspected &&
-                  !(role == Role.werewolf && seat.role == Role.werewolf),
-              badges: {
-                for (final MapEntry(:key, :value) in view.packChoices.entries)
-                  if (key != view.you) value: l10n.packPick(view.nameOf(key)),
-              },
-              onTap: (seat) => session.send(NightIntent(seat.id)),
-            ),
-            if (choice != null) Body(l10n.picked(view.nameOf(choice))),
-            for (final r in seen)
-              Panel(
-                highlight: true,
-                child: Body(
-                  l10n.seerSaw(
-                    view.nameOf(r.target),
-                    r.role != null
-                        ? l10n.role(r.role!)
-                        : l10n.faction(r.faction),
-                  ),
-                ),
-              ),
-            // Everyone can count sheep all night, so the morning totals
-            // are a hint, not a giveaway.
-            Body(l10n.sheepWhileWaiting, muted: true),
-            meadow,
-          ],
-          Body(l10n.nightHint, muted: true),
+    final partner = view.partner;
+    final couple = view.couple;
+    final String text;
+    if (partner != null) {
+      text = l10n.inLove(view.nameOf(partner));
+    } else if (couple.length == 2 && view.yourRole == Role.cupid) {
+      text = l10n.yourCouple(view.nameOf(couple[0]), view.nameOf(couple[1]));
+    } else {
+      return const SizedBox.shrink();
+    }
+    return Panel(
+      child: Row(
+        children: [
+          const Icon(Icons.favorite_rounded, color: Palette.curtain400),
+          const SizedBox(width: 12),
+          Expanded(child: Body(text)),
         ],
-      ],
+      ),
     );
   }
 }
@@ -774,19 +671,22 @@ class DayPhase extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
+    final sheep = view.settings.sheepCounting && view.lastNightSheep.isNotEmpty;
     return PhaseBody(
       children: [
         Headline(l10n.dayTitle(view.round)),
         LastNews(view: view),
+        CoupleNote(view: view),
         if (!view.yourSeat.isAlive) Body(l10n.youAreDead),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
-        if (view.lastNightSheep.isNotEmpty) Headline(l10n.sleepTitle),
+        if (sheep) Headline(l10n.sleepTitle, size: 28),
         TableCircle(
           view: view,
           badges: {
-            for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
-              key: l10n.sheepCount(value),
+            if (sheep)
+              for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
+                key: l10n.sheepCount(value),
           },
         ),
         if (session.isOwner)
@@ -796,6 +696,46 @@ class DayPhase extends StatelessWidget {
           )
         else
           Body(l10n.ownerStartsVote, muted: true),
+      ],
+    );
+  }
+}
+
+/// The hunter has fallen: he picks whom to take along, everyone else
+/// waits for the shot.
+class HunterPhase extends StatelessWidget {
+  const HunterPhase({required this.session, super.key});
+
+  final GameSession session;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final view = session.view!;
+    final shooter = view.shooter;
+    final yours = shooter == view.you;
+    return PhaseBody(
+      children: [
+        const TurningFigure(asset: 'assets/figures/jaeger.webp', height: 180),
+        Headline(l10n.roleHunter),
+        LastNews(view: view),
+        Body(
+          yours
+              ? l10n.hunterYou
+              : l10n.hunterWait(shooter == null ? '?' : view.nameOf(shooter)),
+        ),
+        Countdown(endsAt: session.phaseEndsAt),
+        if (yours) ...[
+          SeatGrid(
+            view: view,
+            onTap: (seat) => session.send(ShootIntent(seat.id)),
+          ),
+          SecondaryButton(
+            label: l10n.hunterSpare,
+            expand: false,
+            onPressed: () => session.send(const ShootIntent(null)),
+          ),
+        ],
       ],
     );
   }
@@ -814,6 +754,7 @@ class VotePhase extends StatelessWidget {
     return PhaseBody(
       children: [
         Headline(l10n.voteTitle),
+        CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
           Body(l10n.youAreDead)
         else ...[
@@ -851,17 +792,16 @@ class EndedPhase extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
-    final villageWon = view.winner == Faction.village;
+    final (figure, color) = switch (view.winner) {
+      Faction.werewolves => (Role.werewolf, Palette.curtain400),
+      Faction.lovers => (Role.cupid, Palette.curtain400),
+      Faction.village || null => (Role.villager, Palette.lantern400),
+    };
     return PhaseBody(
       children: [
-        RoleFigure(
-          role: villageWon ? Role.villager : Role.werewolf,
-          height: 200,
-        ),
-        Headline(
-          villageWon ? l10n.villageWins : l10n.werewolvesWin,
-          color: villageWon ? Palette.lantern400 : Palette.curtain400,
-        ),
+        RoleFigure(role: figure, height: 200),
+        Headline(l10n.winner(view.winner), color: color),
+        LastNews(view: view),
         if (_bestDreamer(view) case (final name, final points))
           Panel(paper: true, child: Body(l10n.bestDreamer(name, points))),
         Body(l10n.everyRole),
@@ -869,7 +809,7 @@ class EndedPhase extends StatelessWidget {
           view: view,
           badges: {
             for (final MapEntry(:key, :value) in view.dreams.entries)
-              key: l10n.dreamPoints(value),
+              if (view.settings.sheepCounting) key: l10n.dreamPoints(value),
           },
         ),
         if (session.isOwner)
@@ -885,6 +825,7 @@ class EndedPhase extends StatelessWidget {
 
 /// The player with the most dream points, if anyone counted at all.
 (String, int)? _bestDreamer(PlayerView view) {
+  if (!view.settings.sheepCounting) return null;
   final best = view.dreams.entries
       .where((e) => e.value > 0)
       .fold<MapEntry<PlayerId, int>?>(

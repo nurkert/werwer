@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
-import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/game/news.dart';
 
 /// What the narrator says when the game moves from [before] to [after], or
 /// `null` if nothing changed worth announcing. Uses only what every player
@@ -18,61 +18,29 @@ String? narration(
       before.round == after.round) {
     return null;
   }
-  String? roleOf(DeathView d) =>
-      d.role == null ? null : l10n.narrateRole(l10n.role(d.role!));
-  DeathView? death(DeathCause cause, int round) => after.deaths
-      .where((d) => d.cause == cause && d.round == round)
-      .firstOrNull;
-
+  final deaths = freshDeaths(after);
   return switch (after.phase) {
-    Phase.lobby || Phase.hunterShot => null,
+    Phase.lobby => null,
     Phase.roleReveal => l10n.narrateReveal,
-    Phase.night => () {
-      final parts = <String>[];
-      if (before?.phase == Phase.vote) {
-        final out = death(DeathCause.vote, after.round - 1);
-        parts.add(
-          out == null
-              ? l10n.nobodyEliminated
-              : [
-                  l10n.eliminated(after.nameOf(out.player)),
-                  ?roleOf(out),
-                ].join(' '),
-        );
-      }
-      parts.add(l10n.narrateNight);
-      return parts.join(' ');
-    }(),
-    Phase.day => () {
-      final victim = death(DeathCause.night, after.round);
-      return [
-        l10n.narrateMorning,
-        if (victim == null)
-          l10n.nobodyDied
-        else ...[
-          l10n.killedAtNight(after.nameOf(victim.player)),
-          ?roleOf(victim),
-        ],
-        l10n.narrateDiscuss,
-      ].join(' ');
-    }(),
+    Phase.night => [
+      if (before?.phase == Phase.vote || before?.phase == Phase.hunterShot)
+        l10n.news(after, deaths, l10n.nobodyEliminated),
+      l10n.narrateNight,
+    ].join(' '),
+    Phase.day => [
+      l10n.narrateMorning,
+      l10n.news(after, deaths, l10n.nobodyDied),
+      l10n.narrateDiscuss,
+    ].join(' '),
+    Phase.hunterShot => [
+      l10n.news(after, deaths, ''),
+      l10n.narrateHunter,
+    ].where((part) => part.isNotEmpty).join(' '),
     Phase.vote => l10n.narrateVote,
-    Phase.ended => () {
-      final out =
-          death(DeathCause.vote, after.round) ??
-          death(DeathCause.night, after.round);
-      return [
-        if (out != null)
-          out.cause == DeathCause.vote
-              ? l10n.eliminated(after.nameOf(out.player))
-              : l10n.killedAtNight(after.nameOf(out.player)),
-        if (out != null) ?roleOf(out),
-        if (after.winner == Faction.village)
-          l10n.villageWins
-        else
-          l10n.werewolvesWin,
-      ].join(' ');
-    }(),
+    Phase.ended => [
+      l10n.news(after, deaths, ''),
+      l10n.winner(after.winner),
+    ].where((part) => part.isNotEmpty).join(' '),
   };
 }
 
