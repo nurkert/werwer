@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:whowolf_server/relay_server.dart';
 
-/// Configuration comes from the environment (see docker-compose.yml):
-/// `PORT` (8080), `MAX_ROOMS` (200), `MAX_ROOMS_PER_ADDRESS` (4, 0 = off,
-/// e.g. behind a reverse proxy), `MAX_PEERS` (24).
+/// Configuration comes from the environment (see deploy/docker-compose.yml):
+/// `PORT` (8080), `MAX_ROOMS` (200), `MAX_ROOMS_PER_ADDRESS` (4, 0 = off),
+/// `MAX_PEERS` (24), `MAX_CONNECTIONS` (2000), `MAX_CONNECTIONS_PER_ADDRESS`
+/// (32), `MAX_UPGRADES_PER_MINUTE` (60) and `TRUST_PROXY` (`1` only behind
+/// a reverse proxy that is the sole way in; the client address then comes
+/// from `X-Forwarded-For`).
 ///
 /// `server healthcheck` asks the running server for `/health` and exits with
 /// 0 or 1 (the container image has no shell or curl).
@@ -35,9 +38,19 @@ Future<void> main(List<String> args) async {
       maxRooms: env('MAX_ROOMS', 200),
       maxRoomsPerAddress: env('MAX_ROOMS_PER_ADDRESS', 4),
       maxPeersPerRoom: env('MAX_PEERS', 24),
+      maxConnections: env('MAX_CONNECTIONS', 2000),
+      maxConnectionsPerAddress: env('MAX_CONNECTIONS_PER_ADDRESS', 32),
+      maxUpgradesPerMinute: env('MAX_UPGRADES_PER_MINUTE', 60),
+      trustProxy: Platform.environment['TRUST_PROXY'] == '1',
     ),
   );
   stdout.writeln('Whowolf relay listening on port ${relay.port}');
+  // Counts only, never addresses or contents: enough to see the load.
+  Timer.periodic(const Duration(minutes: 15), (_) {
+    stdout.writeln(
+      'rooms=${relay.roomCount} connections=${relay.connectionCount}',
+    );
+  });
 
   Future<void> stop(ProcessSignal signal) async {
     stdout.writeln('Stopping (${signal.name})');

@@ -1,7 +1,8 @@
-# Self-hosted Whowolf relay: `docker compose up -d`.
+# Self-hosted Whowolf relay, built from source: `docker compose up -d`.
 # Players far away join a host through it; it forwards messages only and
-# keeps no game data. Put a TLS reverse proxy (e.g. Caddy) in front of it
-# and enter wss://your-domain in the app.
+# keeps no game data. For a public server use server/deploy instead (Caddy
+# with TLS, signed images, automatic updates); here, put your own TLS
+# reverse proxy in front and enter wss://your-domain in the app.
 services:
   relay:
     build:
@@ -14,8 +15,10 @@ services:
     environment:
       PORT: "8080"
       MAX_ROOMS: "200"
-      # Rooms per client address; set to "0" behind a reverse proxy.
       MAX_ROOMS_PER_ADDRESS: "4"
+      # "1" only if a reverse proxy is the sole way in (then publish the
+      # port on 127.0.0.1 only): the limits then count the forwarded address.
+      TRUST_PROXY: "0"
       MAX_PEERS: "24"
     read_only: true
     cap_drop: [ALL]

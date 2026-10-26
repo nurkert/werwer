@@ -190,7 +190,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] **Website-Bühne mit Liebe zu Ende gestalten:** Hintergrund (Berge, Burg) reicht bis zum Boden, Dorf als geordnete Silhouette, Figuren stehen auf einem Boden und als Gruppe zueinander
 - [ ] **Klang:** Stimme nur noch als Opt-in (vorerst System-TTS, später eingesprochene Aufnahmen); stattdessen wortlose Klänge aus einer sauberen offenen Bibliothek (CC0): typische Spielklänge, Gähnen beim Einschlafen und Aufwachen, Bühne, Abstimmung, Tod
 - [x] **Host-Übernahme (Nachfolger + Zeuge):** fällt der Host weg, übernimmt still und schnell der nächste Spieler; der Nachfolger hält den verschlüsselten Spielstand, ein Zeuge den Schlüssel und gibt ihn nur heraus, wenn er den Host selbst verloren hat; Epochen gegen geteilte Tische, kein neuer DDoS-Weg ([Task 008](tasks/008-host-uebernahme.md))
-- [ ] **play.whowolf.de:** Relay als schlanker Container auf dem eigenen VPS, Standard-Server der App; aktualisiert sich nach jedem Release selbst (signiertes Image, Abruf statt offenem Endpunkt)
+- [x] **play.whowolf.de:** (Code, Image und Deployment fertig; auf dem VPS einzurichten nach `server/deploy/README.md`) Relay als schlanker Container auf dem eigenen VPS, Standard-Server der App; aktualisiert sich nach jedem Release selbst (signiertes Image, Abruf statt offenem Endpunkt)
 - [ ] Bildschirmfotos aller Phasen in drei Größen (Handy, Tablet, Desktop) als Prüfung im Screenshot-Test
 
 ---

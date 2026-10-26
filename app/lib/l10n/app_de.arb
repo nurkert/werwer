@@ -97,7 +97,7 @@
   "resume": "Zurück ins Spiel (Raum {room})",
   "settings": "Einstellungen",
   "relayServer": "Server für Online-Spieler",
-  "relayServerHelp": "Leer lassen für den offiziellen Server, sobald es ihn gibt. Eigener Server: docker compose up -d, siehe Docs.",
+  "relayServerHelp": "Leer lassen für den offiziellen Server (play.whowolf.de). Er leitet nur verschlüsselte Nachrichten weiter. Eigener Server: siehe Docs.",
   "save": "Speichern",
   "invalidServer": "Die Adresse muss mit ws:// oder wss:// beginnen.",
   "scanHint": "Oder scannt diesen Code mit der Whowolf-App:",

@@ -166,13 +166,17 @@
 - Keine Tracker, keine Fremd-Skripte, keine Cookies.
 - Content-Security-Policy, soweit GitHub Pages es zulässt (Meta-Tag).
 
-### Später: Relay-Server (A5)
+### Relay-Server (A5)
 
-- Der Server sieht dank Ende-zu-Ende-Verschlüsselung **nur Chiffretext** und speichert nichts dauerhaft.
-- **Raum-IDs mit hoher Zufälligkeit.** Beitreten geht nur mit dem Geheimnis aus dem QR-Code.
-- Ratenbegrenzung, Limits für Verbindungen und Räume, Zeitlimits.
-- Container ohne Root-Rechte, minimales Image.
-- Ehrlich dokumentiert, was der Server trotzdem sieht: IP-Adressen, Zeitpunkte, Nachrichtengrößen.
+- Der Relay sieht nur Chiffrat und Verbindungsdaten. Er kennt keine Spielregeln und keinen Spielstand und protokolliert keine Inhalte.
+- **Speicher:** `dart:io` liest eine WebSocket-Nachricht ganz, bevor wir sie prüfen. Deshalb macht der Server den Handshake selbst (RFC 6455) und zählt jedes eingehende Byte gegen ein Budget pro Verbindung: 256 KiB bei 64 KiB/s für Spieler, 4 MiB bei 1 MiB/s für Hosts. Wer mehr schickt, wird sofort getrennt, also bevor ein großer Frame vollständig ist. Kompression ist aus.
+- **Fluten:**
+  - Grenzen für Verbindungen gesamt und pro Adresse sowie für neue Verbindungen pro Adresse und Minute; das macht auch das Durchprobieren von Raum-IDs aussichtslos.
+  - Räume pro Adresse und Spieler pro Raum sind begrenzt, ebenso die Nachrichtenrate.
+  - Die Grenzen werden nach dem Upgrade erneut geprüft.
+- **Echte Adressen:** Hinter Caddy kommt die Adresse aus `X-Forwarded-For`, aber nur mit `TRUST_PROXY=1`. Das ist sicher, weil der Relay-Port nicht öffentlich ist und Caddy den Header des Clients überschreibt.
+- **Betrieb:** Container read-only, ohne Capabilities, `no-new-privileges`, Speicher- und CPU-Grenze. Updates nur als signiertes Image aus dem Release-Workflow (Sigstore, gegen die Workflow-Identität geprüft), gestartet über den Digest. Der Server bietet dafür keinen Endpunkt an.
+- **Tests:** `server/test/relay_test.dart` (riesiger Frame, Grenzen pro Adresse, Raum-IDs raten, Proxy-Adresse).
 
 ## Sicherheit im Entwicklungsablauf
 

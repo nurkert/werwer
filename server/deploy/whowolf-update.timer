@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for a new Whowolf relay release every five minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @relayServerHelp.
   ///
   /// In en, this message translates to:
-  /// **'Leave empty to use the official server once it exists. Own server: docker compose up -d, see the docs.'**
+  /// **'Leave empty for the official server (play.whowolf.de). It only forwards encrypted messages. Own server: see the docs.'**
   String get relayServerHelp;
 
   /// No description provided for @save.

@@ -1,0 +1,67 @@
+# The official relay (play.whowolf.de) and any self-hosted one: the relay
+# behind Caddy, which gets the TLS certificate by itself. Only Caddy is
+# reachable from outside; the relay's port stays inside this network.
+#
+#   cp -r server/deploy /opt/whowolf && cd /opt/whowolf
+#   echo "RELAY_DOMAIN=play.example.org" > domain.env
+#   ./update.sh            # pulls, verifies the signature, starts
+#
+# update.sh writes .env with the verified image digest; never edit it by hand.
+name: whowolf
+
+services:
+  relay:
+    image: ${RELAY_IMAGE:?run ./update.sh, it sets the verified image}
+    restart: unless-stopped
+    environment:
+      TRUST_PROXY: "1"
+      MAX_ROOMS: "300"
+      MAX_ROOMS_PER_ADDRESS: "4"
+      MAX_PEERS: "24"
+      MAX_CONNECTIONS: "3000"
+      MAX_CONNECTIONS_PER_ADDRESS: "32"
+      MAX_UPGRADES_PER_MINUTE: "60"
+    healthcheck:
+      test: ["CMD", "/app/whowolf-relay", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # The binary needs nothing else: no writes, no privileges, little memory.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 64
+    ulimits:
+      nofile: { soft: 8192, hard: 8192 }
+    logging:
+      driver: local
+      options: { max-size: 5m, max-file: "3" }
+    networks: [inside]
+
+  caddy:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    env_file: [domain.env]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    logging:
+      driver: local
+      options: { max-size: 5m, max-file: "3" }
+    networks: [inside]
+    depends_on: [relay]
+
+networks:
+  inside: {}
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

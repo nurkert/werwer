@@ -362,7 +362,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relayServerHelp =>
-      'Leave empty to use the official server once it exists. Own server: docker compose up -d, see the docs.';
+      'Leave empty for the official server (play.whowolf.de). It only forwards encrypted messages. Own server: see the docs.';
 
   @override
   String get save => 'Save';

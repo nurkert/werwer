@@ -3,10 +3,14 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:protocol/protocol.dart';
 
-/// The official relay server, set at build time
-/// (`--dart-define=RELAY_SERVER=wss://…`). Empty until it exists; players can
-/// enter their own (self-hosted) server in the settings.
-const officialRelayServer = String.fromEnvironment('RELAY_SERVER');
+/// The official relay server: players on mobile data join a host through
+/// it. It only forwards end-to-end encrypted messages. A fork sets its own
+/// at build time (`--dart-define=RELAY_SERVER=wss://…`, empty for none);
+/// players can enter a self-hosted one in the settings.
+const officialRelayServer = String.fromEnvironment(
+  'RELAY_SERVER',
+  defaultValue: 'wss://play.whowolf.de',
+);
 
 /// How to get back into a game after the app was closed. Holds the session
 /// token, so it lives in the Keychain / Keystore only and is never logged.

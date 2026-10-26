@@ -1,0 +1,14 @@
+# TLS for the relay. Caddy sets X-Forwarded-For to the real client (it does
+# not trust one sent by the client), which the relay uses for its limits.
+{
+	admin off
+}
+
+{$RELAY_DOMAIN} {
+	reverse_proxy relay:8080
+	header -Server
+	log {
+		# Errors only: no addresses or paths of players in the logs.
+		level ERROR
+	}
+}

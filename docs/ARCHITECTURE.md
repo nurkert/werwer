@@ -134,8 +134,13 @@ GitHub Actions baut bei jedem Release-Tag:
 
 ## Hosting des offiziellen Servers
 
-- Läuft auf dem **VPS des Eigentümers** unter einer Subdomain von `whowolf.de` (Arbeitsname `game.whowolf.de`, endgültiger Name noch offen).
-- Es läuft **genau der Container, den das Repo bereitstellt** (Image aus der CI, `ghcr.io`). Es gibt keine Sonderversion, der offizielle Server ist ein ganz normaler Self-Host. So merken wir Probleme beim Self-Hosting zuerst selbst.
-- Die Standard-Adresse steht in der App an **einer** Stelle (Konfiguration), nicht verstreut im Code.
-- TLS über einen Reverse-Proxy (z. B. Caddy) mit automatischen Zertifikaten. Container ohne Root-Rechte, Updates per neuem Image-Tag.
-- Später: Monitoring, Rate-Limits, Raumgrenzen.
+- **Adresse:** `play.whowolf.de` auf dem **VPS des Eigentümers**. Das ist der Standard-Server der App (`officialRelayServer` in `app/lib/src/net/store.dart`, eine Stelle; Forks setzen `--dart-define=RELAY_SERVER=…`).
+- **Zweck:** Er ist nur Relay, damit Spieler über mobile Daten mitspielen können. Das Spiel läuft weiter auf dem Host-Handy.
+- **Image:** Es läuft **genau der Container aus der CI**: Bei jedem Release baut `prerelease.yml` das Image für amd64 und arm64, legt es auf `ghcr.io` ab, signiert es keyless mit Sigstore und attestiert es. Eine Sonderversion gibt es nicht; der offizielle Server ist ein ganz normaler Self-Host.
+- **Aufbau:** `server/deploy/` enthält Compose mit Relay und Caddy (TLS automatisch). Nur Caddy ist von außen erreichbar. Der Container ist read-only, ohne Capabilities, mit 256 MB und 1 CPU.
+- **Updates ohne offenen Endpunkt:** Ein systemd-Timer ruft alle 5 Minuten `update.sh` auf. Das Skript holt den Tag `stable`, prüft die Signatur gegen den Release-Workflow dieses Repos und startet genau den geprüften Digest. Die Pipeline muss den Server nicht anstoßen.
+- **Schutz vor Überlast:**
+  - Byte-Budget pro Verbindung: Eine zu große Nachricht wird abgeschnitten, bevor sie im Speicher liegt.
+  - Grenzen pro Adresse für Räume, Verbindungen und neue Verbindungen pro Minute, hinter Caddy über `X-Forwarded-For`.
+  - Gesamtgrenzen.
+  - Logs nur mit Zählern und Fehlern, ohne Adressen.
