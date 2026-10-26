@@ -2,9 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:whowolf/src/app.dart';
+import 'package:whowolf/src/net/store.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(_fontLicenses);
+  final language = await const Store().language();
+  if (language != null) appLanguage.value = Locale(language);
   runApp(const WhowolfApp());
 }
 

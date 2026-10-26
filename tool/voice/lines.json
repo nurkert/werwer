@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "lines": [
+    {
+      "key": "reveal",
+      "de": "Die Rollen sind verteilt. Schaut euch eure Rolle an, und lasst niemanden mitschauen.",
+      "en": "The roles are dealt. Look at yours, and let nobody look over your shoulder."
+    },
+    {
+      "key": "night_together",
+      "de": "Die Nacht legt sich über das Dorf. Alle schließen die Augen … und tippen auf ihrem Handy.",
+      "en": "Night falls over the village. Everyone close your eyes … and tap on your phone."
+    },
+    {
+      "key": "night_called",
+      "de": "Die Nacht legt sich über das Dorf. Alle schließen die Augen.",
+      "en": "Night falls over the village. Everyone close your eyes."
+    },
+    {
+      "key": "wake_cupid",
+      "de": "Amor erwacht und verbindet zwei Menschen in Liebe.",
+      "en": "Cupid wakes up and binds two people in love."
+    },
+    {
+      "key": "wake_wolves",
+      "de": "Die Werwölfe erwachen und suchen sich ein Opfer.",
+      "en": "The werewolves wake up and choose a victim."
+    },
+    {
+      "key": "wake_seer",
+      "de": "Die Seherin erwacht und blickt in eine Seele.",
+      "en": "The seer wakes up and looks into someone's soul."
+    },
+    {
+      "key": "wake_witch",
+      "de": "Die Hexe erwacht. Sie sieht, wen es heute Nacht treffen soll, und greift zu ihren Tränken.",
+      "en": "The witch wakes up. She sees who is to die tonight and reaches for her potions."
+    },
+    {
+      "key": "sleep",
+      "de": "Augen wieder zu.",
+      "en": "Eyes closed again."
+    },
+    {
+      "key": "sleep_cupid",
+      "de": "Amor schläft wieder ein.",
+      "en": "Cupid falls asleep again."
+    },
+    {
+      "key": "sleep_wolves",
+      "de": "Die Werwölfe schlafen wieder ein.",
+      "en": "The werewolves fall asleep again."
+    },
+    {
+      "key": "sleep_seer",
+      "de": "Die Seherin schläft wieder ein.",
+      "en": "The seer falls asleep again."
+    },
+    {
+      "key": "sleep_witch",
+      "de": "Die Hexe schläft wieder ein.",
+      "en": "The witch falls asleep again."
+    },
+    {
+      "key": "morning",
+      "de": "Die Sonne geht über dem Dorf auf.",
+      "en": "The sun rises over the village."
+    },
+    {
+      "key": "died_one",
+      "de": "Heute Nacht hat es jemanden erwischt.",
+      "en": "Tonight, someone did not make it."
+    },
+    {
+      "key": "died_two",
+      "de": "Heute Nacht hat es gleich zwei erwischt.",
+      "en": "Tonight, two did not make it."
+    },
+    {
+      "key": "died_none",
+      "de": "Alle sind wieder aufgewacht. Niemand ist gestorben.",
+      "en": "Everyone woke up again. Nobody died."
+    },
+    {
+      "key": "role_villager",
+      "de": "Die Rolle war: Dorfbewohner.",
+      "en": "The role was: villager."
+    },
+    {
+      "key": "role_werewolf",
+      "de": "Die Rolle war: Werwolf.",
+      "en": "The role was: werewolf."
+    },
+    {
+      "key": "role_seer",
+      "de": "Die Rolle war: Seherin.",
+      "en": "The role was: seer."
+    },
+    {
+      "key": "role_witch",
+      "de": "Die Rolle war: Hexe.",
+      "en": "The role was: witch."
+    },
+    {
+      "key": "role_hunter",
+      "de": "Die Rolle war: Jäger.",
+      "en": "The role was: hunter."
+    },
+    {
+      "key": "role_cupid",
+      "de": "Die Rolle war: Amor.",
+      "en": "The role was: cupid."
+    },
+    {
+      "key": "discuss",
+      "de": "Jetzt redet: Wer ist der Werwolf?",
+      "en": "Now talk: who is the werewolf?"
+    },
+    {
+      "key": "vote",
+      "de": "Genug geredet. Stimmt jetzt ab.",
+      "en": "Enough talk. Vote now."
+    },
+    {
+      "key": "voted_out",
+      "de": "Das Dorf hat entschieden.",
+      "en": "The village has decided."
+    },
+    {
+      "key": "vote_tie",
+      "de": "Niemand wurde verbannt.",
+      "en": "Nobody was banished."
+    },
+    {
+      "key": "hunter",
+      "de": "Der Jäger ist gefallen und legt an …",
+      "en": "The hunter has fallen and takes aim …"
+    },
+    {
+      "key": "hunter_spares",
+      "de": "Der Jäger senkt die Waffe.",
+      "en": "The hunter lowers his weapon."
+    },
+    {
+      "key": "grief",
+      "de": "Vor Kummer folgt der Geliebte in den Tod.",
+      "en": "Out of grief, the beloved follows into death."
+    },
+    {
+      "key": "win_village",
+      "de": "Das Dorf hat gewonnen. Die Werwölfe sind besiegt.",
+      "en": "The village has won. The werewolves are defeated."
+    },
+    {
+      "key": "win_wolves",
+      "de": "Die Werwölfe haben gewonnen. Im Dorf ist es still geworden.",
+      "en": "The werewolves have won. The village has fallen silent."
+    },
+    {
+      "key": "win_lovers",
+      "de": "Die Verliebten haben gewonnen. Am Ende zählt nur die Liebe.",
+      "en": "The lovers have won. In the end, only love counts."
+    },
+    {
+      "key": "welcome",
+      "de": "Willkommen am Tisch. Gleich geht es los.",
+      "en": "Welcome to the table. We are about to begin."
+    }
+  ]
+}

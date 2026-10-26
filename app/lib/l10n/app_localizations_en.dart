@@ -1072,4 +1072,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inviteHintWeb =>
       'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageSystem => 'Like the system';
 }

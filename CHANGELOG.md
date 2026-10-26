@@ -18,6 +18,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - Join in the browser without installing anything: in the same Wi-Fi,
   scan the host's QR code with the phone's camera. The host's phone serves
   the web app itself, no internet needed.
+- Pick German or English per app in the system settings (iOS, macOS,
+  Android 13+) or in the app's settings.
 - A short privacy notice on first start, the full privacy notice in the
   settings, and a switch to play Wi-Fi only without the online server.
 

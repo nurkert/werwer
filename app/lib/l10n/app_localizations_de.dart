@@ -1084,4 +1084,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get inviteHintWeb =>
       'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get languageSystem => 'Wie das System';
 }

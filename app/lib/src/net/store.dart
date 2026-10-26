@@ -130,6 +130,31 @@ class Store {
 
   Future<void> setPrivacyNoticeSeen() => _setFlag(_noticeKey, on: true);
 
+  static const _languageKey = 'language';
+
+  /// The language the player picked in the app (`de`, `en`), or `null`
+  /// to follow the system (which on iOS, macOS and Android 13+ can also be
+  /// set per app in the system settings).
+  Future<String?> language() async {
+    try {
+      return await _storage.read(key: _languageKey);
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<void> setLanguage(String? code) async {
+    try {
+      if (code == null) {
+        await _storage.delete(key: _languageKey);
+      } else {
+        await _storage.write(key: _languageKey, value: code);
+      }
+    } on Object {
+      // Not saved; the system language next time.
+    }
+  }
+
   /// The way back into a recent game; an older record is deleted (the
   /// game is surely over, and the token should not linger).
   Future<ResumeInfo?> loadResume() async {

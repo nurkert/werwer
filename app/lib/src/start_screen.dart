@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -130,6 +131,21 @@ class _StartScreenState extends State<StartScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              DropdownButtonFormField<String>(
+                initialValue: appLanguage.value?.languageCode ?? '',
+                decoration: InputDecoration(labelText: l10n.language),
+                items: [
+                  DropdownMenuItem(value: '', child: Text(l10n.languageSystem)),
+                  const DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                  const DropdownMenuItem(value: 'en', child: Text('English')),
+                ],
+                onChanged: (code) {
+                  final picked = code == null || code.isEmpty ? null : code;
+                  appLanguage.value = picked == null ? null : Locale(picked);
+                  unawaited(store.setLanguage(picked));
+                },
+              ),
+              const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: off,

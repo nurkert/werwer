@@ -11,13 +11,22 @@ const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
 /// Languages the app speaks; the first one is the fallback.
 const supportedLocales = [Locale('en'), Locale('de')];
 
+/// The language picked in the app, or `null` for the system's.
+final appLanguage = ValueNotifier<Locale?>(null);
+
 class WhowolfApp extends StatelessWidget {
   const WhowolfApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ValueListenableBuilder(
+    valueListenable: appLanguage,
+    builder: (context, language, _) => _app(language),
+  );
+
+  Widget _app(Locale? language) {
     return MaterialApp(
       title: 'Whowolf',
+      locale: language,
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -1897,6 +1897,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.'**
   String get inviteHintWeb;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Like the system'**
+  String get languageSystem;
 }
 
 class _AppLocalizationsDelegate
