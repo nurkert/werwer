@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/nurkert/whowolf/security/advisories/new
+    about: Please report security problems privately.
+  - name: Player guide
+    url: https://whowolf.de/docs/
+    about: How to set up a game and how the roles work.

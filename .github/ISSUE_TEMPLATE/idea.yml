@@ -1,0 +1,18 @@
+name: Idea
+description: A rule, a role, a screen or anything that would make the evening better.
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should change, and what would it bring to the table?
+    validations:
+      required: true
+  - type: checkboxes
+    id: original
+    attributes:
+      label: Original material
+      options:
+        - label: The idea does not copy names, texts or artwork from commercial Werewolf editions.
+          required: true

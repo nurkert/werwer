@@ -3,6 +3,55 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 will be the first release ("MVP").
 
+## 0.1.0 – unreleased
+
+The first release: a developer beta you can play with friends.
+
+### Added
+- **Roles:** witch (healing potion and poison, decides after the werewolves),
+  hunter (takes someone along when he falls) and cupid (binds two lovers; a
+  mixed couple wins as the last two). Every role is playable in the app.
+- **Game settings** for the host, starting from three presets: Classic (like
+  the card game), Whowolf (sheep counting, atmosphere) and Full stage; then
+  roles, number of werewolves, phase times, revealing roles of the dead, what
+  the seer sees, and every extra one by one.
+- **Night sounds and a morning yawn** (synthesised, not recorded); the same on
+  every phone and independent of any role. One button mutes a phone.
+- **20 figures**, ten women and ten men, so everyone at a full table has their
+  own.
+- **The moon stage in the app:** cardboard cards, a curtain valance, stamps,
+  Manrope text; your role stands as your figure seen from behind and turns
+  around, cut edge and all. The website's figures turn the same way.
+- Anyone may set their own sheep count at night, so the morning tally is
+  something to argue about, not proof.
+
+### Changed
+- **The network forgives:** every state carries a version, every action a
+  number that the host confirms and applies exactly once, even across
+  reconnects and host restarts. A missing host is a calm pause, not an error;
+  the app finds a moved host by itself and tries Wi-Fi and relay at once.
+- **Seamless return:** after a restart the app goes straight back to the
+  table (players and host); a phase timer resumes with the time that was
+  left; an absent phone no longer holds up the role reveal.
+- Every phone looks the same at night: the sheep meadow is always in front,
+  your night task folds away once it is done.
+- Android keeps a hosted room alive with a quiet notification; iOS asks the
+  host to keep the app open and hosts again on return.
+
+### Security
+- Handshake version 3: the host adds a fresh random value to every
+  connection, mixed into the keys and the check code. Without the QR code a
+  man in the middle could otherwise compute a matching check code, and a
+  recorded connection could be played again to kick a player out. Joins
+  without the QR code are limited per minute, the waiting list is capped,
+  and the relay allows only a few rooms per address. Test versions 0.0.x
+  cannot connect to 0.1.
+
+### Fixed
+- Lost or late messages could leave a player who had a seat unable to rejoin,
+  or rewind the count of confirmed actions; found and fixed with chaos tests
+  that play hundreds of games over a lossy network with host crashes.
+
 ## 0.0.4 – 2026-10-26
 
 ### Changed

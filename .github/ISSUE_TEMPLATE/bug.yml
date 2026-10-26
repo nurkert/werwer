@@ -1,0 +1,39 @@
+name: Bug report
+description: Something went wrong at the table.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks! Please never paste session tokens, QR links or room secrets. Security problems go to SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Shown on the start screen, e.g. 0.1.0.
+    validations:
+      required: true
+  - type: textarea
+    id: table
+    attributes:
+      label: Devices at the table
+      description: Which devices and systems played, and which one hosted?
+      placeholder: Host iPhone 15 (iOS 26), players Pixel 8 (Android 16), MacBook (macOS 26)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: How did players join?
+      options:
+        - QR code in the same Wi-Fi
+        - Room list (nearby rooms)
+        - Typed address and code
+        - Through a relay server
+        - Not sure
