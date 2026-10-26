@@ -3,7 +3,7 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
-## Unreleased
+## 0.1.1 – 2026-10-26
 
 ### Added
 - If the host's phone goes away (closed app, empty battery) or the host

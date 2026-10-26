@@ -205,11 +205,12 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
    - Eulenspur und eigene Whowolf-Rollen (Fährtenleger, Lauscher, Stille Pfote)
    - Beitritt während der Partie
    - menschlicher Erzähler, Story am Ende, Geistermodus
-4. **Host-Übernahme:** Fällt das Host-Gerät ganz aus, übernimmt ein Spieler. Der Spielstand liegt dafür verschlüsselt verteilt bei den Spielern, und nur mehrere zusammen können ihn öffnen (Secret Sharing), damit niemand allein schummeln kann.
+4. ~~**Host-Übernahme**~~: erledigt in 0.1.1 mit Nachfolger und Zeuge statt Secret Sharing ([Task 008](tasks/008-host-uebernahme.md)); offen ist die Übernahme auch über das Relay.
 5. **Eigene Figuren (nur notiert, noch nicht umsetzen):** In der App eigene Figuren mit einem kleinen Zeichenprogramm erstellen. Für die Fähigkeiten einer Figur bieten wir eine Schnittstelle an. Hat jemand im Raum eine eigene Figur, wird sie automatisch an alle geteilt; jeder entscheidet, ob er sie offline behalten oder immer ignorieren will. Sicherheit: geteilte Figuren sind nur Daten (keine ausführbaren Inhalte), mit festen Größen- und Formatgrenzen, strenger Prüfung und Zustimmung pro Gerät.
-6. **Design & Atmosphäre:** Rollen-Artwork, Stimmen, Musik, Stimmungen, Animationen.
-7. **Stores:** Google Play (25 $ einmalig) und App Store, Datenschutzerklärung, Store-Einträge.
-8. **Server (ganz zum Schluss):**
+6. **Synchroner Klang und wandernder Erzähler:** Klänge spielen auf allen Handys wirklich gleichzeitig (Uhrabgleich mit dem Host, Abspielen zu einem gemeinsamen Zeitpunkt), z. B. das Morgen-Gähnen. Mit der Sitzordnung läuft die Erzählerstimme hörbar im Kreis: Sie wird bei einem Handy lauter, beim nächsten langsam lauter und beim vorigen leiser, so synchron, dass es klingt, als ginge der Erzähler um den Tisch. Er kann auch direkt zu jemandem gehen. Voraussetzung sind richtig gute eingesprochene Aufnahmen der Erzählerstimme (Wunsch des Eigentümers, 2026-10-26).
+7. **Design & Atmosphäre:** Rollen-Artwork, Stimmen, Musik, Stimmungen, Animationen.
+8. **Stores:** Google Play (25 $ einmalig) und App Store, Datenschutzerklärung, Store-Einträge.
+9. **Server (ganz zum Schluss):**
    - Relay-Server (`server/`) ohne Spiellogik
    - gemischtes Spiel
    - Beitrittsseite `whowolf.de/join` mit Deep Links
