@@ -59,11 +59,31 @@ const de = {
   },
   cast: {
     title: 'Die Besetzung.',
-    intro: 'Jede Rolle eine Pappfigur, jede Figur mit eigenem Charakter. Begonnen wird klein, der Spielplan wächst.',
-    swipe: 'Zum Durchblättern wischen',
+    intro:
+      'Sechs Rollen, zwanzig Gesichter. Auf jeder Karte steht jemand aus dem Dorf. Tippe die Figur an: Sie dreht sich um und steht im Kostüm ihrer Rolle da.',
+    hint: 'Figur antippen zum Umdrehen',
+    swipe: 'Wischen für mehr',
+    turn: 'Figur umdrehen',
+    village: 'Dorf',
+    wolves: 'Werwölfe',
+    roles: {
+      villager: { name: 'Dorfbewohner', text: 'Keine besondere Gabe, nur Augen, Ohren und eine Stimme bei der Abstimmung. Nachts werden Schäfchen gezählt.' },
+      werewolf: { name: 'Werwolf', text: 'Wählt nachts mit dem Rudel ein Opfer und kennt die anderen Wölfe. Tagsüber so harmlos wie alle anderen.' },
+      seer: { name: 'Seherin', text: 'Blickt jede Nacht in einen Mitspieler und erfährt seine Rolle. Ob das jemand erfährt, entscheidet sie allein.' },
+      witch: { name: 'Hexe', text: 'Ein Heiltrank und ein Gifttrank, jeder einmal pro Spiel. Sie sieht, wen die Werwölfe holen, und entscheidet nach ihnen.' },
+      hunter: { name: 'Jäger', text: 'Fällt er, nachts oder bei der Abstimmung, nimmt er sofort jemanden mit.' },
+      cupid: { name: 'Amor', text: 'Verbindet in der ersten Nacht zwei Spieler als Liebespaar. Stirbt einer, stirbt auch der andere.' },
+    },
+    doorSigns: {
+      title: 'Türzeichen.',
+      level: 'Ab der Stufe „Whowolf“',
+      text: 'Nachts zeigt jedes Handy groß ein geheimes Zeichen aus drei Symbolen, jede Nacht ein neues. Hat ein Werwolf das Zeichen auf deinem Display erspäht, darf das Rudel es einmal pro Nacht eintragen. Stimmt es, stirbt diese Person vielleicht zusätzlich, etwa jedes zweite Mal. Also: Lass niemanden auf dein Handy schauen, egal welche Rolle du hast.',
+      example: 'Beispiel für ein Türzeichen: Mond, Schlüssel, Stern',
+    },
     ensemble: {
       title: 'Das Ensemble',
-      text: 'Zwanzig Leute aus dem Dorf, zehn Frauen und zehn Männer: Jeder am Tisch sucht sich eine Figur aus. Sie verrät nichts über deine Rolle; erst beim Aufdecken dreht sie sich um und steht im Kostüm deiner Rolle da.',
+      text: 'Zwanzig Leute aus dem Dorf, zehn Frauen und zehn Männer: Jeder am Tisch sucht sich eine Figur aus. Sie verrät nichts über deine Rolle. Erst wenn du nachschaust, dreht sie sich um und steht im Kostüm deiner Rolle da.',
+      hint: 'Tippe eine Figur an: Sie zeigt dir nacheinander jedes ihrer Kostüme.',
       figures: [
         { id: 'magd', name: 'Magd' },
         { id: 'dorfbewohner', name: 'Bauer' },
@@ -87,45 +107,18 @@ const de = {
         { id: 'grossvater', name: 'Großvater' },
       ],
     },
-    village: 'Dorf',
-    wolves: 'Werwölfe',
-    groups: [
-      {
-        title: 'Für den Anfang',
-        roles: [
-          { id: 'werwolf', name: 'Werwolf', side: 'wolf', text: 'Wählt nachts mit seinem Rudel ein Opfer. Tagsüber spielt er den Harmlosen.' },
-          { id: 'seherin', name: 'Seherin', side: 'dorf', text: 'Blickt jede Nacht in die Rolle eines Mitspielers. Wem verrät sie, was sie weiß?' },
-          { id: 'dorfbewohner', name: 'Dorfbewohner', side: 'dorf', text: 'Keine Gabe außer Menschenkenntnis. Und einer lauten Stimme bei der Abstimmung.' },
-          { id: 'magd', name: 'Dorfbewohnerin', side: 'dorf', text: 'Hört die Wolfsspur, wenn ihr Handy laut genug ist, und muss dann überzeugen.' },
-        ],
-      },
-      {
-        title: 'Ebenfalls auf der Bühne',
-        roles: [
-          { id: 'hexe', name: 'Hexe', side: 'dorf', text: 'Ein Heiltrank, ein Gifttrank und ein ganzes Spiel lang Zeit für die richtige Entscheidung.' },
-          { id: 'jaeger', name: 'Jäger', side: 'dorf', text: 'Wer ihn erwischt, nimmt ihn nicht allein mit. Sein letzter Schuss trifft immer.' },
-          { id: 'amor', name: 'Amor', side: 'dorf', text: 'Verkuppelt in der ersten Nacht zwei Spieler. Stirbt einer, stirbt der andere.' },
-        ],
-      },
-      {
-        title: 'Nur bei Whowolf',
-        roles: [
-          { id: 'faehrtenleger', name: 'Fährtenleger', side: 'wolf', text: 'Legt einmal pro Spiel eine falsche Wolfsspur auf ein Handy seiner Wahl.' },
-          { id: 'lauscherin', name: 'Lauscherin', side: 'dorf', text: 'Hört Spuren auch von weiter weg. Nur weiß das außer ihr niemand.' },
-          { id: 'stille_pfote', name: 'Stille Pfote', side: 'wolf', text: 'Schleicht so leise, dass sie nie eine Spur hinterlässt.' },
-        ],
-      },
-    ],
   },
   trail: {
     title: 'Die Wolfsspur.',
-    intro: 'Nachts flüstern die Handys auf dem Tisch: Wind, Schritte, ein Käuzchen. Und manchmal ein leises Knurren.',
-    rule: 'Kommt ein Wolfsgeräusch aus dem Handy von X, sitzt ein Werwolf ganz in der Nähe: höchstens einen Platz entfernt, in großen Runden bis zu drei.',
-    points: [
-      { title: 'Ein Verdacht, kein Beweis', text: 'Wer es auf dem eigenen Handy hört, weiß viel. Für alle anderen ist er aber selbst verdächtig.' },
-      { title: 'Laut oder leise?', text: 'Dorfbewohner wollen alles hören, Werwölfe würden lieber stummschalten. Doch am Morgen gähnt jedes Handy.' },
-      { title: 'Leise und dosiert', text: 'Ein paar Geräusche pro Nacht, viel Stille dazwischen. Atmosphäre statt Lärm.' },
+    intro: 'Nachts klingen die Handys auf dem Tisch. Heute ist das reine Atmosphäre, die echte Spur folgt später.',
+    today: [
+      { title: 'Heute: Atmosphäre', text: 'Wind, Grillen, ein Käuzchen. Jedes Handy klingt gleich, so verrät kein Geräusch, wer nachts was tut.' },
+      { title: 'Heute: das Morgen-Gähnen', text: 'Am Morgen gähnt jedes Handy. Ein stumm geschaltetes bleibt still und fällt auf.' },
     ],
+    later: 'Kommt später',
+    laterTitle: 'Die volle Wolfsspur',
+    laterText: 'Wählen die Werwölfe ihr Opfer, erklingt vielleicht ein leises Wolfsgeräusch auf dem Handy eines Werwolfs oder seines Sitznachbarn. Dorfbewohner wollen es hören, Werwölfe lieber nicht.',
+    rule: 'Kommt ein Wolfsgeräusch aus dem Handy von X, sitzt ein Werwolf ganz in der Nähe: höchstens einen Platz entfernt, in großen Runden bis zu drei.',
     diagramTitle: 'Bei X kommt ein Wolfsgeräusch',
     diagramNote: '→ ein Werwolf sitzt auf X oder daneben (8 Spieler)',
     diagramAlt: 'Tischkreis: Ein Wolfsgeräusch kommt aus dem Handy von X, also sitzt auf X oder direkt daneben ein Werwolf.',
@@ -136,7 +129,7 @@ const de = {
     items: [
       { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail, keine Telefonnummer.' },
       { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker. Weder in der App noch hier.' },
-      { title: 'Lokal im WLAN', text: 'Ein Handy ist die Bühne. Eure Partie verlässt den Tisch nicht.' },
+      { title: 'Am Tisch', text: 'Ein Handy ist die Bühne. Im WLAN bleibt eure Partie am Tisch, über den Relay-Server geht sie nur verschlüsselt.' },
       { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
       { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
       { title: 'Für alle Geräte', text: 'Android, iOS, macOS, Windows und Linux aus einer Codebasis.' },
@@ -145,14 +138,14 @@ const de = {
   progress: {
     title: 'Wo wir stehen.',
     intro: 'Whowolf wird offen entwickelt. Das ist der aktuelle Stand, ehrlich und ohne Versprechen.',
-    done: 'Erledigt',
+    done: 'Erschienen',
     now: 'In Arbeit',
-    next: 'Geplant',
+    next: 'Noch offen',
     steps: [
-      { state: 'done', title: 'Idee und Konzept', text: 'Spielprinzip, Wolfsspur, Sicherheitskonzept und Stil sind ausgearbeitet.' },
-      { state: 'now', title: 'Spielregeln', text: 'Die Regel-Engine in Dart, vollständig getestet.' },
-      { state: 'next', title: 'Erste Testrunde', text: 'Spielbarer Prototyp im WLAN, mit Freunden am Tisch.' },
-      { state: 'next', title: 'Version 0.1', text: 'Für iPhone (TestFlight) und Mac zuerst, dazu Android, Windows und Linux.' },
+      { state: 'done', title: 'Version 0.1', text: 'Seit dem 26. Oktober 2026 als Entwickler-Beta: spielbar im eigenen WLAN, Ende-zu-Ende verschlüsselt, zum Download für Android, macOS, Windows und Linux.' },
+      { state: 'now', title: '0.1.1: Jedes Gerät', text: 'Die App passt sich Handy, Tablet und Desktop an, bekommt Pappe in der Oberfläche und neue, wortlose Klänge. Die Erzählstimme wird optional.' },
+      { state: 'now', title: '0.1.1: Das Spiel geht weiter', text: 'Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Über play.whowolf.de spielen auch Leute mit mobilen Daten mit.' },
+      { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',
   },
@@ -212,7 +205,7 @@ const de = {
       'Diese Seite wurde aus einer Kopie (Fork) des Whowolf-Projekts gebaut. Wer sie öffentlich betreibt, braucht in der Regel ein eigenes Impressum. Betreiber hinterlegen dafür in ihrem Repository die Variable IMPRINT_URL mit der Adresse ihrer Impressums-Seite.',
   },
   privacy: {
-    updated: 'Stand: 25. Oktober 2026',
+    updated: 'Stand: 26. Oktober 2026',
     sections: [
       { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto.  Auf deinem Gerät wird nur gespeichert, dass du den Hinweis zu Cookies bestätigt hast (Eintrag im lokalen Speicher des Browsers, technisch notwendig nach § 25 Abs. 2 TDDDG). Er enthält keine personenbezogenen Daten und wird nicht übertragen.' },
       { title: 'Verantwortlicher', html: 'Verantwortlich für diese Website ist die im <a href="/impressum/">Impressum</a> genannte Person.' },
@@ -220,7 +213,7 @@ const de = {
       { title: 'Externe Links', html: 'Die Seite verlinkt unter anderem auf GitHub. Erst wenn du einem Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.' },
       { title: 'Die App', html: 'Die Whowolf-App sendet <strong>keine personenbezogenen Daten an uns oder Dritte</strong>: kein Konto, keine Werbung, kein Tracking, keine Absturzberichte. Gespielt wird zwischen den Geräten am Tisch.' },
       { title: 'Was die App auf deinem Gerät speichert', html: 'Damit du nach einem Neustart zurück an den Tisch kommst, speichert die App deinen Namen, den Raumcode, die Verbindungsdaten und dein Sitzungstoken im sicheren Speicher des Systems (Schlüsselbund bzw. Keystore), höchstens 12 Stunden lang. Das Gerät des Gastgebers speichert den Spielstand (mit allen Rollen) in seinem privaten App-Ordner, damit eine Runde einen Absturz übersteht; er wird gelöscht, wenn der Raum geschlossen wird, spätestens nach 12 Stunden. Nichts davon verlässt das Gerät.' },
-      { title: 'Was über das Netz geht', html: 'Spieldaten gehen nur zwischen den Geräten am Tisch, im eigenen WLAN, Ende-zu-Ende verschlüsselt. Damit andere den Raum finden, kündigt das Gastgeber-Gerät ihn im lokalen Netz an (Raumcode, Name des Gastgebers, ein Kennzeichen seines Schlüssels); das sehen nur Geräte im selben WLAN. Wer über einen Relay-Server spielt (eigener Server oder in den Einstellungen eingetragen), schickt dorthin nur verschlüsselte Daten; der Betreiber des Servers sieht dabei, wie bei jeder Verbindung, die IP-Adressen.' },
+      { title: 'Was über das Netz geht', html: 'Spieldaten sind immer Ende-zu-Ende verschlüsselt. Damit andere im selben WLAN den Raum finden, kündigt das Gastgeber-Gerät ihn im lokalen Netz an (Raumcode, Name des Gastgebers, ein Kennzeichen seines Schlüssels); das sehen nur Geräte im selben WLAN. Damit auch Mitspieler ohne dieses WLAN (etwa über mobile Daten) beitreten können, verbindet sich die App des Gastgebers beim Öffnen eines Raums mit dem offiziellen Relay-Server <strong>play.whowolf.de</strong>. Ihn betreibt der Projektinhaber, also dieselbe verantwortliche Person wie im <a href="/impressum/">Impressum</a>. Der Server leitet nur Ende-zu-Ende verschlüsselte Daten weiter: Spieldaten, Namen und Rollen kann er nicht lesen, und er speichert nichts davon. Dabei verarbeitet er zwangsläufig die IP-Adressen der verbundenen Geräte, nur im Arbeitsspeicher und nur solange die Verbindung besteht, um Nachrichten weiterzuleiten und Missbrauch zu begrenzen (Verbindungen pro Adresse). In Protokolle schreibt er sie nicht; dort stehen nur Zählwerte und Fehler. Rechtsgrundlage ist unser berechtigtes Interesse, das Spiel bereitzustellen und den Server zu schützen (Art. 6 Abs. 1 lit. f DSGVO). In den Einstellungen der App kannst du einen eigenen Server oder gar keinen eintragen; dann geht nichts an play.whowolf.de. Wer einen anderen Relay-Server nutzt, schickt dorthin ebenfalls nur verschlüsselte Daten; dessen Betreiber sieht, wie bei jeder Verbindung, die IP-Adressen.' },
       { title: 'Berechtigungen', html: 'Die <strong>Kamera</strong> wird nur zum Scannen des QR-Codes genutzt, Bilder werden nicht gespeichert. Das <strong>lokale Netzwerk</strong> braucht die App, um Räume zu finden und zu hosten. Unter Android zeigt sie beim Hosten eine leise <strong>Benachrichtigung</strong>, damit das System den Raum nicht beendet. Ein Mikrofon nutzt die App nicht; Nachtgeräusche und die Erzählstimme entstehen auf dem Gerät.' },
       { title: 'Deine Rechte', html: 'Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 15 bis 21 DSGVO). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Da wir selbst keine Daten über Besucher speichern, richten sich Anfragen zu den Server-Protokollen in der Regel an GitHub.' },
     ],
@@ -228,7 +221,7 @@ const de = {
   box: {
     headline: 'Ein Tisch. Viele Geheimnisse.',
     lede: ['Das Werwolfspiel für eure Runde.', 'Jeder mit dem eigenen Handy. Die App erzählt,', 'ihr entscheidet.'],
-    cta: 'Projekt verfolgen',
+    cta: 'App herunterladen',
     stamp: 'Entwickler-Beta',
     app: 'Kostenlose App für iPhone, Android, Mac, Windows und Linux',
     flap: '5–20 Spieler · jeder mit seinem Handy',

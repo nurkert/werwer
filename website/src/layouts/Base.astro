@@ -343,9 +343,7 @@ const jsonLd = {
     position: sticky;
     top: 0;
     z-index: 60;
-    background: rgb(13 20 15 / 0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgb(13 20 15 / 0.94);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
   .site-header--mobile-only {
@@ -384,6 +382,9 @@ const jsonLd = {
   }
   .beta-strip a {
     flex: none;
+    /* a 44px tap target without making the strip taller */
+    padding-block: 0.8rem;
+    margin-block: -0.8rem;
     color: inherit;
     text-decoration: underline;
     text-underline-offset: 0.15em;
@@ -397,6 +398,16 @@ const jsonLd = {
     }
     .beta-strip__short {
       display: inline;
+    }
+  }
+  /* On phones one calm line: the stamp says it, the link stays. */
+  @media (max-width: 520px) {
+    .beta-strip {
+      justify-content: space-between;
+      padding-block: 0.3rem;
+    }
+    .beta-strip__short {
+      display: none;
     }
   }
   @media (max-width: 900px) {
@@ -413,9 +424,7 @@ const jsonLd = {
     -webkit-backdrop-filter: none;
   }
   .site-header--overlay.is-solid {
-    background: rgb(13 20 15 / 0.82);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgb(13 20 15 / 0.94);
     box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.35);
   }
   .site-header__inner {

@@ -60,11 +60,31 @@ const en: Copy = {
   },
   cast: {
     title: 'The cast.',
-    intro: 'Every role a cardboard puppet, every puppet with its own character. We start small, the programme grows.',
-    swipe: 'Swipe to browse',
+    intro:
+      'Six roles, twenty faces. Every card shows someone from the village. Tap the figure: it turns around and stands there in the costume of its role.',
+    hint: 'Tap a figure to turn it',
+    swipe: 'Swipe for more',
+    turn: 'Turn the figure',
+    village: 'Village',
+    wolves: 'Werewolves',
+    roles: {
+      villager: { name: 'Villager', text: 'No special gift, just eyes, ears and a voice at the vote. At night, there are sheep to count.' },
+      werewolf: { name: 'Werewolf', text: 'Picks a victim with the pack at night and knows the other wolves. By day, as harmless as everyone else.' },
+      seer: { name: 'Seer', text: 'Looks into one player every night and learns their role. Whether anyone else finds out is the seer’s call.' },
+      witch: { name: 'Witch', text: 'One healing potion and one poison, each once per game. Sees whom the werewolves take and decides after them.' },
+      hunter: { name: 'Hunter', text: 'Whoever brings the hunter down, at night or by the vote, does not go alone: the hunter takes someone along at once.' },
+      cupid: { name: 'Cupid', text: 'Binds two players as lovers on the first night. If one dies, so does the other.' },
+    },
+    doorSigns: {
+      title: 'Door signs.',
+      level: 'From the “Whowolf” level on',
+      text: 'At night every phone shows a secret sign of three symbols, big, and a new one every night. If a werewolf spotted the sign on your screen, the pack may enter it once a night. If it is right, that person may die as well, about every second time. So let nobody look at your phone, whatever your role.',
+      example: 'Example of a door sign: moon, key, star',
+    },
     ensemble: {
       title: 'The ensemble',
-      text: 'Twenty people from the village, ten women and ten men: everyone at the table picks a figure. It says nothing about your role; only when you look does it turn around, dressed up as your role.',
+      text: 'Twenty people from the village, ten women and ten men: everyone at the table picks a figure. It says nothing about your role. Only when you look does it turn around, dressed as your role.',
+      hint: 'Tap a figure: it shows you each of its costumes in turn.',
       figures: [
         { id: 'magd', name: 'Maid' },
         { id: 'dorfbewohner', name: 'Farmer' },
@@ -88,45 +108,18 @@ const en: Copy = {
         { id: 'grossvater', name: 'Grandfather' },
       ],
     },
-    village: 'Village',
-    wolves: 'Werewolves',
-    groups: [
-      {
-        title: 'To begin with',
-        roles: [
-          { id: 'werwolf', name: 'Werewolf', side: 'wolf', text: 'Picks a victim with the pack at night. By day, plays the harmless neighbour.' },
-          { id: 'seherin', name: 'Seer', side: 'dorf', text: 'Looks into one player’s role every night. Whom will she tell?' },
-          { id: 'dorfbewohner', name: 'Villager', side: 'dorf', text: 'No gift but a knack for people. And a loud voice at the vote.' },
-          { id: 'magd', name: 'Villager', side: 'dorf', text: 'Hears the wolf trail if her phone is loud enough, and then has to convince the others.' },
-        ],
-      },
-      {
-        title: 'Also on stage',
-        roles: [
-          { id: 'hexe', name: 'Witch', side: 'dorf', text: 'One healing potion, one poison, and a whole game to choose the right moment.' },
-          { id: 'jaeger', name: 'Hunter', side: 'dorf', text: 'Whoever takes him down doesn’t go alone. His last shot always hits.' },
-          { id: 'amor', name: 'Cupid', side: 'dorf', text: 'Pairs two players on the first night. If one dies, so does the other.' },
-        ],
-      },
-      {
-        title: 'Only in Whowolf',
-        roles: [
-          { id: 'faehrtenleger', name: 'Trail layer', side: 'wolf', text: 'Once per game, plants a false wolf trail on a phone of their choice.' },
-          { id: 'lauscherin', name: 'Listener', side: 'dorf', text: 'Hears trails from further away. Only nobody else knows that.' },
-          { id: 'stille_pfote', name: 'Silent Paw', side: 'wolf', text: 'Sneaks so quietly that she never leaves a trail.' },
-        ],
-      },
-    ],
   },
   trail: {
     title: 'The wolf trail.',
-    intro: 'At night the phones on the table whisper: wind, footsteps, an owl. And sometimes a quiet growl.',
-    rule: 'If a wolf sound comes from the phone of X, a werewolf sits close by: at most one seat away, up to three in big groups.',
-    points: [
-      { title: 'A suspicion, never proof', text: 'Whoever hears it on their own phone learns a lot. To everyone else, they are now the suspect.' },
-      { title: 'Loud or quiet?', text: 'Villagers want to hear everything, werewolves would rather mute. But at dawn every phone yawns.' },
-      { title: 'Quiet and sparse', text: 'A few sounds per night, lots of silence in between. Atmosphere, not noise.' },
+    intro: 'At night the phones on the table make sounds. Today that is pure atmosphere; the real trail comes later.',
+    today: [
+      { title: 'Today: atmosphere', text: 'Wind, crickets, an owl. Every phone sounds the same, so no sound gives away who does what at night.' },
+      { title: 'Today: the morning yawn', text: 'In the morning every phone yawns. A muted one stays silent, and that stands out.' },
     ],
+    later: 'Coming later',
+    laterTitle: 'The full wolf trail',
+    laterText: 'When the werewolves pick their victim, a faint wolf sound may play on the phone of a werewolf or their neighbour. Villagers want to hear it, werewolves would rather not.',
+    rule: 'If a wolf sound comes from the phone of X, a werewolf sits close by: at most one seat away, up to three in big groups.',
     diagramTitle: 'A wolf sound plays on the phone of X',
     diagramNote: '→ a werewolf sits on X or next to X (8 players)',
     diagramAlt: 'Table circle: a wolf sound plays on the phone of X, so a werewolf sits on X or directly next to X.',
@@ -137,7 +130,7 @@ const en: Copy = {
     items: [
       { title: 'No account', text: 'Open and play. No sign-up, no e-mail, no phone number.' },
       { title: 'No ads', text: 'No subscription, no in-app purchases, no trackers. Not in the app, not here.' },
-      { title: 'Local Wi-Fi', text: 'One phone is the stage. Your game never leaves the table.' },
+      { title: 'At the table', text: 'One phone is the stage. In your Wi-Fi the game stays at the table; through the relay server it only travels encrypted.' },
       { title: 'Encrypted', text: 'Every connection is end-to-end encrypted. Eavesdroppers only hear noise.' },
       { title: 'Open source', text: 'Apache 2.0. Anyone can look inside, contribute and self-host.' },
       { title: 'Every device', text: 'Android, iOS, macOS, Windows and Linux from one codebase.' },
@@ -146,14 +139,14 @@ const en: Copy = {
   progress: {
     title: 'Where we are.',
     intro: 'Whowolf is built in the open. This is where it stands, honestly and without promises.',
-    done: 'Done',
+    done: 'Released',
     now: 'In progress',
-    next: 'Planned',
+    next: 'Still open',
     steps: [
-      { state: 'done', title: 'Idea and concept', text: 'Game design, wolf trail, security design and art direction are worked out.' },
-      { state: 'now', title: 'Game rules', text: 'The rules engine in Dart, fully tested.' },
-      { state: 'next', title: 'First playtest', text: 'A playable prototype over Wi-Fi, with friends at the table.' },
-      { state: 'next', title: 'Version 0.1', text: 'iPhone (TestFlight) and Mac first, plus Android, Windows and Linux.' },
+      { state: 'done', title: 'Version 0.1', text: 'Out since 26 October 2026 as a developer beta: playable in your own Wi-Fi, end-to-end encrypted, downloads for Android, macOS, Windows and Linux.' },
+      { state: 'now', title: '0.1.1: Every device', text: 'The app fits phones, tablets and desktops, gets cardboard in its interface and new, wordless sounds. The narrator’s voice becomes optional.' },
+      { state: 'now', title: '0.1.1: The game goes on', text: 'If the host’s phone goes away, another one takes over within seconds. Through play.whowolf.de, players on mobile data can join too.' },
+      { state: 'next', title: 'Before the app stores', text: 'An independent review of the encryption. iPhone via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',
   },
@@ -213,7 +206,7 @@ const en: Copy = {
       'This site was built from a copy (fork) of the Whowolf project. Whoever runs it publicly usually needs their own imprint. Operators set the repository variable IMPRINT_URL to the address of their imprint page.',
   },
   privacy: {
-    updated: 'Last updated: 25 October 2026',
+    updated: 'Last updated: 26 October 2026',
     sections: [
       { title: 'In short', html: 'This website sets <strong>no cookies</strong>, uses <strong>no tracking</strong> or analytics and loads <strong>no third-party content</strong>. Fonts, images and scripts come from this domain only. There are no forms and no accounts. The only thing stored on your device is that you confirmed the cookie notice (an entry in your browser’s local storage, strictly necessary). It contains no personal data and is never transmitted.' },
       { title: 'Controller', html: 'The person named in the <a href="/en/imprint/">imprint</a> is responsible for this website.' },
@@ -221,7 +214,7 @@ const en: Copy = {
       { title: 'External links', html: 'This site links to GitHub, among others. Only when you follow a link do the privacy terms of that provider apply.' },
       { title: 'The app', html: 'The Whowolf app sends <strong>no personal data to us or anyone else</strong>: no account, no ads, no tracking, no crash reports. Games are played between the devices at the table.' },
       { title: 'What the app keeps on your device', html: 'So you can return to the table after a restart, the app keeps your name, the room code, the connection details and your session token in the system’s secure storage (Keychain or Keystore), for 12 hours at most. The host’s device keeps the game state (with every role) in its private app folder so a round survives a crash; it is deleted when the room closes, after 12 hours at the latest. None of this leaves the device.' },
-      { title: 'What goes over the network', html: 'Game data only travels between the devices at the table, in your own Wi-Fi, end-to-end encrypted. So others can find the room, the host’s device announces it in the local network (room code, the host’s name, a fingerprint of its key); only devices in the same Wi-Fi see it. If you play through a relay server (your own, or one entered in the settings), it only receives encrypted data; like any server, its operator sees IP addresses.' },
+      { title: 'What goes over the network', html: 'Game data is always end-to-end encrypted. So others in the same Wi-Fi can find the room, the host’s device announces it in the local network (room code, the host’s name, a fingerprint of its key); only devices in the same Wi-Fi see it. So players without that Wi-Fi (on mobile data, say) can join too, the host’s app connects to the official relay server <strong>play.whowolf.de</strong> when a room opens. It is run by the project owner, the same controller as named in the <a href="/en/imprint/">imprint</a>. The server only forwards end-to-end encrypted data: it cannot read game data, names or roles, and it keeps none of it. To do so it necessarily processes the IP addresses of the connected devices, in memory only and only while they are connected, to forward messages and to limit abuse (connections per address). It does not write them to logs; the logs hold only counts and errors. The legal basis is our legitimate interest in providing the game and protecting the server (Art. 6(1)(f) GDPR). In the app settings you can enter your own server, or none; then nothing goes to play.whowolf.de. If you use another relay server, it too only receives encrypted data; like any server, its operator sees IP addresses.' },
       { title: 'Permissions', html: 'The <strong>camera</strong> is only used to scan the QR code; no pictures are stored. The app needs the <strong>local network</strong> to find and host rooms. On Android it shows a quiet <strong>notification</strong> while hosting, so the system does not end the room. The app uses no microphone; night sounds and the narrator’s voice are made on the device.' },
       { title: 'Your rights', html: 'You have the right of access, rectification, erasure and restriction of processing, the right to data portability and the right to object to processing based on legitimate interests (Art. 15 to 21 GDPR). You may also lodge a complaint with a data protection authority (Art. 77 GDPR). As we store no data about visitors ourselves, requests about server logs are usually a matter for GitHub.' },
     ],
@@ -229,7 +222,7 @@ const en: Copy = {
   box: {
     headline: 'One table. Many secrets.',
     lede: ['The werewolf game for your group.', 'Everyone on their own phone. The app narrates,', 'you decide.'],
-    cta: 'Follow the project',
+    cta: 'Download the app',
     stamp: 'Developer beta',
     app: 'Free app for iPhone, Android, Mac, Windows and Linux',
     flap: '5–20 players · everyone on their own phone',

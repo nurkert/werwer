@@ -25,23 +25,12 @@ body {
   line-height: 1.6;
   color: var(--moon-100);
   background-color: var(--night-900);
+  /* scrolls with the page: a fixed background would be repainted on every scroll frame */
   background-image: radial-gradient(ellipse 70% 40% at 50% 0%, rgb(58 70 119 / 0.35), transparent 70%);
-  background-attachment: fixed;
+  background-size: 100% 100vh;
+  background-repeat: no-repeat;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-/* Everything, artwork included, is printed on the same stock: one grain over the whole page. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-  background-image: var(--grain);
-  background-size: 220px;
-  opacity: 0;
-  mix-blend-mode: overlay;
 }
 
 img {
@@ -284,7 +273,7 @@ p {
 /* Phones: cards use nearly the full width, sections breathe less so there is less to scroll. */
 @media (max-width: 760px) {
   :root {
-    --gutter: 0.75rem;
+    --gutter: 1.125rem;
     --space-5: 2.5rem;
     --space-6: 3.5rem;
   }
@@ -328,6 +317,19 @@ p {
   position: relative;
   transform: translateZ(4.6px);
   backface-visibility: hidden;
+}
+/* Facing the audience a figure is just its print: the board layers (liners, flutes,
+   core, kraft back) only exist while it turns or leans (`.is-3d`, set by scripts/site.ts). */
+.cardboard__layer:not(.cardboard__print),
+.cardboard > .cardboard__back {
+  display: none;
+}
+.is-3d .cardboard__layer,
+.is-3d .cardboard__back {
+  display: block;
+}
+.is-3d .cardboard__back {
+  display: grid;
 }
 .cardboard__layer {
   position: absolute;
@@ -386,4 +388,17 @@ p {
 .cardboard__print {
   transform: translateZ(-4.6px) rotateY(180deg) scaleX(-1);
   backface-visibility: hidden;
+}
+
+/* Animations stand still while their section is off screen (class set by scripts/site.ts). */
+.is-offscreen *,
+.is-offscreen *::before,
+.is-offscreen *::after {
+  animation-play-state: paused !important;
+}
+
+/* Sections far below the fold are not laid out or painted until they come near. */
+main > section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 60rem;
 }

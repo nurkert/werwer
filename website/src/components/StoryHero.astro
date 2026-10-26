@@ -1,18 +1,18 @@
 ---
-// The opening as a small puppet show on a painted stage. The stage stays pinned while the
-// section scrolls by; each story beat brings cardboard puppets in from the sides and from
-// below, while a caption tells what is happening.
+// The opening as a small puppet show on a painted stage. On load the puppets are held in
+// one by one; the words stay put. The stage is built from a single unit (--u, the width of
+// the stage frame / 100) and one ground line (--g): every backdrop strip is placed relative
+// to the strip in front of it, so no gap can open between them at any screen size. Wide
+// screens put the words beside the scene; narrow ones stack the words above it.
 import { Picture } from 'astro:assets';
 
-import { path, repoUrl, ui, type Lang } from '../i18n/ui';
+import { path, ui, type Lang } from '../i18n/ui';
 import { storyPhones } from '../lib/phone-screens';
 import PuppetPhone from './phone/PuppetPhone.astro';
 import CardboardFigure from './CardboardFigure.astro';
 import himmel from '../../../design/source/stage/ebene_himmel.png';
 import mond from '../../../design/source/stage/ebene_mond.png';
-import wolke1 from '../../../design/source/stage/ebene_wolke_1.png';
 import wolke2 from '../../../design/source/stage/ebene_wolke_2.png';
-import wolke3 from '../../../design/source/stage/ebene_wolke_3.png';
 import berge from '../../../design/source/stage/ebene_berge.png';
 import huegel from '../../../design/source/stage/ebene_huegel.png';
 import wiese from '../../../design/source/stage/ebene_wiese.png';
@@ -39,134 +39,142 @@ const [phoneA, phoneB] = storyPhones(t);
 const formats = ['avif', 'webp'] as const;
 ---
 
-<section class="story" aria-labelledby="story-title" data-story data-beat="0">
-  <div class="story__stage">
-    <div class="scene">
-      <!-- the backdrop: painted sky, then cardboard planes from far to near, each drifting at its own pace -->
-      <div class="backdrop">
-        <div class="plane plane--sky">
-          <Picture src={himmel} alt="" formats={formats} widths={[960, 1774]} sizes="100vw" loading="eager" fetchpriority="high" />
-        </div>
-        <div class="plane plane--moon">
-          <Picture class="c c-moon" src={mond} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 30vw, 20vw" loading="eager" />
-        </div>
-        <div class="plane plane--clouds">
-          <Picture class="c c-cloud1" src={wolke1} alt="" formats={formats} widths={[260, 513]} sizes="18vw" loading="eager" />
-          <Picture class="c c-cloud2" src={wolke2} alt="" formats={formats} widths={[170, 340]} sizes="(max-width: 760px) 28vw, 12vw" loading="eager" />
-          <Picture class="c c-cloud3" src={wolke3} alt="" formats={formats} widths={[140, 273]} sizes="(max-width: 760px) 20vw, 9vw" loading="eager" />
-        </div>
-        <div class="plane plane--mountains">
-          <Picture class="strip" src={berge} alt="" formats={formats} widths={[960, 1758]} sizes="(max-width: 760px) 240vw, 110vw" loading="eager" />
-        </div>
-        <div class="plane plane--hills">
-          <Picture class="strip" src={huegel} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 290vw, 110vw" loading="eager" />
-        </div>
-        <div class="plane plane--meadow">
-          <Picture class="strip" src={wiese} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 215vw, 110vw" loading="eager" />
-        </div>
+<section class="story" aria-labelledby="story-title" data-story>
+  <div class="scene" aria-hidden="true">
+    <!-- the backdrop: painted sky, then cardboard planes from far to near; --k is each plane's parallax pace -->
+    <div class="backdrop">
+      <div class="plane plane--sky" data-k="0.55">
+        <Picture src={himmel} alt="" formats={formats} widths={[960, 1774]} sizes="100vw" loading="eager" fetchpriority="high" />
       </div>
-      <div class="set set--far">
-        <Picture class="c c-church" src={kirchturm} alt="" formats={formats} widths={[200, 400]} sizes="8vw" loading="eager" />
-        <Picture class="c c-houses" src={haeuser} alt="" formats={formats} widths={[480, 960]} sizes="28vw" loading="eager" />
-        <Picture class="c c-pine1" src={tanne1} alt="" formats={formats} widths={[200, 400]} sizes="9vw" loading="eager" />
-        <Picture class="c c-pine2" src={tanne2} alt="" formats={formats} widths={[200, 400]} sizes="8vw" loading="eager" />
-      </div>
-
-      <!-- middle ground: the puppets are held up in front of it -->
-      <div class="set set--near">
-        <Picture class="c c-stones" src={steine} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
-        <Picture class="c c-bush1" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-        <Picture class="c c-fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="14vw" loading="eager" />
-        <Picture class="c c-bush2" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="16vw" loading="eager" />
-      </div>
-      <!-- the puppets, each held in from off-stage -->
-      <div class="cast" aria-hidden="true">
-        <div class="pp pp--villager"><div class="flip"><CardboardFigure class="face" src={dorfbewohner} widths={[260, 520]} sizes="14vw" loading="eager" back="print" /></div></div>
-        <div class="pp pp--maid"><div class="flip"><CardboardFigure class="face" src={magd} widths={[220, 440]} sizes="12vw" loading="eager" back="print" /></div></div>
-        <div class="pp pp--wolf"><div class="flip"><CardboardFigure class="face" src={werwolf} widths={[320, 640]} sizes="18vw" loading="eager" back="print" /></div></div>
-        <div class="pp pp--seer"><div class="flip"><CardboardFigure class="face" src={seherin} widths={[260, 520]} sizes="14vw" loading="eager" back="print" /></div></div>
-        <div class="pp pp--phone pp--phone-a"><PuppetPhone phone={phoneA} /></div>
-        <div class="pp pp--phone pp--phone-b"><PuppetPhone phone={phoneB} /></div>
-      </div>
-
-      <div class="sky" aria-hidden="true">
+      <div class="plane stage-frame stars" data-k="0.55">
         {Array.from({ length: 22 }, (_, i) => (
-          <span class="star" style={`left:${(i * 37) % 100}%; top:${(i * 53) % 30}%; --d:${(i % 7) * 0.6}s`}></span>
+          <span class="star" style={`left:${(i * 37) % 100}%; --y:${(i * 53) % 100}; --d:${(i % 7) * 0.6}s`}></span>
         ))}
-        {Array.from({ length: 10 }, (_, i) => (
-          <span class="fly" style={`left:${10 + ((i * 41) % 80)}%; top:${48 + ((i * 29) % 26)}%; --d:${(i % 5) * 1.3}s; --t:${7 + (i % 4) * 2}s`}></span>
-        ))}
+      </div>
+      <div class="plane stage-frame plane--moon" data-k="0.5">
+        <Picture class="c c-moon" src={mond} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 30vw, 14vw" loading="eager" />
+        <Picture class="c c-cloud2" src={wolke2} alt="" formats={formats} widths={[170, 340]} sizes="(max-width: 760px) 24vw, 10vw" loading="eager" />
+      </div>
+      <div class="plane plane--mountains" data-k="0.42">
+        <Picture class="strip" src={berge} alt="" formats={formats} widths={[960, 1758]} sizes="(max-width: 760px) 240vw, 115vw" loading="eager" />
+      </div>
+      <div class="plane plane--hills" data-k="0.36">
+        <Picture class="strip" src={huegel} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 270vw, 115vw" loading="eager" />
+      </div>
+      <div class="plane plane--meadow" data-k="0.3">
+        <Picture class="strip" src={wiese} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 200vw, 115vw" loading="eager" />
       </div>
     </div>
 
-    <!-- words -->
-    <div class="copy">
-      <a class="copy__brand" href={path('home', lang)} aria-label="Whowolf" data-hero-brand>
-        <Picture src={wordmark} alt="" formats={formats} widths={[360, 720, 1080]} sizes="(max-width: 760px) 15rem, 36vw" loading="eager" />
-      </a>
-      <div class="copy__intro">
-        <h1 id="story-title"><span class="visually-hidden">Whowolf – </span>{t.box.headline}</h1>
-        <p>{t.box.lede.join(' ')}</p>
-      </div>
-      <ol class="copy__beats" aria-live="polite">
-        {
-          beats.map((beat, i) => (
-            <li data-n={i + 1}>
-              <strong>{beat.title}</strong> {beat.text}
-            </li>
-          ))
-        }
-      </ol>
-      <div class="copy__actions">
-        <a class="button button--primary" href={repoUrl}>{t.box.cta}</a>
-        <span class="stamp stamp--status">{t.box.stamp}</span>
-      </div>
-      <p class="copy__app"><span class="copy__app-icon" aria-hidden="true"></span>{t.box.app}</p>
+    <!-- the village at the foot of the castle hill, standing on the meadow -->
+    <div class="stage-frame set set--far" data-k="0.3">
+      <Picture class="c c-pine1" src={tanne1} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 10vw, 6vw" loading="eager" />
+      <Picture class="c c-church" src={kirchturm} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 12vw, 7vw" loading="eager" />
+      <Picture class="c c-houses" src={haeuser} alt="" formats={formats} widths={[480, 960]} sizes="(max-width: 760px) 50vw, 24vw" loading="eager" />
+      <Picture class="c c-pine2" src={tanne2} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 9vw, 5vw" loading="eager" />
+      <Picture class="c c-fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="(max-width: 760px) 12vw, 6vw" loading="eager" />
+      {Array.from({ length: 8 }, (_, i) => (
+        <span class="fly" style={`left:${8 + ((i * 41) % 84)}%; --y:${((i * 29) % 100) / 100}; --d:${(i % 5) * 1.3}s; --t:${7 + (i % 4) * 2}s`}></span>
+      ))}
+    </div>
+    <!-- a second row of meadow, from the village's ground down to the playboard -->
+    <div class="plane plane--field" data-k="0.2">
+      <Picture class="strip" src={wiese} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 230vw, 128vw" loading="eager" />
+    </div>
+    <!-- the wings: a bush and stones at each side, behind the puppets -->
+    <div class="stage-frame set set--near" data-k="0.18">
+      <Picture class="c c-stones" src={steine} alt="" formats={formats} widths={[300, 600]} sizes="10vw" loading="eager" />
+      <Picture class="c c-bush1" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="(max-width: 760px) 24vw, 14vw" loading="eager" />
+      <Picture class="c c-bush2" src={busch} alt="" formats={formats} widths={[300, 600]} sizes="(max-width: 760px) 22vw, 13vw" loading="eager" />
+    </div>
+    <!-- the puppets, each held in from off-stage; all eyes end up on the wolf -->
+    <div class="stage-frame cast" data-k="0.07">
+      <div class="pp pp--villager"><div class="flip" data-turn><CardboardFigure class="face" src={dorfbewohner} widths={[260, 520]} sizes="(max-width: 760px) 24vw, 13vw" loading="eager" back="print" /></div></div>
+      <div class="pp pp--maid"><div class="flip" data-turn><CardboardFigure class="face" src={magd} widths={[220, 440]} sizes="11vw" loading="eager" back="print" /></div></div>
+      <div class="pp pp--seer"><div class="flip" data-turn><CardboardFigure class="face" src={seherin} widths={[260, 520]} sizes="(max-width: 760px) 28vw, 15vw" loading="eager" back="print" /></div></div>
+      <div class="pp pp--phone pp--phone-a"><PuppetPhone phone={phoneA} /></div>
+      <div class="pp pp--phone pp--phone-b"><PuppetPhone phone={phoneB} /></div>
+      <div class="pp pp--wolf"><div class="flip" data-turn><CardboardFigure class="face" src={werwolf} widths={[320, 640]} sizes="(max-width: 760px) 36vw, 18vw" loading="eager" back="print" /></div></div>
+    </div>
+    <!-- the playboard: a strip of near meadow the puppets stand in -->
+    <div class="plane plane--front" data-k="0.07">
+      <Picture class="strip" src={wiese} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 240vw, 125vw" loading="eager" />
     </div>
   </div>
+
+  <!-- words -->
+  <div class="copy">
+    <a class="copy__brand" href={path('home', lang)} aria-label="Whowolf" data-hero-brand>
+      <Picture src={wordmark} alt="" formats={formats} widths={[360, 720, 1080]} sizes="(max-width: 760px) 13rem, 30vw" loading="eager" />
+    </a>
+    <div class="copy__intro">
+      <h1 id="story-title"><span class="visually-hidden">Whowolf – </span>{t.box.headline}</h1>
+      <p>{t.box.lede.join(' ')}</p>
+    </div>
+    <div class="copy__actions">
+      <a class="button button--primary" href={path('download', lang)}>{t.box.cta}</a>
+      <p class="copy__app"><span class="copy__app-icon" aria-hidden="true"></span>{t.box.app}</p>
+    </div>
+    <!-- what the puppet show plays, for anyone who cannot see it -->
+    <ol class="visually-hidden">
+      {beats.map((beat) => <li>{beat.title} {beat.text}</li>)}
+    </ol>
+  </div>
+  <div class="story__room" aria-hidden="true"></div>
 </section>
 
 <script>
-  // The title wordmark flies into the header while scrolling and docks as its logo. It is
-  // measured once (and on resize), then moved with transforms only, so nothing reflows. Once
-  // it has landed on the header logo's exact box, the header shows its own copy instead.
+  // The title wordmark flies into the header while scrolling and docks as its logo. Every
+  // position is measured once (and on resize / font load), then the scroll handler only
+  // writes transforms, so scrolling never forces a layout.
   const brand = document.querySelector<HTMLElement>('[data-hero-brand]');
   const header = document.querySelector<HTMLElement>('.site-header--overlay');
   const dock = header?.querySelector<HTMLElement>('[data-brand] img');
+  const story = document.querySelector<HTMLElement>('[data-story]');
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   if (brand && header && dock) {
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
     // the lines under the wordmark fade out just before they would slide under the header
-    const lines = [...document.querySelectorAll<HTMLElement>('.copy > :not([data-hero-brand])')];
+    const lines = [...document.querySelectorAll<HTMLElement>('.copy > :not([data-hero-brand]):not(.visually-hidden)')];
     let from = { left: 0, top: 0, width: 1 };
     let to = { left: 0, top: 0, width: 1, bottom: 0 };
+    let tops: number[] = [];
     let distance = 1;
     let queued = false;
+    let settled = '';
 
     const measure = () => {
       brand.style.transform = '';
+      for (const line of lines) line.style.opacity = '';
       const a = brand.getBoundingClientRect();
       const b = dock.getBoundingClientRect();
       from = { left: a.left, top: a.top + window.scrollY, width: a.width };
       to = { left: b.left, top: b.top, width: b.width, bottom: header.getBoundingClientRect().bottom };
+      tops = lines.map((line) => line.getBoundingClientRect().top + window.scrollY);
       // lands where the header turns solid (see scripts/site.ts)
       distance = Math.max(1, window.innerHeight * 0.35);
+      settled = '';
     };
     const place = () => {
       queued = false;
       const y = window.scrollY;
       const p = Math.min(1, Math.max(0, y / distance));
       const docked = p >= 1;
+      // far below the hero nothing changes any more: skip the writes
+      const state = docked && y > distance + window.innerHeight ? 'gone' : '';
+      if (state && state === settled) return;
+      settled = state;
       header.classList.toggle('is-docked', docked);
       brand.style.visibility = docked ? 'hidden' : '';
       if (still.matches) {
         brand.style.transform = '';
-        for (const line of lines) line.style.filter = '';
         return;
       }
-      const fades = lines.map((line) => (line.getBoundingClientRect().top - to.bottom) / 90);
       lines.forEach((line, i) => {
-        const o = Math.min(1, Math.max(0, fades[i]));
-        line.style.filter = o < 1 ? `opacity(${o.toFixed(3)})` : '';
+        // a line that already starts close to the header fades over the room it has
+        const room = tops[i] - to.bottom;
+        const o = Math.min(1, Math.max(0, (room - y) / Math.max(1, Math.min(90, room))));
+        line.style.opacity = o < 1 ? o.toFixed(3) : '';
       });
       // ease-out: it shrinks fastest at first, so the lines scrolling up never reach it
       const e = 1 - (1 - p) ** 3;
@@ -181,69 +189,92 @@ const formats = ['avif', 'webp'] as const;
         requestAnimationFrame(place);
       }
     };
-    measure();
-    place();
+    const remeasure = () => {
+      measure();
+      place();
+    };
+    remeasure();
     window.addEventListener('scroll', request, { passive: true });
-    window.addEventListener('resize', () => {
-      measure();
-      place();
-    });
-    still.addEventListener('change', () => {
-      measure();
-      place();
-    });
+    window.addEventListener('resize', remeasure);
+    window.addEventListener('load', remeasure);
+    void document.fonts?.ready.then(remeasure);
+    still.addEventListener('change', remeasure);
   }
 
-  // The story plays once on load, on its own; scrolling just moves on, with the layers of the
-  // stage drifting at different speeds.
-  const story = document.querySelector<HTMLElement>('[data-story]');
-  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const phones = story ? [...story.querySelectorAll<HTMLElement>('[data-phone]')] : [];
-  const last = story ? story.querySelectorAll('.copy__beats li').length : 0;
+  // The story plays once on load, on its own: each beat adds a class (b1 … b5) that brings
+  // in or turns a puppet. Scrolling on lets the stage layers drift at their own pace.
+  if (story) {
+    const phones = [...story.querySelectorAll<HTMLElement>('[data-phone]')];
+    const last = 5;
+    const show = (beat: number) => {
+      for (let i = 1; i <= beat; i += 1) story.classList.add(`b${i}`);
+      for (const phone of phones) {
+        const screens = [...phone.querySelectorAll<HTMLElement>('[data-from]')];
+        const current = screens.filter((screen) => Number(screen.dataset.from) <= beat).at(-1);
+        for (const screen of screens) screen.classList.toggle('is-on', screen === current);
+      }
+    };
 
-  const show = (beat: number) => {
-    if (!story) return;
-    story.dataset.beat = String(beat);
-    for (const phone of phones) {
-      const screens = [...phone.querySelectorAll<HTMLElement>('[data-from]')];
-      const current = screens.filter((screen) => Number(screen.dataset.from) <= beat).at(-1);
-      for (const screen of screens) screen.classList.toggle('is-on', screen === current);
+    if (still.matches) {
+      story.classList.add('is-static');
+      show(last);
+    } else {
+      let beat = 0;
+      const next = () => {
+        beat += 1;
+        show(beat);
+        if (beat < last) window.setTimeout(next, 950);
+      };
+      window.setTimeout(next, 350);
+
+      // parallax: a handful of planes, each moved by its own transform (no style recalc
+      // of the whole stage), and only while the stage is on screen
+      const planes = [...story.querySelectorAll<HTMLElement>('[data-k]')].map((el) => ({ el, k: Number(el.dataset.k) }));
+      let queued = false;
+      let height = story.offsetHeight;
+      let lastY = -1;
+      const drift = () => {
+        queued = false;
+        const y = Math.min(window.scrollY, height);
+        if (y === lastY) return;
+        lastY = y;
+        for (const { el, k } of planes) el.style.transform = `translate3d(0, ${(y * k).toFixed(1)}px, 0)`;
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!queued && (window.scrollY <= height || lastY < height)) {
+            queued = true;
+            requestAnimationFrame(drift);
+          }
+        },
+        { passive: true },
+      );
+      window.addEventListener('resize', () => {
+        height = story.offsetHeight;
+      });
     }
-  };
-
-  if (story && calm) {
-    story.classList.add('is-static');
-    show(last);
-  } else if (story) {
-    let beat = 0;
-    const next = () => {
-      beat += 1;
-      show(beat);
-      if (beat < last) window.setTimeout(next, 950);
-    };
-    window.setTimeout(next, 350);
-
-    let queued = false;
-    const drift = () => {
-      queued = false;
-      const y = Math.min(window.scrollY, story.offsetHeight);
-      story.style.setProperty('--drift', `${y}px`);
-    };
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!queued) {
-          queued = true;
-          requestAnimationFrame(drift);
-        }
-      },
-      { passive: true },
-    );
   }
 </script>
 
 <style>
+  /* ---------- Units and the ground line ----------
+     --u: one hundredth of the stage frame. --g: height of the meadow edge (the village's
+     ground) above the bottom of the stage. Strip widths (--mw, --hw, --gw, --fw) are at least
+     110% of the screen so their cut ends stay off-stage; their heights follow from the
+     artwork's aspect ratio. */
   .story {
+    --u: min(1vw, 1.6svh);
+    --g: calc(25 * var(--u));
+    --mw: max(110%, 112 * var(--u));
+    --hw: max(110%, 112 * var(--u));
+    --gw: max(110%, 112 * var(--u));
+    --fiw: max(110%, 128 * var(--u));
+    --fw: max(110%, 124 * var(--u));
+    --castle-x: 18;
+    --lip: calc(3.2 * var(--u));
+    --fly-from: 9;
+    --fly-span: 14;
     position: relative;
     height: 100svh;
     min-height: 34rem;
@@ -251,77 +282,43 @@ const formats = ['avif', 'webp'] as const;
     background: var(--night-900);
     color: #f6e8c6;
   }
-  .story__stage {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-  }
 
   /* ---------- Scene ---------- */
   .scene {
     position: absolute;
     inset: 0;
-    container-type: size;
+    overflow: hidden;
+    pointer-events: none;
   }
-  .backdrop :global(picture),
-  .set :global(picture),
-  .flip :global(picture),
-  .pp--phone > :global(picture) {
+  .scene :global(picture) {
     display: contents;
-  }
-  /* parallax: when scrolling on, far layers lag behind near ones. Each backdrop plane has its
-     own pace (--k); the meadow moves with the far set so the houses stay on their ground. */
-  .plane {
-    translate: 0 calc(var(--drift, 0px) * var(--k));
-  }
-  .sky {
-    translate: 0 calc(var(--drift, 0px) * 0.55);
-  }
-  .set--far {
-    translate: 0 calc(var(--drift, 0px) * 0.3);
-  }
-  .set--near {
-    translate: 0 calc(var(--drift, 0px) * 0.18);
-  }
-  .cast {
-    translate: 0 calc(var(--drift, 0px) * 0.07);
   }
   .scene :global(.c) {
     position: absolute;
     height: auto;
-    filter: drop-shadow(0 0.6cqh 0.9cqh rgb(0 0 0 / 0.45));
+    filter: drop-shadow(0 0.5rem 0.7rem rgb(0 0 0 / 0.45));
   }
-  /* ---------- Backdrop planes ---------- */
+  [data-k] {
+    will-change: transform;
+  }
   .backdrop {
     position: absolute;
     inset: 0;
-    overflow: hidden;
-    /* where each strip's top edge sits, in % of the stage height */
-    --mountains-top: 13cqh;
-    --hills-top: 36cqh;
-    --meadow-top: 60cqh;
+    transition: filter 0.8s ease;
   }
   .plane {
     position: absolute;
     inset: 0;
   }
-  .plane--sky {
-    --k: 0.55;
-  }
-  .plane--moon {
-    --k: 0.5;
-  }
-  .plane--clouds {
-    --k: 0.46;
-  }
-  .plane--mountains {
-    --k: 0.42;
-  }
-  .plane--hills {
-    --k: 0.36;
-  }
-  .plane--meadow {
-    --k: 0.3;
+  /* The frame: 100u wide, centred, standing on the bottom of the stage. */
+  .stage-frame {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    top: 0;
+    bottom: 0;
+    width: calc(100 * var(--u));
+    margin-left: calc(-50 * var(--u));
   }
   .plane--sky :global(img) {
     width: 100%;
@@ -329,266 +326,80 @@ const formats = ['avif', 'webp'] as const;
     object-fit: cover;
     object-position: 50% 0%;
   }
-  /* moon and clouds are placed on the same centred frame as the puppets */
-  .plane--moon,
-  .plane--clouds {
-    left: 50%;
-    width: min(100cqw, 160cqh);
-    transform: translateX(-50%);
-  }
-  .c-moon {
-    left: 56%;
-    top: 4cqh;
-    width: 20%;
-  }
-  .c-cloud1 {
-    left: 9%;
-    top: 15cqh;
-    width: 17%;
-  }
-  .c-cloud2 {
-    left: 73%;
-    top: 26cqh;
-    width: 12%;
-  }
-  .c-cloud3 {
-    left: 40%;
-    top: 7cqh;
-    width: 9%;
-  }
-  /* wide strips: always wider than the stage so their cut ends stay off-stage; on narrow
-     screens their height wins and the sides are cropped */
+
+  /* ---------- The strips, each tucked behind the one in front ---------- */
   .scene :global(.strip) {
     position: absolute;
     left: 50%;
     height: auto;
     max-width: none;
     translate: -50% 0;
-    filter: drop-shadow(0 -0.4cqh 1.2cqh rgb(0 0 0 / 0.5));
+  }
+  .backdrop {
+    --gh: calc(var(--gw) / 8.28);
+    --hh: calc(var(--hw) / 3.93);
+    --mh: calc(var(--mw) / 3.64);
+    /* the hills' top edge: their valley (55% down the strip) sits on the meadow edge */
+    --hills-b: calc(var(--g) + var(--hh) * 0.55 - var(--hh));
+    /* the mountains reach down past the hills' deepest valley */
+    --mountains-b: calc(var(--hills-b) + var(--hh) * 0.34);
   }
   .plane--mountains :global(.strip) {
-    top: var(--mountains-top);
-    width: max(110cqw, var(--mountains-min, 30cqh) * 3.64);
+    bottom: var(--mountains-b);
+    width: var(--mw);
+    /* the castle stands above the village */
+    translate: calc(var(--castle-x) * var(--u) - 66%) 0;
+    filter: drop-shadow(0 -0.3rem 1rem rgb(0 0 0 / 0.45));
   }
   .plane--hills :global(.strip) {
-    top: var(--hills-top);
-    width: max(110cqw, var(--hills-min, 34cqh) * 3.93);
+    bottom: var(--hills-b);
+    width: var(--hw);
+    filter: drop-shadow(0 -0.3rem 1rem rgb(0 0 0 / 0.5));
   }
-  /* the meadow runs into flat ground below its strip */
-  .plane--meadow {
-    top: var(--meadow-top);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  /* the meadow edge at --g, then the meadow runs on as ground down to the playboard */
   .plane--meadow :global(.strip) {
-    position: relative;
-    flex: none;
-    width: max(110cqw, var(--meadow-min, 12cqh) * 8.28);
+    bottom: calc(var(--g) - var(--gh));
+    width: var(--gw);
+    filter: drop-shadow(0 -0.3rem 1rem rgb(0 0 0 / 0.5));
   }
   .plane--meadow::after {
     content: '';
-    flex: 1;
-    align-self: stretch;
-    margin-top: -2px;
-    background: #101f23;
-  }
-  .set,
-  .cast,
-  .sky {
     position: absolute;
-    left: 50%;
-    top: 0;
-    width: min(100cqw, 160cqh);
-    height: 100cqh;
-    transform: translateX(-50%);
-    pointer-events: none;
+    inset: auto 0 0;
+    height: calc(var(--g) - var(--gh) + 2px);
+    background: linear-gradient(rgb(22 39 38), rgb(15 29 28));
   }
-  .c-church {
-    left: 18%;
-    bottom: 33%;
-    width: 6%;
+  .plane--field :global(.strip) {
+    --fh: calc(var(--fiw) / 8.28);
+    bottom: calc(var(--g) - var(--gw) / 8.28 * 0.5 - var(--fh));
+    width: var(--fiw);
+    filter: brightness(0.9) drop-shadow(0 -0.4rem 0.9rem rgb(0 0 0 / 0.5));
   }
-  .c-houses {
-    left: 25%;
-    bottom: 33%;
-    width: 24%;
-  }
-  .c-pine1 {
-    left: 6%;
-    bottom: 30%;
-    width: 8%;
-  }
-  .c-pine2 {
-    left: 84%;
-    bottom: 31%;
-    width: 7%;
-  }
-  .c-stones {
-    left: 4%;
-    bottom: 15%;
-    width: 13%;
-  }
-  .c-bush1 {
-    left: 22%;
-    bottom: 14%;
-    width: 15%;
-  }
-  .c-fence {
-    left: 52%;
-    bottom: 15%;
-    width: 12%;
-  }
-  .c-bush2 {
-    left: 70%;
-    bottom: 14%;
-    width: 15%;
+  .plane--front :global(.strip) {
+    bottom: calc(var(--lip) - var(--fw) / 8.28);
+    width: var(--fw);
+    filter: brightness(0.82) drop-shadow(0 -0.4rem 0.9rem rgb(0 0 0 / 0.55));
   }
 
-  /* ---------- Puppets standing on the meadow ---------- */
-  .pp {
-    position: absolute;
-    bottom: 3%;
-    transform-origin: 50% 100%;
-    transition:
-      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.4s ease;
-    animation: hold 5s ease-in-out infinite;
-  }
-  .pp :global(.face),
-  .pp :global(.frame) {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  @keyframes hold {
-    0%,
-    100% {
-      rotate: -1.2deg;
-    }
-    50% {
-      rotate: 1.2deg;
-    }
-  }
-  .pp--villager {
-    left: 29%;
-    width: 14%;
-    transform: translateX(-60cqw) rotate(-8deg);
-  }
-  .pp--maid {
-    left: 88.5%;
-    width: 11%;
-    transform: translateX(60cqw) rotate(8deg);
-    animation-delay: -1.5s;
-  }
-  .pp--wolf {
-    left: 6%;
-    width: 20%;
-    transform: translateY(70cqh);
-    animation-delay: -3s;
-  }
-  .pp--seer {
-    left: 40.5%;
+  /* ---------- Sky ---------- */
+  .c-moon {
+    left: 54%;
+    bottom: calc(var(--mountains-b) + var(--mh) * 0.55);
     width: 15%;
-    transform: translateY(70cqh);
-    animation-delay: -2s;
   }
-  .pp--phone {
-    bottom: 2.5%;
-    animation-delay: -4s;
+  .c-cloud2 {
+    left: 76%;
+    bottom: calc(var(--mountains-b) + var(--mh) * 0.9);
+    width: 10%;
   }
-  .pp--phone-a {
-    left: 55.5%;
-    width: 17%;
-    transform: translateX(70cqw) rotate(12deg);
-  }
-  .pp--phone-b {
-    left: 72%;
-    width: 15%;
-    bottom: 1%;
-    transform: translateY(80cqh) rotate(-6deg);
-    animation-delay: -1s;
-  }
-  /* beat 1: villagers come in from both sides */
-  [data-beat='1'] .pp--villager,
-  [data-beat='2'] .pp--villager,
-  [data-beat='3'] .pp--villager,
-  [data-beat='4'] .pp--villager,
-  [data-beat='5'] .pp--villager,
-  [data-beat='1'] .pp--maid,
-  [data-beat='2'] .pp--maid,
-  [data-beat='3'] .pp--maid,
-  [data-beat='4'] .pp--maid,
-  [data-beat='5'] .pp--maid {
-    transform: none;
-  }
-  /* beat 2: the werewolf rises behind the bush */
-  [data-beat='2'] .pp--wolf,
-  [data-beat='3'] .pp--wolf,
-  [data-beat='4'] .pp--wolf,
-  [data-beat='5'] .pp--wolf {
-    transform: none;
-  }
-  /* beat 3: the phone is held in */
-  [data-beat='3'] .pp--phone-a,
-  [data-beat='4'] .pp--phone-a,
-  [data-beat='5'] .pp--phone-a {
-    transform: none;
-  }
-  [data-beat='4'] .pp--phone-b,
-  [data-beat='5'] .pp--phone-b {
-    transform: rotate(3deg);
-  }
-  /* beat 4: the seer joins */
-  [data-beat='4'] .pp--seer,
-  [data-beat='5'] .pp--seer {
-    transform: none;
-  }
-  /* night: the backdrop darkens a little while everyone taps */
-  .backdrop {
-    transition: filter 0.8s ease;
-  }
-  [data-beat='4'] .backdrop {
-    filter: brightness(0.7) saturate(0.9);
-  }
-  [data-beat='5'] .backdrop {
-    filter: brightness(1.12) saturate(1.05);
-  }
-
-
-  /* ---------- Cardboard turn: the puppet spins around, its cut edge flashes, then its grey back shows ---------- */
-  .pp {
-    perspective: 80cqh;
-  }
-  .flip {
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.75s cubic-bezier(0.45, 0, 0.2, 1);
-  }
-  .flip :global(.face) {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  [data-beat='2'] .pp--villager .flip,
-  [data-beat='3'] .pp--villager .flip,
-  [data-beat='4'] .pp--villager .flip,
-  [data-beat='5'] .pp--villager .flip,
-  [data-beat='4'] .pp--wolf .flip,
-  [data-beat='5'] .pp--wolf .flip,
-  [data-beat='5'] .pp--maid .flip {
-    transform: rotateY(180deg);
-  }
-
-  /* ---------- Sky life ---------- */
   .star {
     position: absolute;
-    width: 0.3cqh;
-    min-width: 2px;
+    top: calc(var(--y) * 0.32%);
+    width: 3px;
     aspect-ratio: 1;
     border-radius: 50%;
     background: #fff3d1;
-    box-shadow: 0 0 0.8cqh rgb(255 243 209 / 0.8);
+    box-shadow: 0 0 6px rgb(255 243 209 / 0.8);
     animation: twinkle 3.6s ease-in-out var(--d) infinite;
   }
   @keyframes twinkle {
@@ -597,14 +408,41 @@ const formats = ['avif', 'webp'] as const;
       transform: scale(0.6);
     }
   }
+
+  /* ---------- The village: one cluster on the meadow, church beside the houses ---------- */
+  .c-houses {
+    left: 50%;
+    bottom: calc(var(--g) - 2.6 * var(--u));
+    width: 22%;
+  }
+  .c-church {
+    left: 45.5%;
+    bottom: calc(var(--g) - 1.6 * var(--u));
+    width: 6.4%;
+  }
+  .c-pine1 {
+    left: 40.5%;
+    bottom: calc(var(--g) - 2.4 * var(--u));
+    width: 5.6%;
+  }
+  .c-pine2 {
+    left: 71%;
+    bottom: calc(var(--g) - 1.8 * var(--u));
+    width: 4.6%;
+  }
+  .c-fence {
+    left: 75%;
+    bottom: calc(var(--g) - 3.4 * var(--u));
+    width: 6%;
+  }
   .fly {
     position: absolute;
-    width: 0.45cqh;
-    min-width: 3px;
+    bottom: calc((var(--fly-from) + var(--y) * var(--fly-span)) * var(--u));
+    width: 4px;
     aspect-ratio: 1;
     border-radius: 50%;
     background: #ffd27a;
-    box-shadow: 0 0 1cqh 0.3cqh rgb(255 196 90 / 0.55);
+    box-shadow: 0 0 8px 2px rgb(255 196 90 / 0.55);
     opacity: 0;
     animation: fly var(--t) ease-in-out var(--d) infinite;
   }
@@ -618,27 +456,163 @@ const formats = ['avif', 'webp'] as const;
       opacity: 0.9;
     }
     50% {
-      transform: translate(2cqh, -3cqh);
+      transform: translate(1rem, -1.5rem);
       opacity: 0.5;
     }
     80% {
       opacity: 0.85;
-      transform: translate(-1.4cqh, -1.2cqh);
+      transform: translate(-0.7rem, -0.6rem);
     }
   }
 
-  /* ---------- Copy ---------- */
+  /* ---------- Wings ---------- */
+  .c-stones {
+    left: 0;
+    bottom: calc(6 * var(--u));
+    width: 9%;
+  }
+  .c-bush1 {
+    left: 13%;
+    bottom: calc(7 * var(--u));
+    width: 12%;
+  }
+  .c-bush2 {
+    left: 88%;
+    bottom: calc(8 * var(--u));
+    width: 12%;
+  }
+
+  /* ---------- Puppets standing in the playboard ---------- */
+  .pp {
+    position: absolute;
+    bottom: calc(1.4 * var(--u));
+    transform-origin: 50% 100%;
+    perspective: 70rem;
+    transition:
+      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.4s ease;
+    animation: hold 5s ease-in-out infinite;
+  }
+  /* a soft shadow where the puppet meets the ground */
+  .pp::before {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: -4%;
+    height: 9%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
+  }
+  /* sizes only: whether a board layer shows is up to `.is-3d` (global.css) */
+  .pp :global(.face),
+  .pp :global(.frame) {
+    width: 100%;
+    height: auto;
+  }
+  .pp :global(.frame) {
+    display: block;
+  }
+  .pp--phone > :global(picture) {
+    display: contents;
+  }
+  @keyframes hold {
+    0%,
+    100% {
+      rotate: -1deg;
+    }
+    50% {
+      rotate: 1deg;
+    }
+  }
+  .pp--wolf {
+    left: 5%;
+    width: 18%;
+    transform: translateY(110%);
+    animation-delay: -3s;
+  }
+  .pp--villager {
+    left: 27%;
+    width: 12.5%;
+    transform: translateX(-90vw) rotate(-8deg);
+  }
+  .pp--seer {
+    left: 40%;
+    width: 15%;
+    transform: translateY(110%);
+    animation-delay: -2s;
+  }
+  .pp--phone {
+    animation-delay: -4s;
+  }
+  .pp--phone-a {
+    left: 57%;
+    width: 11%;
+    transform: translateX(90vw) rotate(12deg);
+  }
+  .pp--phone-b {
+    left: 69.5%;
+    width: 9.5%;
+    transform: translateY(120%) rotate(-6deg);
+    animation-delay: -1s;
+  }
+  .pp--maid {
+    left: 83%;
+    width: 11%;
+    transform: translateX(90vw) rotate(8deg);
+    animation-delay: -1.5s;
+  }
+  /* beat 1: villagers come in from both sides */
+  .b1 .pp--villager,
+  .b1 .pp--maid,
+  /* beat 2: the werewolf rises from behind the playboard */
+  .b2 .pp--wolf,
+  /* beat 3: the phone is held in */
+  .b3 .pp--phone-a,
+  /* beat 4: night, the seer joins */
+  .b4 .pp--seer {
+    transform: none;
+  }
+  .b4 .pp--phone-b {
+    transform: rotate(3deg);
+  }
+  .b4:not(.b5) .backdrop {
+    filter: brightness(0.7) saturate(0.9);
+  }
+
+  /* ---------- Turning: the puppet spins round, its board edge flashes, then its mirrored
+     print shows. In the end every eye is on the wolf: the villager turns at beat 2, the
+     seer at beat 5, the maid already looks his way. ---------- */
+  .flip {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.45, 0, 0.2, 1);
+  }
+  .b2 .pp--villager .flip,
+  .b5 .pp--seer .flip {
+    transform: rotateY(180deg);
+  }
+
+  /* ---------- Copy (wide: beside the scene) ---------- */
   .copy {
     position: absolute;
     z-index: 5;
-    left: max(1.5rem, calc(50% - min(50vw, 80svh) + 2rem));
+    left: max(var(--gutter), calc(50% - 47 * var(--u)));
     top: calc(4.75rem + 2svh);
-    width: min(34rem, 42%);
+    width: min(32rem, 40%);
     display: grid;
-    gap: 1.1rem;
+    gap: 1.25rem;
+  }
+  .copy::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -4rem -6rem -3rem -8rem;
+    background: radial-gradient(closest-side, rgb(10 14 34 / 0.5), transparent);
+    pointer-events: none;
   }
   .copy__intro,
-  .copy__beats {
+  .copy__app {
     text-shadow:
       0 0.1rem 0.6rem rgb(8 10 28 / 0.9),
       0 0 1.6rem rgb(8 10 28 / 0.7);
@@ -646,7 +620,7 @@ const formats = ['avif', 'webp'] as const;
   .copy__brand {
     position: relative;
     z-index: 1;
-    width: clamp(20rem, 36vw, 36rem);
+    width: clamp(16rem, 28vw, 30rem);
     margin-left: -0.6rem;
     transform-origin: 0 0;
     will-change: transform;
@@ -659,223 +633,179 @@ const formats = ['avif', 'webp'] as const;
   .copy h1 {
     font-family: 'Ancizar Serif', Georgia, serif;
     font-weight: 700;
-    font-size: clamp(1.8rem, 1rem + 2.2vw, 2.8rem);
+    font-size: clamp(1.9rem, 1rem + 2.2vw, 3rem);
     line-height: 1.05;
     color: #f6e8c6;
   }
   .copy__intro p {
-    margin-top: 0.6rem;
-    font-size: 1.02rem;
-    line-height: 1.45;
+    margin-top: 0.7rem;
+    max-width: 30rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
     color: #e9d8ad;
   }
-  .copy__intro,
-  .copy__beats li {
-    transition:
-      opacity 0.45s ease,
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  .copy__actions {
+    display: grid;
+    justify-items: start;
+    gap: 0.8rem;
   }
-  .copy__beats {
-    position: relative;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    min-height: 0;
-  }
-  .copy__beats li {
-    position: absolute;
-    inset: 0 0 auto;
-    opacity: 0;
-    transform: translateY(0.8rem);
-    font-size: 1.02rem;
-    line-height: 1.45;
-    color: #e9d8ad;
-  }
-  .copy__beats strong {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-family: 'Ancizar Serif', Georgia, serif;
-    font-size: clamp(1.7rem, 1rem + 2vw, 2.5rem);
-    line-height: 1.05;
-    color: #f6e8c6;
-  }
-  .story:not([data-beat='0']) .copy__intro {
-    opacity: 0;
-    transform: translateY(-0.6rem);
-    position: absolute;
-    visibility: hidden;
-  }
-  [data-beat='1'] [data-n='1'],
-  [data-beat='2'] [data-n='2'],
-  [data-beat='3'] [data-n='3'],
-  [data-beat='4'] [data-n='4'],
-  [data-beat='5'] [data-n='5'] {
-    position: relative;
-    opacity: 1;
-    transform: none;
+  .copy__actions .button {
+    min-height: 3.1rem;
   }
   .copy__app {
     display: flex;
     align-items: center;
     gap: 0.55rem;
     margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #f6e8c6;
-    text-shadow: 0 0.1rem 0.6rem rgb(8 10 28 / 0.9);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #e9d8ad;
   }
   .copy__app-icon {
     flex: none;
-    width: 0.8rem;
-    height: 1.3rem;
+    width: 0.75rem;
+    height: 1.2rem;
     border: 2px solid #f5aa42;
     border-radius: 0.25rem;
     box-shadow: inset 0 -0.22rem 0 -0.1rem #f5aa42;
   }
-  .copy__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.8rem 1rem;
-  }
-
-  /* ---------- Phones: scene below, words on top ---------- */
-  @media (max-width: 760px) {
-    .backdrop {
-      --mountains-top: 33cqh;
-      --mountains-min: 38cqh;
-      --hills-top: 46cqh;
-      --hills-min: 34cqh;
-      --meadow-top: 64cqh;
-    }
-    /* keep the moon to the right, away from the words */
-    .plane--moon,
-    .plane--clouds {
-      width: 100cqw;
-    }
-    .c-moon {
-      left: 68%;
-      top: 8cqh;
-      width: 30%;
-    }
-    .c-cloud1,
-    .c-cloud3 {
-      display: none;
-    }
-    .c-cloud2 {
-      left: 56%;
-      top: 18cqh;
-      width: 20%;
-    }
-    /* bring the castle a little in from the right edge */
-    .plane--mountains :global(.strip) {
-      translate: -57% 0;
-    }
-    .set,
-    .cast {
-      transform: translateX(-50%) scale(1.35);
-      transform-origin: 50% 100%;
-    }
-    .set,
-    .cast,
-    .sky {
-      width: 100cqw;
-      top: 30cqh;
-      height: 70cqh;
-    }
-    .pp--villager {
-      left: 24%;
-      width: 26%;
-    }
-    .pp--maid {
-      left: 74%;
-      width: 19%;
-    }
-    .pp--wolf {
-      left: -2%;
-      width: 36%;
-    }
-    .pp--seer {
-      left: 40%;
-      width: 27%;
-    }
-    .pp--phone-a {
-      left: 45%;
-      width: 34%;
-    }
-    .pp--phone-b {
-      left: 71%;
-      width: 30%;
-    }
-    .pp--maid {
-      display: none;
-    }
-    .c-church {
-      display: none;
-    }
-    .pp {
-      bottom: 3%;
-    }
-    .pp--phone {
-      bottom: 2%;
-    }
-    .c-stones,
-    .c-bush1,
-    .c-bush2,
-    .c-fence {
-      bottom: 9%;
-    }
-    .c-houses {
-      left: 20%;
-      width: 44%;
-    }
-    .c-bush1,
-    .c-bush2 {
-      width: 28%;
-    }
-    .c-bush2 {
-      left: 66%;
-    }
-    .c-fence {
-      left: 44%;
-      width: 22%;
-    }
-    .c-stones {
-      width: 22%;
-    }
-    .copy {
-      left: 0.75rem;
-      right: 0.75rem;
-      top: 4.4rem;
-      width: auto;
-      gap: 0.6rem;
-    }
-    .copy__brand {
-      width: 15rem;
-      margin-left: -0.3rem;
-    }
-    .copy__intro p,
-    .copy__beats li {
-      font-size: 0.95rem;
-    }
-  }
-
-  /* ---------- Reduced motion: the final tableau, no pinning ---------- */
-  .is-static .copy__intro {
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: static !important;
-    transform: none !important;
-  }
-  .is-static .copy__beats {
+  .story__room {
     display: none;
   }
+
+  /* ---------- Narrow and portrait screens: words on top, the stage below ----------
+     The section grows with its words instead of letting them run into the scene. All
+     stage sizes follow the screen width, so the scene looks the same on every phone. */
+  @media (max-width: 760px), (max-aspect-ratio: 11/10) {
+    .story {
+      --u: min(1vw, 0.6svh);
+      --g: calc(47 * var(--u));
+      --mw: max(110%, 222 * var(--u));
+      --hw: max(110%, 262 * var(--u));
+      --gw: max(110%, 200 * var(--u));
+      --fiw: max(110%, 232 * var(--u));
+      --fw: max(110%, 250 * var(--u));
+      --castle-x: 22;
+      --lip: calc(5 * var(--u));
+      --fly-from: 22;
+      --fly-span: 26;
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      min-height: max(100svh, 34rem);
+    }
+    .copy {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: auto;
+      max-width: 34rem;
+      padding: calc(var(--strip-h, 2.4rem) + 1.1rem) var(--gutter) 0;
+      gap: 1rem;
+    }
+    .copy::before {
+      display: none;
+    }
+    .copy__brand {
+      width: 13rem;
+      margin-left: -0.3rem;
+    }
+    .copy h1 {
+      font-size: clamp(1.85rem, 1.2rem + 3vw, 2.6rem);
+    }
+    .copy__intro p {
+      font-size: 1rem;
+    }
+    .copy__actions {
+      gap: 0.7rem;
+    }
+    /* room for the scene: from the bottom up to just below the castle's spire */
+    .story__room {
+      display: block;
+      flex: 1 0 auto;
+      height: calc(91 * var(--u));
+    }
+    .star {
+      top: calc(var(--y) * 0.5%);
+    }
+    .c-moon {
+      left: 62%;
+      bottom: calc(var(--mountains-b) + var(--mh) * 0.42);
+      width: 26%;
+    }
+    .c-cloud2 {
+      left: 82%;
+      bottom: calc(var(--mountains-b) + var(--mh) * 0.62);
+      width: 18%;
+    }
+    .c-houses {
+      left: 11%;
+      bottom: calc(var(--g) - 4 * var(--u));
+      width: 48%;
+    }
+    .c-church {
+      left: 56%;
+      bottom: calc(var(--g) - 3.4 * var(--u));
+      width: 12%;
+    }
+    .c-pine1 {
+      left: 0;
+      bottom: calc(var(--g) - 4.6 * var(--u));
+      width: 10%;
+    }
+    .c-pine2 {
+      left: 67%;
+      bottom: calc(var(--g) - 3.2 * var(--u));
+      width: 8.5%;
+    }
+    .c-fence {
+      left: 78%;
+      bottom: calc(var(--g) - 5.5 * var(--u));
+      width: 13%;
+    }
+    .c-stones {
+      display: none;
+    }
+    .c-bush1 {
+      left: -6%;
+      bottom: calc(15 * var(--u));
+      width: 24%;
+    }
+    .c-bush2 {
+      left: 82%;
+      bottom: calc(17 * var(--u));
+      width: 22%;
+    }
+    .pp {
+      bottom: calc(2.4 * var(--u));
+    }
+    .pp--wolf {
+      left: 0;
+      width: 34%;
+    }
+    .pp--villager {
+      left: 29%;
+      width: 22%;
+    }
+    .pp--seer {
+      left: 48%;
+      width: 26%;
+    }
+    .pp--phone-a {
+      left: 75%;
+      width: 23%;
+    }
+    .pp--maid,
+    .pp--phone-b {
+      display: none;
+    }
+  }
+
+  /* ---------- Reduced motion: the final tableau, standing still ---------- */
   @media (prefers-reduced-motion: reduce) {
-    .plane,
-    .sky,
-    .set,
-    .cast {
-      translate: none;
+    [data-k] {
+      will-change: auto;
     }
     .pp,
     .star,
@@ -883,7 +813,8 @@ const formats = ['avif', 'webp'] as const;
       animation: none;
     }
     .pp,
-    .flip {
+    .flip,
+    .backdrop {
       transition: none;
     }
   }
