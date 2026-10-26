@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/help.dart';
@@ -575,7 +576,11 @@ class _RevealPhaseState extends State<RevealPhase> {
     ];
     final color = wolf ? Palette.curtain600 : Palette.forest700;
     final wide = StageLayout.of(context).twoColumns;
-    void turn() => setState(() => _shown = !_shown);
+    void turn() {
+      SoundScope.play(context, Sound.turn);
+      setState(() => _shown = !_shown);
+    }
+
     final figure = TurningFigure(
       asset: personaRoleAsset(view.yourSeat.persona, role),
       backAsset: personaAsset(view.yourSeat.persona),
@@ -845,7 +850,10 @@ class VotePhase extends StatelessWidget {
             child: SeatGrid(
               view: view,
               selected: vote,
-              onTap: (seat) => session.send(VoteIntent(seat.id)),
+              onTap: (seat) {
+                SoundScope.play(context, Sound.ballot);
+                session.send(VoteIntent(seat.id));
+              },
             ),
           ),
           SecondaryButton(

@@ -14,16 +14,26 @@ class _Ear implements Sounds {
   void stopAll() {}
 }
 
-PlayerView _view(Phase phase, int round, {bool atmosphere = true}) =>
-    PlayerView(
-      you: const PlayerId('p1'),
-      phase: phase,
-      round: round,
-      seats: const [SeatView(id: PlayerId('p1'), name: 'Ada', isAlive: true)],
-      deaths: const [],
-      waitingFor: 0,
-      settings: GameSettings(atmosphere: atmosphere),
-    );
+PlayerView _view(
+  Phase phase,
+  int round, {
+  bool atmosphere = true,
+  int seats = 1,
+  int dead = 0,
+  Faction? winner,
+}) => PlayerView(
+  you: const PlayerId('p1'),
+  phase: phase,
+  round: round,
+  seats: [
+    for (var i = 0; i < seats; i++)
+      SeatView(id: PlayerId('p${i + 1}'), name: 'P$i', isAlive: i >= dead),
+  ],
+  deaths: const [],
+  waitingFor: 0,
+  winner: winner,
+  settings: GameSettings(atmosphere: atmosphere),
+);
 
 void main() {
   test('every phone plans the same night, from public values only', () {
@@ -37,7 +47,7 @@ void main() {
     expect(cues.every((c) => c.at < const Duration(seconds: 90)), isTrue);
   });
 
-  group('the morning yawn', () {
+  group('the night and the morning', () {
     late _Ear ear;
     late List<void Function()> timers;
     Atmosphere atmosphere() {
@@ -60,34 +70,77 @@ void main() {
       }
     }
 
-    test('comes when the night ends', () {
+    test('night falls with the gong and a yawn, morning with the rooster '
+        'and a yawn', () {
+      atmosphere().update(_view(Phase.night, 1));
+      expect(timers, hasLength(nightCues('1234', 1).length + 2));
+      timers.first();
+      expect(ear.heard, [Sound.night]);
+      ear.heard.clear();
       atmosphere()
         ..update(_view(Phase.night, 1))
         ..update(_view(Phase.day, 1));
       fireAll();
-      expect(ear.heard, [Sound.yawn]);
+      expect(ear.heard, [Sound.wake, Sound.yawn]);
     });
 
-    test('stays away when atmosphere is off or the phone is muted', () {
-      atmosphere()
-        ..update(_view(Phase.night, 1, atmosphere: false))
-        ..update(_view(Phase.day, 1, atmosphere: false));
-      fireAll();
-      expect(ear.heard, isEmpty);
+    test(
+      'without atmosphere only the shared moments sound; muted, nothing',
+      () {
+        atmosphere()
+          ..update(_view(Phase.night, 1, atmosphere: false))
+          ..update(_view(Phase.day, 1, atmosphere: false));
+        fireAll();
+        expect(ear.heard, [Sound.wake]);
 
-      atmosphere()
-        ..muted = true
-        ..update(_view(Phase.night, 1))
-        ..update(_view(Phase.day, 1));
-      fireAll();
-      expect(ear.heard, isEmpty);
-    });
+        atmosphere()
+          ..muted = true
+          ..update(_view(Phase.night, 1))
+          ..update(_view(Phase.day, 1));
+        fireAll();
+        expect(ear.heard, isEmpty);
+      },
+    );
 
     test('the night plays its cues, and they stop at dawn', () {
       final a = atmosphere()..update(_view(Phase.night, 1));
-      expect(timers, hasLength(nightCues('1234', 1).length));
+      expect(timers, hasLength(nightCues('1234', 1).length + 2));
       a.update(_view(Phase.day, 1));
-      expect(timers, hasLength(1)); // only the yawn is left
+      expect(timers, hasLength(2)); // only the rooster and the yawn
+    });
+
+    test('the shared moments of a game', () {
+      final a = atmosphere();
+      // Time passes between the views: what is due has played.
+      for (final view in [
+        _view(Phase.lobby, 0, seats: 3),
+        _view(Phase.lobby, 0, seats: 4),
+        _view(Phase.roleReveal, 0, seats: 4),
+        _view(Phase.day, 1, seats: 4),
+        _view(Phase.vote, 1, seats: 4),
+        _view(Phase.night, 2, seats: 4, dead: 1),
+        _view(Phase.ended, 2, seats: 4, dead: 2, winner: Faction.werewolves),
+      ]) {
+        a.update(view);
+        fireAll();
+      }
+      expect(
+        ear.heard,
+        containsAllInOrder([Sound.join, Sound.start, Sound.vote]),
+      );
+      expect(ear.heard.where((s) => s == Sound.death), hasLength(2));
+      expect(ear.heard.last, Sound.howl);
+    });
+
+    test("a player's own sounds never play at night", () {
+      final a = atmosphere()
+        ..update(_view(Phase.day, 1))
+        ..own(Sound.tap);
+      expect(ear.heard, [Sound.tap]);
+      a
+        ..update(_view(Phase.night, 1))
+        ..own(Sound.tap);
+      expect(ear.heard, [Sound.tap]);
     });
   });
 }

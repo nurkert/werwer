@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/cardboard.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -445,7 +446,14 @@ class _CountdownState extends State<Countdown> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {});
+      // The last seconds tick (never at night, see SoundScope).
+      final endsAt = widget.endsAt;
+      if (endsAt == null) return;
+      final left = endsAt.difference(DateTime.now()).inSeconds;
+      if (left > 0 && left <= 5) SoundScope.play(context, Sound.tick);
+    });
   }
 
   @override
@@ -624,7 +632,12 @@ class _BoardButtonState extends State<_BoardButton> {
             ),
             shape: const WidgetStatePropertyAll(StadiumBorder()),
           ),
-          onPressed: widget.onPressed,
+          onPressed: widget.onPressed == null
+              ? null
+              : () {
+                  SoundScope.play(context, Sound.tap);
+                  widget.onPressed!();
+                },
           child: Text(widget.label, textAlign: TextAlign.center),
         ),
       ),

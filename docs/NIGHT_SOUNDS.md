@@ -103,6 +103,22 @@ Für die Wolfsspur **nötig**.
 - Korrigieren: Der Spielleiter verschiebt Spieler per Drag & Drop, alle sehen die Änderung sofort.
 - Spiel startet erst, wenn die Sitzordnung steht (optional: jeder bestätigt kurz „passt“).
 
+## Klänge im Spiel (Stand 0.1.1)
+
+- **Gemeinsame Momente** klingen auf jedem Handy zugleich, unabhängig von der Einstellung „Atmosphäre“:
+  - jemand setzt sich in der Lobby,
+  - Spielstart,
+  - Nachteinbruch (Gong, danach ein Gähnen),
+  - Morgen (Hahn in der Ferne),
+  - ein Tod,
+  - Abstimmung,
+  - Schuss des Jägers,
+  - Ende (Wolfsgeheul oder Harfe).
+- **Eigene Klänge** (Tippen, Figur umdrehen, Stimme abgeben, die letzten Sekunden des Timers) hört nur der Spieler selbst, **nachts nie**: Getippt wird nachts von jedem, und ein Klang darf nie verraten, wer was tippt.
+- **Atmosphäre** (Wind, Grillen, Eule, das Morgen-Gähnen) bleibt an der Einstellung „Atmosphäre“ und ist auf allen Handys gleich geplant (`nightCues`).
+- **Die Stimme des Erzählers** ist nur noch ein Opt-in des Gastgebers. Eingesprochene Aufnahmen sind für später geplant.
+- **Quellen:** alle Klänge wortlos und CC0 (Kenney und Freesound), Nachweise in `app/assets/sounds/CREDITS.md`.
+
 ## Technik
 
 - **Synchrones Abspielen:** Der Host schickt „spiele Geräusch S auf Gerät D um Zeitpunkt T“. Die Geräte gleichen ihre Uhr per Ping mit dem Host ab.

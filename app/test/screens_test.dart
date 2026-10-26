@@ -39,10 +39,20 @@ class _Silence implements Sounds {
 
 const _silence = _Silence();
 
-/// Phone by default; `SCREEN_SIZE=1280x800` renders a desktop window.
-final Size _size = () {
-  final parts = (Platform.environment['SCREEN_SIZE'] ?? '390x844').split('x');
-  return Size(double.parse(parts[0]), double.parse(parts[1]));
+/// Every device class the layout serves: the phone shots land in the
+/// folder itself (the website uses them), the others in a subfolder.
+/// `SCREEN_SIZE=1280x800` renders only that size.
+final Map<String, Size> _sizes = () {
+  final only = Platform.environment['SCREEN_SIZE'];
+  if (only != null) {
+    final parts = only.split('x');
+    return {'': Size(double.parse(parts[0]), double.parse(parts[1]))};
+  }
+  return const {
+    '': Size(390, 844),
+    'tablet': Size(820, 1180),
+    'desktop': Size(1280, 800),
+  };
 }();
 
 Future<void> _loadFont(String family, List<String> files) async {
@@ -77,16 +87,18 @@ void _silencePlugins() {
 }
 
 class _Shooter {
-  _Shooter(this.tester, this.locale);
+  _Shooter(this.tester, this.locale, this.size, this.folder);
 
   final WidgetTester tester;
   final String locale;
+  final Size size;
+  final String folder;
   final GlobalKey _boundary = GlobalKey();
 
   Widget frame(Widget child) => RepaintBoundary(
     key: _boundary,
     child: MediaQuery(
-      data: MediaQueryData(size: _size, disableAnimations: true),
+      data: MediaQueryData(size: size, disableAnimations: true),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
@@ -106,7 +118,7 @@ class _Shooter {
     await tester.runAsync(() async {
       final image = await boundary.toImage(pixelRatio: 2);
       final png = await image.toByteData(format: ui.ImageByteFormat.png);
-      File('$_out/$locale-$name.png')
+      File('$_out/${folder.isEmpty ? '' : '$folder/'}$locale-$name.png')
         ..createSync(recursive: true)
         ..writeAsBytesSync(png!.buffer.asUint8List());
     });
@@ -244,115 +256,127 @@ void main() {
     ]);
   });
 
-  for (final locale in ['de', 'en']) {
-    testWidgets('screens ($locale)', skip: _out == null, (tester) async {
-      _silencePlugins();
-      await tester.binding.setSurfaceSize(_size);
-      final shot = _Shooter(tester, locale);
+  for (final MapEntry(key: folder, value: size) in _sizes.entries) {
+    for (final locale in ['de', 'en']) {
+      testWidgets(
+        'screens ($locale${folder.isEmpty ? '' : ', $folder'})',
+        skip: _out == null,
+        (tester) async {
+          _silencePlugins();
+          await tester.binding.setSurfaceSize(size);
+          final shot = _Shooter(tester, locale, size, folder);
 
-      await tester.pumpWidget(shot.frame(const StartScreen(version: '0.1')));
-      await _precache(tester);
-      await shot.shoot('01-start');
+          await tester.pumpWidget(
+            shot.frame(const StartScreen(version: '0.1')),
+          );
+          await _precache(tester);
+          await shot.shoot('01-start');
 
-      // Find a seed per role, so every night screen gets a picture.
-      final wanted = {Role.villager, Role.werewolf, Role.seer};
-      for (var seed = 1; wanted.isNotEmpty && seed < 40; seed++) {
-        final table = _Table(seed);
-        await tester.pumpWidget(
-          shot.frame(GameScreen(session: table.you, sounds: _silence)),
-        );
-        await tester.pump();
-        final first = seed == 1;
-        if (first) await shot.shoot('02-lobby');
-        table.ownerSends(const StartGameIntent());
-        await tester.pump();
-        final role = table.you.view!.yourRole!;
-        if (!wanted.remove(role)) {
-          await tester.pumpWidget(const SizedBox());
-          await table.close();
-          continue;
-        }
-        if (first) {
-          await shot.shoot('03-role-hidden');
-          await tester.tap(find.byType(TurningFigure));
-          await tester.pump(const Duration(seconds: 1));
-          await shot.shoot('03-role-shown');
-        }
-        table.playRound(withYou: true);
-        await tester.pump();
-        await shot.shoot('04-night-${role.name}');
-        if (first) {
-          table.playRound(withYou: true);
-          await tester.pump();
-          await shot.shoot('05-day');
-          table.playRound();
-          await tester.pump();
-          await shot.shoot('06-vote');
-          for (var i = 0; i < 12 && table.you.view!.phase != Phase.ended; i++) {
+          // Find a seed per role, so every night screen gets a picture.
+          final wanted = {Role.villager, Role.werewolf, Role.seer};
+          for (var seed = 1; wanted.isNotEmpty && seed < 40; seed++) {
+            final table = _Table(seed);
+            await tester.pumpWidget(
+              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+            );
+            await tester.pump();
+            final first = seed == 1;
+            if (first) await shot.shoot('02-lobby');
+            table.ownerSends(const StartGameIntent());
+            await tester.pump();
+            final role = table.you.view!.yourRole!;
+            if (!wanted.remove(role)) {
+              await tester.pumpWidget(const SizedBox());
+              await table.close();
+              continue;
+            }
+            if (first) {
+              await shot.shoot('03-role-hidden');
+              await tester.tap(find.byType(TurningFigure));
+              await tester.pump(const Duration(seconds: 1));
+              await shot.shoot('03-role-shown');
+            }
             table.playRound(withYou: true);
             await tester.pump();
+            await shot.shoot('04-night-${role.name}');
+            if (first) {
+              table.playRound(withYou: true);
+              await tester.pump();
+              await shot.shoot('05-day');
+              table.playRound();
+              await tester.pump();
+              await shot.shoot('06-vote');
+              for (
+                var i = 0;
+                i < 12 && table.you.view!.phase != Phase.ended;
+                i++
+              ) {
+                table.playRound(withYou: true);
+                await tester.pump();
+              }
+              await shot.shoot('07-${table.you.view!.phase.name}');
+              await table.leaveHost();
+              // The pause only shows after a grace period.
+              await tester.pump(const Duration(seconds: 9));
+              await shot.shoot('08-pause');
+            }
+            await tester.pumpWidget(const SizedBox());
+            await table.close();
           }
-          await shot.shoot('07-${table.you.view!.phase.name}');
-          await table.leaveHost();
-          // The pause only shows after a grace period.
-          await tester.pump(const Duration(seconds: 9));
-          await shot.shoot('08-pause');
-        }
-        await tester.pumpWidget(const SizedBox());
-        await table.close();
-      }
 
-      // The host's settings, opened from the lobby.
-      final host = _Table(1, youOwn: true);
-      await tester.pumpWidget(
-        shot.frame(GameScreen(session: host.you, sounds: _silence)),
-      );
-      await tester.pump();
-      final l10n = await AppLocalizations.delegate.load(Locale(locale));
-      await tester.ensureVisible(find.text(l10n.settingsButton));
-      await tester.tap(find.text(l10n.settingsButton));
-      await tester.pump(const Duration(milliseconds: 400));
-      await shot.shoot('09-settings');
-      await tester.pumpWidget(const SizedBox());
-      await host.close();
-
-      // Every role on the full stage: cupid's pick, the witch's table, the
-      // hunter's moment and the lovers' note, from whichever seed shows it.
-      final missing = {'cupid', 'witch', 'hunter', 'lovers'};
-      for (var seed = 1; missing.isNotEmpty && seed < 60; seed++) {
-        final table = _Table(seed);
-        await tester.pumpWidget(
-          shot.frame(GameScreen(session: table.you, sounds: _silence)),
-        );
-        await tester.pump();
-        table.ownerSends(SettingsIntent(Preset.fullStage.settings));
-        await tester.pump();
-        table.ownerSends(const StartGameIntent());
-        await tester.pump();
-        for (var i = 0; i < 40; i++) {
-          final v = table.you.view!;
-          if (v.phase == Phase.ended) break;
-          final night = v.phase == Phase.night && v.yourSeat.isAlive;
-          final task = v.yourNightTask;
-          String? scene;
-          if (night && task == NightAbility.link && !v.youActed) {
-            scene = 'cupid';
-          } else if (night && task == NightAbility.brew && !v.youActed) {
-            scene = 'witch';
-          } else if (v.phase == Phase.hunterShot) {
-            scene = 'hunter';
-          } else if (v.phase == Phase.day && v.partner != null) {
-            scene = 'lovers';
-          }
-          if (scene != null && missing.remove(scene)) {
-            await shot.shoot('10-$scene');
-          }
-          table.playRound(withYou: true);
+          // The host's settings, opened from the lobby.
+          final host = _Table(1, youOwn: true);
+          await tester.pumpWidget(
+            shot.frame(GameScreen(session: host.you, sounds: _silence)),
+          );
           await tester.pump();
-        }
-        await tester.pumpWidget(const SizedBox());
-        await table.close();
-      }
-    });
+          final l10n = await AppLocalizations.delegate.load(Locale(locale));
+          await tester.ensureVisible(find.text(l10n.settingsButton));
+          await tester.tap(find.text(l10n.settingsButton));
+          await tester.pump(const Duration(milliseconds: 400));
+          await shot.shoot('09-settings');
+          await tester.pumpWidget(const SizedBox());
+          await host.close();
+
+          // Every role on the full stage: cupid's pick, the witch's table, the
+          // hunter's moment and the lovers' note, from whichever seed shows it.
+          final missing = {'cupid', 'witch', 'hunter', 'lovers'};
+          for (var seed = 1; missing.isNotEmpty && seed < 60; seed++) {
+            final table = _Table(seed);
+            await tester.pumpWidget(
+              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+            );
+            await tester.pump();
+            table.ownerSends(SettingsIntent(Preset.fullStage.settings));
+            await tester.pump();
+            table.ownerSends(const StartGameIntent());
+            await tester.pump();
+            for (var i = 0; i < 40; i++) {
+              final v = table.you.view!;
+              if (v.phase == Phase.ended) break;
+              final night = v.phase == Phase.night && v.yourSeat.isAlive;
+              final task = v.yourNightTask;
+              String? scene;
+              if (night && task == NightAbility.link && !v.youActed) {
+                scene = 'cupid';
+              } else if (night && task == NightAbility.brew && !v.youActed) {
+                scene = 'witch';
+              } else if (v.phase == Phase.hunterShot) {
+                scene = 'hunter';
+              } else if (v.phase == Phase.day && v.partner != null) {
+                scene = 'lovers';
+              }
+              if (scene != null && missing.remove(scene)) {
+                await shot.shoot('10-$scene');
+              }
+              table.playRound(withYou: true);
+              await tester.pump();
+            }
+            await tester.pumpWidget(const SizedBox());
+            await table.close();
+          }
+        },
+      );
+    }
   }
 }

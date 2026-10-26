@@ -59,6 +59,13 @@ Noch offiziell zu prüfen:
 - Hinweis: Rein KI-generierte Bilder sind in vielen Ländern urheberrechtlich nicht oder nur eingeschränkt geschützt. Für uns ist das in Ordnung (Open Source). Den Schutz von Name und Logo regelt eher das Markenrecht.
 - Die Nutzungsbedingungen des Bildgenerators werden vor dem Release geprüft (kommerzielle Nutzung, Kennzeichnungspflichten).
 
+## Klänge
+
+- Alle Klänge in `app/assets/sounds/` stammen von Dritten und stehen unter **CC0 1.0** (gemeinfrei): UI- und Spielgeräusche aus den Audio-Paketen von [Kenney](https://kenney.nl) (Interface Sounds, Impact Sounds, Casino Audio), Natur- und Instrumentenaufnahmen von [Freesound](https://freesound.org) (nur Einträge mit CC0-Lizenz).
+- Jede Datei ist mit Quelle, Urheber, Lizenz und Bearbeitung in `app/assets/sounds/CREDITS.md` dokumentiert. Neue Klänge kommen nur mit Eintrag dort hinzu.
+- Nicht erlaubt: NC-, ND- oder „royalty-free, aber nicht weiterverbreitbar“-Lizenzen, Klänge aus kommerziellen Werwolf-Spielen und Aufnahmen mit Sprache.
+- CC-BY wäre nur im Ausnahmefall zulässig und bräuchte dann eine vollständige Namensnennung in der App.
+
 ## Lizenz: Apache 2.0
 
 Gewählt wurde die **Apache License 2.0** für das gesamte Repo:

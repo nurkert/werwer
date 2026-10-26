@@ -12,10 +12,18 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   alone ever holds the game's secrets for this: one keeps the room sealed,
   another the key.
 - Short drop-outs no longer show the pause screen at once.
+- New wordless sounds: nightfall with a gong and a yawn, a distant rooster
+  in the morning, the vote bell, a drum for the dead, a wolf's howl or a
+  harp at the end, and soft taps by day (never at night, so no sound gives
+  anyone away).
+- Players on mobile data can join through the official relay server
+  play.whowolf.de.
 
 ### Changed
 - The game adapts to phones, tablets and wide windows (two columns), and
   content scrolls softly beneath the header.
+- Cards and buttons are cut from corrugated board.
+- The narrator's voice is off unless the host turns it on.
 
 ### Security
 - Joining without the QR code now asks you to confirm that the host's screen

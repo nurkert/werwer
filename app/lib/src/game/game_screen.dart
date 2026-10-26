@@ -109,6 +109,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     final refused = session.refused;
     if (refused != null && mounted) {
       session.refused = null;
+      _atmosphere.own(Sound.refused);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).refused)),
       );
@@ -168,74 +169,79 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(_leave());
       },
-      child: StageMoment(
-        view: view,
-        child: StageScaffold(
-          floatingAppBar: true,
-          appBar: AppBar(
-            toolbarHeight: StageLayout.of(context).short ? 44 : kToolbarHeight,
-            title: Image.asset(
-              'assets/brand/wordmark.png',
-              height: StageLayout.of(context).short ? 26 : 34,
-              semanticLabel: 'Whowolf',
+      child: SoundScope(
+        atmosphere: _atmosphere,
+        child: StageMoment(
+          view: view,
+          child: StageScaffold(
+            floatingAppBar: true,
+            appBar: AppBar(
+              toolbarHeight: StageLayout.of(context).short
+                  ? 44
+                  : kToolbarHeight,
+              title: Image.asset(
+                'assets/brand/wordmark.png',
+                height: StageLayout.of(context).short ? 26 : 34,
+                semanticLabel: 'Whowolf',
+              ),
+              actions: [
+                if (_voice != null || (view?.settings.atmosphere ?? false))
+                  IconButton(
+                    tooltip: _quiet ? l10n.unmute : l10n.mute,
+                    icon: Icon(
+                      _quiet
+                          ? Icons.volume_off_outlined
+                          : Icons.volume_up_outlined,
+                    ),
+                    onPressed: () => setState(() {
+                      _quiet = !_quiet;
+                      _atmosphere.muted = _quiet;
+                      _voice?.muted = _quiet;
+                      if (_quiet) _voice?.stop();
+                    }),
+                  ),
+                if (session.status != SessionStatus.ended)
+                  TextButton(onPressed: _leave, child: Text(l10n.leave)),
+              ],
             ),
-            actions: [
-              if (_voice != null || (view?.settings.atmosphere ?? false))
-                IconButton(
-                  tooltip: _quiet ? l10n.unmute : l10n.mute,
-                  icon: Icon(
-                    _quiet
-                        ? Icons.volume_off_outlined
-                        : Icons.volume_up_outlined,
+            body: FloatingHeader(
+              header:
+                  _narration != null &&
+                      session.status != SessionStatus.ended &&
+                      view?.phase != Phase.lobby
+                  ? _NarratorLine(text: _narration!)
+                  : null,
+              child: _Paused(
+                paused: session.status == SessionStatus.reconnecting,
+                onLeave: _leave,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 380),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(
+                        begin: 0.97,
+                        end: 1,
+                      ).animate(animation),
+                      child: child,
+                    ),
                   ),
-                  onPressed: () => setState(() {
-                    _quiet = !_quiet;
-                    _atmosphere.muted = _quiet;
-                    _voice?.muted = _quiet;
-                    if (_quiet) _voice?.stop();
-                  }),
-                ),
-              if (session.status != SessionStatus.ended)
-                TextButton(onPressed: _leave, child: Text(l10n.leave)),
-            ],
-          ),
-          body: FloatingHeader(
-            header:
-                _narration != null &&
-                    session.status != SessionStatus.ended &&
-                    view?.phase != Phase.lobby
-                ? _NarratorLine(text: _narration!)
-                : null,
-            child: _Paused(
-              paused: session.status == SessionStatus.reconnecting,
-              onLeave: _leave,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 380),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: Tween<double>(
-                      begin: 0.97,
-                      end: 1,
-                    ).animate(animation),
-                    child: child,
+                  child: KeyedSubtree(
+                    key: ValueKey(_screenKey(view)),
+                    child: session.status == SessionStatus.ended
+                        ? _Ended(reason: session.byeReason)
+                        : session.nameRefused
+                        ? _Rename(session: session)
+                        : (session.waitingForHost ||
+                                  session.needsCodeConfirmation) &&
+                              view == null
+                        ? _WaitingForHost(session: session)
+                        : view == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : _phase(view),
                   ),
-                ),
-                child: KeyedSubtree(
-                  key: ValueKey(_screenKey(view)),
-                  child: session.status == SessionStatus.ended
-                      ? _Ended(reason: session.byeReason)
-                      : session.nameRefused
-                      ? _Rename(session: session)
-                      : (session.waitingForHost ||
-                                session.needsCodeConfirmation) &&
-                            view == null
-                      ? _WaitingForHost(session: session)
-                      : view == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : _phase(view),
                 ),
               ),
             ),

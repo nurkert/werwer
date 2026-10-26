@@ -2,14 +2,30 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/widgets.dart';
 import 'package:game_core/game_core.dart';
 
-/// The night's sounds and the morning yawn.
+/// Every sound of the game: wordless, CC0 (see assets/sounds/CREDITS.md).
 enum Sound {
   wind('sounds/wind.mp3', 0.5),
   crickets('sounds/crickets.mp3', 0.35),
   owl('sounds/owl.mp3', 0.45),
-  yawn('sounds/yawn.mp3', 0.8);
+  yawn('sounds/yawn.mp3', 0.8),
+  tap('sounds/tap.mp3', 0.6),
+  confirm('sounds/confirm.mp3', 0.5),
+  refused('sounds/refused.mp3', 0.5),
+  join('sounds/join.mp3', 0.8),
+  start('sounds/start.mp3', 0.7),
+  turn('sounds/turn.mp3', 0.8),
+  night('sounds/night.mp3', 0.6),
+  wake('sounds/wake.mp3', 0.6),
+  death('sounds/death.mp3', 0.8),
+  vote('sounds/vote.mp3', 0.6),
+  ballot('sounds/ballot.mp3', 0.9),
+  tick('sounds/tick.mp3', 0.5),
+  howl('sounds/howl.mp3', 0.8),
+  cheer('sounds/cheer.mp3', 0.7),
+  bowstring('sounds/bowstring.mp3', 0.8);
 
   const Sound(this.asset, this.volume);
 
@@ -89,9 +105,13 @@ class AudioSounds implements Sounds {
   }
 }
 
-/// Follows the game and plays the night and the morning: [update] with
-/// every new view. Does nothing unless the table switched atmosphere on
-/// and this phone is not [muted].
+/// Follows the game and plays it: [update] with every new view.
+///
+/// The moments everyone shares (someone sits down, the game starts, night
+/// falls, morning comes, someone dies, the vote, the end) sound on every
+/// phone at once. The night's atmosphere and the morning yawn only play if
+/// the table switched atmosphere on. Nothing plays on a [muted] phone, and
+/// nothing here ever depends on a role or a night action.
 class Atmosphere {
   Atmosphere({
     required this.room,
@@ -124,23 +144,72 @@ class Atmosphere {
     final wasNight = before?.phase == Phase.night;
     if (night && (!wasNight || before?.round != view.round)) {
       _stop();
-      if (on) _planNight(view);
+      // Night falls: the gong, and everyone goes to sleep with a yawn.
+      _moment(Duration.zero, Sound.night);
+      _moment(Duration(milliseconds: 1600 + _random.nextInt(800)), Sound.yawn);
+      if (on) _planNight(view, after: const Duration(seconds: 3));
     } else if (!night && wasNight) {
       _stop();
-      // Everyone yawns as the sun comes up, not quite in unison.
-      if (on && view.phase == Phase.day) {
-        _later(Duration(milliseconds: _random.nextInt(1200)), Sound.yawn);
+      if (view.phase == Phase.day) {
+        _moment(Duration.zero, Sound.wake);
+        // Everyone yawns as the sun comes up, not quite in unison.
+        if (on) {
+          _later(
+            Duration(milliseconds: 2200 + _random.nextInt(1200)),
+            Sound.yawn,
+          );
+        }
       }
+    }
+    if (before == null || _muted) return;
+    final phase = view.phase;
+    final changed = before.phase != phase;
+    if (phase == Phase.lobby && view.seats.length > before.seats.length) {
+      _sounds.play(Sound.join);
+    }
+    if (changed && phase == Phase.roleReveal) _sounds.play(Sound.start);
+    if (changed && phase == Phase.vote) _sounds.play(Sound.vote);
+    if (changed && before.phase == Phase.hunterShot) {
+      _sounds.play(Sound.bowstring);
+    }
+    final died = _alive(before) > _alive(view);
+    if (died) {
+      _moment(
+        Duration(milliseconds: phase == Phase.day ? 2600 : 400),
+        Sound.death,
+      );
+    }
+    if (changed && phase == Phase.ended) {
+      _moment(
+        Duration(milliseconds: died ? 2200 : 300),
+        view.winner == Faction.werewolves ? Sound.howl : Sound.cheer,
+      );
     }
   }
 
-  void _planNight(PlayerView view) {
+  static int _alive(PlayerView view) =>
+      view.seats.where((s) => s.isAlive).length;
+
+  /// A shared moment: on every phone that is not muted, whatever the
+  /// atmosphere setting.
+  void _moment(Duration at, Sound sound) {
+    if (!_muted) _later(at, sound);
+  }
+
+  /// A sound only this player hears, for their own taps (never at night:
+  /// taps there must sound like nothing, whatever the role).
+  void own(Sound sound) {
+    if (_muted || _last?.phase == Phase.night) return;
+    _sounds.play(sound);
+  }
+
+  void _planNight(PlayerView view, {Duration after = Duration.zero}) {
     for (final cue in nightCues(
       room,
       view.round,
       length: view.settings.nightTime,
     )) {
-      _later(cue.at, cue.sound);
+      _later(cue.at + after, cue.sound);
     }
   }
 
@@ -160,3 +229,20 @@ class Atmosphere {
 
 void Function() _realTimer(Duration after, void Function() callback) =>
     Timer(after, callback).cancel;
+
+/// Gives the widgets below a way to play this player's own sounds (button
+/// taps, turning the figure, casting a vote), see [Atmosphere.own].
+class SoundScope extends InheritedWidget {
+  const SoundScope({required this.atmosphere, required super.child, super.key});
+
+  final Atmosphere atmosphere;
+
+  /// Plays [sound] for this player, if a game screen is above.
+  static void play(BuildContext context, Sound sound) => context
+      .getInheritedWidgetOfExactType<SoundScope>()
+      ?.atmosphere
+      .own(sound);
+
+  @override
+  bool updateShouldNotify(SoundScope old) => old.atmosphere != atmosphere;
+}
