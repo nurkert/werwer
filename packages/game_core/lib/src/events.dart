@@ -71,15 +71,16 @@ final class NightFell extends GameEvent {
   final int round;
 }
 
-/// The werewolves took a victim.
+/// Someone died at night (taken by the werewolves or poisoned: the
+/// morning does not tell which).
 final class PlayerKilled extends GameEvent {
   /// Creates the event.
   const PlayerKilled(this.player, this.role);
 
-  /// The victim.
+  /// Who died.
   final PlayerId player;
 
-  /// The victim's role, if roles are revealed on death.
+  /// Their role, if roles are revealed on death.
   final Role? role;
 }
 
@@ -138,6 +139,73 @@ final class SeerSaw extends GameEvent {
 
   @override
   Audience get audience => OnlyPlayers({seer});
+}
+
+/// The werewolves' step is over and the witch decides (only in games with a
+/// witch; everyone gets a step of their own, so nobody stands out).
+final class BrewStepBegan extends GameEvent {
+  /// Creates the event.
+  const BrewStepBegan();
+}
+
+/// Cupid linked two lovers. Only the three of them learn about it.
+final class LoversLinked extends GameEvent {
+  /// Creates the event.
+  const LoversLinked(this.cupid, this.first, this.second);
+
+  /// Cupid.
+  final PlayerId cupid;
+
+  /// One lover.
+  final PlayerId first;
+
+  /// The other lover.
+  final PlayerId second;
+
+  @override
+  Audience get audience => OnlyPlayers({cupid, first, second});
+}
+
+/// A lover died of grief after their partner died.
+final class LoverDied extends GameEvent {
+  /// Creates the event.
+  const LoverDied(this.player, this.role);
+
+  /// The lover.
+  final PlayerId player;
+
+  /// Their role, if roles are revealed on death.
+  final Role? role;
+}
+
+/// The hunter died and takes aim.
+final class HunterAims extends GameEvent {
+  /// Creates the event.
+  const HunterAims(this.hunter);
+
+  /// The hunter.
+  final PlayerId hunter;
+}
+
+/// The hunter took someone along.
+final class PlayerShot extends GameEvent {
+  /// Creates the event.
+  const PlayerShot(this.player, this.role);
+
+  /// Who was shot.
+  final PlayerId player;
+
+  /// Their role, if roles are revealed on death.
+  final Role? role;
+}
+
+/// The hunter spared everyone (or his time ran out).
+final class HunterSpared extends GameEvent {
+  /// Creates the event.
+  const HunterSpared(this.hunter);
+
+  /// The hunter.
+  final PlayerId hunter;
 }
 
 /// The game is over.

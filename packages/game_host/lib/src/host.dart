@@ -19,14 +19,12 @@ void Function() _realTimer(Duration after, void Function() callback) =>
 
 int _realClock() => DateTime.now().millisecondsSinceEpoch;
 
-/// Timings and limits of a room.
+/// Timings and limits of a room. The times of the game's phases are part of
+/// the game's settings ([GameSettings], see `timeLimit`).
 class HostConfig {
   /// Creates a configuration; the defaults suit a table of friends.
   const HostConfig({
     this.revealTime = const Duration(seconds: 90),
-    this.nightTime = const Duration(seconds: 90),
-    this.dayTime = const Duration(minutes: 8),
-    this.voteTime = const Duration(minutes: 2),
     this.helloTimeout = const Duration(seconds: 5),
     this.renameTimeout = const Duration(minutes: 2),
     this.maxConnections = 40,
@@ -37,15 +35,6 @@ class HostConfig {
   /// How long players have to look at their role before the first night
   /// falls anyway, so one absent phone cannot hold up the table.
   final Duration revealTime;
-
-  /// How long a night may take before it resolves with what was picked.
-  final Duration nightTime;
-
-  /// How long the discussion may take before the vote starts.
-  final Duration dayTime;
-
-  /// How long the vote may take.
-  final Duration voteTime;
 
   /// A new connection must say hello within this time.
   final Duration helloTimeout;
@@ -116,16 +105,18 @@ class _Link {
 /// so they can drop out and come back with exactly their state. Pure Dart:
 /// it runs in the app on the host device and could run on a server later.
 class GameHost {
-  /// Creates a room with [roomCode]. The random source deals roles and makes
-  /// session tokens, so it must be cryptographically secure outside of tests.
+  /// Creates a room with [roomCode] and the lobby's first [settings]. The
+  /// random source deals roles and makes session tokens, so it must be
+  /// cryptographically secure outside of tests.
   GameHost({
     required this.roomCode,
     required this._random,
     this.roomSecret,
     this.config = const HostConfig(),
+    GameSettings settings = const GameSettings(),
     this._startTimer = _realTimer,
     this._clock = _realClock,
-  });
+  }) : _state = GameState.lobby(settings: settings);
 
   /// Restores a room from a [snapshot] written earlier (e.g. before the host
   /// app crashed). Players come back with their tokens and find exactly
@@ -193,7 +184,7 @@ class GameHost {
   final StartTimer _startTimer;
   final Clock _clock;
 
-  GameState _state = GameState.lobby();
+  GameState _state;
   final _sessions = <String, _Session>{};
   final _links = <_Link>{};
   final _transports = <Transport>[];
@@ -208,7 +199,7 @@ class GameHost {
   /// Counts every broadcast state, so players drop states that arrive late.
   int _version = 0;
 
-  static const _snapshotVersion = 1;
+  static const _snapshotVersion = 2;
 
   /// Called with a fresh [snapshot] after every change, so the app can save
   /// it. It holds every secret of the game: keep it on the host device only.
@@ -546,10 +537,13 @@ class GameHost {
           _commit(apply(_state, StartGame(random: _random)));
         case ConfirmRoleIntent():
           _commit(apply(_state, ConfirmRole(me)));
-        case NightIntent(:final target):
-          final role = _state.player(me)?.role;
-          if (role == null) throw const RuleViolation(Violation.wrongPhase);
-          _commit(apply(_state, nightAction(role, me, target)));
+        case NightIntent(:final targets):
+          _commit(apply(_state, nightAction(_state, me, targets)));
+        case ShootIntent(:final target):
+          _commit(apply(_state, HunterShoot(me, target)));
+        case SettingsIntent(:final settings):
+          _ownerOnly(session);
+          _commit(apply(_state, ChangeSettings(settings)));
         case VoteIntent(:final target):
           _commit(apply(_state, CastVote(me, target)));
         case EndDiscussionIntent():
@@ -612,7 +606,9 @@ class GameHost {
   void _commit(GameUpdate update) {
     final before = _state;
     _state = update.state;
-    if (before.phase != _state.phase || before.round != _state.round) {
+    if (before.phase != _state.phase ||
+        before.round != _state.round ||
+        before.nightStep != _state.nightStep) {
       _schedulePhaseTimer();
     }
     _broadcast();
@@ -622,20 +618,24 @@ class GameHost {
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
-    final full = switch (_state.phase) {
-      Phase.roleReveal => config.revealTime,
-      Phase.night => config.nightTime,
-      Phase.day => config.dayTime,
-      Phase.vote => config.voteTime,
-      _ => null,
-    };
+    final full = _state.phase == Phase.roleReveal
+        ? config.revealTime
+        : timeLimit(_state);
     if (full == null) return;
     final duration = remaining == null || remaining > full ? full : remaining;
-    final phase = _state.phase;
-    final round = _state.round;
+    final (phase, round, step) = (
+      _state.phase,
+      _state.round,
+      _state.nightStep,
+    );
     _phaseDeadline = _clock() + duration.inMilliseconds;
     _cancelPhaseTimer = _startTimer(duration, () {
-      if (_closed || _state.phase != phase || _state.round != round) return;
+      if (_closed ||
+          _state.phase != phase ||
+          _state.round != round ||
+          _state.nightStep != step) {
+        return;
+      }
       _commit(apply(_state, const PhaseTimeout()));
     });
   }

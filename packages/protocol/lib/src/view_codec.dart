@@ -1,5 +1,6 @@
 import 'package:game_core/game_core.dart';
 import 'package:protocol/src/reader.dart';
+import 'package:protocol/src/settings_codec.dart';
 
 final _id = RegExp(r'^[a-z0-9]{0,16}$');
 
@@ -11,6 +12,11 @@ PlayerId _pid(JsonReader json, String key) {
 
 PlayerId? _maybePid(JsonReader json, String key) =>
     json.maybeString(key) == null ? null : _pid(json, key);
+
+List<PlayerId> _ids(JsonReader json, String key, {int max = maxPlayers}) => [
+  for (final p in json.strings(key, max: max, maxLength: 16))
+    if (_id.hasMatch(p)) PlayerId(p) else throw ProtocolError('bad id "$key"'),
+];
 
 /// Encodes a [PlayerView] as JSON.
 Map<String, Object?> encodeView(PlayerView view) => {
@@ -37,9 +43,13 @@ Map<String, Object?> encodeView(PlayerView view) => {
       },
   ],
   'waitingFor': view.waitingFor,
+  'settings': encodeSettings(view.settings),
   'yourRole': ?view.yourRole?.name,
   'confirmed': view.youConfirmed,
-  'nightChoice': ?view.yourNightChoice?.value,
+  'step': view.nightStep.name,
+  'task': ?view.yourNightTask?.name,
+  'nightTargets': [for (final t in view.yourNightTargets) t.value],
+  'acted': view.youActed,
   'voted': view.youVoted,
   'vote': ?view.yourVote?.value,
   'pack': [
@@ -64,6 +74,10 @@ Map<String, Object?> encodeView(PlayerView view) => {
       {'player': key.value, 'n': value},
   ],
   'flock': ?view.yourFlock,
+  'couple': [for (final p in view.couple) p.value],
+  'victim': ?view.victim?.value,
+  'potions': [for (final p in view.potions) p.name],
+  'shooter': ?view.shooter?.value,
   'winner': ?view.winner?.name,
 };
 
@@ -97,9 +111,13 @@ PlayerView decodeView(JsonReader json) => PlayerView(
       ),
   ],
   waitingFor: json.integer('waitingFor', max: maxPlayers),
+  settings: decodeSettings(json.object('settings')),
   yourRole: json.maybeEnum('yourRole', Role.values),
   youConfirmed: json.boolean('confirmed'),
-  yourNightChoice: _maybePid(json, 'nightChoice'),
+  nightStep: json.enumValue('step', NightStep.values),
+  yourNightTask: json.maybeEnum('task', NightAbility.values),
+  yourNightTargets: _ids(json, 'nightTargets', max: 2),
+  youActed: json.boolean('acted'),
   youVoted: json.boolean('voted'),
   yourVote: _maybePid(json, 'vote'),
   packChoices: {
@@ -118,5 +136,17 @@ PlayerView decodeView(JsonReader json) => PlayerView(
   lastNightSheep: _counts(json, 'sheepLast'),
   dreams: _counts(json, 'dreams'),
   yourFlock: json.maybeInteger('flock', max: maxFlock),
+  couple: _couple(_ids(json, 'couple', max: 2)),
+  victim: _maybePid(json, 'victim'),
+  potions: {
+    for (final p in json.strings('potions', max: Potion.values.length))
+      Potion.values.where((v) => v.name == p).firstOrNull ??
+          (throw const ProtocolError('bad potion')),
+  },
+  shooter: _maybePid(json, 'shooter'),
   winner: json.maybeEnum('winner', Faction.values),
 );
+
+List<PlayerId> _couple(List<PlayerId> ids) => ids.isEmpty || ids.length == 2
+    ? ids
+    : throw const ProtocolError('bad couple');

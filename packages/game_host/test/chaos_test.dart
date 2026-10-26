@@ -163,7 +163,10 @@ class _End implements Connection {
 
 /// A player who acts on what it sees, a little randomly.
 class Bot {
-  Bot(this.name, this.random, this.table);
+  Bot(this.name, this.random, this.table, {this.settings});
+
+  /// What the owner plays with (the others leave it alone).
+  final GameSettings? settings;
 
   /// How many players were invited to the table.
   final int table;
@@ -192,21 +195,52 @@ class Bot {
       case Phase.lobby:
         final everyone = v.seats.length >= table;
         final waited = sim.now > 120000 && v.seats.length >= 5;
+        final wanted = settings;
+        if (link.isOwner && wanted != null) {
+          send('settings', SettingsIntent(wanted));
+        }
         if (link.isOwner && (everyone || waited)) {
           send('start', const StartGameIntent());
         }
       case Phase.roleReveal:
         send('confirm${v.round}', const ConfirmRoleIntent());
       case Phase.night when me.isAlive:
-        final targets = v.yourRole == Role.werewolf
-            ? others.where((s) => s.role != Role.werewolf).toList()
-            : others;
-        if (targets.isEmpty) return;
-        final flock = v.yourFlock ?? 0;
-        send('sheep${v.round}', SheepIntent(random.nextInt(flock + 1)));
+        if (v.yourFlock case final flock?) {
+          send('sheep${v.round}', SheepIntent(random.nextInt(flock + 1)));
+        }
+        final key = 'night${v.round}${v.nightStep.name}';
+        final victim = v.victim;
+        switch (v.yourNightTask) {
+          case NightAbility.hunt:
+            final prey = others.where((s) => s.role != Role.werewolf).toList();
+            if (prey.isEmpty) return;
+            send(key, NightIntent(prey[random.nextInt(prey.length)].id));
+          case NightAbility.link:
+            send(key, NightIntent.of([v.you, pick()]));
+          case NightAbility.brew:
+            final poison = others.where((s) => s.id != victim).toList();
+            send(
+              key,
+              NightIntent.of([
+                if (victim != null &&
+                    v.potions.contains(Potion.heal) &&
+                    random.nextBool())
+                  victim,
+                if (v.potions.contains(Potion.poison) &&
+                    poison.isNotEmpty &&
+                    random.nextInt(3) == 0)
+                  poison[random.nextInt(poison.length)].id,
+              ]),
+            );
+          case NightAbility.inspect || NightAbility.decoy:
+            send(key, NightIntent(pick()));
+          case null:
+            break;
+        }
+      case Phase.hunterShot when v.shooter == v.you:
         send(
-          'night${v.round}',
-          NightIntent(targets[random.nextInt(targets.length)].id),
+          'shot${v.round}',
+          ShootIntent(random.nextInt(4) == 0 ? null : pick()),
         );
       case Phase.day when link.isOwner:
         send('end${v.round}', const EndDiscussionIntent());
@@ -215,7 +249,11 @@ class Bot {
           'vote${v.round}',
           VoteIntent(random.nextInt(5) == 0 ? null : pick()),
         );
-      case Phase.night || Phase.day || Phase.vote || Phase.ended:
+      case Phase.night ||
+          Phase.day ||
+          Phase.vote ||
+          Phase.hunterShot ||
+          Phase.ended:
         break;
     }
   }
@@ -279,7 +317,14 @@ class Table {
   }
 
   void addBot(String name, {bool owner = false}) {
-    final bot = Bot(name, Random(seed * 31 + bots.length), 6);
+    // Every table plays another set of rules: the base game or a preset.
+    final rules = [null, for (final p in Preset.values) p.settings];
+    final bot = Bot(
+      name,
+      Random(seed * 31 + bots.length),
+      6,
+      settings: owner ? rules[seed % rules.length] : null,
+    );
     bot.link = PlayerLink(
       name: name,
       roomCode: '1234',
@@ -322,6 +367,11 @@ const Set<(Phase, Phase)> _legal = {
   (Phase.day, Phase.vote),
   (Phase.vote, Phase.night),
   (Phase.vote, Phase.ended),
+  (Phase.night, Phase.hunterShot),
+  (Phase.vote, Phase.hunterShot),
+  (Phase.hunterShot, Phase.day),
+  (Phase.hunterShot, Phase.night),
+  (Phase.hunterShot, Phase.ended),
 };
 
 String _json(PlayerView v) => jsonEncode(encodeView(v));
@@ -408,6 +458,17 @@ Future<void> playChaos(int seed) async {
           isTrue,
           reason: 'seed $seed: ${bot.name} saw ${seat.name}',
         );
+      }
+      // The lovers, the victim and the potions reach only whom they concern.
+      if (v.couple.isNotEmpty) {
+        expect(
+          v.yourRole == Role.cupid || v.couple.contains(v.you),
+          isTrue,
+          reason: 'seed $seed: ${bot.name} saw the lovers',
+        );
+      }
+      if (v.victim != null || v.potions.isNotEmpty) {
+        expect(v.yourRole, Role.witch, reason: 'seed $seed: ${bot.name}');
       }
     }
   }

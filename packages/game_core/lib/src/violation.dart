@@ -38,6 +38,9 @@ enum Violation {
 
   /// Another player already has this persona (and others are still free).
   personaTaken,
+
+  /// The game's settings switch this off.
+  disabled,
 }
 
 /// Thrown by `apply` for an action that breaks the rules. The state is never

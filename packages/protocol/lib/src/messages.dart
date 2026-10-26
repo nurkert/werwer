@@ -2,10 +2,14 @@ import 'dart:convert';
 
 import 'package:game_core/game_core.dart';
 import 'package:protocol/src/reader.dart';
+import 'package:protocol/src/settings_codec.dart';
 import 'package:protocol/src/view_codec.dart';
 
 /// Version of the message format. Host and player must speak the same one.
-const protocolVersion = 1;
+///
+/// 2: night picks carry a list of targets; hunter's shot, settings and the
+/// views for witch, hunter and lovers.
+const protocolVersion = 2;
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;
@@ -77,7 +81,19 @@ sealed class ClientMessage {
       'hello' => Hello._parse(json),
       'start' => const StartGameIntent(),
       'confirm' => const ConfirmRoleIntent(),
-      'night' => NightIntent(_readPlayerId(json, 'target')),
+      'night' => NightIntent.of([
+        for (final target in json.strings('targets', max: 2, maxLength: 16))
+          if (_playerId.hasMatch(target))
+            PlayerId(target)
+          else
+            throw const ProtocolError('bad id "targets"'),
+      ]),
+      'shoot' => ShootIntent(
+        json.maybeString('target') == null
+            ? null
+            : _readPlayerId(json, 'target'),
+      ),
+      'settings' => SettingsIntent(decodeSettings(json.object('settings'))),
       'vote' => VoteIntent(
         json.maybeString('target') == null
             ? null
@@ -201,20 +217,59 @@ final class ConfirmRoleIntent extends ClientMessage {
   String get _type => 'confirm';
 }
 
-/// My pick tonight. The same message for every role, so the network does not
-/// tell who is who; the host decides what the pick means.
+/// My pick in this night step. The same message for every role, so the
+/// network does not tell who is who; the host decides what the pick means
+/// (see `nightAction`).
 final class NightIntent extends ClientMessage {
-  /// Creates the message.
-  const NightIntent(this.target);
+  /// Picks one player, the usual night choice.
+  NightIntent(PlayerId target) : targets = List.unmodifiable([target]);
 
-  /// Whom I pick.
-  final PlayerId target;
+  /// Picks [targets]: two for cupid's couple; for the witch tonight's
+  /// victim to heal and/or someone else to poison, or none at all.
+  NightIntent.of(Iterable<PlayerId> targets)
+    : targets = List.unmodifiable(targets);
+
+  /// Whom I pick (at most two).
+  final List<PlayerId> targets;
 
   @override
   String get _type => 'night';
 
   @override
-  Map<String, Object?> get _fields => {'target': target.value};
+  Map<String, Object?> get _fields => {
+    'targets': [for (final t in targets) t.value],
+  };
+}
+
+/// As the dying hunter: whom I take along; `null` spares everyone.
+final class ShootIntent extends ClientMessage {
+  /// Creates the message.
+  const ShootIntent(this.target);
+
+  /// Whom I shoot.
+  final PlayerId? target;
+
+  @override
+  String get _type => 'shoot';
+
+  @override
+  Map<String, Object?> get _fields => {'target': target?.value};
+}
+
+/// Room owner, in the lobby: play with these settings (pick a [Preset] and
+/// send its settings, or change single values).
+final class SettingsIntent extends ClientMessage {
+  /// Creates the message.
+  const SettingsIntent(this.settings);
+
+  /// The new settings, as a whole.
+  final GameSettings settings;
+
+  @override
+  String get _type => 'settings';
+
+  @override
+  Map<String, Object?> get _fields => {'settings': encodeSettings(settings)};
 }
 
 /// My vote; `null` abstains.

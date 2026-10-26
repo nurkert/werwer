@@ -41,6 +41,52 @@ void main() {
     expect(viewFor(b, seer.id).seerResults.single.role, isNull);
   });
 
+  test('a state with every role survives JSON and back', () {
+    var state = GameState.lobby(
+      settings: Preset.fullStage.settings.copyWith(werewolves: 2),
+    );
+    for (var i = 0; i < 8; i++) {
+      state = apply(state, AddPlayer(PlayerId('p$i'), 'P$i')).state;
+    }
+    state = apply(state, StartGame(random: Random(3))).state;
+    for (final p in state.players) {
+      state = apply(state, ConfirmRole(p.id)).state;
+    }
+    Player holder(Role role) => state.players.firstWhere((p) => p.role == role);
+    final wolves = state.players.where((p) => p.role == Role.werewolf);
+    final hunter = holder(Role.hunter);
+    final villagers = state.players.where((p) => p.role == Role.villager);
+    final cupid = holder(Role.cupid);
+    // Night 1: cupid links two villagers, the wolves take the hunter.
+    state = apply(
+      state,
+      CupidLink(cupid.id, villagers.first.id, villagers.last.id),
+    ).state;
+    for (final w in wolves) {
+      state = apply(state, WerewolfVote(w.id, hunter.id)).state;
+    }
+    state = apply(state, const PhaseTimeout()).state;
+    expect(state.nightStep, NightStep.brew);
+    state = apply(
+      state,
+      WitchBrew(holder(Role.witch).id, poison: villagers.first.id),
+    ).state;
+    expect(
+      jsonDecode(roundTrip(state)),
+      jsonDecode(jsonEncode(encodeState(state))),
+    );
+    state = apply(state, const PhaseTimeout()).state;
+    expect(state.phase, Phase.hunterShot);
+    expect(state.lovers, hasLength(2));
+    expect(state.potionsUsed, {Potion.poison});
+    final json = jsonEncode(encodeState(state));
+    expect(roundTrip(state), json);
+    final restored = decodeState(JsonReader.decode(json, maxBytes: 1 << 20));
+    expect(restored.shooter, hunter.id);
+    expect(restored.afterShot, Phase.day);
+    expect(restored.settings, state.settings);
+  });
+
   test('broken state is refused', () {
     final good = encodeState(GameState.lobby());
     for (final bad in [
@@ -51,6 +97,15 @@ void main() {
         'confirmed': [1],
       },
       {...good, 'players': 'x'},
+      {
+        ...good,
+        'lovers': ['p1'],
+      },
+      {
+        ...good,
+        'potionsUsed': ['love'],
+      },
+      {...good, 'nightStep': 'dawn'},
     ]) {
       expect(
         () => decodeState(JsonReader.decode(jsonEncode(bad), maxBytes: 4096)),

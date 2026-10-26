@@ -1,5 +1,6 @@
 import 'package:game_core/game_core.dart';
 import 'package:protocol/src/reader.dart';
+import 'package:protocol/src/settings_codec.dart';
 
 final _id = RegExp(r'^[a-z0-9]{1,16}$');
 
@@ -13,6 +14,14 @@ List<Map<String, Object?>> _pairs(Map<PlayerId, int> map) => [
   for (final MapEntry(:key, :value) in map.entries)
     {'player': key.value, 'n': value},
 ];
+
+List<PlayerId> _ids(JsonReader json, String key, {int max = maxPlayers}) => [
+  for (final p in json.strings(key, max: max, maxLength: 16))
+    if (_id.hasMatch(p)) PlayerId(p) else throw ProtocolError('bad id "$key"'),
+];
+
+PlayerId? _maybePid(JsonReader json, String key) =>
+    json.maybeString(key) == null ? null : _pid(json, key);
 
 Map<PlayerId, int> _readPairs(JsonReader json, String key) => {
   for (final p in json.objects(key, max: maxPlayers))
@@ -35,13 +44,21 @@ Map<String, Object?> encodeState(GameState state) => {
   ],
   'phase': state.phase.name,
   'round': state.round,
-  'revealRoleOnDeath': state.settings.revealRoleOnDeath,
-  'seerSeesRole': state.settings.seerSeesRole,
+  'settings': encodeSettings(state.settings),
   'confirmed': [for (final p in state.confirmed) p.value],
+  'nightStep': state.nightStep.name,
   'nightChoices': [
     for (final MapEntry(:key, :value) in state.nightChoices.entries)
-      {'player': key.value, 'target': value.value},
+      {
+        'player': key.value,
+        'targets': [for (final t in value) t.value],
+      },
   ],
+  'nightVictim': ?state.nightVictim?.value,
+  'lovers': [for (final p in state.lovers) p.value],
+  'potionsUsed': [for (final p in state.potionsUsed) p.name],
+  'shooter': ?state.shooter?.value,
+  'afterShot': ?state.afterShot?.name,
   'votes': [
     for (final MapEntry(:key, :value) in state.votes.entries)
       {'player': key.value, 'target': ?value?.value},
@@ -71,6 +88,7 @@ Map<String, Object?> encodeState(GameState state) => {
 /// Reads a [GameState] written by [encodeState]; throws a [ProtocolError]
 /// for anything invalid.
 GameState decodeState(JsonReader json) {
+  final lovers = _ids(json, 'lovers', max: 2);
   final seer = <PlayerId, List<SeerResult>>{};
   for (final r in json.objects('seerResults', max: 1000)) {
     (seer[_pid(r, 'seer')] ??= []).add(
@@ -95,18 +113,27 @@ GameState decodeState(JsonReader json) {
     ],
     phase: json.enumValue('phase', Phase.values),
     round: json.integer('round', max: 1000),
-    settings: GameSettings(
-      revealRoleOnDeath: json.boolean('revealRoleOnDeath'),
-      seerSeesRole: json.boolean('seerSeesRole'),
-    ),
+    settings: decodeSettings(json.object('settings')),
     confirmed: {
       for (final p in json.strings('confirmed', max: maxPlayers))
         if (_id.hasMatch(p)) PlayerId(p) else throw const ProtocolError('id'),
     },
+    nightStep: json.enumValue('nightStep', NightStep.values),
     nightChoices: {
       for (final c in json.objects('nightChoices', max: maxPlayers))
-        _pid(c, 'player'): _pid(c, 'target'),
+        _pid(c, 'player'): _ids(c, 'targets', max: 2),
     },
+    nightVictim: _maybePid(json, 'nightVictim'),
+    lovers: lovers.isEmpty || lovers.length == 2
+        ? lovers
+        : throw const ProtocolError('bad lovers'),
+    potionsUsed: {
+      for (final p in json.strings('potionsUsed', max: Potion.values.length))
+        Potion.values.where((v) => v.name == p).firstOrNull ??
+            (throw const ProtocolError('bad potion')),
+    },
+    shooter: _maybePid(json, 'shooter'),
+    afterShot: json.maybeEnum('afterShot', Phase.values),
     votes: {
       for (final v in json.objects('votes', max: maxPlayers))
         _pid(v, 'player'): v.maybeString('target') == null

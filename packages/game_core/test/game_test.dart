@@ -3,73 +3,7 @@ import 'dart:math';
 import 'package:game_core/game_core.dart';
 import 'package:test/test.dart';
 
-const names = ['Ada', 'Bo', 'Cem', 'Dina', 'Eli', 'Fynn', 'Gul', 'Hans'];
-
-PlayerId id(int i) => PlayerId('p$i');
-
-/// A lobby with [count] players p0…p(count-1).
-GameState lobby(int count, {GameSettings settings = const GameSettings()}) {
-  var state = GameState.lobby(settings: settings);
-  for (var i = 0; i < count; i++) {
-    state = apply(state, AddPlayer(id(i), names[i])).state;
-  }
-  return state;
-}
-
-/// A started game with fixed roles in seat order, everyone confirmed.
-GameState night(
-  List<Role> roles, {
-  GameSettings settings = const GameSettings(),
-}) {
-  // Dealing shuffles; for readable tests, put the roles back in seat order.
-  var state = apply(
-    lobby(roles.length, settings: settings),
-    StartGame(random: Random(1), roles: roles),
-  ).state;
-  state = GameState(
-    players: [
-      for (var i = 0; i < roles.length; i++)
-        state.players[i].copyWith(role: roles[i]),
-    ],
-    phase: state.phase,
-    round: state.round,
-    settings: settings,
-  );
-  for (var i = 0; i < roles.length; i++) {
-    state = apply(state, ConfirmRole(id(i))).state;
-  }
-  return state;
-}
-
-/// Everyone alive acts at night: roles act on [targets], others decoy on
-/// the first other living player.
-GameUpdate playNight(GameState state, Map<int, int> targets) {
-  var update = GameUpdate(state);
-  for (final p in state.alive) {
-    final i = int.parse(p.id.value.substring(1));
-    if (targets[i] == null && state.nightChoices.containsKey(p.id)) continue;
-    final target = targets[i] != null
-        ? id(targets[i]!)
-        : state.alive.firstWhere((o) => o.id != p.id).id;
-    update = apply(update.state, nightAction(p.role!, p.id, target));
-  }
-  return update;
-}
-
-GameUpdate playVote(GameState state, Map<int, int?> votes) {
-  var update = apply(state, const EndDiscussion());
-  for (final MapEntry(:key, :value) in votes.entries) {
-    update = apply(
-      update.state,
-      CastVote(id(key), value == null ? null : id(value)),
-    );
-  }
-  return update;
-}
-
-Matcher refuses(Violation reason) => throwsA(
-  isA<RuleViolation>().having((e) => e.reason, 'reason', reason),
-);
+import 'support.dart';
 
 void main() {
   group('roles', () {
@@ -295,7 +229,7 @@ void main() {
       var state = night(roles);
       state = apply(state, WerewolfVote(id(0), id(4))).state;
       state = apply(state, WerewolfVote(id(0), id(3))).state;
-      expect(state.nightChoices[id(0)], id(3));
+      expect(state.nightChoices[id(0)], [id(3)]);
     });
 
     test('invalid night actions are refused and change nothing', () {
@@ -508,7 +442,7 @@ void main() {
       // Night 1: the werewolf takes a villager; everyone else picks the wolf.
       for (final p in state.alive) {
         final target = p.id == wolf.id ? villager.id : wolf.id;
-        state = apply(state, nightAction(p.role!, p.id, target)).state;
+        state = apply(state, nightAction(state, p.id, [target])).state;
       }
       expect(state.phase, Phase.day);
       expect(state.deaths.single.player, villager.id);
@@ -565,36 +499,6 @@ void main() {
       Role.villager,
       Role.villager,
     ];
-
-    void expectNoLeaks(GameState state) {
-      for (final viewer in state.players) {
-        final view = viewFor(state, viewer.id);
-        final isWolf = viewer.role == Role.werewolf;
-        for (final seat in view.seats) {
-          final p = state.player(seat.id)!;
-          final allowed =
-              p.id == viewer.id ||
-              (isWolf && p.role == Role.werewolf) ||
-              (!p.isAlive && state.settings.revealRoleOnDeath) ||
-              state.phase == Phase.ended;
-          if (!allowed) {
-            expect(seat.role, isNull, reason: '${viewer.id} sees ${p.id}');
-          }
-        }
-        expect(view.yourRole, viewer.role);
-        if (!isWolf) expect(view.packChoices, isEmpty);
-        if (viewer.role != Role.seer) expect(view.seerResults, isEmpty);
-        // Own choices only.
-        expect(view.yourNightChoice, state.nightChoices[viewer.id]);
-        expect(view.yourVote, state.votes[viewer.id]);
-      }
-      expect(publicView(state).packChoices, isEmpty);
-      if (state.phase != Phase.ended) {
-        for (final seat in publicView(state).seats) {
-          if (seat.isAlive) expect(seat.role, isNull);
-        }
-      }
-    }
 
     test('for every player in every phase', () {
       var state = night(roles);

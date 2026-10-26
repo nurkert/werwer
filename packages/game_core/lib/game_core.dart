@@ -9,5 +9,6 @@ export 'src/events.dart';
 export 'src/model.dart';
 export 'src/role.dart';
 export 'src/rules.dart';
+export 'src/settings.dart';
 export 'src/view.dart';
 export 'src/violation.dart';

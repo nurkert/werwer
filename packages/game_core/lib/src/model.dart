@@ -1,19 +1,8 @@
 import 'package:game_core/src/role.dart';
+import 'package:game_core/src/settings.dart';
 
 /// Stable identifier of a player within one game.
 extension type const PlayerId(String value) {}
-
-/// Options the host picks before a game.
-class GameSettings {
-  /// Creates settings; the defaults are the recommended rules.
-  const GameSettings({this.revealRoleOnDeath = true, this.seerSeesRole = true});
-
-  /// Whether a dead player's role is shown to everyone.
-  final bool revealRoleOnDeath;
-
-  /// Whether the seer learns the exact role (otherwise only the faction).
-  final bool seerSeesRole;
-}
 
 /// A player at the table. The list order in [GameState.players] is the
 /// seating order.
@@ -69,6 +58,10 @@ enum Phase {
   /// Everyone votes on whom to eliminate.
   vote,
 
+  /// The hunter just died and takes someone along. Comes after the night or
+  /// the vote that killed him; the game goes on (or ends) after the shot.
+  hunterShot,
+
   /// A faction has won.
   ended,
 }
@@ -80,6 +73,32 @@ enum DeathCause {
 
   /// Voted out by the village.
   vote,
+
+  /// Died of grief because their lover died.
+  heartbreak,
+
+  /// Taken along by the dying hunter.
+  shot,
+}
+
+/// The steps of a night. Everyone alive acts in every step.
+enum NightStep {
+  /// The werewolves hunt, the seer looks, cupid links (first night).
+  hunt,
+
+  /// The witch decides about the werewolves' victim. Only in games with a
+  /// witch, then in every night, even after her death, so a night always
+  /// takes the same course.
+  brew,
+}
+
+/// The witch's potions, each good for one use per game.
+enum Potion {
+  /// Saves the werewolves' victim.
+  heal,
+
+  /// Kills someone.
+  poison,
 }
 
 /// A death, kept so that late (re)joiners can be told what happened.
@@ -130,7 +149,13 @@ class GameState {
     required this.round,
     required this.settings,
     Set<PlayerId> confirmed = const {},
-    Map<PlayerId, PlayerId> nightChoices = const {},
+    this.nightStep = NightStep.hunt,
+    Map<PlayerId, List<PlayerId>> nightChoices = const {},
+    this.nightVictim,
+    List<PlayerId> lovers = const [],
+    Set<Potion> potionsUsed = const {},
+    this.shooter,
+    this.afterShot,
     Map<PlayerId, PlayerId?> votes = const {},
     Map<PlayerId, List<SeerResult>> seerResults = const {},
     List<Death> deaths = const [],
@@ -144,7 +169,12 @@ class GameState {
        lastNightSheep = Map.unmodifiable(lastNightSheep),
        dreams = Map.unmodifiable(dreams),
        confirmed = Set.unmodifiable(confirmed),
-       nightChoices = Map.unmodifiable(nightChoices),
+       nightChoices = Map.unmodifiable({
+         for (final MapEntry(:key, :value) in nightChoices.entries)
+           key: List<PlayerId>.unmodifiable(value),
+       }),
+       lovers = List.unmodifiable(lovers),
+       potionsUsed = Set.unmodifiable(potionsUsed),
        votes = Map.unmodifiable(votes),
        seerResults = Map.unmodifiable(seerResults),
        deaths = List.unmodifiable(deaths);
@@ -173,8 +203,29 @@ class GameState {
   /// Players who confirmed their role during [Phase.roleReveal].
   final Set<PlayerId> confirmed;
 
-  /// Target chosen by each player in the current night.
-  final Map<PlayerId, PlayerId> nightChoices;
+  /// The current step of the night.
+  final NightStep nightStep;
+
+  /// Targets picked by each player in the current night step (one for most
+  /// tasks, two for cupid, none to two for the witch).
+  final Map<PlayerId, List<PlayerId>> nightChoices;
+
+  /// Tonight's victim of the werewolves, fixed when their step ends (the
+  /// witch may still save them); `null` if they did not agree.
+  final PlayerId? nightVictim;
+
+  /// The two players cupid linked, or empty.
+  final List<PlayerId> lovers;
+
+  /// The witch's potions already used.
+  final Set<Potion> potionsUsed;
+
+  /// In [Phase.hunterShot]: the dead hunter who takes someone along.
+  final PlayerId? shooter;
+
+  /// In [Phase.hunterShot]: where the game goes after the shot
+  /// ([Phase.day] or [Phase.night]).
+  final Phase? afterShot;
 
   /// Votes in the current vote; `null` is an abstention.
   final Map<PlayerId, PlayerId?> votes;
@@ -203,6 +254,17 @@ class GameState {
   /// Living players in seating order.
   Iterable<Player> get alive => players.where((p) => p.isAlive);
 
+  /// The lover of [id], or `null` if [id] is not in love.
+  PlayerId? loverOf(PlayerId id) => switch (lovers) {
+    [final a, final b] when a == id => b,
+    [final a, final b] when b == id => a,
+    _ => null,
+  };
+
+  /// Whether a witch was dealt in this game (then every night has a
+  /// [NightStep.brew]).
+  bool get hasWitch => players.any((p) => p.role == Role.witch);
+
   /// The player with [id], or `null`.
   Player? player(PlayerId id) {
     for (final p in players) {
@@ -212,12 +274,22 @@ class GameState {
   }
 
   /// Returns a copy with the given fields replaced.
+  ///
+  /// The nullable fields [nightVictim], [shooter] and [afterShot] are
+  /// replaced whenever they are passed, also by `null`.
   GameState copyWith({
     List<Player>? players,
     Phase? phase,
     int? round,
+    GameSettings? settings,
     Set<PlayerId>? confirmed,
-    Map<PlayerId, PlayerId>? nightChoices,
+    NightStep? nightStep,
+    Map<PlayerId, List<PlayerId>>? nightChoices,
+    Object? nightVictim = _keep,
+    List<PlayerId>? lovers,
+    Set<Potion>? potionsUsed,
+    Object? shooter = _keep,
+    Object? afterShot = _keep,
     Map<PlayerId, PlayerId?>? votes,
     Map<PlayerId, List<SeerResult>>? seerResults,
     List<Death>? deaths,
@@ -230,9 +302,19 @@ class GameState {
     players: players ?? this.players,
     phase: phase ?? this.phase,
     round: round ?? this.round,
-    settings: settings,
+    settings: settings ?? this.settings,
     confirmed: confirmed ?? this.confirmed,
+    nightStep: nightStep ?? this.nightStep,
     nightChoices: nightChoices ?? this.nightChoices,
+    nightVictim: identical(nightVictim, _keep)
+        ? this.nightVictim
+        : nightVictim as PlayerId?,
+    lovers: lovers ?? this.lovers,
+    potionsUsed: potionsUsed ?? this.potionsUsed,
+    shooter: identical(shooter, _keep) ? this.shooter : shooter as PlayerId?,
+    afterShot: identical(afterShot, _keep)
+        ? this.afterShot
+        : afterShot as Phase?,
     votes: votes ?? this.votes,
     seerResults: seerResults ?? this.seerResults,
     deaths: deaths ?? this.deaths,
@@ -243,3 +325,6 @@ class GameState {
     winner: winner ?? this.winner,
   );
 }
+
+/// Marks a `copyWith` argument that was not passed.
+const Object _keep = Object();

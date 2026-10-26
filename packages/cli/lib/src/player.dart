@@ -105,12 +105,18 @@ class CliPlayer {
         _say('Your role: ${v.yourRole?.name}. Type "confirm".');
       case Phase.night:
         if (v.yourSeat.isAlive) {
-          final action = switch (v.yourRole?.nightAbility) {
-            NightAbility.hunt => 'whom the pack takes',
-            NightAbility.inspect => 'whose role you see',
-            _ => 'anyone (it has no effect)',
+          final action = switch (v.yourNightTask) {
+            NightAbility.hunt => '"pick <name>" for whom the pack takes',
+            NightAbility.inspect => '"pick <name>" for whose role you see',
+            NightAbility.link => '"pick <name> <name>" for the two lovers',
+            NightAbility.brew =>
+              '"pick" with the victim to heal and/or someone to poison, '
+                  'or just "pick" to do nothing '
+                  '(victim: ${v.victim == null ? 'none' : _nameOf(v.victim!)},'
+                  ' potions: ${v.potions.map((p) => p.name).join(', ')})',
+            _ => '"pick <name>" for anyone (it has no effect)',
           };
-          _say('Night: type "pick <name>" for $action.');
+          _say('Night: type $action.');
         }
       case Phase.day:
         final died = v.deaths.where(
@@ -124,6 +130,12 @@ class CliPlayer {
         if (isOwner) _say('Type "vote" to start the vote.');
       case Phase.vote:
         _say('Type "vote <name>" or "vote none".');
+      case Phase.hunterShot:
+        _say(
+          v.shooter == v.you
+              ? 'You are the hunter: type "shoot <name>" or "shoot none".'
+              : '${_nameOf(v.shooter!)} takes aim…',
+        );
       case Phase.ended:
         _say('Game over: ${v.winner?.name} win.');
     }
@@ -156,8 +168,19 @@ class CliPlayer {
       case 'confirm':
         intent = const ConfirmRoleIntent();
       case 'pick':
-        final id = _find(arg);
-        intent = id == null ? null : NightIntent(id);
+        // One name (which may contain spaces), or several single words.
+        final whole = _find(arg);
+        final ids = whole != null
+            ? [whole]
+            : [for (final name in parts.skip(1)) _find(name)];
+        intent = ids.contains(null)
+            ? null
+            : NightIntent.of([for (final id in ids) ?id]);
+      case 'shoot':
+        final id = arg.toLowerCase() == 'none' ? null : _find(arg);
+        intent = id == null && arg.toLowerCase() != 'none'
+            ? null
+            : ShootIntent(id);
       case 'vote' when arg.isEmpty:
         intent = const EndDiscussionIntent();
       case 'vote':
@@ -177,7 +200,8 @@ class CliPlayer {
         return;
       default:
         _say(
-          'Commands: start, confirm, pick <name>, vote, vote <name|none>, '
+          'Commands: start, confirm, pick <name…>, shoot <name|none>, vote, '
+          'vote <name|none>, '
           'admit <id>, refuse <id>, again, table',
         );
         return;

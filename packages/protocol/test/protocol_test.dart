@@ -15,7 +15,18 @@ void main() {
         const Hello(name: 'Ada', room: '1234', token: token),
         const StartGameIntent(),
         const ConfirmRoleIntent(),
-        const NightIntent(PlayerId('p3')),
+        NightIntent(const PlayerId('p3')),
+        NightIntent.of(const [PlayerId('p3'), PlayerId('p4')]),
+        NightIntent.of(const []),
+        const ShootIntent(PlayerId('p2')),
+        const ShootIntent(null),
+        SettingsIntent(Preset.fullStage.settings),
+        SettingsIntent(
+          Preset.classic.settings.copyWith(
+            werewolves: 2,
+            nightTime: const Duration(seconds: 40),
+          ),
+        ),
         const VoteIntent(PlayerId('p2')),
         const VoteIntent(null),
         const EndDiscussionIntent(),
@@ -37,7 +48,7 @@ void main() {
 
     test('intents carry an optional sequence number', () {
       final numbered = ClientMessage.parseNumbered(
-        const NightIntent(PlayerId('p3')).encode(seq: 7),
+        NightIntent(const PlayerId('p3')).encode(seq: 7),
       );
       expect(numbered.seq, 7);
       expect(numbered.message, isA<NightIntent>());
@@ -46,7 +57,7 @@ void main() {
         isNull,
       );
       expect(
-        () => ClientMessage.parse('{"v":1,"type":"confirm","seq":0}'),
+        () => ClientMessage.parse('{"v":2,"type":"confirm","seq":0}'),
         throwsA(isA<ProtocolError>()),
       );
     });
@@ -57,19 +68,52 @@ void main() {
         'null',
         '[]',
         '{',
-        '{"v":1}',
-        '{"v":2,"type":"start"}',
-        '{"v":1,"type":"dance"}',
+        '{"v":2}',
+        '{"v":3,"type":"start"}',
+        '{"v":2,"type":"dance"}',
         '{"v":"1","type":"start"}',
-        '{"v":1,"type":"night"}',
-        '{"v":1,"type":"night","target":5}',
-        '{"v":1,"type":"night","target":"P3"}',
-        '{"v":1,"type":"night","target":"../etc"}',
-        '{"v":1,"type":"hello","name":"Ada","room":"12a4"}',
-        '{"v":1,"type":"hello","name":"Ada","room":"12345"}',
-        '{"v":1,"type":"hello","name":"Ada","room":"1234","token":"short"}',
-        '{"v":1,"type":"hello","name":"${'x' * 100}","room":"1234"}',
-        jsonEncode({'v': 1, 'type': 'hello', 'name': 'x' * 2000}),
+        '{"v":2,"type":"night"}',
+        '{"v":2,"type":"night","target":"p3"}',
+        '{"v":2,"type":"night","targets":5}',
+        '{"v":2,"type":"night","targets":[5]}',
+        '{"v":2,"type":"night","targets":["P3"]}',
+        '{"v":2,"type":"night","targets":["../etc"]}',
+        '{"v":2,"type":"night","targets":["p1","p2","p3"]}',
+        '{"v":1,"type":"night","targets":["p1"]}',
+        '{"v":2,"type":"shoot","target":"P1"}',
+        '{"v":2,"type":"settings"}',
+        '{"v":2,"type":"settings","settings":{}}',
+        jsonEncode({
+          'v': 2,
+          'type': 'settings',
+          'settings': {
+            ...encodeSettings(const GameSettings()),
+            'roles': ['werewolf'],
+          },
+        }),
+        jsonEncode({
+          'v': 2,
+          'type': 'settings',
+          'settings': {
+            ...encodeSettings(const GameSettings()),
+            'roles': ['seer', 'seer'],
+          },
+        }),
+        jsonEncode({
+          'v': 2,
+          'type': 'settings',
+          'settings': {...encodeSettings(const GameSettings()), 'night': -1},
+        }),
+        jsonEncode({
+          'v': 2,
+          'type': 'settings',
+          'settings': {...encodeSettings(const GameSettings()), 'sheep': 1},
+        }),
+        '{"v":2,"type":"hello","name":"Ada","room":"12a4"}',
+        '{"v":2,"type":"hello","name":"Ada","room":"12345"}',
+        '{"v":2,"type":"hello","name":"Ada","room":"1234","token":"short"}',
+        '{"v":2,"type":"hello","name":"${'x' * 100}","room":"1234"}',
+        jsonEncode({'v': 2, 'type': 'hello', 'name': 'x' * 2000}),
       ];
       for (final raw in bad) {
         expect(
@@ -126,6 +170,57 @@ void main() {
       expect(back.view.yourRole, Role.werewolf);
     });
 
+    test('every view of a game with all roles round-trips', () {
+      final random = Random(9);
+      var state = GameState.lobby(settings: Preset.fullStage.settings);
+      for (var i = 0; i < 8; i++) {
+        state = apply(state, AddPlayer(PlayerId('p$i'), 'Name $i')).state;
+      }
+      state = apply(state, StartGame(random: random)).state;
+      final kinds = <String>{};
+      for (var step = 0; step < 400 && state.phase != Phase.ended; step++) {
+        for (final p in state.players) {
+          final view = viewFor(state, p.id);
+          final message = StateMessage(view: view, isOwner: false);
+          final back = HostMessage.parse(message.encode()) as StateMessage;
+          expect(back.encode(), message.encode());
+          if (view.couple.isNotEmpty) kinds.add('couple');
+          if (view.victim != null) kinds.add('victim');
+          if (view.shooter != null) kinds.add('shooter');
+        }
+        final alive = state.alive.toList();
+        final waiting = alive.where(
+          (p) => !state.nightChoices.containsKey(p.id),
+        );
+        final actor = state.phase == Phase.night
+            ? waiting.first
+            : alive[random.nextInt(alive.length)];
+        final others = alive.where((o) => o.id != actor.id).toList();
+        final other = others[random.nextInt(others.length)].id;
+        try {
+          state = apply(state, switch (state.phase) {
+            Phase.roleReveal => ConfirmRole(actor.id),
+            Phase.night => nightAction(state, actor.id, switch (nightTask(
+              state,
+              actor.id,
+            )!) {
+              NightAbility.link => [actor.id, other],
+              NightAbility.brew => [?state.nightVictim],
+              _ => [other],
+            }),
+            Phase.day => const EndDiscussion(),
+            Phase.vote => CastVote(actor.id, other),
+            Phase.hunterShot => HunterShoot(state.shooter!, other),
+            _ => const PhaseTimeout(),
+          }).state;
+        } on RuleViolation {
+          state = apply(state, const PhaseTimeout()).state;
+        }
+      }
+      expect(state.phase, Phase.ended);
+      expect(kinds, containsAll(['couple', 'victim']));
+    });
+
     test('other host messages round-trip', () {
       for (final m in <HostMessage>[
         const Welcome(token: token, you: PlayerId('p1')),
@@ -148,10 +243,10 @@ void main() {
 
     test('invalid host messages are refused', () {
       for (final raw in [
-        '{"v":1,"type":"welcome","token":"x","you":"p1"}',
-        '{"v":1,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
-        '{"v":1,"type":"bye","reason":"whatever"}',
-        '{"v":1,"type":"state","owner":true}',
+        '{"v":2,"type":"welcome","token":"x","you":"p1"}',
+        '{"v":2,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
+        '{"v":2,"type":"bye","reason":"whatever"}',
+        '{"v":2,"type":"state","owner":true}',
       ]) {
         expect(() => HostMessage.parse(raw), throwsA(isA<ProtocolError>()));
       }

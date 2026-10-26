@@ -1,6 +1,7 @@
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
 import 'package:game_core/src/rules.dart';
+import 'package:game_core/src/settings.dart';
 
 /// A seat at the table as one viewer sees it.
 class SeatView {
@@ -63,9 +64,13 @@ class PlayerView {
     required this.seats,
     required this.deaths,
     required this.waitingFor,
+    this.settings = const GameSettings(),
     this.yourRole,
     this.youConfirmed = false,
-    this.yourNightChoice,
+    this.nightStep = NightStep.hunt,
+    this.yourNightTask,
+    this.yourNightTargets = const [],
+    this.youActed = false,
     this.yourVote,
     this.youVoted = false,
     this.packChoices = const {},
@@ -73,6 +78,10 @@ class PlayerView {
     this.lastNightSheep = const {},
     this.dreams = const {},
     this.yourFlock,
+    this.couple = const [],
+    this.victim,
+    this.potions = const {},
+    this.shooter,
     this.winner,
   });
 
@@ -91,8 +100,12 @@ class PlayerView {
   /// Deaths so far, oldest first.
   final List<DeathView> deaths;
 
-  /// How many living players still have to act in this phase.
+  /// How many living players still have to act in this phase (or night
+  /// step).
   final int waitingFor;
+
+  /// The game's settings (everyone sees them).
+  final GameSettings settings;
 
   /// The viewer's own role, once dealt.
   final Role? yourRole;
@@ -100,8 +113,22 @@ class PlayerView {
   /// Whether the viewer confirmed their role.
   final bool youConfirmed;
 
-  /// Whom the viewer picked tonight.
-  final PlayerId? yourNightChoice;
+  /// The current step of the night.
+  final NightStep nightStep;
+
+  /// At night: what the viewer is asked to do in this step (their own
+  /// ability or a decoy); `null` for the dead and outside the night.
+  final NightAbility? yourNightTask;
+
+  /// Whom the viewer picked in this night step (empty for a witch who
+  /// keeps her potions).
+  final List<PlayerId> yourNightTargets;
+
+  /// Whether the viewer has acted in this night step.
+  final bool youActed;
+
+  /// Whom the viewer picked first in this night step.
+  PlayerId? get yourNightChoice => yourNightTargets.firstOrNull;
 
   /// Whom the viewer voted for (`null` with [youVoted] means abstained).
   final PlayerId? yourVote;
@@ -124,8 +151,26 @@ class PlayerView {
   /// At night: how many sheep run across the viewer's meadow.
   final int? yourFlock;
 
+  /// The two lovers, for the lovers themselves and cupid (and for
+  /// everyone once the game is over); empty otherwise.
+  final List<PlayerId> couple;
+
+  /// For the witch in her night step: tonight's victim of the werewolves
+  /// (`null` if they did not agree).
+  final PlayerId? victim;
+
+  /// For the witch: her potions still unused.
+  final Set<Potion> potions;
+
+  /// In [Phase.hunterShot]: the dead hunter who takes aim (public).
+  final PlayerId? shooter;
+
   /// The winning faction once the game is over.
   final Faction? winner;
+
+  /// The viewer's lover, if they are in love.
+  PlayerId? get partner =>
+      couple.contains(you) ? couple.where((p) => p != you).firstOrNull : null;
 
   /// The viewer's own seat.
   SeatView get yourSeat => seats.firstWhere((s) => s.id == you);
@@ -135,12 +180,17 @@ class PlayerView {
 ///
 /// Never contains other players' roles (except fellow werewolves for a
 /// werewolf, revealed dead players and everyone once the game is over),
-/// other players' night choices, decoys or votes.
+/// other players' night choices, decoys or votes. The lovers are known only
+/// to themselves and cupid, tonight's victim only to the werewolves (by
+/// their picks) and the witch in her step.
 PlayerView viewFor(GameState state, PlayerId viewer) {
   final me = state.player(viewer);
   if (me == null) throw ArgumentError.value(viewer, 'viewer', 'not in game');
   final isWolf = me.role?.faction == Faction.werewolves;
   final over = state.phase == Phase.ended;
+  final isWitch = me.role == Role.witch && me.isAlive;
+  final knowsCouple =
+      over || me.role == Role.cupid || state.lovers.contains(viewer);
 
   Role? known(Player p) {
     if (p.id == viewer || over) return p.role;
@@ -165,24 +215,37 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     ],
     deaths: _deaths(state),
     waitingFor: _waitingFor(state),
+    settings: state.settings,
     yourRole: me.role,
     youConfirmed: state.confirmed.contains(viewer),
-    yourNightChoice: state.nightChoices[viewer],
+    nightStep: state.nightStep,
+    yourNightTask: nightTask(state, viewer),
+    yourNightTargets: state.nightChoices[viewer] ?? const [],
+    youActed: state.nightChoices.containsKey(viewer),
     yourVote: state.votes[viewer],
     youVoted: state.votes.containsKey(viewer),
     packChoices: isWolf && me.isAlive
         ? {
             for (final MapEntry(:key, :value) in state.nightChoices.entries)
-              if (state.player(key)?.role?.faction == Faction.werewolves)
-                key: value,
+              if (nightTask(state, key) == NightAbility.hunt) key: value.first,
           }
         : const {},
     seerResults: state.seerResults[viewer] ?? const [],
     lastNightSheep: state.lastNightSheep,
     dreams: state.dreams,
-    yourFlock: state.phase == Phase.night && me.isAlive
+    yourFlock:
+        state.phase == Phase.night && me.isAlive && state.settings.sheepCounting
         ? flockFor(state, viewer)
         : null,
+    couple: knowsCouple ? state.lovers : const [],
+    victim: isWitch && state.phase == Phase.night ? state.nightVictim : null,
+    potions: isWitch
+        ? {
+            for (final p in Potion.values)
+              if (!state.potionsUsed.contains(p)) p,
+          }
+        : const {},
+    shooter: state.shooter,
     winner: state.winner,
   );
 }
@@ -208,8 +271,12 @@ PlayerView publicView(GameState state) => PlayerView(
   ],
   deaths: _deaths(state),
   waitingFor: _waitingFor(state),
+  settings: state.settings,
+  nightStep: state.nightStep,
   lastNightSheep: state.lastNightSheep,
   dreams: state.dreams,
+  couple: state.phase == Phase.ended ? state.lovers : const [],
+  shooter: state.shooter,
   winner: state.winner,
 );
 
@@ -230,5 +297,6 @@ int _waitingFor(GameState state) => switch (state.phase) {
   Phase.night =>
     state.alive.where((p) => !state.nightChoices.containsKey(p.id)).length,
   Phase.vote => state.alive.where((p) => !state.votes.containsKey(p.id)).length,
-  _ => 0,
+  Phase.hunterShot => 1,
+  Phase.lobby || Phase.day || Phase.ended => 0,
 };

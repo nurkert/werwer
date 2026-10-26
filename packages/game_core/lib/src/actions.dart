@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
+import 'package:game_core/src/settings.dart';
 
 /// Something that changes the game. The host turns player intents and timers
 /// into actions and feeds them to `apply`.
@@ -59,9 +60,19 @@ final class SwapSeats extends GameAction {
   final PlayerId second;
 }
 
+/// The host changes the settings in the lobby.
+final class ChangeSettings extends GameAction {
+  /// Creates the action.
+  const ChangeSettings(this.settings);
+
+  /// The new settings, replacing the old ones as a whole.
+  final GameSettings settings;
+}
+
 /// Deals the roles and starts the game.
 final class StartGame extends GameAction {
-  /// Creates the action. Without [roles], [suggestRoles] is used.
+  /// Creates the action. Without [roles], the settings decide
+  /// ([GameSettings.rolesFor]).
   const StartGame({required this.random, this.roles});
 
   /// Source of randomness for dealing, injected so games are reproducible.
@@ -104,7 +115,52 @@ final class SeerInspect extends GameAction {
   final PlayerId target;
 }
 
-/// Anti-tell: a player without a night ability picks someone, without effect.
+/// Cupid links two players as lovers in the first night (himself included,
+/// if he likes).
+final class CupidLink extends GameAction {
+  /// Creates the action.
+  const CupidLink(this.cupid, this.first, this.second);
+
+  /// Cupid.
+  final PlayerId cupid;
+
+  /// One lover.
+  final PlayerId first;
+
+  /// The other lover.
+  final PlayerId second;
+}
+
+/// The witch decides, after the werewolves, once per night.
+final class WitchBrew extends GameAction {
+  /// Creates the action; without potions she lets the night take its
+  /// course.
+  const WitchBrew(this.witch, {this.heal = false, this.poison});
+
+  /// The witch.
+  final PlayerId witch;
+
+  /// Whether she saves tonight's victim.
+  final bool heal;
+
+  /// Whom she poisons, if anyone.
+  final PlayerId? poison;
+}
+
+/// The dead hunter takes someone along, or [target] `null` to spare
+/// everyone.
+final class HunterShoot extends GameAction {
+  /// Creates the action.
+  const HunterShoot(this.hunter, this.target);
+
+  /// The hunter.
+  final PlayerId hunter;
+
+  /// Whom he takes along.
+  final PlayerId? target;
+}
+
+/// Anti-tell: a player without a night task picks someone, without effect.
 final class NightDecoy extends GameAction {
   /// Creates the action.
   const NightDecoy(this.player, this.target);
@@ -162,14 +218,3 @@ final class PhaseTimeout extends GameAction {
   /// Creates the action.
   const PhaseTimeout();
 }
-
-/// The night action for a player with [role] who picked [target].
-///
-/// Every night screen looks the same and sends the same kind of choice; the
-/// role decides what the choice means.
-GameAction nightAction(Role role, PlayerId actor, PlayerId target) =>
-    switch (role.nightAbility) {
-      NightAbility.hunt => WerewolfVote(actor, target),
-      NightAbility.inspect => SeerInspect(actor, target),
-      NightAbility.decoy => NightDecoy(actor, target),
-    };

@@ -168,7 +168,7 @@ void main() {
       expect(p.view.phase, Phase.night);
       expect(p.view.yourRole, isNotNull);
     }
-    expect(timers.pending.single.$1, const HostConfig().nightTime);
+    expect(timers.pending.single.$1, const GameSettings().nightTime);
   });
 
   test('a whole game over the protocol, and nobody learns too much', () async {
@@ -213,6 +213,75 @@ void main() {
       }
     }
   });
+
+  test('only the owner changes the settings, only in the lobby, and '
+      'everyone sees them', () async {
+    final players = await table(5);
+    players[1].send(SettingsIntent(Preset.classic.settings));
+    await settle();
+    expect(players[1].refused, [Violation.notYourAction]);
+    players.first.send(
+      SettingsIntent(
+        Preset.classic.settings.copyWith(nightTime: const Duration(seconds: 5)),
+      ),
+    );
+    await settle();
+    expect(players.first.refused, [Violation.outOfRange]);
+    players.first.send(SettingsIntent(Preset.classic.settings));
+    await settle();
+    for (final p in players) {
+      expect(p.view.settings.preset, Preset.classic);
+    }
+    await start(players);
+    players.first.send(SettingsIntent(Preset.fullStage.settings));
+    await settle();
+    expect(players.first.refused.last, Violation.wrongPhase);
+    expect(host.state.settings.preset, Preset.classic);
+  });
+
+  test(
+    "the witch's step and the hunter's shot run on their own timers",
+    () async {
+      final players = await table(6);
+      players.first.send(SettingsIntent(Preset.fullStage.settings));
+      await settle();
+      await start(players);
+      Player holder(Role role) =>
+          players.firstWhere((p) => p.view.yourRole == role);
+      final wolf = holder(Role.werewolf);
+      final hunter = holder(Role.hunter);
+      final witch = holder(Role.witch);
+      expect(holder(Role.cupid).view.yourNightTask, NightAbility.link);
+      expect(timers.pending.single.$1, Preset.fullStage.settings.nightTime);
+
+      wolf.send(NightIntent(hunter.id!));
+      await settle();
+      timers.fire(Preset.fullStage.settings.nightTime);
+      await settle();
+      expect(timers.pending.single.$1, brewTime);
+      for (final p in players) {
+        expect(p.view.nightStep, NightStep.brew);
+        expect(p.view.victim, p == witch ? hunter.id : null);
+      }
+      expect(witch.view.yourNightTask, NightAbility.brew);
+      expect(witch.last!.phaseEndsInMs, brewTime.inMilliseconds);
+
+      timers.fire(brewTime);
+      await settle();
+      expect(timers.pending.single.$1, shotTime);
+      for (final p in players) {
+        expect(p.view.phase, Phase.hunterShot);
+        expect(p.view.shooter, hunter.id);
+      }
+      wolf.send(ShootIntent(hunter.id));
+      await settle();
+      expect(wolf.refused, [Violation.notYourAction]);
+      hunter.send(ShootIntent(wolf.id));
+      await settle();
+      expect(players.first.view.phase, Phase.ended);
+      expect(players.first.view.winner, Faction.village);
+    },
+  );
 
   test('a player comes back with the token and keeps the role', () async {
     final players = await table(4);
@@ -355,7 +424,7 @@ void main() {
     await start(players);
     timers
       ..now = 5000
-      ..fire(const HostConfig().nightTime);
+      ..fire(const GameSettings().nightTime);
     await settle();
     expect(players.first.view.phase, Phase.day);
     expect(players.first.last!.phaseEndsInMs, isNotNull);
@@ -365,7 +434,7 @@ void main() {
     final players = await table(3);
     await start(players);
     // End quickly: everyone votes out the wolf after a quiet night.
-    timers.fire(const HostConfig().nightTime);
+    timers.fire(const GameSettings().nightTime);
     await settle();
     players.first.send(const EndDiscussionIntent());
     await settle();
@@ -449,7 +518,12 @@ void main() {
       final players = await table(5);
       final ids = [for (final p in players) p.id!, const PlayerId('p99')];
       PlayerId anyId() => ids[random.nextInt(ids.length)];
-      ClientMessage anyIntent() => switch (random.nextInt(12)) {
+      ClientMessage anyIntent() => switch (random.nextInt(15)) {
+        11 => ShootIntent(random.nextBool() ? null : anyId()),
+        12 => SettingsIntent(
+          Preset.values[random.nextInt(Preset.values.length)].settings,
+        ),
+        13 => NightIntent.of([anyId(), anyId()]),
         0 => const StartGameIntent(),
         1 => const ConfirmRoleIntent(),
         2 => NightIntent(anyId()),
@@ -478,9 +552,11 @@ void main() {
         }
         if (step % 25 == 0) {
           timers
-            ..fire(const HostConfig().nightTime)
-            ..fire(const HostConfig().dayTime)
-            ..fire(const HostConfig().voteTime)
+            ..fire(const GameSettings().nightTime)
+            ..fire(const GameSettings().dayTime)
+            ..fire(const GameSettings().voteTime)
+            ..fire(brewTime)
+            ..fire(shotTime)
             ..now += 2000; // keep the rate limit happy
         }
         await settle();
@@ -523,12 +599,12 @@ void main() {
     }
     await settle();
     expect(bo.acks, [1, 1, 1]);
-    expect(host.state.nightChoices[bo.id], target);
+    expect(host.state.nightChoices[bo.id], [target]);
     // A gap (seq 3 before 2) is not applied; the player resends in order.
-    bo.connection.send(const NightIntent(PlayerId('p1')).encode(seq: 3));
+    bo.connection.send(NightIntent(const PlayerId('p1')).encode(seq: 3));
     await settle();
     expect(bo.acks, [1, 1, 1]);
-    expect(host.state.nightChoices[bo.id], target);
+    expect(host.state.nightChoices[bo.id], [target]);
     // Another session's numbers are its own.
     players[3].connection.send(NightIntent(players[1].id!).encode(seq: 1));
     await settle();

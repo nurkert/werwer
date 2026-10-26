@@ -28,31 +28,122 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
   RemovePlayer() => _removePlayer(state, action),
   ChoosePersona() => _choosePersona(state, action),
   SwapSeats() => _swapSeats(state, action),
+  ChangeSettings() => _changeSettings(state, action),
   StartGame() => _startGame(state, action),
   ConfirmRole() => _confirmRole(state, action),
   WerewolfVote(:final wolf, :final target) => _night(
     state,
     wolf,
-    target,
     NightAbility.hunt,
+    [target],
   ),
   SeerInspect(:final seer, :final target) => _night(
     state,
     seer,
-    target,
     NightAbility.inspect,
+    [target],
   ),
+  CupidLink(:final cupid, :final first, :final second) => _night(
+    state,
+    cupid,
+    NightAbility.link,
+    [first, second],
+  ),
+  WitchBrew() => _brew(state, action),
   NightDecoy(:final player, :final target) => _night(
     state,
     player,
-    target,
     NightAbility.decoy,
+    [target],
   ),
+  HunterShoot() => _shoot(state, action),
   CountSheep() => _countSheep(state, action),
   EndDiscussion() => _endDiscussion(state),
   CastVote() => _castVote(state, action),
   PhaseTimeout() => _timeout(state),
 };
+
+/// How long the witch's step of a night lasts.
+const brewTime = Duration(seconds: 30);
+
+/// How long the dying hunter has to take aim.
+const shotTime = Duration(seconds: 30);
+
+/// How long the current phase (or night step) may take before a
+/// [PhaseTimeout] resolves it; `null` where the rules set no limit (the
+/// host decides how long players may look at their role).
+Duration? timeLimit(GameState state) => switch (state.phase) {
+  Phase.night => switch (state.nightStep) {
+    NightStep.hunt => state.settings.nightTime,
+    NightStep.brew => brewTime,
+  },
+  Phase.day => state.settings.dayTime,
+  Phase.vote => state.settings.voteTime,
+  Phase.hunterShot => shotTime,
+  Phase.lobby || Phase.roleReveal || Phase.ended => null,
+};
+
+/// What [player] is asked to do right now: their own ability when it
+/// applies in this night step, otherwise a decoy. `null` outside the night
+/// and for the dead.
+NightAbility? nightTask(GameState state, PlayerId player) {
+  final p = state.player(player);
+  if (state.phase != Phase.night || p == null || !p.isAlive) return null;
+  final ability = p.role?.nightAbility ?? NightAbility.decoy;
+  final applies = switch (ability) {
+    NightAbility.hunt ||
+    NightAbility.inspect => state.nightStep == NightStep.hunt,
+    NightAbility.link => state.nightStep == NightStep.hunt && state.round == 1,
+    NightAbility.brew => state.nightStep == NightStep.brew,
+    NightAbility.decoy => true,
+  };
+  return applies ? ability : NightAbility.decoy;
+}
+
+/// The action for [actor]'s night pick of [targets].
+///
+/// Every night screen sends the same kind of pick; [nightTask] decides what
+/// it means. Most tasks take one target, cupid two; the witch picks
+/// tonight's victim to heal them and anyone else to poison them, both or
+/// none.
+///
+/// Throws a [RuleViolation] if the pick does not fit the task.
+GameAction nightAction(
+  GameState state,
+  PlayerId actor,
+  List<PlayerId> targets,
+) {
+  _expectPhase(state, Phase.night);
+  _living(state, actor);
+  PlayerId single() =>
+      targets.length == 1 ? targets.single : _refuse(Violation.invalidTarget);
+  return switch (nightTask(state, actor)!) {
+    NightAbility.hunt => WerewolfVote(actor, single()),
+    NightAbility.inspect => SeerInspect(actor, single()),
+    NightAbility.decoy => NightDecoy(actor, single()),
+    NightAbility.link => switch (targets) {
+      [final a, final b] => CupidLink(actor, a, b),
+      _ => _refuse(Violation.invalidTarget),
+    },
+    NightAbility.brew => _brewAction(state, actor, targets),
+  };
+}
+
+/// The witch's pick: tonight's victim means the healing potion, anyone else
+/// the poison.
+WitchBrew _brewAction(GameState state, PlayerId witch, List<PlayerId> picks) {
+  final victim = state.nightVictim;
+  final others = [
+    for (final t in picks)
+      if (t != victim) t,
+  ];
+  if (picks.length > 2 || others.length > 1) _refuse(Violation.invalidTarget);
+  return WitchBrew(
+    witch,
+    heal: victim != null && picks.contains(victim),
+    poison: others.firstOrNull,
+  );
+}
 
 Never _refuse(Violation reason) => throw RuleViolation(reason);
 
@@ -109,6 +200,7 @@ Persona _persona(GameState state, PlayerId player, Persona? wish) {
 GameUpdate _choosePersona(GameState state, ChoosePersona action) {
   _expectPhase(state, Phase.lobby);
   if (state.player(action.player) == null) _refuse(Violation.unknownPlayer);
+  if (!state.settings.personaChoice) _refuse(Violation.disabled);
   final persona = _persona(state, action.player, action.persona);
   return GameUpdate(
     state.copyWith(
@@ -152,15 +244,27 @@ GameUpdate _removePlayer(GameState state, RemovePlayer action) {
   );
 }
 
+GameUpdate _changeSettings(GameState state, ChangeSettings action) {
+  _expectPhase(state, Phase.lobby);
+  action.settings.validate();
+  return GameUpdate(state.copyWith(settings: action.settings));
+}
+
 GameUpdate _startGame(GameState state, StartGame action) {
   _expectPhase(state, Phase.lobby);
   final count = state.players.length;
   if (count < minPlayers || count > maxPlayers) {
     _refuse(Violation.playerCount);
   }
-  final roles = [...(action.roles ?? suggestRoles(count))];
+  final roles = [
+    ...?(action.roles ?? state.settings.rolesFor(count)),
+  ];
   final wolves = roles.where((r) => r.faction == Faction.werewolves).length;
-  if (roles.length != count || wolves == 0 || wolves >= count - wolves) {
+  final twice = specialRoles.any((s) => roles.where((r) => r == s).length > 1);
+  if (roles.length != count ||
+      wolves == 0 ||
+      wolves >= count - wolves ||
+      twice) {
     _refuse(Violation.invalidRoles);
   }
   roles.shuffle(action.random);
@@ -194,29 +298,44 @@ GameUpdate _beginFirstNight(GameState state) => GameUpdate(
   const [NightFell(1)],
 );
 
+/// Checks and records a night pick; the step ends once every living
+/// player has picked.
 GameUpdate _night(
   GameState state,
   PlayerId actorId,
-  PlayerId targetId,
   NightAbility ability,
+  List<PlayerId> targetIds,
 ) {
   _expectPhase(state, Phase.night);
   final actor = _living(state, actorId);
-  if (actor.role?.nightAbility != ability) _refuse(Violation.notYourAction);
-  final target = state.player(targetId) ?? _refuse(Violation.unknownPlayer);
-  if (!target.isAlive || target.id == actor.id) {
-    _refuse(Violation.invalidTarget);
+  if (nightTask(state, actor.id) != ability) _refuse(Violation.notYourAction);
+  final targets = [
+    for (final id in targetIds)
+      state.player(id) ?? _refuse(Violation.unknownPlayer),
+  ];
+  if (targets.any((t) => !t.isAlive)) _refuse(Violation.invalidTarget);
+  final once = switch (ability) {
+    NightAbility.inspect || NightAbility.link || NightAbility.brew => true,
+    NightAbility.hunt || NightAbility.decoy => false,
+  };
+  if (once && state.nightChoices.containsKey(actor.id)) {
+    _refuse(Violation.alreadyActed);
   }
-  if (ability == NightAbility.hunt &&
-      target.role?.faction == Faction.werewolves) {
-    _refuse(Violation.invalidTarget);
-  }
+  final valid = switch (ability) {
+    // Cupid may link himself; the two must differ.
+    NightAbility.link => targets[0].id != targets[1].id,
+    NightAbility.hunt =>
+      targets.single.id != actor.id &&
+          targets.single.role?.faction != Faction.werewolves,
+    NightAbility.inspect || NightAbility.decoy => targets.single.id != actor.id,
+    // Checked by _brew.
+    NightAbility.brew => true,
+  };
+  if (!valid) _refuse(Violation.invalidTarget);
   final events = <GameEvent>[];
   var next = state;
   if (ability == NightAbility.inspect) {
-    if (state.nightChoices.containsKey(actor.id)) {
-      _refuse(Violation.alreadyActed);
-    }
+    final target = targets.single;
     final role = target.role!;
     final result = SeerResult(
       target: target.id,
@@ -233,13 +352,83 @@ GameUpdate _night(
     );
   }
   next = next.copyWith(
-    nightChoices: {...state.nightChoices, actor.id: target.id},
+    nightChoices: {...state.nightChoices, actor.id: targetIds},
   );
   if (next.alive.every((p) => next.nightChoices.containsKey(p.id))) {
+    final ended = _endStep(next);
+    return GameUpdate(ended.state, [...events, ...ended.events]);
+  }
+  return GameUpdate(next, events);
+}
+
+GameUpdate _brew(GameState state, WitchBrew action) {
+  _expectPhase(state, Phase.night);
+  final witch = _living(state, action.witch);
+  if (nightTask(state, witch.id) != NightAbility.brew) {
+    _refuse(Violation.notYourAction);
+  }
+  final victim = state.nightVictim;
+  if (action.heal) {
+    if (victim == null) _refuse(Violation.invalidTarget);
+    if (state.potionsUsed.contains(Potion.heal)) {
+      _refuse(Violation.alreadyActed);
+    }
+  }
+  final poison = action.poison;
+  if (poison != null) {
+    if (state.potionsUsed.contains(Potion.poison)) {
+      _refuse(Violation.alreadyActed);
+    }
+    // Poisoning tonight's victim would change nothing: a pick of the
+    // victim always means the healing potion.
+    if (poison == witch.id || poison == victim) {
+      _refuse(Violation.invalidTarget);
+    }
+  }
+  return _night(state, witch.id, NightAbility.brew, [
+    if (action.heal) victim!,
+    ?poison,
+  ]);
+}
+
+/// Ends the current night step: after the werewolves the witch decides (in
+/// games with a witch), after her the night is resolved.
+GameUpdate _endStep(GameState state) => switch (state.nightStep) {
+  NightStep.hunt => _endHunt(state),
+  NightStep.brew => _resolveNight(state),
+};
+
+/// The picks of the living players whose task tonight is [ability].
+Iterable<List<PlayerId>> _picks(GameState state, NightAbility ability) => [
+  for (final MapEntry(:key, :value) in state.nightChoices.entries)
+    if (nightTask(state, key) == ability) value,
+];
+
+GameUpdate _endHunt(GameState state) {
+  final victim = _majority(
+    _picks(state, NightAbility.hunt).map((t) => t.first),
+  );
+  final events = <GameEvent>[];
+  var lovers = state.lovers;
+  for (final MapEntry(:key, :value) in state.nightChoices.entries) {
+    if (nightTask(state, key) == NightAbility.link) {
+      lovers = value;
+      events.add(LoversLinked(key, value[0], value[1]));
+    }
+  }
+  final next = state.copyWith(
+    nightVictim: victim,
+    lovers: lovers,
+    nightChoices: const {},
+  );
+  if (!state.hasWitch) {
     final resolved = _resolveNight(next);
     return GameUpdate(resolved.state, [...events, ...resolved.events]);
   }
-  return GameUpdate(next, events);
+  return GameUpdate(next.copyWith(nightStep: NightStep.brew), [
+    ...events,
+    const BrewStepBegan(),
+  ]);
 }
 
 /// The player with the most votes, or `null` for a tie or no votes.
@@ -277,6 +466,7 @@ int flockFor(GameState state, PlayerId player) {
 GameUpdate _countSheep(GameState state, CountSheep action) {
   _expectPhase(state, Phase.night);
   _living(state, action.player);
+  if (!state.settings.sheepCounting) _refuse(Violation.disabled);
   if (action.sheep.abs() > maxSheepPerNight ||
       action.sheep > flockFor(state, action.player)) {
     _refuse(Violation.outOfRange);
@@ -286,15 +476,27 @@ GameUpdate _countSheep(GameState state, CountSheep action) {
   );
 }
 
+/// Morning: the werewolves' victim dies unless the witch saved them, her
+/// poison kills, and the sheep counts become public.
 GameUpdate _resolveNight(GameState state) {
-  final wolfVotes = [
-    for (final MapEntry(:key, :value) in state.nightChoices.entries)
-      if (state.player(key)?.role?.nightAbility == NightAbility.hunt) value,
-  ];
-  final victim = _majority(wolfVotes);
-  final counted = {for (final p in state.alive) p.id: state.sheep[p.id] ?? 0};
+  final victim = state.nightVictim;
+  final brew = state.nightStep == NightStep.brew
+      ? _picks(state, NightAbility.brew).firstOrNull ?? const <PlayerId>[]
+      : const <PlayerId>[];
+  final healed = victim != null && brew.contains(victim);
+  final poisoned = brew.where((t) => t != victim).firstOrNull;
+  final counted = state.settings.sheepCounting
+      ? {for (final p in state.alive) p.id: state.sheep[p.id] ?? 0}
+      : const <PlayerId, int>{};
   final cleared = state.copyWith(
+    nightStep: NightStep.hunt,
     nightChoices: const {},
+    nightVictim: null,
+    potionsUsed: {
+      ...state.potionsUsed,
+      if (healed) Potion.heal,
+      if (poisoned != null) Potion.poison,
+    },
     sheep: const {},
     lastNightSheep: counted,
     dreams: {
@@ -303,60 +505,126 @@ GameUpdate _resolveNight(GameState state) {
         key: (state.dreams[key] ?? 0) + value,
     },
   );
-  if (victim == null) {
+  final deaths = [
+    if (victim != null && !healed) (victim, DeathCause.night),
+    if (poisoned != null) (poisoned, DeathCause.night),
+  ];
+  if (deaths.isEmpty) {
     return GameUpdate(cleared.copyWith(phase: Phase.day), [
       const NobodyDied(),
       DayBroke(state.round),
     ]);
   }
-  return _kill(cleared, victim, DeathCause.night, Phase.day);
+  return _die(cleared, deaths, then: Phase.day);
 }
 
-GameUpdate _kill(
+/// Kills [deaths] and everyone they take along: a lover dies of grief, a
+/// dying hunter gets his shot ([Phase.hunterShot]) before the game goes on
+/// to [then] or ends.
+GameUpdate _die(
   GameState state,
-  PlayerId victimId,
-  DeathCause cause,
-  Phase nextPhase,
-) {
-  final victim = state.player(victimId)!;
-  final shownRole = state.settings.revealRoleOnDeath ? victim.role : null;
-  final after = state.copyWith(
-    players: [
-      for (final p in state.players)
-        p.id == victimId ? p.copyWith(isAlive: false) : p,
-    ],
-    deaths: [
-      ...state.deaths,
-      Death(player: victimId, round: state.round, cause: cause),
-    ],
-  );
-  final events = <GameEvent>[
-    if (cause == DeathCause.night)
-      PlayerKilled(victimId, shownRole)
-    else
-      PlayerEliminated(victimId, shownRole),
-  ];
-  final winner = _winner(after);
+  List<(PlayerId, DeathCause)> deaths, {
+  required Phase then,
+}) {
+  var next = state;
+  final events = <GameEvent>[];
+  final queue = [...deaths];
+  PlayerId? shooter;
+  while (queue.isNotEmpty) {
+    final (id, cause) = queue.removeAt(0);
+    final dead = next.player(id)!;
+    if (!dead.isAlive) continue;
+    next = next.copyWith(
+      players: [
+        for (final p in next.players)
+          p.id == id ? p.copyWith(isAlive: false) : p,
+      ],
+      deaths: [
+        ...next.deaths,
+        Death(player: id, round: next.round, cause: cause),
+      ],
+    );
+    final shown = next.settings.revealRoleOnDeath ? dead.role : null;
+    events.add(switch (cause) {
+      DeathCause.night => PlayerKilled(id, shown),
+      DeathCause.vote => PlayerEliminated(id, shown),
+      DeathCause.heartbreak => LoverDied(id, shown),
+      DeathCause.shot => PlayerShot(id, shown),
+    });
+    final lover = next.loverOf(id);
+    if (lover != null) queue.add((lover, DeathCause.heartbreak));
+    if (dead.role == Role.hunter) shooter = id;
+  }
+  if (shooter != null && next.alive.isNotEmpty) {
+    return GameUpdate(
+      next.copyWith(
+        phase: Phase.hunterShot,
+        shooter: shooter,
+        afterShot: then,
+      ),
+      [...events, HunterAims(shooter)],
+    );
+  }
+  return _goOn(next, then, events);
+}
+
+/// Ends the game if a side has won, else moves on to [then].
+GameUpdate _goOn(GameState state, Phase then, List<GameEvent> events) {
+  final winner = _winner(state);
   if (winner != null) {
-    return GameUpdate(after.copyWith(phase: Phase.ended, winner: winner), [
+    return GameUpdate(state.copyWith(phase: Phase.ended, winner: winner), [
       ...events,
       GameEnded(winner),
     ]);
   }
-  final round = nextPhase == Phase.night ? after.round + 1 : after.round;
-  return GameUpdate(after.copyWith(phase: nextPhase, round: round), [
+  final round = then == Phase.night ? state.round + 1 : state.round;
+  return GameUpdate(state.copyWith(phase: then, round: round), [
     ...events,
-    if (nextPhase == Phase.night) NightFell(round) else DayBroke(round),
+    if (then == Phase.night) NightFell(round) else DayBroke(round),
   ]);
 }
 
+GameUpdate _shoot(GameState state, HunterShoot action) {
+  _expectPhase(state, Phase.hunterShot);
+  if (action.hunter != state.shooter) _refuse(Violation.notYourAction);
+  final targetId = action.target;
+  if (targetId != null) {
+    final target = state.player(targetId) ?? _refuse(Violation.unknownPlayer);
+    if (!target.isAlive) _refuse(Violation.invalidTarget);
+  }
+  final then = state.afterShot ?? Phase.day;
+  final cleared = state.copyWith(shooter: null, afterShot: null);
+  if (targetId == null) {
+    return _goOn(cleared, then, [HunterSpared(action.hunter)]);
+  }
+  return _die(cleared, [(targetId, DeathCause.shot)], then: then);
+}
+
+/// A couple cupid linked across the sides, while both live.
+Set<PlayerId>? _mixedCouple(GameState state) {
+  if (state.lovers case [final a, final b]) {
+    final first = state.player(a)!;
+    final second = state.player(b)!;
+    if (first.isAlive &&
+        second.isAlive &&
+        first.role?.faction != second.role?.faction) {
+      return {a, b};
+    }
+  }
+  return null;
+}
+
 Faction? _winner(GameState state) {
-  final wolves = state.alive
-      .where((p) => p.role?.faction == Faction.werewolves)
+  final alive = state.alive.toList();
+  final couple = _mixedCouple(state);
+  if (couple != null && alive.length == 2) return Faction.lovers;
+  bool isWolf(Player p) => p.role?.faction == Faction.werewolves;
+  if (!alive.any(isWolf)) return Faction.village;
+  // A werewolf in a mixed couple no longer plays for the pack.
+  final wolves = alive
+      .where((p) => isWolf(p) && !(couple?.contains(p.id) ?? false))
       .length;
-  final others = state.alive.length - wolves;
-  if (wolves == 0) return Faction.village;
-  if (wolves >= others) return Faction.werewolves;
+  if (wolves > 0 && wolves >= alive.length - wolves) return Faction.werewolves;
   return null;
 }
 
@@ -395,13 +663,14 @@ GameUpdate _resolveVote(GameState state) {
       NightFell(round),
     ]);
   }
-  return _kill(cleared, out, DeathCause.vote, Phase.night);
+  return _die(cleared, [(out, DeathCause.vote)], then: Phase.night);
 }
 
 GameUpdate _timeout(GameState state) => switch (state.phase) {
   Phase.roleReveal => _beginFirstNight(state),
-  Phase.night => _resolveNight(state),
+  Phase.night => _endStep(state),
   Phase.day => _endDiscussion(state),
   Phase.vote => _resolveVote(state),
+  Phase.hunterShot => _shoot(state, HunterShoot(state.shooter!, null)),
   _ => _refuse(Violation.wrongPhase),
 };

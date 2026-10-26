@@ -9,6 +9,7 @@ import 'package:test/test.dart';
 
 const room = '4711';
 const config = HostConfig();
+const settings = GameSettings();
 
 /// A player's app as seen through the protocol.
 class Player {
@@ -117,12 +118,9 @@ String viewJson(PlayerView view) => jsonEncode(encodeView(view));
 
 String stateJson(GameState state) => jsonEncode(encodeState(state));
 
-Duration? phaseTime(Phase phase) => switch (phase) {
-  Phase.night => config.nightTime,
-  Phase.day => config.dayTime,
-  Phase.vote => config.voteTime,
-  _ => null,
-};
+/// The running phase timer's full length, or `null` if none runs (the
+/// reveal timer is left alone here).
+Duration? phaseTime(GameState state) => timeLimit(state);
 
 /// Phase changes the rules allow (besides staying put).
 const Set<(Phase, Phase)> legalSteps = {
@@ -133,8 +131,32 @@ const Set<(Phase, Phase)> legalSteps = {
   (Phase.day, Phase.vote),
   (Phase.vote, Phase.night),
   (Phase.vote, Phase.ended),
+  (Phase.night, Phase.hunterShot),
+  (Phase.vote, Phase.hunterShot),
+  (Phase.hunterShot, Phase.day),
+  (Phase.hunterShot, Phase.night),
+  (Phase.hunterShot, Phase.ended),
   (Phase.ended, Phase.lobby), // rematch
 };
+
+/// The lovers, tonight's victim and the potions only reach whom they
+/// concern (until the game is over).
+void expectOwnSecretsOnly(PlayerView view, String reason) {
+  if (view.phase == Phase.ended) return;
+  if (view.couple.isNotEmpty) {
+    expect(
+      view.yourRole == Role.cupid || view.couple.contains(view.you),
+      isTrue,
+      reason: '$reason sees the lovers',
+    );
+  }
+  if (view.victim != null || view.potions.isNotEmpty) {
+    expect(view.yourRole, Role.witch, reason: '$reason sees the victim');
+  }
+  if (view.packChoices.isNotEmpty) {
+    expect(view.yourRole, Role.werewolf, reason: '$reason sees the pack');
+  }
+}
 
 /// One room under test: the host can crash and be restored, players can
 /// drop and come back with their token.
@@ -294,7 +316,7 @@ void main() {
 
     timers
       ..now = 30000
-      ..fire(config.nightTime);
+      ..fire(settings.nightTime);
     await settle();
     expect(r.host.state.phase, anyOf(Phase.day, Phase.ended));
     final dayStartedAt = timers.now;
@@ -308,7 +330,7 @@ void main() {
     if (r.host.state.phase == Phase.day) {
       expect(
         back.last!.phaseEndsInMs,
-        config.dayTime.inMilliseconds - (timers.now - dayStartedAt),
+        settings.dayTime.inMilliseconds - (timers.now - dayStartedAt),
       );
     }
     r.expectViewsCurrent('after the night timer');
@@ -342,7 +364,7 @@ void main() {
       await settle();
       expect(r.host.state.phase, Phase.night);
       expect(back.view.phase, Phase.night);
-      expect(back.last!.phaseEndsInMs, config.nightTime.inMilliseconds);
+      expect(back.last!.phaseEndsInMs, settings.nightTime.inMilliseconds);
       r.expectViewsCurrent('after the simultaneous rejoin');
     });
   }
@@ -380,8 +402,11 @@ void main() {
         expect(r.online[s]!.view.yourVote, r.ids[out], reason: 'seat $s');
       }
       // The vote timer starts again from the beginning.
-      expect(timers.has(config.voteTime), isTrue);
-      expect(r.online[0]!.last!.phaseEndsInMs, config.voteTime.inMilliseconds);
+      expect(timers.has(settings.voteTime), isTrue);
+      expect(
+        r.online[0]!.last!.phaseEndsInMs,
+        settings.voteTime.inMilliseconds,
+      );
       r.expectViewsCurrent('after restoring the vote');
 
       for (final s in voters.skip(2)) {
@@ -410,7 +435,7 @@ void main() {
 
     await r.crashAndRestore();
     expect(r.host.state.phase, Phase.night);
-    expect(timers.has(config.nightTime), isTrue);
+    expect(timers.has(settings.nightTime), isTrue);
     expect(r.online[wolf]!.view.yourNightChoice, r.ids[victim]);
     expect(r.online[seer]!.view.seerResults, hasLength(1));
     expect(r.online[seer]!.view.seerResults.single.target, r.ids[wolf]);
@@ -489,7 +514,7 @@ Future<void> _simulate(int seed) async {
   final random = Random(seed);
   final timers = FakeTimers();
   final r = Room(timers);
-  final count = 4 + random.nextInt(4);
+  final count = 5 + random.nextInt(4);
   await r.seat(count);
   var games = 0;
   var phase = r.host.state.phase;
@@ -499,25 +524,49 @@ Future<void> _simulate(int seed) async {
   ClientMessage? intentFor(int seat) {
     final me = r.ids[seat]!;
     final state = r.host.state;
-    final self = state.player(me);
     final others = [
       for (final p in state.alive)
         if (p.id != me) p,
     ];
     switch (state.phase) {
       case Phase.lobby:
-        return seat == 0 && random.nextInt(3) == 0
-            ? const StartGameIntent()
-            : null;
+        if (seat != 0) return null;
+        return switch (random.nextInt(6)) {
+          0 || 1 => const StartGameIntent(),
+          2 => SettingsIntent(pick(Preset.values).settings),
+          _ => null,
+        };
       case Phase.roleReveal:
         return const ConfirmRoleIntent();
       case Phase.night:
         if (random.nextInt(4) == 0) return SheepIntent(random.nextInt(31));
-        final targets = self?.role == Role.werewolf
-            ? others.where((p) => p.role?.faction != Faction.werewolves)
-            : others;
-        if (targets.isEmpty) return null;
-        return NightIntent(pick(targets.toList()).id);
+        if (others.isEmpty) return null;
+        final victim = state.nightVictim;
+        final poisonable = [
+          for (final p in others)
+            if (p.id != victim) p.id,
+        ];
+        return switch (nightTask(state, me)) {
+          null => null,
+          NightAbility.hunt => NightIntent(
+            pick([
+              for (final p in others)
+                if (p.role?.faction != Faction.werewolves) p,
+            ]).id,
+          ),
+          NightAbility.link => NightIntent.of([me, pick(others).id]),
+          NightAbility.brew => NightIntent.of([
+            if (victim != null && random.nextBool()) victim,
+            if (poisonable.isNotEmpty && random.nextInt(3) == 0)
+              pick(poisonable),
+          ]),
+          NightAbility.inspect || NightAbility.decoy => NightIntent(
+            pick(others).id,
+          ),
+        };
+      case Phase.hunterShot:
+        if (state.shooter != me || others.isEmpty) return null;
+        return ShootIntent(random.nextInt(4) == 0 ? null : pick(others).id);
       case Phase.day:
         return seat == 0 && random.nextInt(4) == 0
             ? const EndDiscussionIntent()
@@ -552,7 +601,7 @@ Future<void> _simulate(int seed) async {
       case 'rejoin':
         r.rejoinNow(pick(offline));
       case 'timer':
-        final time = phaseTime(r.host.state.phase);
+        final time = phaseTime(r.host.state);
         if (time != null) timers.fire(time);
       case 'crash':
         await r.crashAndRestore();
@@ -585,7 +634,7 @@ Future<void> _simulate(int seed) async {
     }
 
     // A running phase always has its timer.
-    final time = phaseTime(now);
+    final time = phaseTime(r.host.state);
     if (time != null) {
       expect(timers.has(time), isTrue, reason: '$where: no $now timer');
     }
@@ -615,6 +664,7 @@ Future<void> _simulate(int seed) async {
           reason: '$where: ${r.ids[seat]} sees ${seatView.id}',
         );
       }
+      expectOwnSecretsOnly(view, '$where: ${r.ids[seat]}');
     }
   }
   printOnFailure('seed $seed: $games games ended');
