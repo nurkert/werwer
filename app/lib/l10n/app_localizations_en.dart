@@ -955,4 +955,72 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsNightTogetherHint =>
       'Whowolf\'s night: phones stay in hand, and the tapping gives nobody away.';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get privacyNoticeTitle => 'A word on privacy';
+
+  @override
+  String get privacyNotice =>
+      'Whowolf has no accounts, no ads and no tracking. At the table, game data travels end-to-end encrypted between your devices only. So that players without a shared Wi-Fi can join, the host\'s device connects to the server play.whowolf.de; it only forwards encrypted data and, like any server, sees the IP addresses. You can switch it off in the settings.';
+
+  @override
+  String get privacyRead => 'Read the privacy notice';
+
+  @override
+  String get privacyOk => 'Got it';
+
+  @override
+  String get relayOff => 'No online server (Wi-Fi only)';
+
+  @override
+  String get relayOffHint =>
+      'Then only devices in the same Wi-Fi can play, and nothing goes to a server.';
+
+  @override
+  String get relayCustomHint =>
+      'With your own server, its operator is responsible for it and sees the IP addresses of the connected devices.';
+
+  @override
+  String get privacyTitle => 'Privacy in the app';
+
+  @override
+  String get privacyUpdated => 'Last updated: 26 October 2026';
+
+  @override
+  String get privacySummaryTitle => 'In short';
+
+  @override
+  String get privacySummary =>
+      'No accounts, no ads, no tracking, no analytics. The app keeps nothing about you on a server.';
+
+  @override
+  String get privacyTableTitle => 'At the table';
+
+  @override
+  String get privacyTable =>
+      'Game data travels only between the devices at the table, end-to-end encrypted. So that others find the room, the host\'s device announces it in the local network (room code, the host\'s name, a mark of its key); only devices in the same Wi-Fi see it.';
+
+  @override
+  String get privacyServerTitle => 'The online server';
+
+  @override
+  String get privacyServer =>
+      'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, run by the project owner (see the imprint on whowolf.de). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is our legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.';
+
+  @override
+  String get privacyDeviceTitle => 'On your device';
+
+  @override
+  String get privacyDevice =>
+      'Your name and a session key for rejoining are kept in your device\'s protected storage (12 hours at most). The host\'s device keeps the game state until the room closes. None of it leaves your device except encrypted, for the game.';
+
+  @override
+  String get privacyRightsTitle => 'Your rights';
+
+  @override
+  String get privacyRights =>
+      'You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de.';
 }

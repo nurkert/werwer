@@ -1693,6 +1693,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whowolf\'s night: phones stay in hand, and the tapping gives nobody away.'**
   String get settingsNightTogetherHint;
+
+  /// No description provided for @privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacy;
+
+  /// No description provided for @privacyNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A word on privacy'**
+  String get privacyNoticeTitle;
+
+  /// No description provided for @privacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Whowolf has no accounts, no ads and no tracking. At the table, game data travels end-to-end encrypted between your devices only. So that players without a shared Wi-Fi can join, the host\'s device connects to the server play.whowolf.de; it only forwards encrypted data and, like any server, sees the IP addresses. You can switch it off in the settings.'**
+  String get privacyNotice;
+
+  /// No description provided for @privacyRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy notice'**
+  String get privacyRead;
+
+  /// No description provided for @privacyOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get privacyOk;
+
+  /// No description provided for @relayOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No online server (Wi-Fi only)'**
+  String get relayOff;
+
+  /// No description provided for @relayOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Then only devices in the same Wi-Fi can play, and nothing goes to a server.'**
+  String get relayOffHint;
+
+  /// No description provided for @relayCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'With your own server, its operator is responsible for it and sees the IP addresses of the connected devices.'**
+  String get relayCustomHint;
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy in the app'**
+  String get privacyTitle;
+
+  /// No description provided for @privacyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: 26 October 2026'**
+  String get privacyUpdated;
+
+  /// No description provided for @privacySummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In short'**
+  String get privacySummaryTitle;
+
+  /// No description provided for @privacySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts, no ads, no tracking, no analytics. The app keeps nothing about you on a server.'**
+  String get privacySummary;
+
+  /// No description provided for @privacyTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'At the table'**
+  String get privacyTableTitle;
+
+  /// No description provided for @privacyTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Game data travels only between the devices at the table, end-to-end encrypted. So that others find the room, the host\'s device announces it in the local network (room code, the host\'s name, a mark of its key); only devices in the same Wi-Fi see it.'**
+  String get privacyTable;
+
+  /// No description provided for @privacyServerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The online server'**
+  String get privacyServerTitle;
+
+  /// No description provided for @privacyServer.
+  ///
+  /// In en, this message translates to:
+  /// **'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, run by the project owner (see the imprint on whowolf.de). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is our legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.'**
+  String get privacyServer;
+
+  /// No description provided for @privacyDeviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On your device'**
+  String get privacyDeviceTitle;
+
+  /// No description provided for @privacyDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name and a session key for rejoining are kept in your device\'s protected storage (12 hours at most). The host\'s device keeps the game state until the room closes. None of it leaves your device except encrypted, for the game.'**
+  String get privacyDevice;
+
+  /// No description provided for @privacyRightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get privacyRightsTitle;
+
+  /// No description provided for @privacyRights.
+  ///
+  /// In en, this message translates to:
+  /// **'You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de.'**
+  String get privacyRights;
 }
 
 class _AppLocalizationsDelegate

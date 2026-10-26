@@ -967,4 +967,72 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get settingsNightTogetherHint =>
       'Whowolf-Nacht: Alle haben ihr Handy in der Hand, und das Tippen verrät niemanden.';
+
+  @override
+  String get privacy => 'Datenschutz';
+
+  @override
+  String get privacyNoticeTitle => 'Kurz zum Datenschutz';
+
+  @override
+  String get privacyNotice =>
+      'Whowolf hat keine Konten, keine Werbung und kein Tracking. Am Tisch gehen die Spieldaten Ende-zu-Ende verschlüsselt nur zwischen euren Geräten hin und her. Damit auch Spieler ohne gemeinsames WLAN mitmachen können, verbindet sich das Gastgeber-Gerät mit dem Server play.whowolf.de; der leitet nur Verschlüsseltes weiter und sieht dabei, wie jeder Server, die IP-Adressen. In den Einstellungen kannst du ihn abschalten.';
+
+  @override
+  String get privacyRead => 'Datenschutz lesen';
+
+  @override
+  String get privacyOk => 'Verstanden';
+
+  @override
+  String get relayOff => 'Kein Online-Server (nur WLAN)';
+
+  @override
+  String get relayOffHint =>
+      'Dann können nur Geräte im selben WLAN mitspielen, und nichts geht an einen Server.';
+
+  @override
+  String get relayCustomHint =>
+      'Bei einem eigenen Server ist dessen Betreiber für ihn verantwortlich und sieht die IP-Adressen der verbundenen Geräte.';
+
+  @override
+  String get privacyTitle => 'Datenschutz in der App';
+
+  @override
+  String get privacyUpdated => 'Stand: 26. Oktober 2026';
+
+  @override
+  String get privacySummaryTitle => 'Das Wichtigste';
+
+  @override
+  String get privacySummary =>
+      'Keine Konten, keine Werbung, kein Tracking, keine Analyse. Die App speichert nichts über dich auf einem Server.';
+
+  @override
+  String get privacyTableTitle => 'Am Tisch';
+
+  @override
+  String get privacyTable =>
+      'Spieldaten gehen nur zwischen den Geräten am Tisch hin und her, Ende-zu-Ende verschlüsselt. Damit andere den Raum finden, kündigt das Gastgeber-Gerät ihn im lokalen Netz an (Raumcode, Name des Gastgebers, ein Kennzeichen seines Schlüssels); das sehen nur Geräte im selben WLAN.';
+
+  @override
+  String get privacyServerTitle => 'Der Online-Server';
+
+  @override
+  String get privacyServer =>
+      'Damit Spieler ohne gemeinsames WLAN mitspielen können, verbindet sich das Gastgeber-Gerät mit play.whowolf.de, betrieben vom Projektverantwortlichen (siehe Impressum auf whowolf.de). Der Server leitet nur Ende-zu-Ende verschlüsselte Daten weiter und kann weder Namen noch Rollen noch Spielzüge lesen. Er verarbeitet dabei zwangsläufig die IP-Adressen der verbundenen Geräte, nur im Arbeitsspeicher und nur solange die Verbindung besteht, um Nachrichten weiterzuleiten und Missbrauch zu begrenzen; gespeichert oder protokolliert werden sie nicht. Rechtsgrundlage ist unser berechtigtes Interesse, das gewünschte Spiel bereitzustellen und den Server zu schützen (Art. 6 Abs. 1 lit. f DSGVO). In den Einstellungen kannst du den Server abschalten oder einen eigenen eintragen; dann ist dessen Betreiber verantwortlich.';
+
+  @override
+  String get privacyDeviceTitle => 'Auf deinem Gerät';
+
+  @override
+  String get privacyDevice =>
+      'Dein Name und ein Sitzungsschlüssel für den Wiedereinstieg liegen im geschützten Speicher deines Geräts (höchstens 12 Stunden). Das Gastgeber-Gerät hält den Spielstand, bis der Raum geschlossen wird. Davon verlässt nichts dein Gerät, außer verschlüsselt zum Spiel.';
+
+  @override
+  String get privacyRightsTitle => 'Deine Rechte';
+
+  @override
+  String get privacyRights =>
+      'Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch (Art. 15 bis 21 DSGVO) und kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Da der Server nichts speichert, gibt es über dich keine gespeicherten Daten. Die ausführliche Fassung steht auf whowolf.de.';
 }

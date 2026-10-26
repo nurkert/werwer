@@ -10,6 +10,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   roles one by one (cupid, the werewolves, the seer, the witch); only
   whoever is called picks up their phone. It is the night of the "Classic"
   level and can be switched on in the settings.
+- A short privacy notice on first start, the full privacy notice in the
+  settings, and a switch to play Wi-Fi only without the online server.
 
 ## 0.1.1 – 2026-10-26
 

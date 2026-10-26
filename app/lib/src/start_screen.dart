@@ -13,6 +13,7 @@ import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// First screen: the wordmark, your name, open or join a room.
@@ -52,13 +53,14 @@ class _StartScreenState extends State<StartScreen> {
       _savedRoom = savedRoom;
       if (resume != null && _name.text.isEmpty) _name.text = resume.name;
     });
-    if (!auto) return;
     // The app was closed in the middle of a game (on purpose or not): go
     // straight back to the table. Leaving on purpose clears these records.
-    if (savedRoom != null) {
+    if (auto && savedRoom != null) {
       await _restore(savedRoom);
-    } else if (resume != null) {
+    } else if (auto && resume != null) {
       await _continue(resume);
+    } else if (mounted) {
+      await showPrivacyNoticeOnce(context);
     }
   }
 
@@ -116,6 +118,7 @@ class _StartScreenState extends State<StartScreen> {
   Future<void> _settings() async {
     const store = Store();
     final field = TextEditingController(text: await store.customServer());
+    var off = await store.relayOff();
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
     String? error;
@@ -127,18 +130,41 @@ class _StartScreenState extends State<StartScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: field,
-                autocorrect: false,
-                keyboardType: TextInputType.url,
-                decoration: InputDecoration(
-                  labelText: l10n.relayServer,
-                  hintText: 'wss://relay.example.org',
-                  errorText: error,
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: off,
+                onChanged: (v) => setDialog(() => off = v),
+                title: Text(l10n.relayOff),
+                subtitle: off ? Text(l10n.relayOffHint) : null,
+              ),
+              if (!off) ...[
+                TextField(
+                  controller: field,
+                  autocorrect: false,
+                  keyboardType: TextInputType.url,
+                  onChanged: (_) => setDialog(() {}),
+                  decoration: InputDecoration(
+                    labelText: l10n.relayServer,
+                    hintText: 'wss://relay.example.org',
+                    errorText: error,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  field.text.trim().isEmpty
+                      ? l10n.relayServerHelp
+                      : l10n.relayCustomHint,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ],
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => showPrivacy(context),
+                  child: Text(l10n.privacy),
                 ),
               ),
-              const SizedBox(height: 10),
-              Text(l10n.relayServerHelp, style: const TextStyle(fontSize: 13)),
             ],
           ),
           actions: [
@@ -154,6 +180,7 @@ class _StartScreenState extends State<StartScreen> {
                   return;
                 }
                 await store.setCustomServer(text);
+                await store.setRelayOff(off: off);
                 if (context.mounted) Navigator.pop(context);
               },
               child: Text(l10n.save),

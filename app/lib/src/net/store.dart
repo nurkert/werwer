@@ -96,6 +96,39 @@ class Store {
 
   static const _resumeKey = 'resume';
   static const _serverKey = 'relayServer';
+  static const _relayOffKey = 'relayOff';
+  static const _noticeKey = 'privacyNoticeSeen';
+
+  Future<bool> _flag(String key) async {
+    try {
+      return await _storage.read(key: key) == '1';
+    } on Object {
+      return false;
+    }
+  }
+
+  Future<void> _setFlag(String key, {required bool on}) async {
+    try {
+      if (on) {
+        await _storage.write(key: key, value: '1');
+      } else {
+        await _storage.delete(key: key);
+      }
+    } on Object {
+      // Not saved; asked again next time.
+    }
+  }
+
+  /// The player switched the online server off: Wi-Fi only.
+  Future<bool> relayOff() => _flag(_relayOffKey);
+
+  Future<void> setRelayOff({required bool off}) =>
+      _setFlag(_relayOffKey, on: off);
+
+  /// Whether the short privacy notice was shown on this device.
+  Future<bool> privacyNoticeSeen() => _flag(_noticeKey);
+
+  Future<void> setPrivacyNoticeSeen() => _setFlag(_noticeKey, on: true);
 
   /// The way back into a recent game; an older record is deleted (the
   /// game is surely over, and the token should not linger).
@@ -129,8 +162,10 @@ class Store {
     }
   }
 
-  /// The relay server to use: the player's own, else the official one.
+  /// The relay server to use: the player's own, else the official one;
+  /// none if the player switched it off.
   Future<Uri?> relayServer() async {
+    if (await relayOff()) return null;
     String? raw;
     try {
       raw = await _storage.read(key: _serverKey);
