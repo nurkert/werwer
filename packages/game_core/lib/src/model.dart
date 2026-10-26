@@ -81,15 +81,27 @@ enum DeathCause {
   shot,
 }
 
-/// The steps of a night. Everyone alive acts in every step.
+/// The steps of a night.
+///
+/// In Whowolf's night ([NightMode.together]) everyone alive acts in every
+/// step, and there are two: [hunt] and [brew]. When the narrator calls the
+/// roles ([NightMode.called]) every role has its own step, in this order:
+/// [link] (first night), [hunt], [inspect], [brew]. A role's step comes in
+/// every night it is in the game, even after its death, so a night always
+/// takes the same course.
 enum NightStep {
-  /// The werewolves hunt, the seer looks, cupid links (first night).
+  /// The werewolves hunt (together: the seer looks and cupid links too).
   hunt,
 
   /// The witch decides about the werewolves' victim. Only in games with a
-  /// witch, then in every night, even after her death, so a night always
-  /// takes the same course.
+  /// witch.
   brew,
+
+  /// Called night, first night only: cupid links two players.
+  link,
+
+  /// Called night: the seer looks at someone.
+  inspect,
 }
 
 /// The witch's potions, each good for one use per game.

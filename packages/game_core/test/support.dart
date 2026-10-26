@@ -46,7 +46,9 @@ GameState night(
 /// Plays the current night to its end. In the werewolves' step, seats in
 /// [targets] pick that seat; cupid links [link] (default: the first two
 /// others). In the witch's step she picks [brew] (default: nothing).
-/// Everyone else decoys on the first other living player.
+/// Everyone else decoys on the first other living player. In a called
+/// night only whoever is called picks; a step nobody alive is called for
+/// runs out.
 GameUpdate playNight(
   GameState state,
   Map<int, int> targets, {
@@ -58,7 +60,14 @@ GameUpdate playNight(
   var current = state;
   while (current.phase == Phase.night && current.round == round) {
     final step = current.nightStep;
+    if (current.alive.every((p) => nightTask(current, p.id) == null)) {
+      final update = apply(current, const PhaseTimeout());
+      events.addAll(update.events);
+      current = update.state;
+      continue;
+    }
     for (final p in current.alive.toList()) {
+      if (nightTask(current, p.id) == null) continue;
       if (current.phase != Phase.night || current.nightStep != step) break;
       final i = seatOf(p.id);
       final explicit = step == NightStep.hunt ? targets[i] : null;

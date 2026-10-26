@@ -12,7 +12,8 @@ import 'package:protocol/src/view_codec.dart';
 /// 3: door signs (the mark intent, the door sign setting and views).
 /// 4: host takeover (candidates in the hello, the room's epoch in the
 /// welcome, custody for the successor and the key for the witness).
-const protocolVersion = 4;
+/// 5: the called night (night mode setting, a step per role).
+const protocolVersion = 5;
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;

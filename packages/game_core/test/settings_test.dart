@@ -10,7 +10,12 @@ void main() {
     test('each preset is recognised, a change makes it custom', () {
       for (final preset in Preset.values) {
         expect(preset.settings.preset, preset);
-        expect(preset.settings.copyWith(narratorVoice: true).preset, isNull);
+        expect(
+          preset.settings
+              .copyWith(narratorVoice: !preset.settings.narratorVoice)
+              .preset,
+          isNull,
+        );
         preset.settings.validate();
       }
       expect(const GameSettings().preset, isNull);
@@ -21,6 +26,8 @@ void main() {
               atmosphere: true,
               personaChoice: true,
               doorSigns: true,
+              narratorVoice: false,
+              nightMode: NightMode.together,
             )
             .preset,
         Preset.whowolf,
@@ -140,7 +147,9 @@ void main() {
 
   group('switches', () {
     test('without sheep counting, nights still need a neutral pick', () {
-      final settings = Preset.classic.settings;
+      final settings = Preset.classic.settings.copyWith(
+        nightMode: NightMode.together,
+      );
       final state = night(const [
         Role.werewolf,
         Role.seer,

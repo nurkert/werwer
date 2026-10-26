@@ -86,9 +86,10 @@ const shotTime = Duration(seconds: 30);
 /// [PhaseTimeout] resolves it; `null` where the rules set no limit (the
 /// host decides how long players may look at their role).
 Duration? timeLimit(GameState state) => switch (state.phase) {
+  Phase.night when _called(state) && !_anyoneCalled(state) => emptyStepTime,
   Phase.night => switch (state.nightStep) {
     NightStep.hunt => state.settings.nightTime,
-    NightStep.brew => brewTime,
+    NightStep.brew || NightStep.link || NightStep.inspect => brewTime,
   },
   Phase.day => state.settings.dayTime,
   Phase.vote => state.settings.voteTime,
@@ -96,13 +97,51 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
   Phase.lobby || Phase.roleReveal || Phase.ended => null,
 };
 
+/// How long the narrator lets a called step run whose role is dead: as if
+/// someone were still deciding, so nobody hears who is gone.
+const emptyStepTime = Duration(seconds: 8);
+
+bool _called(GameState state) => state.settings.nightMode == NightMode.called;
+
+/// Whether any living player is called in the current step.
+bool _anyoneCalled(GameState state) =>
+    state.alive.any((p) => nightTask(state, p.id) != null);
+
+/// The steps of a called night, in order: every role in the game gets
+/// its step, alive or not.
+List<NightStep> calledSteps(GameState state) {
+  bool has(Role role) => state.players.any((p) => p.role == role);
+  return [
+    if (state.round == 1 && has(Role.cupid)) NightStep.link,
+    NightStep.hunt,
+    if (has(Role.seer)) NightStep.inspect,
+    if (has(Role.witch)) NightStep.brew,
+  ];
+}
+
+/// The night begins: the first step for the night mode.
+GameState _nightfall(GameState state) => state.copyWith(
+  nightStep: _called(state) ? calledSteps(state).first : NightStep.hunt,
+);
+
 /// What [player] is asked to do right now: their own ability when it
-/// applies in this night step, otherwise a decoy. `null` outside the night
-/// and for the dead.
+/// applies in this night step, otherwise a decoy. When the narrator calls
+/// the roles, only whoever is called has a task; everyone else has their
+/// eyes closed (`null`). `null` outside the night and for the dead.
 NightAbility? nightTask(GameState state, PlayerId player) {
   final p = state.player(player);
   if (state.phase != Phase.night || p == null || !p.isAlive) return null;
   final ability = p.role?.nightAbility ?? NightAbility.decoy;
+  if (_called(state)) {
+    final step = switch (ability) {
+      NightAbility.link => NightStep.link,
+      NightAbility.hunt => NightStep.hunt,
+      NightAbility.inspect => NightStep.inspect,
+      NightAbility.brew => NightStep.brew,
+      NightAbility.decoy => null,
+    };
+    return step == state.nightStep ? ability : null;
+  }
   final applies = switch (ability) {
     NightAbility.hunt ||
     NightAbility.inspect => state.nightStep == NightStep.hunt,
@@ -130,7 +169,9 @@ GameAction nightAction(
   _living(state, actor);
   PlayerId single() =>
       targets.length == 1 ? targets.single : _refuse(Violation.invalidTarget);
-  return switch (nightTask(state, actor)!) {
+  // Eyes closed (a called night, not this one's turn): nothing to pick.
+  final task = nightTask(state, actor) ?? _refuse(Violation.notYourAction);
+  return switch (task) {
     NightAbility.hunt => WerewolfVote(actor, single()),
     NightAbility.inspect => SeerInspect(actor, single()),
     NightAbility.decoy => NightDecoy(actor, single()),
@@ -312,7 +353,7 @@ GameUpdate _confirmRole(GameState state, ConfirmRole action) {
 /// Everyone has seen their role, or the time to look ran out (someone's
 /// phone is away; they can still look later from their own view).
 GameUpdate _beginFirstNight(GameState state) => GameUpdate(
-  state.copyWith(phase: Phase.night, round: 1),
+  _nightfall(state.copyWith(phase: Phase.night, round: 1)),
   const [NightFell(1)],
 );
 
@@ -372,7 +413,10 @@ GameUpdate _night(
   next = next.copyWith(
     nightChoices: {...state.nightChoices, actor.id: targetIds},
   );
-  if (next.alive.every((p) => next.nightChoices.containsKey(p.id))) {
+  // The step ends once everyone with a task in it has picked.
+  if (next.alive
+      .where((p) => nightTask(next, p.id) != null)
+      .every((p) => next.nightChoices.containsKey(p.id))) {
     final ended = _endStep(next);
     return GameUpdate(ended.state, [...events, ...ended.events]);
   }
@@ -411,10 +455,53 @@ GameUpdate _brew(GameState state, WitchBrew action) {
 
 /// Ends the current night step: after the werewolves the witch decides (in
 /// games with a witch), after her the night is resolved.
-GameUpdate _endStep(GameState state) => switch (state.nightStep) {
-  NightStep.hunt => _endHunt(state),
-  NightStep.brew => _resolveNight(state),
-};
+GameUpdate _endStep(GameState state) {
+  if (_called(state)) return _endCalledStep(state);
+  return switch (state.nightStep) {
+    NightStep.hunt => _endHunt(state),
+    NightStep.brew || NightStep.link || NightStep.inspect => _resolveNight(
+      state,
+    ),
+  };
+}
+
+/// A called step is over: what it decided counts, and the narrator calls
+/// the next role, or the night is resolved after the last.
+GameUpdate _endCalledStep(GameState state) {
+  final events = <GameEvent>[];
+  var next = state;
+  switch (state.nightStep) {
+    case NightStep.link:
+      for (final MapEntry(:key, :value) in state.nightChoices.entries) {
+        if (nightTask(state, key) == NightAbility.link) {
+          next = next.copyWith(lovers: value);
+          events.add(LoversLinked(key, value[0], value[1]));
+        }
+      }
+    case NightStep.hunt:
+      next = next.copyWith(
+        nightVictim: _majority(
+          _picks(state, NightAbility.hunt).map((t) => t.first),
+        ),
+      );
+    case NightStep.inspect:
+      // The seer's look already counted when she picked.
+      break;
+    case NightStep.brew:
+      return _resolveNight(state);
+  }
+  final steps = calledSteps(state);
+  final at = steps.indexOf(state.nightStep);
+  if (at + 1 >= steps.length) {
+    final resolved = _resolveNight(next);
+    return GameUpdate(resolved.state, [...events, ...resolved.events]);
+  }
+  final step = steps[at + 1];
+  return GameUpdate(
+    next.copyWith(nightStep: step, nightChoices: const {}),
+    [...events, if (step == NightStep.brew) const BrewStepBegan()],
+  );
+}
 
 /// The picks of the living players whose task tonight is [ability].
 Iterable<List<PlayerId>> _picks(GameState state, NightAbility ability) => [
@@ -512,7 +599,7 @@ bool _markStrikes(GameState state) => _keyed(state, salt: 'mark') >= 0x80000000;
 GameUpdate _markDoor(GameState state, MarkDoor action) {
   _expectPhase(state, Phase.night);
   final wolf = _living(state, action.actor);
-  if (!state.settings.doorSigns) _refuse(Violation.disabled);
+  if (!state.settings.doorSignsInPlay) _refuse(Violation.disabled);
   if (nightTask(state, wolf.id) != NightAbility.hunt) {
     _refuse(Violation.notYourAction);
   }
@@ -542,7 +629,7 @@ GameUpdate _markDoor(GameState state, MarkDoor action) {
 GameUpdate _countSheep(GameState state, CountSheep action) {
   _expectPhase(state, Phase.night);
   _living(state, action.player);
-  if (!state.settings.sheepCounting) _refuse(Violation.disabled);
+  if (!state.settings.sheepInPlay) _refuse(Violation.disabled);
   if (action.sheep.abs() > maxSheepPerNight ||
       action.sheep > flockFor(state, action.player)) {
     _refuse(Violation.outOfRange);
@@ -562,7 +649,7 @@ GameUpdate _resolveNight(GameState state) {
       : const <PlayerId>[];
   final healed = victim != null && brew.contains(victim);
   final poisoned = brew.where((t) => t != victim).firstOrNull;
-  final counted = state.settings.sheepCounting
+  final counted = state.settings.sheepInPlay
       ? {for (final p in state.alive) p.id: state.sheep[p.id] ?? 0}
       : const <PlayerId, int>{};
   final cleared = state.copyWith(
@@ -669,7 +756,8 @@ GameUpdate _goOn(GameState state, Phase then, List<GameEvent> events) {
     ]);
   }
   final round = then == Phase.night ? state.round + 1 : state.round;
-  return GameUpdate(state.copyWith(phase: then, round: round), [
+  final moved = state.copyWith(phase: then, round: round);
+  return GameUpdate(then == Phase.night ? _nightfall(moved) : moved, [
     ...events,
     if (then == Phase.night) NightFell(round) else DayBroke(round),
   ]);
@@ -749,10 +837,13 @@ GameUpdate _resolveVote(GameState state) {
   final cleared = state.copyWith(votes: const {});
   if (out == null) {
     final round = state.round + 1;
-    return GameUpdate(cleared.copyWith(phase: Phase.night, round: round), [
-      NobodyEliminated(tie: cast.isNotEmpty),
-      NightFell(round),
-    ]);
+    return GameUpdate(
+      _nightfall(cleared.copyWith(phase: Phase.night, round: round)),
+      [
+        NobodyEliminated(tie: cast.isNotEmpty),
+        NightFell(round),
+      ],
+    );
   }
   return _die(cleared, [(out, DeathCause.vote)], then: Phase.night);
 }

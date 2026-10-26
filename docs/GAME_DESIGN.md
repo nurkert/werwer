@@ -29,6 +29,15 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 8. Zurück zu **4**, bis ein Lager gewinnt.
 9. **Ende:** Siegerbildschirm + Story/Zusammenfassung der Partie.
 
+## Zwei Arten von Nacht
+
+- **Whowolf-Nacht** (`NightMode.together`, ab Stufe „Whowolf“): Alle haben ihr Handy in der Hand und tippen gleichzeitig. Wer nichts zu tun hat, bekommt eine Tarnaufgabe (Schäfchen oder eine neutrale Wahl), damit das Tippen niemanden verrät. Nur hier gibt es Schäfchen und Türzeichen.
+- **Klassische Nacht** (`NightMode.called`, Stufe „Klassisch“): Werwolf, wie man es kennt.
+  - **Ablauf:** Alle schließen die Augen, der Erzähler ruft die Rollen nacheinander auf: Amor (nur in der ersten Nacht), die Werwölfe, die Seherin, die Hexe.
+  - **Handys:** Nur wer aufgerufen ist, nimmt sein Handy. Alle anderen sehen „Augen zu“ und welche Rolle gerade wach ist.
+  - **Erzähler:** Die App erzählt laut (Stimme in dieser Stufe an).
+  - **Tote Rollen:** Ein Schritt endet, sobald alle Lebenden der Rolle gewählt haben. Ist die Rolle tot, wird sie trotzdem kurz (8 s) aufgerufen, damit niemand am Ablauf hört, wer fehlt.
+
 ## Personas
 
 Jeder Spieler wählt in der Lobby eine Persona: zwanzig ganz normale Leute aus dem Dorf, zehn Frauen und zehn Männer (Magd, Bauer, Bäckerin, Schmied, Fischerin, Müller, Schneiderin, Spielmann, Gänsehirtin, Imker, Wirtin, Schäfer, Wäscherin, Zimmermann, Spinnerin, Schuster, Blumenmädchen, Bürgermeister, Großmutter, Großvater). Keine Persona sieht nach einer Rolle aus. Die Persona ist nur das Aussehen: Jede Persona kann jede Rolle sein, die Rolle wird geheim und zufällig verteilt. Jede Persona gibt es im Kostüm jeder Rolle; beim Aufdecken dreht sich die eigene Figur um und steht als ihre Rolle da (die Bäckerin als Werwölfin, der Schmied als Seher). Personas sind eindeutig, solange noch welche frei sind; danach dürfen sie sich wiederholen. Beim Beitritt bekommt man die erste freie Persona und kann sie in der Lobby ändern.

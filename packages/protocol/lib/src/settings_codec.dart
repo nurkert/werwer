@@ -23,6 +23,7 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'personas': settings.personaChoice,
   'voice': settings.narratorVoice,
   'doorSigns': settings.doorSigns,
+  'nights': settings.nightMode.name,
 };
 
 /// Decodes [GameSettings]; throws a [ProtocolError] for invalid input. Only
@@ -51,5 +52,6 @@ GameSettings decodeSettings(JsonReader json) {
     personaChoice: json.boolean('personas'),
     narratorVoice: json.boolean('voice'),
     doorSigns: json.boolean('doorSigns'),
+    nightMode: json.enumValue('nights', NightMode.values),
   );
 }

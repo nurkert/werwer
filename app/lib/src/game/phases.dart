@@ -744,7 +744,7 @@ class DayPhase extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
-    final sheep = view.settings.sheepCounting && view.lastNightSheep.isNotEmpty;
+    final sheep = view.settings.sheepInPlay && view.lastNightSheep.isNotEmpty;
     return PhaseBody(
       children: [
         Headline(l10n.dayTitle(view.round)),
@@ -904,7 +904,7 @@ class EndedPhase extends StatelessWidget {
             view: view,
             badges: {
               for (final MapEntry(:key, :value) in view.dreams.entries)
-                if (view.settings.sheepCounting) key: l10n.dreamPoints(value),
+                if (view.settings.sheepInPlay) key: l10n.dreamPoints(value),
             },
           ),
         ),
@@ -921,7 +921,7 @@ class EndedPhase extends StatelessWidget {
 
 /// The player with the most dream points, if anyone counted at all.
 (String, int)? _bestDreamer(PlayerView view) {
-  if (!view.settings.sheepCounting) return null;
+  if (!view.settings.sheepInPlay) return null;
   final best = view.dreams.entries
       .where((e) => e.value > 0)
       .fold<MapEntry<PlayerId, int>?>(

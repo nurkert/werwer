@@ -1205,7 +1205,7 @@ abstract class AppLocalizations {
   /// No description provided for @presetClassicText.
   ///
   /// In en, this message translates to:
-  /// **'Like the card game: only the roles. The app narrates and counts the votes.'**
+  /// **'Werewolf as you know it: everyone closes their eyes, the narrator calls the roles, and only whoever is called picks up their phone. The app narrates aloud and counts the votes.'**
   String get presetClassicText;
 
   /// No description provided for @presetWhowolf.
@@ -1597,6 +1597,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The host sees the same symbols'**
   String get codeConfirm;
+
+  /// No description provided for @narrateNightCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Night falls over the village. Everyone close your eyes.'**
+  String get narrateNightCalled;
+
+  /// No description provided for @narrateStepLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Cupid wakes up and binds two people in love.'**
+  String get narrateStepLink;
+
+  /// No description provided for @narrateStepHunt.
+  ///
+  /// In en, this message translates to:
+  /// **'The werewolves wake up and choose a victim.'**
+  String get narrateStepHunt;
+
+  /// No description provided for @narrateStepInspect.
+  ///
+  /// In en, this message translates to:
+  /// **'The seer wakes up and looks into someone\'s soul.'**
+  String get narrateStepInspect;
+
+  /// No description provided for @narrateStepBrew.
+  ///
+  /// In en, this message translates to:
+  /// **'The witch wakes up. She sees who is to die tonight and reaches for her potions.'**
+  String get narrateStepBrew;
+
+  /// No description provided for @narrateStepSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyes closed again.'**
+  String get narrateStepSleep;
+
+  /// No description provided for @nightEyesClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyes closed'**
+  String get nightEyesClosed;
+
+  /// No description provided for @nightEyesClosedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your phone down until the narrator wakes you.'**
+  String get nightEyesClosedHint;
+
+  /// No description provided for @nightAwakeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Awake now: {who}'**
+  String nightAwakeNow(String who);
+
+  /// No description provided for @nightWerewolves.
+  ///
+  /// In en, this message translates to:
+  /// **'the werewolves'**
+  String get nightWerewolves;
+
+  /// No description provided for @nightYourTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your turn. Eyes open!'**
+  String get nightYourTurn;
+
+  /// No description provided for @settingsNight.
+  ///
+  /// In en, this message translates to:
+  /// **'The night'**
+  String get settingsNight;
+
+  /// No description provided for @settingsNightCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator calls the roles'**
+  String get settingsNightCalled;
+
+  /// No description provided for @settingsNightCalledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Werewolf as you know it: everyone closes their eyes, and only whoever is called picks up their phone. No sheep and no door signs then.'**
+  String get settingsNightCalledHint;
+
+  /// No description provided for @settingsNightTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone taps at once'**
+  String get settingsNightTogether;
+
+  /// No description provided for @settingsNightTogetherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Whowolf\'s night: phones stay in hand, and the tapping gives nobody away.'**
+  String get settingsNightTogetherHint;
 }
 
 class _AppLocalizationsDelegate

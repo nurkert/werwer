@@ -6,6 +6,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/door_sign.dart';
+import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -97,7 +98,7 @@ class _NightPhaseState extends State<NightPhase> {
   /// sheep the player answers the plain question by hand instead.
   void _planDecoy(PlayerView view) {
     final due =
-        view.settings.sheepCounting &&
+        view.settings.sheepInPlay &&
         view.yourNightTask == NightAbility.decoy &&
         view.yourSeat.isAlive &&
         !view.youActed;
@@ -129,7 +130,10 @@ class _NightPhaseState extends State<NightPhase> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
-    final sheep = view.settings.sheepCounting;
+    if (view.settings.nightMode == NightMode.called) {
+      return _calledNight(view, l10n);
+    }
+    final sheep = view.settings.sheepInPlay;
     return PhaseBody(
       children: [
         Headline(l10n.nightTitle(view.round)),
@@ -171,6 +175,54 @@ class _NightPhaseState extends State<NightPhase> {
           ],
           Body(l10n.nightHint, muted: true),
         ],
+      ],
+    );
+  }
+
+  /// The night everyone knows: eyes closed, unless the narrator calls you.
+  Widget _calledNight(PlayerView view, AppLocalizations l10n) {
+    final task = view.yourSeat.isAlive ? _task(view, l10n) : null;
+    // Last night's news belongs to the first call of the night.
+    final cupidFirst =
+        view.round == 1 && view.settings.roles.contains(Role.cupid);
+    final first =
+        view.nightStep == (cupidFirst ? NightStep.link : NightStep.hunt);
+    return PhaseBody(
+      children: [
+        Headline(l10n.nightTitle(view.round)),
+        if (first) LastNews(view: view),
+        CoupleNote(view: view),
+        if (!view.yourSeat.isAlive)
+          Body(l10n.youAreDead)
+        else if (task != null && !view.youActed)
+          Panel(
+            highlight: true,
+            child: Column(
+              children: [
+                Headline(l10n.nightYourTurn, size: 26),
+                const SizedBox(height: 12),
+                ...task,
+              ],
+            ),
+          )
+        else
+          Panel(
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.bedtime_rounded,
+                  size: 56,
+                  color: Palette.lantern300,
+                ),
+                const SizedBox(height: 10),
+                Headline(l10n.nightEyesClosed, size: 30),
+                const SizedBox(height: 8),
+                Body(l10n.nightAwakeNow(awakeIn(view.nightStep, l10n))),
+                const SizedBox(height: 6),
+                Body(l10n.nightEyesClosedHint, muted: true),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -224,7 +276,7 @@ class _NightPhaseState extends State<NightPhase> {
         final inspected = !hunt && choice != null;
         return [
           Body(hunt ? l10n.nightHunt : l10n.nightInspect),
-          if (!view.settings.sheepCounting) countdown,
+          if (!view.settings.sheepInPlay) countdown,
           const SizedBox(height: 12),
           SeatGrid(
             view: view,
@@ -244,7 +296,7 @@ class _NightPhaseState extends State<NightPhase> {
             const SizedBox(height: 10),
             Body(l10n.picked(view.nameOf(choice))),
           ],
-          if (hunt && view.settings.doorSigns) ...[
+          if (hunt && view.settings.doorSignsInPlay) ...[
             const SizedBox(height: 20),
             MarkForm(session: session),
           ],
@@ -291,7 +343,7 @@ class _NightPhaseState extends State<NightPhase> {
         if (view.youActed) return [Body(l10n.brewSent)];
         return [Body(l10n.nightBrew), countdown, ..._brew(view, l10n)];
       case NightAbility.decoy || null:
-        if (view.settings.sheepCounting) return null;
+        if (view.settings.sheepInPlay) return null;
         // No sheep tonight: a plain question everyone answers by hand.
         return [
           Body(l10n.nightDecoy),

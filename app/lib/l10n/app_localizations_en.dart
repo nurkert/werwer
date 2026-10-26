@@ -680,7 +680,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get presetClassicText =>
-      'Like the card game: only the roles. The app narrates and counts the votes.';
+      'Werewolf as you know it: everyone closes their eyes, the narrator calls the roles, and only whoever is called picks up their phone. The app narrates aloud and counts the votes.';
 
   @override
   String get presetWhowolf => 'Whowolf';
@@ -899,4 +899,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get codeConfirm => 'The host sees the same symbols';
+
+  @override
+  String get narrateNightCalled =>
+      'Night falls over the village. Everyone close your eyes.';
+
+  @override
+  String get narrateStepLink => 'Cupid wakes up and binds two people in love.';
+
+  @override
+  String get narrateStepHunt => 'The werewolves wake up and choose a victim.';
+
+  @override
+  String get narrateStepInspect =>
+      'The seer wakes up and looks into someone\'s soul.';
+
+  @override
+  String get narrateStepBrew =>
+      'The witch wakes up. She sees who is to die tonight and reaches for her potions.';
+
+  @override
+  String get narrateStepSleep => 'Eyes closed again.';
+
+  @override
+  String get nightEyesClosed => 'Eyes closed';
+
+  @override
+  String get nightEyesClosedHint =>
+      'Put your phone down until the narrator wakes you.';
+
+  @override
+  String nightAwakeNow(String who) {
+    return 'Awake now: $who';
+  }
+
+  @override
+  String get nightWerewolves => 'the werewolves';
+
+  @override
+  String get nightYourTurn => 'Your turn. Eyes open!';
+
+  @override
+  String get settingsNight => 'The night';
+
+  @override
+  String get settingsNightCalled => 'The narrator calls the roles';
+
+  @override
+  String get settingsNightCalledHint =>
+      'Werewolf as you know it: everyone closes their eyes, and only whoever is called picks up their phone. No sheep and no door signs then.';
+
+  @override
+  String get settingsNightTogether => 'Everyone taps at once';
+
+  @override
+  String get settingsNightTogetherHint =>
+      'Whowolf\'s night: phones stay in hand, and the tapping gives nobody away.';
 }

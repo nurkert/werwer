@@ -246,11 +246,13 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     lastNightSheep: state.lastNightSheep,
     dreams: state.dreams,
     yourFlock:
-        state.phase == Phase.night && me.isAlive && state.settings.sheepCounting
+        state.phase == Phase.night && me.isAlive && state.settings.sheepInPlay
         ? flockFor(state, viewer)
         : null,
     yourDoorSign:
-        state.phase == Phase.night && me.isAlive && state.settings.doorSigns
+        state.phase == Phase.night &&
+            me.isAlive &&
+            state.settings.doorSignsInPlay
         ? doorSignFor(state, viewer)
         : null,
     packMark: isWolf && me.isAlive ? state.packMark : null,

@@ -3,6 +3,14 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
+## Unreleased
+
+### Added
+- The classic night: everyone closes their eyes and the narrator calls the
+  roles one by one (cupid, the werewolves, the seer, the witch); only
+  whoever is called picks up their phone. It is the night of the "Classic"
+  level and can be switched on in the settings.
+
 ## 0.1.1 – 2026-10-26
 
 ### Added

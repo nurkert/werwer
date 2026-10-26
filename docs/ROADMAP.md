@@ -195,6 +195,14 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ---
 
+## 0.1.2 – Werwolf, wie man ihn kennt
+
+- [x] **Klassische Nacht:** Der Erzähler ruft die Rollen nacheinander auf, nur die Aufgerufenen nehmen ihr Handy; Standard der Stufe „Klassisch“
+- [ ] Hinweis zum Datenschutz beim ersten Start und beim Eintragen eines fremden Servers (ohne Zustimmungszwang, Art. 13 DSGVO), Datenschutzerklärung in den Einstellungen
+- [ ] Beitritt im Browser ohne Installation (angefangen: Web-Plattform und sodium.js eingerichtet)
+
+---
+
 ## Nach dem MVP
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.

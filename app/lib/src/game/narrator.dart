@@ -4,6 +4,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/news.dart';
+import 'package:whowolf/src/game/widgets.dart';
 
 /// What the narrator says when the game moves from [before] to [after], or
 /// `null` if nothing changed worth announcing. Uses only what every player
@@ -13,9 +14,16 @@ String? narration(
   PlayerView after,
   AppLocalizations l10n,
 ) {
+  final called = after.settings.nightMode == NightMode.called;
   if (before != null &&
       before.phase == after.phase &&
       before.round == after.round) {
+    // In the called night the narrator wakes one role after another.
+    if (called &&
+        after.phase == Phase.night &&
+        before.nightStep != after.nightStep) {
+      return '${l10n.narrateStepSleep} ${_wake(after.nightStep, l10n)}';
+    }
     return null;
   }
   final deaths = freshDeaths(after);
@@ -25,7 +33,11 @@ String? narration(
     Phase.night => [
       if (before?.phase == Phase.vote || before?.phase == Phase.hunterShot)
         l10n.news(after, deaths, l10n.nobodyEliminated),
-      l10n.narrateNight,
+      if (called) ...[
+        l10n.narrateNightCalled,
+        _wake(after.nightStep, l10n),
+      ] else
+        l10n.narrateNight,
     ].join(' '),
     Phase.day => [
       l10n.narrateMorning,
@@ -43,6 +55,21 @@ String? narration(
     ].where((part) => part.isNotEmpty).join(' '),
   };
 }
+
+String _wake(NightStep step, AppLocalizations l10n) => switch (step) {
+  NightStep.link => l10n.narrateStepLink,
+  NightStep.hunt => l10n.narrateStepHunt,
+  NightStep.inspect => l10n.narrateStepInspect,
+  NightStep.brew => l10n.narrateStepBrew,
+};
+
+/// Who is awake in a called night's [step], for everyone else's screen.
+String awakeIn(NightStep step, AppLocalizations l10n) => switch (step) {
+  NightStep.link => l10n.role(Role.cupid),
+  NightStep.hunt => l10n.nightWerewolves,
+  NightStep.inspect => l10n.role(Role.seer),
+  NightStep.brew => l10n.role(Role.witch),
+};
 
 /// Speaks narrator lines on the host device. Platforms without speech
 /// output simply stay silent.

@@ -20,12 +20,27 @@ const ({Duration min, Duration max}) voteTimeRange = (
   max: Duration(minutes: 5),
 );
 
+/// How a night runs.
+enum NightMode {
+  /// Whowolf's night: everyone taps at the same time (whoever has nothing
+  /// to do gets a cover task), so phones can stay in hands and give
+  /// nothing away.
+  together,
+
+  /// The night everyone knows: all close their eyes and the narrator calls
+  /// the roles one after another (cupid in the first night, the
+  /// werewolves, the seer, the witch); only whoever is called opens their
+  /// eyes and picks up their phone.
+  called,
+}
+
 /// Options the host picks in the lobby; everyone at the table sees them.
 ///
 /// Everything Whowolf adds to the classic card game is optional, so a table
-/// can start plain and add more step by step ([Preset]). One thing is never
-/// optional: at night everyone taps something (sheep or at least a neutral
-/// pick), or the tapping at the table would tell the roles.
+/// can start plain and add more step by step ([Preset]). In Whowolf's night
+/// everyone taps something (sheep or at least a neutral pick), or the
+/// tapping would tell the roles; in the called night ([NightMode.called])
+/// everyone's eyes are closed instead.
 @immutable
 class GameSettings {
   /// Creates settings. The defaults are the base game: werewolves, a seer
@@ -44,6 +59,7 @@ class GameSettings {
     this.personaChoice = true,
     this.narratorVoice = false,
     this.doorSigns = false,
+    this.nightMode = NightMode.together,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -93,6 +109,16 @@ class GameSettings {
   /// a player's sign; a right guess may take that player too. So everyone,
   /// not only the werewolves, has a reason to hide their screen at night.
   final bool doorSigns;
+
+  /// How the night runs.
+  final NightMode nightMode;
+
+  /// Whether sheep are counted: they need the phones in hand at night, so
+  /// not when the narrator calls the roles.
+  bool get sheepInPlay => sheepCounting && nightMode == NightMode.together;
+
+  /// Whether door signs are in play (Whowolf's night only, like the sheep).
+  bool get doorSignsInPlay => doorSigns && nightMode == NightMode.together;
 
   /// The preset these settings are exactly, if any.
   Preset? get preset =>
@@ -149,6 +175,7 @@ class GameSettings {
     bool? personaChoice,
     bool? narratorVoice,
     bool? doorSigns,
+    NightMode? nightMode,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -163,6 +190,7 @@ class GameSettings {
     personaChoice: personaChoice ?? this.personaChoice,
     narratorVoice: narratorVoice ?? this.narratorVoice,
     doorSigns: doorSigns ?? this.doorSigns,
+    nightMode: nightMode ?? this.nightMode,
   );
 
   @override
@@ -181,7 +209,8 @@ class GameSettings {
       other.atmosphere == atmosphere &&
       other.personaChoice == personaChoice &&
       other.narratorVoice == narratorVoice &&
-      other.doorSigns == doorSigns;
+      other.doorSigns == doorSigns &&
+      other.nightMode == nightMode;
 
   @override
   int get hashCode => Object.hash(
@@ -198,19 +227,23 @@ class GameSettings {
     personaChoice,
     narratorVoice,
     doorSigns,
+    nightMode,
   );
 }
 
 /// Starting points the host picks with one tap and may then change in
 /// detail.
 enum Preset {
-  /// Like the card game: only the roles; the app narrates and counts the
+  /// Like the card game: everyone closes their eyes and the narrator
+  /// calls the roles one by one; the app narrates aloud and counts the
   /// votes. No sheep score, no wolf trail, no atmosphere, fixed personas.
   classic(
     GameSettings(
       roles: {Role.seer, Role.witch, Role.hunter},
       sheepCounting: false,
       personaChoice: false,
+      narratorVoice: true,
+      nightMode: NightMode.called,
     ),
   ),
 

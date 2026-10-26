@@ -161,6 +161,17 @@ class _SettingsBody extends StatelessWidget {
           step: const Duration(seconds: 15),
           onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
         ),
+        _Section(l10n.settingsNight),
+        _Switch(
+          label: l10n.settingsNightCalled,
+          hint: s.nightMode == NightMode.called
+              ? l10n.settingsNightCalledHint
+              : l10n.settingsNightTogetherHint,
+          value: s.nightMode == NightMode.called,
+          onChanged: (v) => onChanged(
+            s.copyWith(nightMode: v ? NightMode.called : NightMode.together),
+          ),
+        ),
         _Section(l10n.settingsRules),
         _Switch(
           label: l10n.settingsRevealRoles,
@@ -173,17 +184,20 @@ class _SettingsBody extends StatelessWidget {
           onChanged: (v) => onChanged(s.copyWith(seerSeesRole: v)),
         ),
         _Section(l10n.settingsExtras),
-        _Switch(
-          label: l10n.settingsSheep,
-          hint: s.sheepCounting ? null : l10n.settingsSheepOff,
-          value: s.sheepCounting,
-          onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
-        ),
-        _Switch(
-          label: l10n.settingsDoorSigns,
-          value: s.doorSigns,
-          onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
-        ),
+        // Both need the phones in hand at night: not in the called night.
+        if (s.nightMode == NightMode.together) ...[
+          _Switch(
+            label: l10n.settingsSheep,
+            hint: s.sheepCounting ? null : l10n.settingsSheepOff,
+            value: s.sheepCounting,
+            onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
+          ),
+          _Switch(
+            label: l10n.settingsDoorSigns,
+            value: s.doorSigns,
+            onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
+          ),
+        ],
         _Switch(
           label: l10n.settingsAtmosphere,
           value: s.atmosphere,

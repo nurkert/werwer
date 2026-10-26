@@ -14,6 +14,8 @@ void main() {
     Phase phase,
     int round, {
     List<DeathView> deaths = const [],
+    NightStep step = NightStep.hunt,
+    GameSettings settings = const GameSettings(),
   }) => PlayerView(
     you: const PlayerId('p1'),
     phase: phase,
@@ -21,6 +23,8 @@ void main() {
     seats: seats,
     deaths: deaths,
     waitingFor: 0,
+    nightStep: step,
+    settings: settings,
   );
   const night1 = DeathView(
     player: PlayerId('p2'),
@@ -46,6 +50,34 @@ void main() {
     )!;
     expect(line, contains('Bo ist nicht mehr aufgewacht.'));
     expect(line, contains('Seherin'));
+  });
+
+  test('in the called night the narrator wakes one role after another', () {
+    final classic = Preset.classic.settings;
+    final first = narration(
+      view(Phase.roleReveal, 0, settings: classic),
+      view(Phase.night, 1, settings: classic),
+      l10n,
+    )!;
+    expect(first, contains('Alle schließen die Augen.'));
+    expect(first, contains('Die Werwölfe erwachen'));
+    expect(first, isNot(contains('tippen')));
+    final next = narration(
+      view(Phase.night, 1, settings: classic),
+      view(Phase.night, 1, settings: classic, step: NightStep.inspect),
+      l10n,
+    )!;
+    expect(next, startsWith('Augen wieder zu.'));
+    expect(next, contains('Die Seherin erwacht'));
+    // Whowolf's night has no calls.
+    expect(
+      narration(
+        view(Phase.night, 1),
+        view(Phase.night, 1, step: NightStep.brew),
+        l10n,
+      ),
+      isNull,
+    );
   });
 
   test('the night after a vote first tells the result', () {
