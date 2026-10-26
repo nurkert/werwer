@@ -57,3 +57,21 @@ Repository → **Settings**:
 4. **Code security → Dependabot alerts** und **security updates** einschalten (die Versions-Updates kommen aus `.github/dependabot.yml`).
 
 Neue Umgebung prüfen: `tool/doctor.sh`.
+
+## Apple: TestFlight und signiertes macOS
+
+Der Release-Workflow signiert macOS mit Developer ID, lässt es notarisieren und lädt iOS zu TestFlight hoch, sobald diese vier **Repository-Secrets** existieren (GitHub → Settings → Secrets and variables → Actions). Ohne sie baut er wie bisher unsigniert. Die Logik steckt in `tool/apple_release.sh`; Zertifikate und Profile holt Xcode selbst (cloud-verwaltet), im Repo liegt nichts davon.
+
+1. In App Store Connect unter **Users and Access → Integrations → App Store Connect API** einen Team-Schlüssel mit der Rolle **Admin** anlegen (Developer-ID-Zertifikate darf nur Admin erzeugen) und die `.p8`-Datei herunterladen (geht nur einmal).
+2. Unter **Apps** die App `de.whowolf.app` anlegen (für TestFlight nötig).
+3. Secrets eintragen:
+
+| Secret | Inhalt |
+|---|---|
+| `APPLE_TEAM_ID` | Team-ID (developer.apple.com → Membership) |
+| `ASC_KEY_ID` | Key-ID des API-Schlüssels |
+| `ASC_ISSUER_ID` | Issuer-ID (steht über der Schlüsselliste) |
+| `ASC_KEY_P8_BASE64` | `base64 -i AuthKey_XXXX.p8 \| pbcopy`, dann einfügen |
+
+Danach genügt ein neuer Tag (`v0.1.1`): macOS erscheint signiert und notarisiert im Release, iOS nach einigen Minuten Verarbeitung in TestFlight.
+

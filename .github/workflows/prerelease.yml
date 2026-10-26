@@ -46,6 +46,8 @@ jobs:
           - target: ios
             os: macos-latest
     runs-on: ${{ matrix.os }}
+    env:
+      HAS_APPLE_KEY: ${{ secrets.ASC_KEY_ID != '' }}
     defaults:
       run:
         shell: bash
@@ -74,7 +76,20 @@ jobs:
           fi
           echo "NAME=$version" >> "$GITHUB_ENV"
           echo "FLAGS=--release --build-name=$version --build-number=${{ github.run_number }} --dart-define=APP_VERSION=$version" >> "$GITHUB_ENV"
+      - name: Signed Apple build
+        # With the App Store Connect key in the repository secrets, macOS is
+        # signed with Developer ID and notarized, and iOS goes to TestFlight.
+        # Without them the unsigned build below runs instead.
+        id: apple
+        if: (matrix.target == 'macos' || matrix.target == 'ios') && env.HAS_APPLE_KEY == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: tool/apple_release.sh "${{ matrix.target }}" "$NAME" "${{ github.run_number }}"
       - name: Build
+        if: steps.apple.outcome != 'success'
         working-directory: app
         run: |
           mkdir -p ../dist
@@ -90,7 +105,7 @@ jobs:
               flutter build windows $FLAGS
               (cd build/windows/x64/runner/Release && 7z a -tzip "$GITHUB_WORKSPACE/dist/whowolf-$NAME-windows-x64.zip" . >/dev/null) ;;
             macos)
-              # Unsigned until Developer ID signing and notarization secrets are configured.
+              # Unsigned: the repository has no App Store Connect key yet.
               flutter build macos $FLAGS
               ditto -c -k --keepParent build/macos/Build/Products/Release/Whowolf.app "../dist/whowolf-$NAME-macos.zip" ;;
             ios)
