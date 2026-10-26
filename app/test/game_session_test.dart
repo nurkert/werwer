@@ -85,7 +85,7 @@ void main() {
       final session = GameSession(
         name: 'Ada',
         roomCode: '1234',
-        reconnectDelay: const Duration(hours: 1),
+        config: const LinkConfig(firstRetry: Duration(hours: 1)),
         dial: () async {
           final connection = lan.connect();
           dialed.add(connection);

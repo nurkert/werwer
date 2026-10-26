@@ -98,7 +98,12 @@ class HostedRoom {
     );
     // Others see the room under "Join a room" without typing anything.
     final announcer = RoomAnnouncer();
-    await announcer.start(hostName: hostName, room: code, port: lan.port);
+    await announcer.start(
+      hostName: hostName,
+      room: code,
+      port: lan.port,
+      hostKey: roomKeys.publicKey,
+    );
     return HostedRoom._(
       host,
       link,

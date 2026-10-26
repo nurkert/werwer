@@ -32,7 +32,6 @@
   "byeMisbehaved": "The connection was ended.",
   "byeLost": "The connection to the host is lost.",
   "backToStart": "Back to start",
-  "reconnecting": "Connection lost, reconnecting …",
   "lobbyTitle": "Lobby",
   "lobbyJoinHint": "Others tap “Join a room” and enter:",
   "players": "{count, plural, =1{1 player} other{{count} players}}",
@@ -354,5 +353,7 @@
   },
   "compareSymbols": "Do these symbols match the ones on their phone?",
   "letIn": "Let in",
-  "refuse": "Refuse"
+  "refuse": "Refuse",
+  "pauseTitle": "A short pause",
+  "pauseText": "The narrator is catching their breath … The game goes on in a moment, nothing is lost."
 }

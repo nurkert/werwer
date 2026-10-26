@@ -149,29 +149,25 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
           body: SafeArea(
             child: Column(
               children: [
-                if (session.status == SessionStatus.reconnecting)
-                  MaterialBanner(
-                    backgroundColor: Palette.curtain600,
-                    content: Text(
-                      l10n.reconnecting,
-                      style: const TextStyle(color: Palette.moon100),
-                    ),
-                    actions: const [SizedBox.shrink()],
-                  ),
                 if (_narration != null &&
                     session.status != SessionStatus.ended &&
                     view?.phase != Phase.lobby)
                   _NarratorLine(text: _narration!),
                 Expanded(
-                  child: session.status == SessionStatus.ended
-                      ? _Ended(reason: session.byeReason)
-                      : session.nameRefused
-                      ? _Rename(session: session)
-                      : session.waitingForHost && view == null
-                      ? _WaitingForHost(code: session.checkCode)
-                      : view == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : _phase(view),
+                  child: _Paused(
+                    paused:
+                        session.status == SessionStatus.reconnecting &&
+                        view != null,
+                    child: session.status == SessionStatus.ended
+                        ? _Ended(reason: session.byeReason)
+                        : session.nameRefused
+                        ? _Rename(session: session)
+                        : session.waitingForHost && view == null
+                        ? _WaitingForHost(code: session.checkCode)
+                        : view == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : _phase(view),
+                  ),
                 ),
               ],
             ),
@@ -330,6 +326,54 @@ class _Ended extends StatelessWidget {
         PrimaryButton(
           label: l10n.backToStart,
           onPressed: () => Navigator.pop(context),
+        ),
+      ],
+    );
+  }
+}
+
+/// The host is out of reach: a calm pause over the last view, never an
+/// error. Everything typed meanwhile is kept and sent when it is back.
+class _Paused extends StatelessWidget {
+  const _Paused({required this.paused, required this.child});
+
+  final bool paused;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Stack(
+      children: [
+        child,
+        IgnorePointer(
+          ignoring: !paused,
+          child: AnimatedOpacity(
+            opacity: paused ? 1 : 0,
+            duration: const Duration(milliseconds: 400),
+            child: ColoredBox(
+              color: Palette.night950.withValues(alpha: 0.82),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.nightlight_round,
+                        size: 64,
+                        color: Palette.lantern400,
+                      ),
+                      const SizedBox(height: 16),
+                      Headline(l10n.pauseTitle),
+                      const SizedBox(height: 8),
+                      Body(l10n.pauseText),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );

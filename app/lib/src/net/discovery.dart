@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,7 @@ class RoomAnnouncer {
     required String hostName,
     required String room,
     required int port,
+    required List<int> hostKey,
   }) async {
     try {
       final broadcast = BonsoirBroadcast(
@@ -25,7 +27,12 @@ class RoomAnnouncer {
           name: 'Whowolf $room',
           type: roomServiceType,
           port: port,
-          attributes: {'room': room, 'host': hostName, 'v': '$protocolVersion'},
+          attributes: {
+            'room': room,
+            'host': hostName,
+            'key': keyPrint(hostKey),
+            'v': '$protocolVersion',
+          },
         ),
       );
       await broadcast.initialize();
@@ -46,6 +53,12 @@ class RoomAnnouncer {
   }
 }
 
+/// A short, public fingerprint of a host key: lets a player tell its own
+/// room from another with the same code. Authenticity still comes from the
+/// encrypted handshake, never from this.
+String keyPrint(List<int> hostKey) =>
+    base64Url.encode(hostKey.take(12).toList()).replaceAll('=', '');
+
 /// A room found on the local network.
 class NearbyRoom {
   const NearbyRoom({
@@ -53,12 +66,16 @@ class NearbyRoom {
     required this.hostName,
     required this.room,
     required this.lan,
+    this.keyPrint,
   });
 
   final String id;
   final String hostName;
   final String room;
   final LanAddress lan;
+
+  /// Fingerprint of the host key, if the host announced one.
+  final String? keyPrint;
 }
 
 /// Looks for rooms on the local network while it lives.
@@ -127,6 +144,7 @@ class RoomFinder extends ChangeNotifier {
           : host,
       room: room,
       lan: lan,
+      keyPrint: service.attributes['key'],
     );
     notifyListeners();
   }
@@ -141,4 +159,32 @@ class RoomFinder extends ChangeNotifier {
     }
     super.dispose();
   }
+}
+
+/// Keeps one room search running for the whole app, so a player whose host
+/// moved (new Wi-Fi, new port after a restart) finds it again by room code
+/// and key instead of the old address.
+class HostLocator {
+  HostLocator._();
+
+  static final shared = HostLocator._();
+
+  RoomFinder? _finder;
+
+  /// The current address of [room], whose host has [hostKey] if known.
+  LanAddress? find(String room, List<int>? hostKey) {
+    final finder = _finder ??= RoomFinder();
+    final print = hostKey == null ? null : keyPrint(hostKey);
+    return finder.rooms
+        .where(
+          (r) =>
+              r.room == room &&
+              (print == null || r.keyPrint == null || r.keyPrint == print),
+        )
+        .map((r) => r.lan)
+        .firstOrNull;
+  }
+
+  /// Starts searching early (e.g. when a game screen opens).
+  void warmUp() => _finder ??= RoomFinder();
 }

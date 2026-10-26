@@ -248,12 +248,6 @@ abstract class AppLocalizations {
   /// **'Back to start'**
   String get backToStart;
 
-  /// No description provided for @reconnecting.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection lost, reconnecting …'**
-  String get reconnecting;
-
   /// No description provided for @lobbyTitle.
   ///
   /// In en, this message translates to:
@@ -1057,6 +1051,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refuse'**
   String get refuse;
+
+  /// No description provided for @pauseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A short pause'**
+  String get pauseTitle;
+
+  /// No description provided for @pauseText.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator is catching their breath … The game goes on in a moment, nothing is lost.'**
+  String get pauseText;
 }
 
 class _AppLocalizationsDelegate

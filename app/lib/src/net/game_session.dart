@@ -1,236 +1,104 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:game_core/game_core.dart';
 import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
-import 'package:secure_channel/secure_channel.dart';
 
 /// Opens a connection to the host; called again to reconnect.
-typedef Dial = Future<Connection> Function();
+typedef Dial = Dialer;
 
-/// Where the connection to the host stands.
+/// Where the connection to the host stands, as the screens show it.
 enum SessionStatus { connecting, connected, reconnecting, ended }
 
-/// This app's side of one game: it talks the protocol with the host and
-/// holds the latest view. It knows nothing about where the host runs.
+/// This app's side of one game, for the screens: a [ChangeNotifier] over the
+/// pure-Dart [PlayerLink], which numbers intents, resends them until the
+/// host confirms, keeps the newest state and reconnects by itself.
 class GameSession extends ChangeNotifier {
   GameSession({
-    required this._name,
+    required String name,
     required this.roomCode,
-    required this._dial,
-    this._token,
-    this.onWelcome,
-    this.onRoomKeys,
-    this.onEnded,
-    this.reconnectDelay = const Duration(seconds: 2),
-    this.maxReconnects = 90,
+    required Dial dial,
+    String? token,
+    void Function(String token, String name)? onWelcome,
+    void Function(List<int> hostKey, List<int> roomSecret)? onRoomKeys,
+    void Function()? onEnded,
+    LinkConfig config = const LinkConfig(),
   }) {
-    unawaited(_connect());
+    _link = PlayerLink(
+      name: name,
+      roomCode: roomCode,
+      dial: dial,
+      token: token,
+      config: config,
+      onChange: _changed,
+      onWelcome: onWelcome,
+      onRoomKeys: onRoomKeys,
+      onEnded: onEnded,
+    );
   }
 
-  String _name;
+  late final PlayerLink _link;
   final String roomCode;
-
-  /// The name this player joins with.
-  String get name => _name;
-
-  /// The host refused the name (taken or invalid); [rename] tries another.
-  bool nameRefused = false;
-  final Duration reconnectDelay;
-
-  /// Give up after this many failed reconnects in a row (the host is gone).
-  final int maxReconnects;
-
-  /// Called with the session token and the accepted name once welcomed.
-  final void Function(String token, String name)? onWelcome;
-
-  /// Called with the room's key and secret when the host let this player in
-  /// after comparing the check code; reconnects should use them.
-  final void Function(List<int> hostKey, List<int> roomSecret)? onRoomKeys;
-
-  /// Called when the session ends for good.
-  final void Function()? onEnded;
-
-  final Dial _dial;
-  int _failedReconnects = 0;
-
-  Connection? _connection;
-  StreamSubscription<String>? _subscription;
-  String? _token;
   bool _disposed = false;
 
-  SessionStatus status = SessionStatus.connecting;
+  void _changed() {
+    if (!_disposed) notifyListeners();
+  }
 
-  /// Why the host ended the session; `null` if the connection just broke.
-  ByeReason? byeReason;
+  String get name => _link.name;
 
-  /// Waiting for the host to let this player in (joined without the QR
-  /// code's secret); show [checkCode] meanwhile.
-  bool waitingForHost = false;
+  SessionStatus get status => switch (_link.status) {
+    LinkStatus.connecting => SessionStatus.connecting,
+    LinkStatus.connected => SessionStatus.connected,
+    LinkStatus.paused => SessionStatus.reconnecting,
+    LinkStatus.ended => SessionStatus.ended,
+  };
+
+  /// Why the host ended the session; `null` if it just could not be reached.
+  ByeReason? get byeReason => _link.byeReason;
+
+  /// Joined without the QR code's secret: waiting for the host's check.
+  bool get waitingForHost => _link.waitingForHost;
 
   /// Symbols to compare with the host, from the encrypted handshake.
-  List<int> checkCode = const [];
+  List<int> get checkCode => _link.checkCode;
 
   /// For the room owner: people waiting to be let in.
-  List<PendingJoin> pending = const [];
+  List<PendingJoin> get pending => _link.pending;
 
-  /// The latest view of the game.
-  PlayerView? view;
+  /// The newest view of the game (kept while the host is away).
+  PlayerView? get view => _link.view;
 
   /// Whether this player opened the room.
-  bool isOwner = false;
+  bool get isOwner => _link.isOwner;
 
-  /// When the current phase timer runs out, on this device's clock.
-  DateTime? phaseEndsAt;
+  /// The host refused the name; [rename] tries another.
+  bool get nameRefused => _link.nameRefused;
 
-  /// The last refused intent, cleared by the UI after showing it.
-  Violation? refused;
+  /// The last refused intent; the screen clears it after showing it.
+  Violation? get refused => _link.refused;
+  set refused(Violation? value) => _link.refused = value;
 
-  Future<void> _connect() async {
-    try {
-      final connection = await _dial();
-      if (_disposed) {
-        await connection.close();
-        return;
-      }
-      _connection = connection;
-      if (connection case final PeerTrust trust) {
-        checkCode = trust.checkCode;
-        // The token must never go over a channel nobody checked: someone in
-        // the middle could take it and play as us.
-        if (_token != null && !trust.verified) {
-          byeReason = ByeReason.unknownSession;
-          _end();
-          notifyListeners();
-          await connection.close();
-          return;
-        }
-      }
-      _subscription = connection.messages.listen(
-        _receive,
-        onDone: _lost,
-        onError: (Object _) => _lost(),
-        cancelOnError: true,
-      );
-      connection.send(
-        Hello(name: _name, room: roomCode, token: _token).encode(),
-      );
-    } on Object {
-      _lost();
-    }
+  /// When the phase timer runs out, on this device's clock.
+  DateTime? get phaseEndsAt {
+    final ms = _link.phaseEndsAtMs;
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
   }
 
-  void _receive(String raw) {
-    final HostMessage message;
-    try {
-      message = HostMessage.parse(raw);
-    } on ProtocolError {
-      return;
-    }
-    switch (message) {
-      case Waiting():
-        waitingForHost = true;
-      case Welcome(:final token, :final roomSecret):
-        waitingForHost = false;
-        if (_connection case SecureConnection(
-          verified: false,
-          :final hostKey?,
-        ) when roomSecret != null) {
-          onRoomKeys?.call(hostKey, roomSecret);
-        }
-        _token = token;
-        _failedReconnects = 0;
-        status = SessionStatus.connected;
-        nameRefused = false;
-        onWelcome?.call(token, _name);
-      case StateMessage():
-        view = message.view;
-        isOwner = message.isOwner;
-        pending = message.pending;
-        final endsIn = message.phaseEndsInMs;
-        phaseEndsAt = endsIn == null
-            ? null
-            : DateTime.now().add(Duration(milliseconds: endsIn));
-      case Refused(:final reason):
-        if (reason == Violation.invalidName && _token == null) {
-          nameRefused = true;
-        } else {
-          refused = reason;
-        }
-      case Bye(:final reason):
-        byeReason = reason;
-        _end();
-        unawaited(_subscription?.cancel());
-        unawaited(_connection?.close());
-    }
-    notifyListeners();
-  }
+  /// Sends an intent; it arrives exactly once, even across reconnects.
+  void send(ClientMessage message) => _link.send(message);
 
-  void _lost() {
-    if (_disposed || status == SessionStatus.ended) return;
-    unawaited(_subscription?.cancel());
-    _subscription = null;
-    _connection = null;
-    // Without a token the host never knew us: give up instead of retrying.
-    final neverJoined = _token == null && status == SessionStatus.connecting;
-    if (neverJoined || _failedReconnects >= maxReconnects) {
-      _end();
-      notifyListeners();
-      return;
-    }
-    if (status == SessionStatus.reconnecting) _failedReconnects++;
-    status = SessionStatus.reconnecting;
-    notifyListeners();
-    _retry?.cancel();
-    _retry = Timer(reconnectDelay, () {
-      if (!_disposed && status == SessionStatus.reconnecting) {
-        unawaited(_connect());
-      }
-    });
-  }
+  void rename(String name) => _link.rename(name);
 
-  void _end() {
-    if (status == SessionStatus.ended) return;
-    status = SessionStatus.ended;
-    onEnded?.call();
-  }
-
-  /// Joins with another name after the host refused the first one.
-  void rename(String name) {
-    _name = name.trim();
-    nameRefused = false;
-    send(Hello(name: _name, room: roomCode));
-    notifyListeners();
-  }
-
-  Timer? _retry;
-
-  /// Reconnects immediately if the connection is down (e.g. the app just
-  /// came back to the foreground or the network changed).
-  void reconnectNow() {
-    if (_disposed || status != SessionStatus.reconnecting) return;
-    _retry?.cancel();
-    unawaited(_connect());
-  }
-
-  void send(ClientMessage message) => _connection?.send(message.encode());
+  /// The app came back to the front or the network changed: redial now.
+  void reconnectNow() => _link.reconnectNow();
 
   /// Leaves for good: tells the host (in the lobby) and closes.
-  void leave() {
-    if (view?.phase == Phase.lobby) send(const LeaveIntent());
-    byeReason = ByeReason.left;
-    _end();
-    unawaited(_connection?.close());
-    notifyListeners();
-  }
+  void leave() => _link.leave();
 
   @override
   void dispose() {
     _disposed = true;
-    _retry?.cancel();
-    unawaited(_subscription?.cancel());
-    unawaited(_connection?.close());
+    _link.close();
     super.dispose();
   }
 }

@@ -34,9 +34,11 @@ GameSession playerSession({
     token: token,
     dial: dialerFor(
       keys: keys,
+      room: room,
       lan: lan,
       relayRoom: relayRoom,
       server: server,
+      locator: HostLocator.shared..warmUp(),
     ),
     onRoomKeys: (hostKey, roomSecret) => keys
       ..hostKey = hostKey

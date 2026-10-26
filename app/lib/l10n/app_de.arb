@@ -25,7 +25,6 @@
   "byeMisbehaved": "Die Verbindung wurde beendet.",
   "byeLost": "Die Verbindung zum Gastgeber ist weg.",
   "backToStart": "Zurück zum Start",
-  "reconnecting": "Verbindung weg, verbinde neu …",
   "lobbyTitle": "Lobby",
   "lobbyJoinHint": "Die anderen tippen auf „Raum beitreten“ und geben ein:",
   "players": "{count, plural, =1{1 Spieler} other{{count} Spieler}}",
@@ -159,5 +158,7 @@
   "wantsToJoin": "{name} möchte mitspielen",
   "compareSymbols": "Stimmen diese Zeichen mit denen auf dem anderen Handy überein?",
   "letIn": "Reinlassen",
-  "refuse": "Ablehnen"
+  "refuse": "Ablehnen",
+  "pauseTitle": "Kurze Pause",
+  "pauseText": "Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren."
 }

@@ -90,9 +90,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get backToStart => 'Zurück zum Start';
 
   @override
-  String get reconnecting => 'Verbindung weg, verbinde neu …';
-
-  @override
   String get lobbyTitle => 'Lobby';
 
   @override
@@ -587,4 +584,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get refuse => 'Ablehnen';
+
+  @override
+  String get pauseTitle => 'Kurze Pause';
+
+  @override
+  String get pauseText =>
+      'Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren.';
 }

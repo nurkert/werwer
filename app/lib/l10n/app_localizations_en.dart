@@ -89,9 +89,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToStart => 'Back to start';
 
   @override
-  String get reconnecting => 'Connection lost, reconnecting …';
-
-  @override
   String get lobbyTitle => 'Lobby';
 
   @override
@@ -580,4 +577,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refuse => 'Refuse';
+
+  @override
+  String get pauseTitle => 'A short pause';
+
+  @override
+  String get pauseText =>
+      'The narrator is catching their breath … The game goes on in a moment, nothing is lost.';
 }
