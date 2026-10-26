@@ -319,7 +319,7 @@ class _Cast extends StatelessWidget {
               offset: Offset((2 - i) * 8.0, 0),
               child: Transform.rotate(
                 angle: (i - 2) * 0.03,
-                child: Figure(asset: asset, height: i == 2 ? 120 : 100),
+                child: TurningFigure(asset: asset, height: i == 2 ? 120 : 100),
               ),
             ),
         ],

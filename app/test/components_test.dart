@@ -47,6 +47,7 @@ void main() {
         backAsset: 'assets/figures/magd.webp',
         showBack: back,
         height: 200,
+        sway: false,
       ),
     );
     await tester.pumpWidget(figure(back: true));

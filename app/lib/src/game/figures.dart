@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
@@ -60,7 +61,7 @@ const castAssets = [
   'assets/figures/jaeger.webp',
 ];
 
-/// A role's figure, standing, with a soft shadow like on the website.
+/// A role's figure, standing on its corrugated board and rocking a little.
 class RoleFigure extends StatelessWidget {
   const RoleFigure({required this.role, required this.height, super.key});
 
@@ -68,10 +69,8 @@ class RoleFigure extends StatelessWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context) => Figure(
-    asset: figureAsset(role),
-    height: height,
-  );
+  Widget build(BuildContext context) =>
+      TurningFigure(asset: figureAsset(role), height: height);
 }
 
 class Figure extends StatelessWidget {
@@ -177,16 +176,18 @@ class Portrait extends StatelessWidget {
 
 /// What a turned-around cutout shows.
 enum CardBack {
-  /// Plain grey board in the figure's outline, with grain and a stamp.
+  /// Plain kraft board in the figure's outline, with grain and a stamp.
   board,
 
   /// Printed on both sides: the mirrored face.
   print,
 }
 
-/// A cardboard cutout that turns around its vertical axis: mid-turn its cut
-/// edge shows (a few layers of brown card), then its back. [showBack] picks
-/// the side; changes animate unless the system asks for reduced motion.
+/// A cardboard cutout glued on corrugated board that turns around its
+/// vertical axis: mid-turn its cut edge shows (liner, fluted middle, liner),
+/// then its plain kraft back. [showBack] picks the side; changes animate
+/// unless the system asks for reduced motion. With [sway] it rocks a little
+/// on its own, so the board's thickness shows even while it stands still.
 ///
 /// The back is cut to [backAsset]'s outline (default: the front's), so a
 /// hidden role can stand as a persona seen from behind and turn into the
@@ -199,6 +200,7 @@ class TurningFigure extends StatefulWidget {
     this.backAsset,
     this.back = CardBack.board,
     this.stamp = 'Whowolf',
+    this.sway = true,
     super.key,
   });
 
@@ -208,20 +210,40 @@ class TurningFigure extends StatefulWidget {
   final bool showBack;
   final CardBack back;
 
-  /// Printed on the grey board (only for [CardBack.board]).
+  /// Printed on the kraft back (only for [CardBack.board]).
   final String stamp;
+
+  /// Rock gently around the upright (off with reduced motion).
+  final bool sway;
 
   @override
   State<TurningFigure> createState() => _TurningFigureState();
 }
 
 class _TurningFigureState extends State<TurningFigure>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _turn = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 750),
     value: widget.showBack ? 1 : 0,
   );
+  late final AnimationController _sway = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 6400),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final calm = MediaQuery.of(context).disableAnimations;
+    if (widget.sway && !calm && !_sway.isAnimating) {
+      unawaited(_sway.repeat());
+    } else if (calm && _sway.isAnimating) {
+      _sway
+        ..stop()
+        ..value = 0;
+    }
+  }
 
   @override
   void didUpdateWidget(TurningFigure old) {
@@ -240,50 +262,89 @@ class _TurningFigureState extends State<TurningFigure>
   @override
   void dispose() {
     _turn.dispose();
+    _sway.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _turn,
+    animation: Listenable.merge([_turn, _sway]),
     builder: (context, _) {
-      final angle = _turn.value * pi;
+      final rock = sin(_sway.value * 2 * pi) * 0.26; // about ±15°
+      final angle = _turn.value * pi + rock;
       final facing = cos(angle) >= 0;
-      // The edge is thin: a few pixels at a phone's figure size, most
-      // visible edge-on.
-      final thickness = widget.height * 0.014 * sin(angle).abs();
       final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
-      return Transform(
+      // Every layer stands at its own depth and turns with the figure, so
+      // the board is real 3D: drawn from the farthest layer to the nearest.
+      final layers = [
+        ..._board(asset),
+        if (facing)
+          (z: _depth / 2 + 0.2, child: _image(asset))
+        else
+          (
+            z: -_depth / 2 - 0.2,
+            child: widget.back == CardBack.print
+                ? _image(asset)
+                : _Board(
+                    asset: asset,
+                    height: widget.height,
+                    stamp: widget.stamp,
+                  ),
+          ),
+      ]..sort((a, b) => (a.z * cos(angle)).compareTo(b.z * cos(angle)));
+      return Stack(
+        clipBehavior: Clip.none,
         alignment: Alignment.center,
-        transform: Matrix4.identity()
-          ..setEntry(3, 2, 0.0011)
-          ..rotateY(angle),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            for (var i = 3; i >= 1; i--)
-              Transform.translate(
-                offset: Offset((facing ? 1 : -1) * thickness * i / 3, 0),
-                child: _tinted(asset, i == 2 ? _edgeDark : _edgeLight),
-              ),
-            if (facing)
-              _image(asset)
-            else if (widget.back == CardBack.print)
-              _image(asset)
-            else
-              _Board(
-                asset: asset,
-                height: widget.height,
-                stamp: widget.stamp,
-              ),
-          ],
-        ),
+        children: [
+          for (final layer in layers)
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.0011)
+                ..rotateY(angle)
+                ..translateByDouble(0, 0, layer.z, 1),
+              child: layer.child,
+            ),
+        ],
       );
     },
   );
 
-  static const _edgeLight = Color(0xFF7A5A3A);
-  static const _edgeDark = Color(0xFF5A3F27);
+  static const _liner = Color(0xFFC9A26B);
+  static const _flute = Color(0xFFB0844E);
+  static const _core = Color(0xFF4E3620);
+  static const _flutes = 8;
+
+  /// How thick the board is: about a 30th of the figure's height.
+  double get _depth => widget.height * 0.034;
+
+  /// The corrugated board behind the print, as layers of the outline in
+  /// depth: two liners, the dark core and flutes in bands whose phase moves
+  /// from layer to layer, so edge-on they make the zigzag of the board.
+  List<({double z, Widget child})> _board(String asset) {
+    final d = _depth;
+    final flute = widget.height / 70;
+    return [
+      (z: d / 2, child: _tinted(asset, _liner)),
+      (z: -d / 2, child: _tinted(asset, _liner)),
+      (z: 0, child: _tinted(asset, _core)),
+      for (var i = 0; i < _flutes; i++)
+        (
+          z: d * ((i + 0.5) / _flutes - 0.5) * 0.92,
+          child: ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (_) => ui.Gradient.linear(
+              Offset(0, flute * i / _flutes),
+              Offset(0, flute * (1 + i / _flutes)),
+              const [Colors.white, Colors.white, Colors.transparent],
+              const [0, 0.32, 0.33],
+              TileMode.repeated,
+            ),
+            child: _tinted(asset, _flute),
+          ),
+        ),
+    ];
+  }
 
   Widget _image(String asset) =>
       Image.asset(asset, height: widget.height, fit: BoxFit.contain);
@@ -294,8 +355,8 @@ class _TurningFigureState extends State<TurningFigure>
   );
 }
 
-/// The grey back of a cutout: the outline in board grey, a soft grain and a
-/// crooked stamp (counter-mirrored, as the turn mirrors everything).
+/// The kraft back of a cutout: the outline in board brown, a soft grain and
+/// a crooked stamp (counter-mirrored, as the turn mirrors everything).
 class _Board extends StatelessWidget {
   const _Board({
     required this.asset,
@@ -307,7 +368,7 @@ class _Board extends StatelessWidget {
   final double height;
   final String stamp;
 
-  static const _board = Color(0xFFA7A196);
+  static const _board = Color(0xFFB48A57);
 
   @override
   Widget build(BuildContext context) {

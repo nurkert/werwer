@@ -1,7 +1,7 @@
 ---
-// A cardboard cutout with real thickness: the printed front, a few layers of
-// darker card as its cut edge, and a plain grey back made from the figure's
-// own outline. Inside a turning parent (`transform: rotateY(…)`) it shows
+// A cardboard cutout with real thickness: the print glued on corrugated
+// board (liner, flutes, liner) and a plain kraft back made from the
+// figure's own outline. Inside a turning parent (`transform: rotateY(…)`) it shows
 // its edge mid-turn and its back afterwards; no extra artwork needed.
 import type { ImageMetadata } from 'astro';
 import { Picture, getImage } from 'astro:assets';
@@ -14,7 +14,7 @@ interface Props {
   class: string;
   loading?: 'eager' | 'lazy';
   /**
-   * `board`: plain grey back (a cutout turned around).
+   * `board`: plain kraft back (a cutout turned around).
    * `print`: printed on both sides, so a puppet that turns to look the
    * other way shows its mirrored face (the story on the start page).
    */
@@ -23,16 +23,35 @@ interface Props {
 
 const { src, widths, sizes, class: face, loading = 'lazy', back = 'board' } = Astro.props;
 const formats = ['avif', 'webp'] as const;
-const layers = ['edge edge--1', 'edge edge--2', 'edge edge--3'];
-// The back is grey board cut to the figure's outline: one small image as
-// the mask, the board's grain and a stamp painted in CSS.
+// The board between print and back, front to back: a light kraft liner,
+// the fluted middle (stripes whose phase shifts from layer to layer, so seen
+// from the side they make the zigzag of corrugated board) over a dark core,
+// and the back liner. Depth in px, phase as a share of one flute.
+const layers = [
+  { kind: 'liner', z: 4 },
+  ...[3.5, 2.5, 1.5, 0.5, -0.5, -1.5, -2.5, -3.5].map((z, i) => ({ kind: 'flute', z, phase: i / 8 })),
+  { kind: 'core', z: 0 },
+  { kind: 'liner', z: -4 },
+];
+// The back is plain kraft board cut to the figure's outline: one small
+// image as the mask, the board's grain and a stamp painted in CSS.
 const mask = back === 'board' ? await getImage({ src, format: 'webp', width: 360 }) : undefined;
 ---
 
 <div class="cardboard">
   <Picture class={`${face} cardboard__front`} src={src} alt="" formats={formats} widths={widths} sizes={sizes} loading={loading} />
   {layers.map((layer) => (
-    <Picture class={`${face} cardboard__layer cardboard__${layer.split(' ')[1]}`} src={src} alt="" formats={formats} widths={widths} sizes={sizes} loading="lazy" aria-hidden="true" />
+    <Picture
+      class={`${face} cardboard__layer cardboard__${layer.kind}`}
+      style={`--z: ${layer.z}px; --phase: ${'phase' in layer ? layer.phase : 0}`}
+      src={src}
+      alt=""
+      formats={formats}
+      widths={widths}
+      sizes={sizes}
+      loading="lazy"
+      aria-hidden="true"
+    />
   ))}
   {back === 'board' ? (
     <div class="cardboard__back" style={`--outline: url(${mask?.src})`} aria-hidden="true"><span>Whowolf</span></div>

@@ -444,13 +444,15 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .role:nth-child(3n) .role__stage :global(.cardboard) {
     animation-delay: -4.1s;
   }
+  /* The puppets sway a little around their upright too, so the board's
+     thickness always shows at an edge. */
   @keyframes idle {
     0%,
     100% {
-      transform: rotate(-1.2deg);
+      transform: rotate(-1.2deg) rotateY(-16deg);
     }
     50% {
-      transform: rotate(1.2deg) translateY(-0.3rem);
+      transform: rotate(1.2deg) rotateY(16deg) translateY(-0.3rem);
     }
   }
   .role__card {
@@ -1010,9 +1012,11 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
     width: auto;
     margin-inline: auto;
   }
+  /* A touch turns the puppet aside to show its corrugated edge; it never
+     turns its back on the audience. */
   .role:hover .role__flip,
   .role:focus-within .role__flip {
-    transform: rotateY(180deg);
+    transform: rotateY(-58deg);
   }
   @media (prefers-reduced-motion: reduce) {
     .role__flip {

@@ -308,7 +308,7 @@ class _PersonaPicker extends StatelessWidget {
     return Panel(
       child: Row(
         children: [
-          Figure(asset: personaAsset(persona), height: 96),
+          TurningFigure(asset: personaAsset(persona), height: 96),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
