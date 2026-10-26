@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/theme.dart';
 
 /// The night, in one or two steps (the witch decides after the wolves).
 /// Every living player has a task in every step; whoever has nothing to do
@@ -64,9 +65,9 @@ class _NightPhaseState extends State<NightPhase> {
   void _sendSheep() {
     if (_sheep == _sentSheep) return;
     _sentSheep = _sheep;
-    session.send(
-      SheepIntent(_sheep.clamp(-maxSheepPerNight, maxSheepPerNight)),
-    );
+    // The host refuses more than tonight's flock.
+    final most = session.view?.yourFlock ?? maxSheepPerNight;
+    session.send(SheepIntent(_sheep.clamp(-maxSheepPerNight, most)));
   }
 
   /// Starts over for a new step and plans the cover pick if one is due.
@@ -82,6 +83,7 @@ class _NightPhaseState extends State<NightPhase> {
       _decoy?.cancel();
       _decoy = null;
       _pair.clear();
+      _open = false;
       _heal = false;
       _poison = null;
     }
@@ -125,13 +127,7 @@ class _NightPhaseState extends State<NightPhase> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
-    final meadow = view.settings.sheepCounting
-        ? SheepMeadow(
-            key: ValueKey('meadow-${view.round}'),
-            flock: view.yourFlock,
-            onPoints: (delta) => _sheep += delta,
-          )
-        : null;
+    final sheep = view.settings.sheepCounting;
     return PhaseBody(
       children: [
         Headline(l10n.nightTitle(view.round)),
@@ -140,24 +136,72 @@ class _NightPhaseState extends State<NightPhase> {
         if (!view.yourSeat.isAlive)
           Body(l10n.youAreDead)
         else ...[
-          ..._task(context, view, meadow),
+          _taskCard(view, l10n),
+          // The meadow is the same on every phone: once your task is done
+          // (or folded away), a werewolf's phone looks like anyone's.
+          if (sheep) ...[
+            Body(l10n.nightSheep),
+            Countdown(endsAt: session.phaseEndsAt),
+            SheepMeadow(
+              key: ValueKey('meadow-${view.round}'),
+              flock: view.yourFlock,
+              score: _sheep,
+              onPoints: (delta) => setState(() => _sheep += delta),
+            ),
+            TextButton.icon(
+              onPressed: () => _ownCount(view),
+              icon: const Icon(Icons.edit_rounded, size: 18),
+              label: Text(l10n.ownCount),
+            ),
+          ],
           Body(l10n.nightHint, muted: true),
         ],
       ],
     );
   }
 
-  List<Widget> _task(BuildContext context, PlayerView view, Widget? meadow) {
-    final l10n = AppLocalizations.of(context);
+  /// Folded open while there is something to decide; afterwards one line
+  /// that reads the same for every role, unfolded only on request.
+  bool _open = false;
+
+  Widget _taskCard(PlayerView view, AppLocalizations l10n) {
+    final task = _task(view, l10n);
+    final pending = task != null && !view.youActed;
+    if (pending || _open) {
+      return Panel(
+        highlight: pending,
+        child: Column(
+          children: [
+            ...(task ?? [Body(l10n.nightNothingToDo)]),
+            if (!pending)
+              TextButton(
+                onPressed: () => setState(() => _open = false),
+                child: Text(l10n.nightTaskHide),
+              ),
+          ],
+        ),
+      );
+    }
+    return Panel(
+      padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_rounded, color: Palette.lantern400),
+          const SizedBox(width: 10),
+          Expanded(child: Body(l10n.nightTaskDone)),
+          TextButton(
+            onPressed: () => setState(() => _open = true),
+            child: Text(l10n.nightTaskShow),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// What this step asks of you, or `null` if counting sheep is all (the
+  /// cover pick then goes by itself).
+  List<Widget>? _task(PlayerView view, AppLocalizations l10n) {
     final countdown = Countdown(endsAt: session.phaseEndsAt);
-    // Everyone can count sheep all night, so the morning totals are a hint,
-    // not a giveaway.
-    final sheepAfter = [
-      if (meadow != null) ...[
-        Body(l10n.sheepWhileWaiting, muted: true),
-        meadow,
-      ],
-    ];
     switch (view.yourNightTask) {
       case NightAbility.hunt || NightAbility.inspect:
         final hunt = view.yourNightTask == NightAbility.hunt;
@@ -165,7 +209,8 @@ class _NightPhaseState extends State<NightPhase> {
         final inspected = !hunt && choice != null;
         return [
           Body(hunt ? l10n.nightHunt : l10n.nightInspect),
-          countdown,
+          if (!view.settings.sheepCounting) countdown,
+          const SizedBox(height: 12),
           SeatGrid(
             view: view,
             selected: choice,
@@ -180,10 +225,13 @@ class _NightPhaseState extends State<NightPhase> {
             },
             onTap: (seat) => session.send(NightIntent(seat.id)),
           ),
-          if (choice != null) Body(l10n.picked(view.nameOf(choice))),
+          if (choice != null) ...[
+            const SizedBox(height: 10),
+            Body(l10n.picked(view.nameOf(choice))),
+          ],
           for (final r in view.seerResults.where((r) => r.round == view.round))
-            Panel(
-              highlight: true,
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
               child: Body(
                 l10n.seerSaw(
                   view.nameOf(r.target),
@@ -191,19 +239,17 @@ class _NightPhaseState extends State<NightPhase> {
                 ),
               ),
             ),
-          ...sheepAfter,
         ];
       case NightAbility.link:
         final linked = view.yourNightTargets;
         if (view.youActed && linked.length == 2) {
           return [
             Body(l10n.linked(view.nameOf(linked[0]), view.nameOf(linked[1]))),
-            ...sheepAfter,
           ];
         }
         return [
           Body(l10n.nightLink),
-          countdown,
+          const SizedBox(height: 12),
           SeatGrid(
             view: view,
             chosen: _pair,
@@ -214,6 +260,7 @@ class _NightPhaseState extends State<NightPhase> {
               }
             }),
           ),
+          const SizedBox(height: 12),
           PrimaryButton(
             label: l10n.linkConfirm,
             onPressed: _pair.length == 2
@@ -222,14 +269,15 @@ class _NightPhaseState extends State<NightPhase> {
           ),
         ];
       case NightAbility.brew:
-        if (view.youActed) return [Body(l10n.brewSent), ...sheepAfter];
+        if (view.youActed) return [Body(l10n.brewSent)];
         return [Body(l10n.nightBrew), countdown, ..._brew(view, l10n)];
       case NightAbility.decoy || null:
-        if (meadow != null) return [Body(l10n.nightSheep), countdown, meadow];
+        if (view.settings.sheepCounting) return null;
         // No sheep tonight: a plain question everyone answers by hand.
         return [
           Body(l10n.nightDecoy),
           countdown,
+          const SizedBox(height: 12),
           SeatGrid(
             view: view,
             selected: view.yourNightChoice,
@@ -237,6 +285,47 @@ class _NightPhaseState extends State<NightPhase> {
           ),
         ];
     }
+  }
+
+  /// Anyone may set their own count (and so fib a little): the morning
+  /// numbers are a hint to argue about, not proof. Same for every role.
+  Future<void> _ownCount(PlayerView view) async {
+    final l10n = AppLocalizations.of(context);
+    final most = view.yourFlock ?? 30;
+    var value = _sheep.clamp(0, most);
+    final picked = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheet) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Headline(l10n.ownCountTitle, size: 26),
+                const SizedBox(height: 8),
+                Body(l10n.ownCountHint, muted: true),
+                const SizedBox(height: 16),
+                Headline('$value', size: 44, color: Palette.lantern300),
+                Slider(
+                  value: value.toDouble(),
+                  max: most.toDouble(),
+                  divisions: most,
+                  onChanged: (v) => setSheet(() => value = v.round()),
+                ),
+                const SizedBox(height: 8),
+                PrimaryButton(
+                  label: l10n.ownCountSet,
+                  onPressed: () => Navigator.pop(context, value),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (picked != null && mounted) setState(() => _sheep = picked);
   }
 
   /// The witch's table: tonight's victim, her potions and one decision.

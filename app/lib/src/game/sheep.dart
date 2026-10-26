@@ -27,12 +27,17 @@ class SheepMeadow extends StatefulWidget {
   const SheepMeadow({
     required this.onPoints,
     super.key,
+    this.score = 0,
     this.flock,
     this.height = 220,
   });
 
   /// Called with the change in dream points (+1 or -3).
   final void Function(int delta) onPoints;
+
+  /// Tonight's dream points, kept by the parent (it may also be set by
+  /// hand); the meadow only shows it.
+  final int score;
 
   /// How many sheep the host lets run tonight; endless without.
   final int? flock;
@@ -57,7 +62,6 @@ class _SheepMeadowState extends State<SheepMeadow>
   late final Ticker _ticker;
   Duration _now = Duration.zero;
   Duration _nextSpawn = Duration.zero;
-  int _score = 0;
   int _spawned = 0;
 
   /// Pause between sheep: the flock spreads over about half a minute.
@@ -114,7 +118,6 @@ class _SheepMeadowState extends State<SheepMeadow>
   void _tap(_Sheep sheep) {
     if (sheep.tappedAt != null) return;
     sheep.tappedAt = _now;
-    _score += sheep.points;
     widget.onPoints(sheep.points);
   }
 
@@ -166,7 +169,7 @@ class _SheepMeadowState extends State<SheepMeadow>
                   left: 12,
                   top: 10,
                   child: Text(
-                    l10n.dreamPoints(_score),
+                    l10n.dreamPoints(widget.score),
                     style: const TextStyle(
                       color: Palette.moon100,
                       fontWeight: FontWeight.w800,

@@ -812,4 +812,30 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get presetBasic => 'Grundspiel';
+
+  @override
+  String get nightTaskDone => 'Deine Nachtaufgabe ist erledigt.';
+
+  @override
+  String get nightTaskShow => 'Ansehen';
+
+  @override
+  String get nightTaskHide => 'Zuklappen';
+
+  @override
+  String get nightNothingToDo =>
+      'Heute Nacht hast du nichts weiter zu tun: Zähl Schäfchen bis zum Morgen.';
+
+  @override
+  String get ownCount => 'Zahl selbst festlegen';
+
+  @override
+  String get ownCountTitle => 'Wie viele Schäfchen hast du gezählt?';
+
+  @override
+  String get ownCountHint =>
+      'Das darf jeder, also auch flunkern. Am Morgen sehen alle die Zahlen.';
+
+  @override
+  String get ownCountSet => 'Übernehmen';
 }

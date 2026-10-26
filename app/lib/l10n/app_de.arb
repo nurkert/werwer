@@ -221,5 +221,13 @@
   "settingsPersonas": "Figuren selbst wählen",
   "settingsVoice": "Erzählstimme auf dem Gastgeber-Gerät",
   "tooManyRoles": "Für {count} Spieler sind das zu viele Rollen.",
-  "presetBasic": "Grundspiel"
+  "presetBasic": "Grundspiel",
+  "nightTaskDone": "Deine Nachtaufgabe ist erledigt.",
+  "nightTaskShow": "Ansehen",
+  "nightTaskHide": "Zuklappen",
+  "nightNothingToDo": "Heute Nacht hast du nichts weiter zu tun: Zähl Schäfchen bis zum Morgen.",
+  "ownCount": "Zahl selbst festlegen",
+  "ownCountTitle": "Wie viele Schäfchen hast du gezählt?",
+  "ownCountHint": "Das darf jeder, also auch flunkern. Am Morgen sehen alle die Zahlen.",
+  "ownCountSet": "Übernehmen"
 }

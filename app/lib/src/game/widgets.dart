@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
@@ -274,35 +275,49 @@ class SeatGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Wrap(
-      spacing: 10,
-      runSpacing: 12,
-      alignment: WrapAlignment.center,
-      children: [
-        for (final seat in view.seats)
-          _SeatTile(
-            seat: seat,
-            isYou: seat.id == view.you,
-            selected: seat.id == selected || chosen.contains(seat.id),
-            enabled:
-                onTap != null &&
-                (enabled?.call(seat) ?? (seat.isAlive && seat.id != view.you)),
-            onTap: () => onTap?.call(seat),
-            subtitle: [
-              if (seat.id == view.you) l10n.you,
-              if (seat.role != null) l10n.role(seat.role!),
-              ?badges[seat.id],
-            ].where((part) => part.isNotEmpty).join(' · '),
-            deadLabel: l10n.dead,
-            trailing: trailing?.call(seat),
-          ),
-      ],
+    // Two cards a row on a phone, more on wider screens.
+    return LayoutBuilder(
+      builder: (context, box) {
+        const gap = 10.0;
+        final columns = max(2, ((box.maxWidth + gap) / 190).floor());
+        final width = min<double>(
+          220,
+          (box.maxWidth - gap * (columns - 1)) / columns,
+        );
+        return Wrap(
+          spacing: gap,
+          runSpacing: 12,
+          alignment: WrapAlignment.center,
+          children: [
+            for (final seat in view.seats)
+              _SeatTile(
+                width: width,
+                seat: seat,
+                isYou: seat.id == view.you,
+                selected: seat.id == selected || chosen.contains(seat.id),
+                enabled:
+                    onTap != null &&
+                    (enabled?.call(seat) ??
+                        (seat.isAlive && seat.id != view.you)),
+                onTap: () => onTap?.call(seat),
+                subtitle: [
+                  if (seat.id == view.you) l10n.you,
+                  if (seat.role != null) l10n.role(seat.role!),
+                  ?badges[seat.id],
+                ].where((part) => part.isNotEmpty).join(' · '),
+                deadLabel: l10n.dead,
+                trailing: trailing?.call(seat),
+              ),
+          ],
+        );
+      },
     );
   }
 }
 
 class _SeatTile extends StatelessWidget {
   const _SeatTile({
+    required this.width,
     required this.seat,
     required this.isYou,
     required this.selected,
@@ -313,6 +328,7 @@ class _SeatTile extends StatelessWidget {
     this.trailing,
   });
 
+  final double width;
   final SeatView seat;
   final bool isYou;
   final bool selected;
@@ -353,7 +369,7 @@ class _SeatTile extends StatelessWidget {
                 borderRadius: radius,
                 onTap: enabled ? onTap : null,
                 child: SizedBox(
-                  width: 168,
+                  width: width,
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Row(
@@ -377,7 +393,7 @@ class _SeatTile extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  maxLines: 2,
+                                  maxLines: 3,
                                   style: const TextStyle(
                                     fontSize: 12.5,
                                     height: 1.3,

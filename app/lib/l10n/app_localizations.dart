@@ -1429,6 +1429,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Basic game'**
   String get presetBasic;
+
+  /// No description provided for @nightTaskDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your night task is done.'**
+  String get nightTaskDone;
+
+  /// No description provided for @nightTaskShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get nightTaskShow;
+
+  /// No description provided for @nightTaskHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Fold away'**
+  String get nightTaskHide;
+
+  /// No description provided for @nightNothingToDo.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else to do tonight: count sheep until the morning.'**
+  String get nightNothingToDo;
+
+  /// No description provided for @ownCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the number yourself'**
+  String get ownCount;
+
+  /// No description provided for @ownCountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many sheep did you count?'**
+  String get ownCountTitle;
+
+  /// No description provided for @ownCountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone may do this, so fibbing is allowed. In the morning everyone sees the numbers.'**
+  String get ownCountHint;
+
+  /// No description provided for @ownCountSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it'**
+  String get ownCountSet;
 }
 
 class _AppLocalizationsDelegate

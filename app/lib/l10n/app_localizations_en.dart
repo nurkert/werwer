@@ -802,4 +802,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get presetBasic => 'Basic game';
+
+  @override
+  String get nightTaskDone => 'Your night task is done.';
+
+  @override
+  String get nightTaskShow => 'Show';
+
+  @override
+  String get nightTaskHide => 'Fold away';
+
+  @override
+  String get nightNothingToDo =>
+      'Nothing else to do tonight: count sheep until the morning.';
+
+  @override
+  String get ownCount => 'Set the number yourself';
+
+  @override
+  String get ownCountTitle => 'How many sheep did you count?';
+
+  @override
+  String get ownCountHint =>
+      'Everyone may do this, so fibbing is allowed. In the morning everyone sees the numbers.';
+
+  @override
+  String get ownCountSet => 'Take it';
 }

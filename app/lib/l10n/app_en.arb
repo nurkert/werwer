@@ -517,5 +517,13 @@
       }
     }
   },
-  "presetBasic": "Basic game"
+  "presetBasic": "Basic game",
+  "nightTaskDone": "Your night task is done.",
+  "nightTaskShow": "Show",
+  "nightTaskHide": "Fold away",
+  "nightNothingToDo": "Nothing else to do tonight: count sheep until the morning.",
+  "ownCount": "Set the number yourself",
+  "ownCountTitle": "How many sheep did you count?",
+  "ownCountHint": "Everyone may do this, so fibbing is allowed. In the morning everyone sees the numbers.",
+  "ownCountSet": "Take it"
 }
