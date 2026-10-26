@@ -153,7 +153,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ### W – Wolfsspur light ([Task 006](tasks/006-wolfsspur-light.md))
 
-- [ ] Morgen-Gähnen auf allen Geräten und ein paar Atmosphäre-Geräusche in der Nacht, ohne genauen Uhrabgleich; Einstellung aus/an
+- [x] Morgen-Gähnen auf allen Geräten und ein paar Atmosphäre-Geräusche in der Nacht, ohne genauen Uhrabgleich; Einstellung aus/an
 
 **Fertig, wenn:** Alle Chaos-Tests grün sind, eine Runde mit 6 Rollen auf echten Geräten ohne Abbruch durchläuft, auch wenn der Host die App kurz schließt, und 0.1 veröffentlicht ist.
 

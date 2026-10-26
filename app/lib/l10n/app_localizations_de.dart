@@ -794,10 +794,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ohne Schäfchen beantworten nachts alle eine schlichte Frage, damit das Tippen niemanden verrät.';
 
   @override
-  String get settingsWolfTrail => 'Wolfsspur light';
+  String get settingsWolfTrail => 'Wolfsspur (nach dem ersten Release)';
 
   @override
-  String get settingsAtmosphere => 'Nacht-Atmosphäre';
+  String get settingsAtmosphere => 'Nachtgeräusche und Morgen-Gähnen';
 
   @override
   String get settingsPersonas => 'Figuren selbst wählen';

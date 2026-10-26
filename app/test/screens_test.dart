@@ -16,6 +16,7 @@ import 'package:game_core/game_core.dart';
 import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -23,6 +24,19 @@ import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
 final String? _out = Platform.environment['SCREENSHOTS'];
+
+/// Screens are pictures: no sound.
+class _Silence implements Sounds {
+  const _Silence();
+
+  @override
+  void play(Sound sound) {}
+
+  @override
+  void stopAll() {}
+}
+
+const _silence = _Silence();
 const _size = Size(390, 844);
 
 Future<void> _loadFont(String family, List<String> files) async {
@@ -238,7 +252,9 @@ void main() {
       final wanted = {Role.villager, Role.werewolf, Role.seer};
       for (var seed = 1; wanted.isNotEmpty && seed < 40; seed++) {
         final table = _Table(seed);
-        await tester.pumpWidget(shot.frame(GameScreen(session: table.you)));
+        await tester.pumpWidget(
+          shot.frame(GameScreen(session: table.you, sounds: _silence)),
+        );
         await tester.pump();
         final first = seed == 1;
         if (first) await shot.shoot('02-lobby');
@@ -276,7 +292,9 @@ void main() {
 
       // The host's settings, opened from the lobby.
       final host = _Table(1, youOwn: true);
-      await tester.pumpWidget(shot.frame(GameScreen(session: host.you)));
+      await tester.pumpWidget(
+        shot.frame(GameScreen(session: host.you, sounds: _silence)),
+      );
       await tester.pump();
       final l10n = await AppLocalizations.delegate.load(Locale(locale));
       await tester.ensureVisible(find.text(l10n.settingsButton));
@@ -291,7 +309,9 @@ void main() {
       final missing = {'cupid', 'witch', 'hunter', 'lovers'};
       for (var seed = 1; missing.isNotEmpty && seed < 60; seed++) {
         final table = _Table(seed);
-        await tester.pumpWidget(shot.frame(GameScreen(session: table.you)));
+        await tester.pumpWidget(
+          shot.frame(GameScreen(session: table.you, sounds: _silence)),
+        );
         await tester.pump();
         table.ownerSends(SettingsIntent(Preset.fullStage.settings));
         await tester.pump();

@@ -1,6 +1,6 @@
 # Task 006 – Wolfsspur light
 
-**Status:** offen
+**Status:** fertig
 **Roadmap:** MVP-Sprint, Spur W (die volle Wolfsspur steht unter „Nach dem MVP“)
 
 ## Ziel

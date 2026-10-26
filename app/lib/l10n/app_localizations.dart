@@ -1397,13 +1397,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsWolfTrail.
   ///
   /// In en, this message translates to:
-  /// **'Wolf trail light'**
+  /// **'Wolf trail (after the first release)'**
   String get settingsWolfTrail;
 
   /// No description provided for @settingsAtmosphere.
   ///
   /// In en, this message translates to:
-  /// **'Night atmosphere'**
+  /// **'Night sounds and the morning yawn'**
   String get settingsAtmosphere;
 
   /// No description provided for @settingsPersonas.

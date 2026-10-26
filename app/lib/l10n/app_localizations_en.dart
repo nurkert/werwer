@@ -784,10 +784,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Without sheep, everyone answers a plain question at night, so tapping gives nobody away.';
 
   @override
-  String get settingsWolfTrail => 'Wolf trail light';
+  String get settingsWolfTrail => 'Wolf trail (after the first release)';
 
   @override
-  String get settingsAtmosphere => 'Night atmosphere';
+  String get settingsAtmosphere => 'Night sounds and the morning yawn';
 
   @override
   String get settingsPersonas => 'Players choose their figure';

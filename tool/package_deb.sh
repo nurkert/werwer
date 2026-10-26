@@ -33,7 +33,7 @@ Section: games
 Priority: optional
 Architecture: amd64
 Maintainer: Whowolf contributors <https://github.com/nurkert/whowolf>
-Depends: libgtk-3-0, libsecret-1-0, libegl1, libgles2
+Depends: libgtk-3-0, libsecret-1-0, libegl1, libgles2, libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, gstreamer1.0-plugins-good
 Homepage: https://whowolf.de
 Description: Werewolf party game at the table, everyone on their own phone
  Open-source social deduction game; the app is the narrator.

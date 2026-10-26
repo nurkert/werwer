@@ -7,6 +7,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narrator.dart';
@@ -22,10 +23,18 @@ import 'package:whowolf/src/theme.dart';
 /// The game from this player's seat. If this device hosts, it also owns the
 /// [room] and closes it when leaving.
 class GameScreen extends StatefulWidget {
-  const GameScreen({required this.session, this.room, super.key});
+  const GameScreen({
+    required this.session,
+    this.room,
+    this.sounds,
+    super.key,
+  });
 
   final GameSession session;
   final HostedRoom? room;
+
+  /// Where night sounds go; the platform's audio unless a test passes one.
+  final Sounds? sounds;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -36,6 +45,15 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   /// Only the host device speaks, so the voice comes from one place.
   late final Voice? _voice = widget.room == null ? null : Voice();
+
+  /// Night sounds and the morning yawn, on every phone.
+  late final _atmosphere = Atmosphere(
+    room: session.roomCode,
+    sounds: widget.sounds,
+  );
+
+  /// This phone stays silent (voice and sounds).
+  bool _quiet = false;
   PlayerView? _lastView;
   String? _narration;
 
@@ -76,6 +94,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       ..removeListener(_changed)
       ..dispose();
     _voice?.stop();
+    _atmosphere.dispose();
     unawaited(widget.room?.close());
     unawaited(WakelockPlus.disable());
     super.dispose();
@@ -91,6 +110,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     }
     final view = session.view;
     if (view != null && !identical(view, _lastView) && mounted) {
+      _atmosphere.update(view);
       final l10n = AppLocalizations.of(context);
       final line = narration(_lastView, view, l10n);
       _lastView = view;
@@ -150,17 +170,19 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               semanticLabel: 'Whowolf',
             ),
             actions: [
-              if (_voice != null)
+              if (_voice != null || (view?.settings.atmosphere ?? false))
                 IconButton(
-                  tooltip: _voice.muted ? l10n.unmute : l10n.mute,
+                  tooltip: _quiet ? l10n.unmute : l10n.mute,
                   icon: Icon(
-                    _voice.muted
+                    _quiet
                         ? Icons.volume_off_outlined
                         : Icons.volume_up_outlined,
                   ),
                   onPressed: () => setState(() {
-                    _voice.muted = !_voice.muted;
-                    if (_voice.muted) _voice.stop();
+                    _quiet = !_quiet;
+                    _atmosphere.muted = _quiet;
+                    _voice?.muted = _quiet;
+                    if (_quiet) _voice?.stop();
                   }),
                 ),
               if (session.status != SessionStatus.ended)
