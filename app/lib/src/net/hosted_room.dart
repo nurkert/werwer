@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:game_core/game_core.dart' show PlayerId;
 import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:game_host/relay.dart';
@@ -74,6 +76,36 @@ class HostedRoom {
     );
   }
 
+  /// This device takes over [room] (the successor's opened copy: snapshot
+  /// and room keys) from a host that went away. Same code, same keys, so
+  /// the players' apps find it by themselves; [newOwner] (this device's
+  /// player) runs the table from now on.
+  static Future<HostedRoom> takeOver(
+    String room, {
+    required PlayerId newOwner,
+    required String hostName,
+    Uri? relayServer,
+    String Function(String room)? notice,
+  }) async {
+    final json = jsonDecode(room) as Map<String, Object?>;
+    final keys = await HostKeys.fromJson(
+      json['keys']! as Map<String, Object?>,
+    );
+    return _start(
+      GameHost.restore(
+        json['snapshot']! as String,
+        random: Random.secure(),
+        roomSecret: keys.roomSecret,
+        takeOver: true,
+        newOwner: newOwner,
+      ),
+      keys: keys,
+      hostName: hostName,
+      relayServer: relayServer,
+      notice: notice,
+    );
+  }
+
   static Future<HostedRoom> _start(
     GameHost host, {
     required HostKeys? keys,
@@ -90,8 +122,18 @@ class HostedRoom {
     final lan = await LanTransport.bind();
     host.serve(SecureTransport(lan, roomKeys));
     const store = RoomStore();
-    host.onSnapshot = (snapshot) =>
+    final sealer = SodiumSealer(await loadSodium());
+    // A successor gets the whole room, sealed; only the witness's key opens
+    // it.
+    final custody = CustodyConfig(
+      sealer: sealer,
+      room: (snapshot) => jsonEncode({'snapshot': snapshot, 'keys': keysJson}),
+    );
+    host
+      ..custody = custody
+      ..onSnapshot = (snapshot) {
         unawaited(store.save(SavedRoom(snapshot, keysJson)));
+      };
     RelayTransport? relay;
     if (relayServer != null) {
       try {
@@ -108,6 +150,7 @@ class HostedRoom {
       room: code,
       port: lan.port,
       hostKey: roomKeys.publicKey,
+      epoch: host.epoch,
     );
     final keptAlive =
         notice != null &&
@@ -210,13 +253,36 @@ class HostedRoom {
       room: roomCode,
       port: lan.port,
       hostKey: _keys.publicKey,
+      epoch: host.epoch,
     );
     _announcer = announcer;
     // Closed while announcing: close() already stopped the old announcer.
     if (_closed) await announcer.stop();
   }
 
-  Future<void> close() async {
+  /// The host's public key (the players pin it).
+  List<int> get hostKey => _keys.publicKey;
+
+  /// The room secret from the QR code.
+  List<int> get roomSecret => _keys.roomSecret;
+
+  /// Leaves on purpose: another player takes over if one can (the game
+  /// goes on without this device); otherwise the room closes for all.
+  Future<void> leave() async {
+    if (_closed) return;
+    if (await host.handOver(leave: true)) {
+      // A moment for the successor and the witness to read it.
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      await close(quietly: true);
+    } else {
+      await close();
+    }
+  }
+
+  /// Closes the room. [quietly] skips the goodbye: the players look for the
+  /// host again and find whoever took over.
+  Future<void> close({bool quietly = false}) async {
+    if (_closed && quietly) return;
     _closed = true;
     try {
       await _reviving;
@@ -224,7 +290,7 @@ class HostedRoom {
       // A failed revive leaves nothing to clean up but the rest.
     }
     await _announcer.stop();
-    await host.close();
+    await host.close(quietly: quietly);
     await KeepAlive.stop();
     await const RoomStore().clear();
   }

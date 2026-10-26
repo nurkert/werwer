@@ -140,7 +140,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaveTitle => 'Leave the game?';
 
   @override
-  String get leaveOwner => 'You are the host: the room closes for everyone.';
+  String get leaveOwner =>
+      'You are the host: another player takes over the table and the game goes on without you. If nobody can, the room closes for everyone.';
 
   @override
   String get leavePlayer => 'You can come back as long as the app stays open.';

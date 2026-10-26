@@ -100,6 +100,13 @@ Dart-Workspaces (`pub workspace`) verbinden die Pakete im Monorepo.
 - Client → Host: **Absichten** (`join`, `chooseTarget`, `vote`, …).
 - Host → Client: **gefilterte Zustandsupdates** und Ereignisse.
 - Reconnect über ein Sitzungstoken pro Spieler und Raum.
+- **Host-Übernahme** ([Task 008](tasks/008-host-uebernahme.md)):
+  - **Rollen:** Der Host wählt laufend einen **Nachfolger** und einen **Zeugen**, die ersten beiden App-Geräte in Sitzreihenfolge, die im WLAN hosten können. Der Nachfolger hält den ganzen Raum versiegelt (Schnappschuss und Raumschlüssel, libsodium secretstream), der Zeuge nur den Schlüssel.
+  - **Ablauf:** Vermissen beide den Host länger als 6 s, oder übergibt der Host beim Verlassen, öffnet der Nachfolger einen Kandidaten-Eingang. Der Zeuge verbindet sich darüber, gegenseitig authentisiert über das QR-Muster mit den Kandidatenschlüsseln, und übergibt den Schlüssel.
+  - **Weiterspielen:** Der Nachfolger hostet denselben Raum mit denselben Schlüsseln und Epoche + 1 und wird Spielleiter. Die anderen finden ihn per Bonjour wie einen umgezogenen Host.
+  - **Epochen:** Spieler meiden Hosts mit kleinerer Epoche. Ein alter Host tritt erst zurück, nachdem er sich selbst mit seinen Raumschlüsseln beim neuen angemeldet hat.
+  - **Ruhige Oberfläche:** Kurze Aussetzer zeigt die App erst nach 8 s als Pause.
+  - **Bauweise:** Die Logik liegt in reinem Dart (`game_host`: `GameHost.handOver`, `Succession`, `PlayerLink`), die App liefert nur Netz und Bonjour.
 
 ## Self-Hosting
 

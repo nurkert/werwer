@@ -66,7 +66,7 @@
   "owner": "host",
   "leave": "Leave",
   "leaveTitle": "Leave the game?",
-  "leaveOwner": "You are the host: the room closes for everyone.",
+  "leaveOwner": "You are the host: another player takes over the table and the game goes on without you. If nobody can, the room closes for everyone.",
   "leavePlayer": "You can come back as long as the app stays open.",
   "cancel": "Cancel",
   "roleVillager": "Villager",

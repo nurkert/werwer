@@ -83,6 +83,35 @@
   - kein dynamisches Ausführen
 - **Fuzz- bzw. Property-Tests** für Parser und Protokoll: Zufällige und kaputte Eingaben dürfen nie abstürzen und nie den Zustand verändern.
 
+### Host-Übernahme (A1, A2)
+
+- **Kein Gerät allein liest den Raum:**
+  - Der Nachfolger bekommt nur das Chiffrat (secretstream mit Final-Tag, Epoche als Zusatzdaten), der Zeuge nur den Schlüssel.
+  - Der Schlüssel wechselt bei jedem neuen Paar, und wer seinen Teil verliert, bekommt die Anweisung, ihn zu löschen.
+- **Zwei unabhängige Stimmen:**
+  - Der Zeuge gibt den Schlüssel nur heraus, wenn er den Host selbst länger als 6 s vermisst, oder wenn der Host selbst die Übergabe anordnet (über den geprüften Kanal).
+  - Ein manipulierter Nachfolger allein kommt also nie an die Rollen.
+- **Gegenseitige Authentisierung:**
+  - Der Kandidaten-Eingang nimmt nur Handshakes mit dem Kandidatengeheimnis an (QR-Muster), und das kennt außer dem Nachfolger nur der Zeuge.
+  - Den Handshake zum Kandidatenschlüssel besteht nur der echte Nachfolger. Ein Fremder im WLAN bekommt weder den Schlüssel noch einen Platz.
+- **Kein neuer offener Endpunkt im Normalbetrieb:**
+  - Der Eingang ist nur nach Host-Verlust offen, auf einem eigenen Port und mit den bestehenden Grenzen (`maxHandshakes`, Zeitlimit).
+  - Jede Verbindung darf genau eine Nachricht senden und wird danach geschlossen.
+  - Ein falscher Schlüssel öffnet nichts.
+- **Kein Lahmlegen durch Behauptungen:**
+  - Eine höhere Epoche in einem Hello oder in einer Bonjour-Ankündigung ist nur ein Hinweis.
+  - Der Host tritt erst zurück, wenn er sich mit seinen eigenen Raumschlüsseln und dem Token des Spielleiters beim neueren Host angemeldet hat. Das kann nur ein echter Nachfolger beantworten.
+- **Grenzen:**
+  - Nachfolger und Zeuge zusammen könnten den Raum lesen.
+  - Der neue Host hat danach dasselbe Vertrauen wie jedes Host-Gerät.
+  - Aktionen aus den letzten Millisekunden vor einem harten Ausfall können fehlen; der Spieler sieht das und tippt erneut.
+  - Die Größe des Verkehrs verrät, wer Nachfolger ist.
+  - Übernahmen laufen nur im WLAN, Relay-Spieler warten wie bisher.
+- **Tests:**
+  - `packages/game_host/test/takeover_test.dart`: ganze Partien mit Absturz, Übergabe, nur einseitigem Verbindungsverlust, falschem Schlüssel, zurückkehrendem altem Host und behaupteter Epoche.
+  - `packages/secure_channel/test/custody_test.dart`: Siegel und Eingang.
+  - `app/integration_test/takeover_test.dart`: alles echt auf macOS.
+
 ### QR-Codes und Links (A3)
 
 - **Strikte Prüfung:**

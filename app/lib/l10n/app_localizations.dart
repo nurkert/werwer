@@ -329,7 +329,7 @@ abstract class AppLocalizations {
   /// No description provided for @leaveOwner.
   ///
   /// In en, this message translates to:
-  /// **'You are the host: the room closes for everyone.'**
+  /// **'You are the host: another player takes over the table and the game goes on without you. If nobody can, the room closes for everyone.'**
   String get leaveOwner;
 
   /// No description provided for @leavePlayer.

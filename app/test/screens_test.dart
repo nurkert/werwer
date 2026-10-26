@@ -294,7 +294,8 @@ void main() {
           }
           await shot.shoot('07-${table.you.view!.phase.name}');
           await table.leaveHost();
-          await tester.pump(const Duration(seconds: 2));
+          // The pause only shows after a grace period.
+          await tester.pump(const Duration(seconds: 9));
           await shot.shoot('08-pause');
         }
         await tester.pumpWidget(const SizedBox());

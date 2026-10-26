@@ -142,7 +142,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get leaveTitle => 'Spiel verlassen?';
 
   @override
-  String get leaveOwner => 'Du bist Gastgeber: Der Raum schließt für alle.';
+  String get leaveOwner =>
+      'Du bist Gastgeber: Ein anderer Spieler übernimmt den Tisch, und die Runde geht ohne dich weiter. Ist keiner bereit, schließt der Raum für alle.';
 
   @override
   String get leavePlayer =>

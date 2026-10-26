@@ -18,7 +18,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 | Stufen Klassisch → Whowolf → Volle Bühne, jede eigene Funktion abschaltbar | Menschlicher Erzähler |
 | Tarnaufgaben für alle (Schäfchen zählen) | Eulenspur und weitere Spuren |
 | **Wolfsspur light:** Morgen-Gähnen + Atmosphäre | Volle Wolfsspur mit Uhrabgleich |
-| **Fehlertolerant:** Pausenmodus, Wiederfinden, Aktionen gehen nie verloren | Host-Übernahme durch einen Spieler |
+| **Fehlertolerant:** Pausenmodus, Wiederfinden, Aktionen gehen nie verloren, Host-Übernahme durch einen Spieler (0.1.1) | Übernahme auch über das Relay |
 | Mondbühnen-Design in der App, Figuren als Pappmodell, gleich viele Frauen und Männer | Eigene Figuren (Editor + Teilen), Musik, Stimmungen |
 | Einfacher Erzähler: Text + Sprachausgabe | Eigene Stimmen, Story am Spielende, Geistermodus |
 | Deutsch + Englisch | Weitere Sprachen |
@@ -189,7 +189,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] **Website flüssig:** Scrollen ruckelt stark; 3D-Pappe nur rendern, wenn eine Figur geneigt ist (in der App erledigt), Animationen außerhalb des Bildschirms pausieren
 - [ ] **Website-Bühne mit Liebe zu Ende gestalten:** Hintergrund (Berge, Burg) reicht bis zum Boden, Dorf als geordnete Silhouette, Figuren stehen auf einem Boden und als Gruppe zueinander
 - [ ] **Klang:** Stimme nur noch als Opt-in (vorerst System-TTS, später eingesprochene Aufnahmen); stattdessen wortlose Klänge aus einer sauberen offenen Bibliothek (CC0): typische Spielklänge, Gähnen beim Einschlafen und Aufwachen, Bühne, Abstimmung, Tod
-- [ ] **Host-Übernahme (Nachfolger + Zeuge):** fällt der Host weg, übernimmt still und schnell der nächste Spieler; der Nachfolger hält den verschlüsselten Spielstand, ein Zeuge den Schlüssel und gibt ihn nur heraus, wenn er den Host selbst verloren hat; Epochen gegen geteilte Tische, kein neuer DDoS-Weg ([Task 008](tasks/008-host-uebernahme.md))
+- [x] **Host-Übernahme (Nachfolger + Zeuge):** fällt der Host weg, übernimmt still und schnell der nächste Spieler; der Nachfolger hält den verschlüsselten Spielstand, ein Zeuge den Schlüssel und gibt ihn nur heraus, wenn er den Host selbst verloren hat; Epochen gegen geteilte Tische, kein neuer DDoS-Weg ([Task 008](tasks/008-host-uebernahme.md))
 - [ ] **play.whowolf.de:** Relay als schlanker Container auf dem eigenen VPS, Standard-Server der App; aktualisiert sich nach jedem Release selbst (signiertes Image, Abruf statt offenem Endpunkt)
 - [ ] Bildschirmfotos aller Phasen in drei Größen (Handy, Tablet, Desktop) als Prüfung im Screenshot-Test
 

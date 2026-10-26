@@ -45,7 +45,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   GameSession get session => widget.session;
 
   /// Only the host device speaks, so the voice comes from one place.
-  late final Voice? _voice = widget.room == null ? null : Voice();
+  /// Only the host device speaks, so the voice comes from one place (also
+  /// after this device took the room over).
+  Voice? get _voice => session.hosted == null ? null : _hostVoice;
+  late final Voice _hostVoice = Voice();
 
   /// Night sounds and the morning yawn, on every phone.
   late final _atmosphere = Atmosphere(
@@ -63,6 +66,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     super.initState();
     // The host must stay awake: a locked host phone ends the game for all.
     unawaited(WakelockPlus.enable());
+    final room = session.hosted;
+    if (room != null) session.adopt(room);
     session.addListener(_changed);
     WidgetsBinding.instance.addObserver(this);
   }
@@ -73,7 +78,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
-    final room = widget.room;
+    final room = session.hosted;
     if (room != null) unawaited(_revive(room));
     session.reconnectNow();
   }
@@ -96,7 +101,6 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       ..dispose();
     _voice?.stop();
     _atmosphere.dispose();
-    unawaited(widget.room?.close());
     unawaited(WakelockPlus.disable());
     super.dispose();
   }
@@ -133,7 +137,9 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.leaveTitle),
-        content: Text(widget.room != null ? l10n.leaveOwner : l10n.leavePlayer),
+        content: Text(
+          session.hosted != null ? l10n.leaveOwner : l10n.leavePlayer,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -147,7 +153,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       ),
     );
     if ((sure ?? false) && mounted) {
-      session.leave();
+      // A host hands the room over first; the screen goes right away.
+      unawaited(session.leave());
       Navigator.pop(context);
     }
   }
@@ -241,7 +248,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   /// Phones suspend a backgrounded app and with it the room, unless a
   /// foreground service keeps it alive (Android).
   bool get _mustStayOpen {
-    final room = widget.room;
+    final room = session.hosted;
     if (room == null || room.keptAlive || kIsWeb) return false;
     return switch (defaultTargetPlatform) {
       TargetPlatform.iOS || TargetPlatform.android => true,
@@ -259,8 +266,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   Widget _phase(PlayerView view) => switch (view.phase) {
     Phase.lobby => LobbyPhase(
       session: session,
-      link: widget.room?.link,
-      relayFailed: widget.room?.relayFailed ?? false,
+      link: session.hosted?.link,
+      relayFailed: session.hosted?.relayFailed ?? false,
       keepAppOpen: _mustStayOpen,
     ),
     Phase.roleReveal => RevealPhase(session: session),
@@ -463,8 +470,14 @@ class _Paused extends StatefulWidget {
 class _PausedState extends State<_Paused> {
   static const _offerLeaveAfter = Duration(seconds: 45);
 
+  /// Short drops stay invisible: the link reconnects, a successor takes
+  /// over, taps wait in the queue. Only a longer absence gets the pause.
+  static const _showAfter = Duration(seconds: 8);
+
   Timer? _timer;
+  Timer? _showTimer;
   bool _offerLeave = false;
+  bool _shown = false;
 
   @override
   void initState() {
@@ -480,8 +493,13 @@ class _PausedState extends State<_Paused> {
 
   void _watch() {
     _timer?.cancel();
+    _showTimer?.cancel();
     _offerLeave = false;
+    _shown = false;
     if (widget.paused) {
+      _showTimer = Timer(_showAfter, () {
+        if (mounted) setState(() => _shown = true);
+      });
       _timer = Timer(_offerLeaveAfter, () {
         if (mounted) setState(() => _offerLeave = true);
       });
@@ -491,12 +509,13 @@ class _PausedState extends State<_Paused> {
   @override
   void dispose() {
     _timer?.cancel();
+    _showTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final paused = widget.paused;
+    final paused = widget.paused && _shown;
     final child = widget.child;
     final l10n = AppLocalizations.of(context);
     return Stack(

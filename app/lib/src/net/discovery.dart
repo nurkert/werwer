@@ -23,19 +23,28 @@ class RoomAnnouncer {
     required String room,
     required int port,
     required List<int> hostKey,
+    int epoch = 0,
+    bool candidate = false,
   }) async {
     try {
+      final print = keyPrint(hostKey);
       final broadcast = BonsoirBroadcast(
         printLogs: false,
         service: BonsoirService(
-          name: 'Whowolf $room',
+          // A successor's entrance is not a room to join: its own name, so
+          // it never replaces the room's announcement.
+          name: candidate
+              ? 'Whowolf $room ${print.substring(0, 6)}'
+              : 'Whowolf $room',
           type: roomServiceType,
           port: port,
           attributes: {
             'room': room,
             'host': hostName,
-            'key': keyPrint(hostKey),
+            'key': print,
             'v': '$protocolVersion',
+            if (epoch > 0) 'epoch': '$epoch',
+            if (candidate) 'cand': '1',
           },
         ),
       );
@@ -92,6 +101,8 @@ class NearbyRoom {
     required this.room,
     required this.lan,
     this.keyPrint,
+    this.epoch = 0,
+    this.candidate = false,
   });
 
   final String id;
@@ -101,6 +112,12 @@ class NearbyRoom {
 
   /// Fingerprint of the host key, if the host announced one.
   final String? keyPrint;
+
+  /// How many times the room changed hands (a hint; the welcome is proof).
+  final int epoch;
+
+  /// A successor's entrance during a takeover, not a room to join.
+  final bool candidate;
 }
 
 /// Looks for rooms on the local network while it lives.
@@ -117,7 +134,12 @@ class RoomFinder extends ChangeNotifier {
   /// Whether the search could not start (no mDNS on this device).
   bool unavailable = false;
 
-  List<NearbyRoom> get rooms => _rooms.values.toList();
+  /// Rooms to join (without successors' entrances).
+  List<NearbyRoom> get rooms =>
+      _rooms.values.where((r) => !r.candidate).toList();
+
+  /// Everything announced, entrances included.
+  Iterable<NearbyRoom> get all => _rooms.values;
 
   Future<void> _start() async {
     try {
@@ -170,6 +192,10 @@ class RoomFinder extends ChangeNotifier {
       room: room,
       lan: lan,
       keyPrint: service.attributes['key'],
+      epoch:
+          int.tryParse(service.attributes['epoch'] ?? '')?.clamp(0, maxEpoch) ??
+          0,
+      candidate: service.attributes['cand'] == '1',
     );
     notifyListeners();
   }
@@ -194,22 +220,54 @@ class HostLocator {
 
   static final shared = HostLocator._();
 
+  /// Tests on one machine: every phone is this machine, and a desktop
+  /// firewall may block a fresh test build's sockets on the Wi-Fi address,
+  /// so found addresses point to the loopback interface instead.
+  @visibleForTesting
+  static bool loopback = false;
+
+  static LanAddress _here(LanAddress at) =>
+      loopback ? LanAddress('127.0.0.1', at.port) : at;
+
   RoomFinder? _finder;
 
   /// The current address of [room], whose host has [hostKey] if known.
+  /// After a takeover two hosts may announce it for a moment: the one with
+  /// the higher epoch (the welcome proves it, a stale host is refused).
   LanAddress? find(String room, List<int>? hostKey) {
+    final at = newest(room, hostKey)?.lan;
+    return at == null ? null : _here(at);
+  }
+
+  /// The announcement of [room] with the highest epoch.
+  NearbyRoom? newest(String room, List<int>? hostKey) {
     final finder = _finder ??= RoomFinder();
     final print = hostKey == null ? null : keyPrint(hostKey);
-    return finder.rooms
-        .where(
-          (r) =>
-              r.room == room &&
-              (print == null || r.keyPrint == null || r.keyPrint == print),
-        )
-        .map((r) => r.lan)
+    final matching = finder.rooms.where(
+      (r) =>
+          r.room == room &&
+          (print == null || r.keyPrint == null || r.keyPrint == print),
+    );
+    return matching.fold<NearbyRoom?>(
+      null,
+      (best, r) => best == null || r.epoch > best.epoch ? r : best,
+    );
+  }
+
+  /// Where the successor with [candidateKey] waits during a takeover.
+  LanAddress? findCandidate(String room, List<int> candidateKey) {
+    final finder = _finder ??= RoomFinder();
+    final print = keyPrint(candidateKey);
+    return finder.all
+        .where((r) => r.candidate && r.room == room && r.keyPrint == print)
+        .map((r) => _here(r.lan))
         .firstOrNull;
   }
 
   /// Starts searching early (e.g. when a game screen opens).
   void warmUp() => _finder ??= RoomFinder();
+
+  /// Fires whenever an announcement appears, changes or goes away (e.g. a
+  /// host that came back, or a player who took the room over).
+  Listenable get changes => _finder ??= RoomFinder();
 }

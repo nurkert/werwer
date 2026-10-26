@@ -1,6 +1,6 @@
 # Task 008 – Host-Übernahme: Nachfolger und Zeuge
 
-**Status:** in Arbeit (2026-10-26)
+**Status:** umgesetzt (2026-10-26); offen ist nur der Gerätetest mit drei echten Geräten. Automatisch geprüft in `packages/game_host/test/takeover_test.dart` und `app/integration_test/takeover_test.dart` (macOS, echte Sockets, Bonjour und libsodium).
 **Roadmap:** 0.1.1
 
 ## Ziel

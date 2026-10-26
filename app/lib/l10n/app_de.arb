@@ -38,7 +38,7 @@
   "owner": "Gastgeber",
   "leave": "Verlassen",
   "leaveTitle": "Spiel verlassen?",
-  "leaveOwner": "Du bist Gastgeber: Der Raum schließt für alle.",
+  "leaveOwner": "Du bist Gastgeber: Ein anderer Spieler übernimmt den Tisch, und die Runde geht ohne dich weiter. Ist keiner bereit, schließt der Raum für alle.",
   "leavePlayer": "Du kannst zurückkommen, solange die App offen bleibt.",
   "cancel": "Abbrechen",
   "roleVillager": "Dorfbewohner",

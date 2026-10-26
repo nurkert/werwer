@@ -13,11 +13,14 @@ import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/net/takeover.dart';
 import 'package:whowolf/src/scan_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// A player session that remembers itself for a resume after a restart.
-GameSession playerSession({
+/// On devices that can host it also offers to take the room over if the
+/// host goes away.
+Future<GameSession> playerSession({
   required String name,
   required String room,
   LanAddress? lan,
@@ -26,13 +29,15 @@ GameSession playerSession({
   List<int>? hostKey,
   List<int>? roomSecret,
   String? token,
-}) {
+}) async {
   const store = Store();
   final keys = RoomKeys(hostKey: hostKey, roomSecret: roomSecret);
   return GameSession(
     name: name,
     roomCode: room,
     token: token,
+    takeover: await TakeoverKit.create(),
+    relayServer: await store.relayServer(),
     dial: dialerFor(
       keys: keys,
       room: room,
@@ -63,12 +68,21 @@ GameSession playerSession({
   );
 }
 
-/// Opens the game screen for [session].
-Future<void> playSession(BuildContext context, GameSession session) =>
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(builder: (_) => GameScreen(session: session)),
-    );
+/// Opens the game screen for [session] once it is ready.
+Future<void> playSession(
+  BuildContext context,
+  Future<GameSession> session,
+) async {
+  final ready = await session;
+  if (!context.mounted) {
+    ready.dispose();
+    return;
+  }
+  await Navigator.push(
+    context,
+    MaterialPageRoute<void>(builder: (_) => GameScreen(session: ready)),
+  );
+}
 
 /// Joining: scan the host's QR code, or type the address (same Wi-Fi) or the
 /// online code (through the relay server) plus the room code.

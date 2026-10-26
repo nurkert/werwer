@@ -5,6 +5,18 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Added
+- If the host's phone goes away (closed app, empty battery) or the host
+  leaves, another player's phone takes over the room within seconds and the
+  same game goes on; that player runs the table from then on. No phone
+  alone ever holds the game's secrets for this: one keeps the room sealed,
+  another the key.
+- Short drop-outs no longer show the pause screen at once.
+
+### Changed
+- The game adapts to phones, tablets and wide windows (two columns), and
+  content scrolls softly beneath the header.
+
 ### Security
 - Joining without the QR code now asks you to confirm that the host's screen
   shows your symbols before anything from the host counts; someone on the

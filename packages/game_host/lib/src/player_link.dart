@@ -569,10 +569,12 @@ class PlayerLink {
   }
 
   /// From now on dials through [dial] (this device took over the room and
-  /// hosts it itself), at once. Queued intents go to the new host.
-  void redirect(Dialer dial) {
+  /// hosts it itself), at once. Queued intents go to the new host. With
+  /// [epoch] only a host of at least that epoch is joined from now on.
+  void redirect(Dialer dial, {int? epoch}) {
     if (_closed) return;
     _dial = dial;
+    if (epoch != null) _epoch = epoch;
     final connection = _connection;
     if (connection != null) {
       unawaited(connection.close());
