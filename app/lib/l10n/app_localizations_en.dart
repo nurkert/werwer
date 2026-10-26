@@ -555,4 +555,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpQr =>
       'Still nothing? Scan the QR code on the host phone instead.';
+
+  @override
+  String get restoreRoom => 'Restore your room';
 }

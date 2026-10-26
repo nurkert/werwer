@@ -22,7 +22,7 @@ class GameSession extends ChangeNotifier {
     this.onWelcome,
     this.onEnded,
     this.reconnectDelay = const Duration(seconds: 2),
-    this.maxReconnects = 30,
+    this.maxReconnects = 90,
   }) {
     unawaited(_connect());
   }

@@ -304,6 +304,63 @@ void main() {
     expect(players[1].view.yourRole, isNull);
   });
 
+  test('after a host crash the room is restored from its snapshot', () async {
+    String? saved;
+    host.onSnapshot = (snapshot) => saved = snapshot;
+    final players = await table(4);
+    await start(players);
+    final wolf = players.firstWhere((p) => p.view.yourRole == Role.werewolf);
+    final victim = players.firstWhere((p) => p != wolf);
+    wolf.send(NightIntent(victim.id!));
+    await settle();
+    final roles = {for (final p in players) p.id: p.view.yourRole};
+    expect(saved, isNotNull);
+
+    // The host app dies; a new one starts from the saved snapshot.
+    await host.close();
+    final restored = GameHost.restore(
+      saved!,
+      random: Random(1),
+      startTimer: timers.start,
+      clock: () => timers.now,
+    );
+    final again = MemoryTransport();
+    restored.serve(again);
+    expect(restored.roomCode, room);
+    expect(restored.ownerToken, players.first.token);
+
+    final back = <Player>[];
+    for (final p in players) {
+      back.add(
+        Player(
+          p == players.first ? restored.connectOwner() : again.connect(),
+        )..send(Hello(name: 'x', room: room, token: p.token)),
+      );
+    }
+    await settle();
+    for (var i = 0; i < players.length; i++) {
+      expect(back[i].id, players[i].id);
+      expect(back[i].view.yourRole, roles[players[i].id]);
+      expect(back[i].view.phase, Phase.night);
+    }
+    expect(back.first.last!.isOwner, isTrue);
+    // The wolf's pick survived; the night goes on from there.
+    final backWolf = back[players.indexOf(wolf)];
+    expect(backWolf.view.yourNightChoice, victim.id);
+    await restored.close();
+  });
+
+  test('a broken snapshot is refused', () {
+    expect(
+      () => GameHost.restore('{"v":1}', random: Random(1)),
+      throwsA(isA<ProtocolError>()),
+    );
+    expect(
+      () => GameHost.restore('nonsense', random: Random(1)),
+      throwsA(isA<ProtocolError>()),
+    );
+  });
+
   test('a real WebSocket on localhost carries a lobby', () async {
     final lan = await LanTransport.bind(port: 0);
     host.serve(lan);

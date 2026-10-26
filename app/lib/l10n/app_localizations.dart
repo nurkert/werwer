@@ -1015,6 +1015,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Still nothing? Scan the QR code on the host phone instead.'**
   String get helpQr;
+
+  /// No description provided for @restoreRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore your room'**
+  String get restoreRoom;
 }
 
 class _AppLocalizationsDelegate

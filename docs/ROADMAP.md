@@ -83,7 +83,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] **Host-Logik** in reinem Dart (eigenes Paket, z. B. `packages/game_host`): Raum, Raumcode, Spieler-Sitzungen, Timer. Uhr und Zufall werden injiziert.
 - [x] **Protokoll:** versionierte JSON-Nachrichten (Absichten rein, gefilterte Sichten + Ereignisse raus), eigenes Paket `packages/protocol`
 - [x] **Transport-Schnittstelle** mit In-Memory-Transport für Tests und LAN-WebSocket-Transport (`dart:io`, nur im Plattform-Teil)
-- [ ] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
+- [x] **Rejoin** per Sitzungstoken mit vollem Status; der Host speichert den Spielstand laufend und kann nach einem Absturz weitermachen
 - [ ] **Sicherheit** ([SECURITY_DESIGN.md](SECURITY_DESIGN.md)):
   - Ende-zu-Ende-Verschlüsselung per Noise-Handshake (Host-Schlüssel + Raumgeheimnis aus dem QR-Code), Bibliothek prüfen und auswählen
   - Identität nur aus der Sitzung, Rechteprüfung jeder Absicht

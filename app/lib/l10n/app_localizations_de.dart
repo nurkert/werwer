@@ -561,4 +561,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get helpQr =>
       'Immer noch nichts? Scannt stattdessen den QR-Code am Gastgeber-Handy.';
+
+  @override
+  String get restoreRoom => 'Deinen Raum wiederherstellen';
 }

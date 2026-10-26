@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
+import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -27,6 +28,7 @@ class _StartScreenState extends State<StartScreen> {
   String? _error;
   bool _busy = false;
   ResumeInfo? _resume;
+  String? _savedRoom;
 
   @override
   void initState() {
@@ -36,9 +38,11 @@ class _StartScreenState extends State<StartScreen> {
 
   Future<void> _loadResume() async {
     final resume = await const Store().loadResume();
+    final savedRoom = await const RoomStore().load();
     if (!mounted) return;
     setState(() {
       _resume = resume;
+      _savedRoom = savedRoom;
       if (resume != null && _name.text.isEmpty) _name.text = resume.name;
     });
   }
@@ -56,6 +60,39 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
     await _loadResume();
+  }
+
+  /// The host app was closed during a game: bring the room back.
+  Future<void> _restore(String snapshot) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final l10n = AppLocalizations.of(context);
+    try {
+      final room = await HostedRoom.restore(
+        snapshot,
+        hostName: _name.text.trim(),
+        relayServer: await const Store().relayServer(),
+      );
+      final session = GameSession(
+        name: _name.text.trim().isEmpty ? 'Host' : _name.text.trim(),
+        roomCode: room.roomCode,
+        token: room.host.ownerToken,
+        dial: () async => room.host.connectOwner(),
+      );
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => GameScreen(session: session, room: room),
+        ),
+      );
+    } on Object {
+      await const RoomStore().clear();
+      setState(() => _error = l10n.hostFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+      await _loadResume();
+    }
   }
 
   Future<void> _settings() async {
@@ -202,6 +239,13 @@ class _StartScreenState extends State<StartScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 28),
+                  if (_savedRoom case final saved?) ...[
+                    PrimaryButton(
+                      label: l10n.restoreRoom,
+                      onPressed: _busy ? null : () => _restore(saved),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                   if (resume != null) ...[
                     PrimaryButton(
                       label: l10n.resume(resume.room),

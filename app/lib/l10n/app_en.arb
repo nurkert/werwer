@@ -340,5 +340,6 @@
   "helpMac": "Mac: when asked “Accept incoming network connections?”, choose Allow (System Settings › Network › Firewall).",
   "helpWindows": "Windows: when the firewall asks, allow Whowolf on private networks.",
   "helpVpn": "Switch off VPNs and ad blockers that filter the local network.",
-  "helpQr": "Still nothing? Scan the QR code on the host phone instead."
+  "helpQr": "Still nothing? Scan the QR code on the host phone instead.",
+  "restoreRoom": "Restore your room"
 }

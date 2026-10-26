@@ -23,6 +23,7 @@ dependencies:
     path: ../packages/game_host
   intl: any
   mobile_scanner: ^7.4.2
+  path_provider: ^2.1.6
   protocol:
     path: ../packages/protocol
   qr_flutter: ^4.1.0

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:game_core/game_core.dart';
@@ -99,6 +100,49 @@ class GameHost {
     this._clock = _realClock,
   });
 
+  /// Restores a room from a [snapshot] written earlier (e.g. before the host
+  /// app crashed). Players come back with their tokens and find exactly
+  /// their state; a running phase timer starts again from the beginning.
+  ///
+  /// Throws a [ProtocolError] if the snapshot is not valid.
+  factory GameHost.restore(
+    String snapshot, {
+    required Random random,
+    HostConfig config = const HostConfig(),
+    StartTimer startTimer = _realTimer,
+    Clock clock = _realClock,
+  }) {
+    final json = JsonReader.decode(snapshot, maxBytes: 1 << 20);
+    if (json.integer('v') != _snapshotVersion) {
+      throw const ProtocolError('unsupported snapshot');
+    }
+    final room = json.string('room', max: roomCodeLength);
+    final host = GameHost(
+      roomCode: room,
+      random: random,
+      config: config,
+      startTimer: startTimer,
+      clock: clock,
+    );
+    final state = decodeState(json.object('state'));
+    final sessions = {
+      for (final s in json.objects('sessions', max: maxPlayers))
+        s.string('token', max: tokenLength): _Session(
+          s.string('token', max: tokenLength),
+          PlayerId(s.string('player', max: 16)),
+          owner: s.boolean('owner'),
+        ),
+    };
+    if (sessions.values.any((s) => state.player(s.player) == null)) {
+      throw const ProtocolError('session for unknown player');
+    }
+    return host
+      .._state = state
+      .._nextId = json.integer('nextId', min: 1, max: 1 << 20)
+      .._sessions.addAll(sessions)
+      .._schedulePhaseTimer();
+  }
+
   /// The code players type to join.
   final String roomCode;
 
@@ -118,6 +162,29 @@ class GameHost {
   void Function()? _cancelPhaseTimer;
   int? _phaseDeadline;
   bool _closed = false;
+
+  static const _snapshotVersion = 1;
+
+  /// Called with a fresh [snapshot] after every change, so the app can save
+  /// it. It holds every secret of the game: keep it on the host device only.
+  void Function(String snapshot)? onSnapshot;
+
+  /// The whole room (game state and sessions) as text, for [GameHost.restore].
+  String snapshot() => jsonEncode({
+    'v': _snapshotVersion,
+    'room': roomCode,
+    'nextId': _nextId,
+    'state': encodeState(_state),
+    'sessions': [
+      for (final s in _sessions.values)
+        {'token': s.token, 'player': s.player.value, 'owner': s.owner},
+    ],
+  });
+
+  /// The session token of the room owner, so the host player's own app can
+  /// rejoin a restored room.
+  String? get ownerToken =>
+      _sessions.values.where((s) => s.owner).firstOrNull?.token;
 
   /// The authoritative state (for the host's diagnostics and tests only;
   /// never show it to the host player).
@@ -374,6 +441,7 @@ class GameHost {
   }
 
   void _broadcast() {
+    onSnapshot?.call(snapshot());
     _sessions.values.forEach(_sendState);
   }
 

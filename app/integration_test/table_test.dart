@@ -18,25 +18,28 @@ import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
+import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// A player on another device, speaking the protocol over the network.
 class Bot {
-  Bot(this.name, this.connection) {
+  Bot(this.name, this.connection, {String? token}) {
     connection.messages.listen((raw) {
       final message = HostMessage.parse(raw);
+      if (message is Welcome) this.token = message.token;
       if (message is StateMessage) {
         view = message.view;
         _act();
       }
     });
-    connection.send(Hello(name: name, room: room).encode());
+    connection.send(Hello(name: name, room: room, token: token).encode());
   }
 
   static late String room;
   final String name;
   final Connection connection;
   PlayerView? view;
+  String? token;
   final _done = <String>{};
 
   void _once(String key, ClientMessage message) {
@@ -171,5 +174,52 @@ void main() {
     for (final bot in bots) {
       await bot.connection.close();
     }
+  });
+
+  testWidgets('a crashed host comes back from its saved room', (tester) async {
+    await const RoomStore().clear();
+    final room = await HostedRoom.open(hostName: 'Ada');
+    Bot.room = room.roomCode;
+    final port = room.link.lan!.port;
+    final bots = <Bot>[];
+    await tester.runAsync(() async {
+      for (final name in ['Bo', 'Cem', 'Dina']) {
+        bots.add(Bot(name, await dialHost('127.0.0.1', port)));
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+    });
+    expect(bots.every((b) => b.view?.seats.length == 3), isTrue);
+
+    // Simulate a crash: the host stops without cleaning up its saved room.
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await room.host.close();
+    });
+    final saved = await tester.runAsync(() => const RoomStore().load());
+    expect(saved, isNotNull, reason: 'room snapshot was not saved');
+
+    final restored = await tester.runAsync(
+      () => HostedRoom.restore(saved!, hostName: 'Ada'),
+    );
+    final back = <Bot>[];
+    await tester.runAsync(() async {
+      for (final bot in bots) {
+        back.add(
+          Bot(
+            bot.name,
+            await dialHost('127.0.0.1', restored!.link.lan!.port),
+            token: bot.token,
+          ),
+        );
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
+    for (var i = 0; i < bots.length; i++) {
+      expect(back[i].view?.you, bots[i].view?.you);
+      expect(back[i].view?.seats.length, 3);
+    }
+    expect(restored!.roomCode, room.roomCode);
+    await tester.runAsync(restored.close);
+    expect(await tester.runAsync(() => const RoomStore().load()), isNull);
   });
 }
