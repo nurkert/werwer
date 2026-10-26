@@ -2,6 +2,10 @@ import type { CollectionEntry } from 'astro:content';
 
 export const repoUrl = 'https://github.com/nurkert/whowolf';
 
+/** The developer area: the planning documents from docs/, kept apart from the player guide. */
+export const devBase = '/docs/dev/';
+export const devHref = (id: string) => `${devBase}${id}/`;
+
 /** Sidebar groups; documents not listed here land in "Weiteres". */
 const groups: { title: string; ids: string[] }[] = [
   { title: 'Projekt', ids: ['vision', 'roadmap', 'decisions'] },
@@ -47,4 +51,24 @@ export function groupDocs(entries: CollectionEntry<'docs'>[]) {
 
 export function sourcePath(entry: CollectionEntry<'docs'>): string {
   return `docs/${entry.filePath?.split('/docs/').pop() ?? `${entry.id}.md`}`;
+}
+
+/** Sidebar entry of the shared docs layout. */
+export interface NavItem {
+  href: string;
+  label: string;
+  current?: boolean;
+}
+
+export interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+/** Sidebar of the developer area. */
+export function devNav(entries: CollectionEntry<'docs'>[], currentId?: string): NavGroup[] {
+  return groupDocs(entries).map((group) => ({
+    title: group.title,
+    items: group.items.map((entry) => ({ href: devHref(entry.id), label: docTitle(entry), current: entry.id === currentId })),
+  }));
 }

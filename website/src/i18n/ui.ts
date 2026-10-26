@@ -23,6 +23,15 @@ export const pages = {
   privacy: { de: 'datenschutz', en: 'privacy' },
   imprint: { de: 'impressum', en: 'imprint' },
   join: { de: 'join', en: 'join' },
+  // The player guide (the "Docs"); its texts live in src/content/guide/<lang>/<page>.md.
+  docs: { de: 'docs', en: 'docs' },
+  docsWhat: { de: 'docs/was-ist-whowolf', en: 'docs/what-is-whowolf' },
+  docsPlay: { de: 'docs/so-spielt-ihr', en: 'docs/how-to-play' },
+  docsRoles: { de: 'docs/rollen', en: 'docs/roles' },
+  docsNeed: { de: 'docs/was-ihr-braucht', en: 'docs/what-you-need' },
+  docsSafety: { de: 'docs/sicherheit', en: 'docs/safety' },
+  docsHow: { de: 'docs/wie-die-app-funktioniert', en: 'docs/how-it-works' },
+  docsOrigin: { de: 'docs/woher-kommt-whowolf', en: 'docs/where-it-comes-from' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type Page = keyof typeof pages;
@@ -47,3 +56,8 @@ export function routeParam(page: Page, lang: Lang): string | undefined {
 export function alternates(page: Page): { lang: Lang; href: string }[] {
   return langs.map((lang) => ({ lang, href: path(page, lang) }));
 }
+
+/** The guide pages in reading order (the index first). */
+export const guidePages = ['docs', 'docsWhat', 'docsPlay', 'docsRoles', 'docsNeed', 'docsSafety', 'docsHow', 'docsOrigin'] as const;
+export type GuidePage = (typeof guidePages)[number];
+export const isGuidePage = (page: Page): page is GuidePage => (guidePages as readonly string[]).includes(page);

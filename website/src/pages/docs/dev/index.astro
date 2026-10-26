@@ -1,0 +1,128 @@
+---
+import { getCollection } from 'astro:content';
+
+import Docs from '../../../layouts/Docs.astro';
+import { devBase, devHref, devNav, docSummary, docTitle, groupDocs, repoUrl } from '../../../lib/docs';
+import { path } from '../../../i18n/ui';
+
+const entries = await getCollection('docs');
+const groups = groupDocs(entries);
+---
+
+<Docs
+  lang="de"
+  title="Für Entwickler – Whowolf"
+  description="Die Planungsdokumente von Whowolf: Vision, Spielregeln im Detail, Architektur, Sicherheitskonzept, Roadmap und Entscheidungen, direkt aus dem Repository."
+  home={{ href: devBase, label: 'Für Entwickler', current: true }}
+  groups={devNav(entries)}
+  aside={{ href: path('docs', 'de'), label: 'Zur Spielanleitung' }}
+  navLabel="Planungsdokumente"
+  tocLabel="Auf dieser Seite"
+>
+  <header class="intro">
+    <p class="intro__kicker">Für Entwickler</p>
+    <h1>Planungsdokumente</h1>
+    <p>
+      Roadmap, Entscheidungen, Architektur, Sicherheitskonzept und Werkzeuge: hier steht, wie Whowolf gebaut wird und warum. Die Seiten werden
+      automatisch aus dem Ordner <a href={`${repoUrl}/tree/main/docs`}>docs/</a> im Repository erzeugt und sind deshalb immer aktuell. Die
+      Planungsdokumente sind auf Deutsch.
+    </p>
+    <p class="intro__player">
+      Du willst einfach spielen? Dann ist die <a href={path('docs', 'de')}>Spielanleitung</a> der bessere Ort.
+    </p>
+  </header>
+
+  {
+    groups.map((group) => (
+      <section class="group" aria-labelledby={`g-${group.title}`}>
+        <h2 id={`g-${group.title}`}>{group.title}</h2>
+        <ul>
+          {group.items.map((entry) => (
+            <li>
+              <a href={devHref(entry.id)}>
+                <strong>{docTitle(entry)}</strong>
+                <span>{docSummary(entry)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Docs>
+
+<style>
+  .intro h1 {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    color: var(--ink);
+  }
+  .intro p {
+    margin-top: var(--space-2);
+    max-width: 62ch;
+    color: var(--ink-soft);
+  }
+  .intro a {
+    color: var(--curtain-600);
+  }
+  .intro__kicker {
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--curtain-600) !important;
+  }
+  .intro__player {
+    padding: 0.8rem 1rem;
+    border-radius: 0.5rem;
+    background: rgb(185 138 67 / 0.12);
+    border-left: 0.3rem solid #b98a43;
+  }
+  .group {
+    margin-top: var(--space-5);
+  }
+  .group h2 {
+    font-size: 1.6rem;
+    color: var(--curtain-600);
+  }
+  .group ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .group a {
+    display: grid;
+    gap: 0.3rem;
+    height: 100%;
+    padding: var(--space-3);
+    border-radius: 0.8rem;
+    background: rgb(42 27 18 / 0.05);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease,
+      transform 0.35s var(--ease-puppet);
+  }
+  .group a:hover {
+    background: rgb(185 138 67 / 0.18);
+    transform: translateY(-3px);
+  }
+  .group strong {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.3rem;
+  }
+  .group span {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .group a:hover {
+      transform: none;
+    }
+  }
+</style>

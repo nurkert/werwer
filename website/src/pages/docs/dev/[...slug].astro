@@ -1,9 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
 
-import Docs from '../../layouts/Docs.astro';
-import { docSummary, docTitle, repoUrl, sourcePath } from '../../lib/docs';
-import '../../styles/prose.css';
+import Docs from '../../../layouts/Docs.astro';
+import { devBase, devNav, docSummary, docTitle, repoUrl, sourcePath } from '../../../lib/docs';
+import { path } from '../../../i18n/ui';
+import '../../../styles/prose.css';
 
 export async function getStaticPaths() {
   const docs = await getCollection('docs');
@@ -14,9 +15,20 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const title = docTitle(entry);
 const source = sourcePath(entry);
+const groups = devNav(await getCollection('docs'), entry.id);
 ---
 
-<Docs title={`${title} – Whowolf Docs`} description={docSummary(entry) || title} current={entry} headings={headings}>
+<Docs
+  lang="de"
+  title={`${title} – Whowolf für Entwickler`}
+  description={docSummary(entry) || title}
+  home={{ href: devBase, label: 'Für Entwickler' }}
+  groups={groups}
+  aside={{ href: path('docs', 'de'), label: 'Zur Spielanleitung' }}
+  headings={headings}
+  navLabel="Planungsdokumente"
+  tocLabel="Auf dieser Seite"
+>
   <article class="prose">
     <Content />
   </article>

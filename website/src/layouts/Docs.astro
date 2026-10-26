@@ -1,41 +1,55 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import { getCollection } from 'astro:content';
-
+// The rule booklet: contents on the felt, the page itself on paper. Shared by the
+// player guide (localized) and the German developer area.
 import Base from './Base.astro';
-import { docTitle, groupDocs } from '../lib/docs';
+import type { NavGroup, NavItem } from '../lib/docs';
+import type { Lang, Page } from '../i18n/ui';
 
 interface Props {
+  lang: Lang;
   title: string;
   description: string;
-  current?: CollectionEntry<'docs'>;
+  /** Localized page, for hreflang and the language switch. */
+  page?: Page;
+  home: NavItem;
+  groups: NavGroup[];
+  /** A separate link below the groups, e.g. into the developer area. */
+  aside?: NavItem;
   headings?: { depth: number; slug: string; text: string }[];
+  navLabel: string;
+  tocLabel: string;
 }
 
-const { title, description, current, headings = [] } = Astro.props;
-const groups = groupDocs(await getCollection('docs'));
+const { lang, title, description, page, home, groups, aside, headings = [], navLabel, tocLabel } = Astro.props;
 const toc = headings.filter((heading) => heading.depth === 2);
 ---
 
-<Base lang="de" title={title} description={description}>
+<Base lang={lang} page={page} title={title} description={description}>
   <div class="docs container">
-    <nav class="docs__nav" aria-label="Dokumentation">
-      <a class="docs__home" href="/docs/" aria-current={current ? undefined : 'page'}>Übersicht</a>
+    <nav class="docs__nav" aria-label={navLabel}>
+      <a class="docs__home" href={home.href} aria-current={home.current ? 'page' : undefined}>{home.label}</a>
       {
         groups.map((group) => (
           <div class="docs__group">
             <p class="docs__group-title">{group.title}</p>
             <ul>
-              {group.items.map((entry) => (
+              {group.items.map((item) => (
                 <li>
-                  <a href={`/docs/${entry.id}/`} aria-current={entry.id === current?.id ? 'page' : undefined}>
-                    {docTitle(entry)}
+                  <a href={item.href} aria-current={item.current ? 'page' : undefined}>
+                    {item.label}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
         ))
+      }
+      {
+        aside && (
+          <a class="docs__aside" href={aside.href} aria-current={aside.current ? 'page' : undefined}>
+            {aside.label}
+          </a>
+        )
       }
     </nav>
 
@@ -45,8 +59,8 @@ const toc = headings.filter((heading) => heading.depth === 2);
 
     {
       toc.length > 1 && (
-        <aside class="docs__toc" aria-label="Auf dieser Seite">
-          <p class="docs__group-title">Auf dieser Seite</p>
+        <aside class="docs__toc" aria-label={tocLabel}>
+          <p class="docs__group-title">{tocLabel}</p>
           <ul>
             {toc.map((heading) => (
               <li>
@@ -86,8 +100,9 @@ const toc = headings.filter((heading) => heading.depth === 2);
   .docs__nav,
   .docs__toc {
     position: sticky;
-    top: var(--space-3);
-    max-height: calc(100vh - 3rem);
+    /* Below the sticky site header. */
+    top: calc(4.75rem + var(--space-3));
+    max-height: calc(100vh - 4.75rem - 3rem);
     overflow: auto;
     font-size: 0.95rem;
   }
@@ -142,13 +157,37 @@ const toc = headings.filter((heading) => heading.depth === 2);
     color: var(--moon-100);
     background: rgb(246 232 198 / 0.07);
   }
-  .docs__nav a[aria-current='page'] {
+  .docs__nav li a[aria-current='page'] {
     color: var(--ink);
     background: var(--paper);
     font-weight: 700;
   }
   .docs__home[aria-current='page'] {
     color: var(--lantern-300);
+  }
+  /* The way out of the player's path: quiet, dotted off from the chapters. */
+  .docs__aside {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: var(--space-4);
+    padding: 0.8rem 0.6rem 0.35rem;
+    border-top: 1px dotted rgb(246 232 198 / 0.3);
+    color: var(--moon-200);
+    font-size: 0.88rem;
+    text-decoration: none;
+    opacity: 0.8;
+  }
+  .docs__aside::before {
+    content: '</>';
+    font-family: ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--lantern-300);
+  }
+  .docs__aside:hover,
+  .docs__aside[aria-current='page'] {
+    color: var(--moon-100);
+    opacity: 1;
   }
   .docs__toc {
     padding-left: 0.9rem;
@@ -180,15 +219,35 @@ const toc = headings.filter((heading) => heading.depth === 2);
       padding-bottom: 0.4rem;
       scrollbar-width: none;
     }
-    .docs__home,
     .docs__group-title {
       display: none;
+    }
+    .docs__home {
+      flex: none;
+      margin: 0;
+      padding: 0.45rem 0.85rem 0.45rem 0.6rem;
+      border: 1px solid rgb(246 232 198 / 0.3);
+      border-radius: 999px;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+    .docs__home::before {
+      width: 0.9rem;
+      height: 1.15rem;
     }
     .docs__group,
     .docs__group + .docs__group,
     .docs__nav ul {
       display: contents;
       margin: 0;
+    }
+    .docs__aside {
+      margin: 0;
+      border-top: 0;
+      white-space: nowrap;
+      padding: 0.45rem 0.85rem;
+      border: 1px dotted rgb(246 232 198 / 0.3);
+      border-radius: 999px;
     }
     .docs__nav li a {
       white-space: nowrap;

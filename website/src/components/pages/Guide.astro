@@ -1,0 +1,510 @@
+---
+// The player guide: an index and one page per chapter, texts from src/content/guide/<lang>/.
+import { Picture } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+
+import Docs from '../../layouts/Docs.astro';
+import { devBase } from '../../lib/docs';
+import { figures } from '../../lib/figures';
+import { guidePages, path, ui, type GuidePage, type Lang } from '../../i18n/ui';
+import '../../styles/prose.css';
+
+interface Props {
+  lang: Lang;
+  page: GuidePage;
+}
+
+const { lang, page } = Astro.props;
+const t = ui[lang];
+const formats = ['avif', 'webp'] as const;
+
+const entries = await getCollection('guide', (entry) => entry.data.lang === lang);
+const byPage = new Map(entries.map((entry) => [entry.data.page, entry]));
+const entry = byPage.get(page);
+if (!entry) throw new Error(`Guide page "${page}" is missing for language "${lang}" (src/content/guide/${lang}/).`);
+const { Content, headings } = await render(entry);
+
+const chapters = guidePages
+  .filter((key) => key !== 'docs')
+  .map((key) => {
+    const chapter = byPage.get(key);
+    if (!chapter) throw new Error(`Guide page "${key}" is missing for language "${lang}".`);
+    return { key, href: path(key, lang), data: chapter.data };
+  });
+const index = chapters.findIndex((chapter) => chapter.key === page);
+const prev = index > 0 ? chapters[index - 1] : index === 0 ? { href: path('docs', lang), data: { short: t.guide.overview } } : undefined;
+const next = index < chapters.length - 1 ? chapters[index + 1] : undefined;
+const isIndex = page === 'docs';
+const { data } = entry;
+const status = { now: t.guide.now, planned: t.guide.planned, idea: t.guide.idea };
+---
+
+<Docs
+  lang={lang}
+  page={page}
+  title={isIndex ? `${data.title} – Whowolf` : `${data.title} – ${t.guide.title} – Whowolf`}
+  description={data.description}
+  home={{ href: path('docs', lang), label: t.guide.overview, current: isIndex }}
+  groups={[{ title: t.guide.nav, items: chapters.map((chapter) => ({ href: chapter.href, label: chapter.data.short, current: chapter.key === page })) }]}
+  aside={{ href: devBase, label: t.guide.devTitle }}
+  headings={headings}
+  navLabel={t.guide.title}
+  tocLabel={t.guide.toc}
+>
+  <header class:list={['g-head', { 'g-head--index': isIndex }]}>
+    {
+      isIndex ? (
+        <div class="g-head__cast" aria-hidden="true">
+          <Picture src={figures.seherin} alt="" formats={formats} widths={[160, 320]} sizes="7rem" loading="eager" />
+          <Picture src={figures.werwolf} alt="" formats={formats} widths={[180, 360]} sizes="8.5rem" loading="eager" />
+          <Picture src={figures.dorfbewohner} alt="" formats={formats} widths={[160, 320]} sizes="7rem" loading="eager" />
+        </div>
+      ) : (
+        <Picture class="g-head__figure" src={figures[data.figure]} alt="" formats={formats} widths={[160, 320]} sizes="7.5rem" loading="eager" />
+      )
+    }
+    <p class="g-kicker">{isIndex ? 'Whowolf' : `${t.guide.title} · ${index + 1}/${chapters.length}`}</p>
+    <h1>{data.title}</h1>
+    <p class="g-lead">{data.lead}</p>
+  </header>
+
+  {
+    isIndex && (
+      <>
+        <ul class="g-facts">
+          {t.guide.facts.map((fact) => (
+            <li>
+              <strong>{fact.value}</strong>
+              <span>{fact.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="g-note">{t.guide.testNote}</p>
+        <article class="prose g-body">
+          <Content />
+        </article>
+        <section class="g-chapters" aria-labelledby="g-chapters">
+          <h2 id="g-chapters">{t.guide.chapters}</h2>
+          <ol>
+            {chapters.map((chapter, i) => (
+              <li>
+                <a href={chapter.href}>
+                  <Picture src={figures[chapter.data.figure]} alt="" formats={formats} widths={[96, 192]} sizes="4rem" />
+                  <span class="g-chapters__text">
+                    <span class="g-chapters__num">{i + 1}</span>
+                    <strong>{chapter.data.short}</strong>
+                    <span>{chapter.data.description}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </>
+    )
+  }
+
+  {
+    data.cast && (
+      <ul class="g-cast">
+        {data.cast.map((role) => (
+          <li class:list={['g-cast__card', `g-cast__card--${role.side}`, `g-cast__card--${role.status}`]}>
+            <Picture src={figures[role.figure]} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 560px) 40vw, 10rem" />
+            <div>
+              <p class="g-cast__meta">
+                <span class="g-cast__side">{role.side === 'village' ? t.guide.village : t.guide.wolves}</span>
+                <span class="g-cast__status">{status[role.status]}</span>
+              </p>
+              <h3>{role.name}</h3>
+              <p>{role.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    !isIndex && (
+      <article class="prose g-body">
+        <Content />
+      </article>
+    )
+  }
+
+  {
+    isIndex ? (
+      <aside class="g-dev" aria-labelledby="g-dev">
+        <h2 id="g-dev">{t.guide.devTitle}</h2>
+        <p>{t.guide.devText}</p>
+        {t.guide.devNote && <p class="g-dev__note">{t.guide.devNote}</p>}
+        <a href={devBase}>{t.guide.devLink} →</a>
+      </aside>
+    ) : (
+      <nav class="g-pager" aria-label={t.guide.title}>
+        {prev && (
+          <a class="g-pager__prev" href={prev.href} rel="prev">
+            <span>← {t.guide.prev}</span>
+            <strong>{prev.data.short}</strong>
+          </a>
+        )}
+        {next && (
+          <a class="g-pager__next" href={next.href} rel="next">
+            <span>{t.guide.next} →</span>
+            <strong>{next.data.short}</strong>
+          </a>
+        )}
+      </nav>
+    )
+  }
+</Docs>
+
+<style>
+  .g-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: end;
+  }
+  .g-head > :not(picture, .g-head__cast) {
+    grid-column: 1;
+  }
+  .g-head > :global(picture) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: start;
+  }
+  .g-head :global(.g-head__figure) {
+    width: 7.5rem;
+    height: auto;
+    margin-top: -0.5rem;
+    filter: drop-shadow(0 0.6rem 0.7rem rgb(42 27 18 / 0.28));
+    transform: rotate(3deg);
+  }
+  .g-head--index {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .g-head__cast {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: var(--space-3);
+  }
+  .g-head__cast :global(img) {
+    width: 7rem;
+    height: auto;
+    filter: drop-shadow(0 0.6rem 0.7rem rgb(42 27 18 / 0.28));
+  }
+  .g-head__cast :global(picture:nth-child(1) img) {
+    transform: rotate(-6deg) translateX(1rem);
+  }
+  .g-head__cast :global(picture:nth-child(2) img) {
+    position: relative;
+    z-index: 1;
+    width: 8.5rem;
+  }
+  .g-head__cast :global(picture:nth-child(3) img) {
+    transform: rotate(6deg) translateX(-1rem);
+  }
+  .g-kicker {
+    font-weight: 800;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--curtain-600);
+  }
+  .g-head h1 {
+    margin-top: 0.4rem;
+    font-size: clamp(2.3rem, 1.6rem + 3vw, 3.6rem);
+    color: var(--ink);
+  }
+  .g-lead {
+    margin-top: var(--space-2);
+    max-width: 58ch;
+    font-size: var(--step-lead);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  .g-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .g-facts li {
+    display: grid;
+    gap: 0.15rem;
+    padding: var(--space-2);
+    border: 1px solid rgb(185 138 67 / 0.6);
+    border-radius: 0.6rem;
+    text-align: center;
+  }
+  .g-facts strong {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--curtain-600);
+  }
+  .g-facts span {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+  .g-note {
+    margin-top: var(--space-3);
+    padding: 0.8rem 1rem;
+    border-radius: 0.5rem;
+    background: rgb(185 138 67 / 0.14);
+    border-left: 0.3rem solid #b98a43;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .g-chapters {
+    margin-top: var(--space-5);
+  }
+  .g-chapters h2,
+  .g-dev h2 {
+    font-size: 1.7rem;
+    color: var(--ink);
+  }
+  .g-chapters ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .g-chapters a {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: var(--space-2);
+    align-items: center;
+    height: 100%;
+    padding: var(--space-2);
+    border-radius: 0.8rem;
+    background: rgb(42 27 18 / 0.05);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      transform 0.35s var(--ease-puppet);
+  }
+  .g-chapters a:hover {
+    background: rgb(185 138 67 / 0.18);
+    transform: translateY(-3px);
+  }
+  .g-chapters :global(img) {
+    width: 4rem;
+    height: auto;
+    filter: drop-shadow(0 0.35rem 0.4rem rgb(42 27 18 / 0.25));
+  }
+  .g-chapters__text {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .g-chapters__num {
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--curtain-600);
+  }
+  .g-chapters strong {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    line-height: 1.1;
+  }
+  .g-chapters__text > span:last-child {
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  .g-cast {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .g-cast__card {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-2);
+    align-items: start;
+    padding: var(--space-2);
+    border-radius: 0.8rem;
+    background: rgb(42 27 18 / 0.05);
+    border-top: 0.25rem solid #b98a43;
+  }
+  .g-cast__card--wolves {
+    border-top-color: var(--curtain-600);
+  }
+  .g-cast__card--planned,
+  .g-cast__card--idea {
+    background: transparent;
+    border: 1px dashed rgb(42 27 18 / 0.25);
+    border-top-width: 0.25rem;
+    border-top-style: dashed;
+  }
+  .g-cast__card :global(img) {
+    width: 5.5rem;
+    height: auto;
+    filter: drop-shadow(0 0.4rem 0.5rem rgb(42 27 18 / 0.25));
+  }
+  .g-cast__card--planned :global(img),
+  .g-cast__card--idea :global(img) {
+    filter: grayscale(0.55) drop-shadow(0 0.4rem 0.5rem rgb(42 27 18 / 0.2));
+    opacity: 0.85;
+  }
+  .g-cast__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .g-cast__meta span {
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: rgb(42 27 18 / 0.08);
+    color: var(--ink-soft);
+  }
+  .g-cast__card--wolves .g-cast__side {
+    background: rgb(158 31 36 / 0.12);
+    color: var(--curtain-700);
+  }
+  .g-cast__card--now .g-cast__status {
+    background: var(--ink);
+    color: #f7ecd2;
+  }
+  .g-cast h3 {
+    margin-top: 0.4rem;
+    font-size: 1.35rem;
+    color: var(--ink);
+  }
+  .g-cast__card p:last-child {
+    margin-top: 0.25rem;
+    font-size: 0.93rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  .g-body {
+    margin-top: var(--space-4);
+  }
+  .g-body > :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .g-dev {
+    margin-top: var(--space-5);
+    padding-top: var(--space-3);
+    border-top: 1px solid #b98a43;
+    max-width: 62ch;
+  }
+  .g-dev h2 {
+    font-size: 1.3rem;
+  }
+  .g-dev p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .g-dev__note {
+    font-style: italic;
+  }
+  .g-dev a {
+    display: inline-block;
+    margin-top: 0.6rem;
+    color: var(--curtain-600);
+    font-weight: 700;
+  }
+
+  .g-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    padding-top: var(--space-3);
+    border-top: 1px solid #b98a43;
+  }
+  .g-pager a {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.8rem 1rem;
+    border-radius: 0.6rem;
+    background: rgb(42 27 18 / 0.05);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .g-pager a:hover {
+    background: rgb(185 138 67 / 0.18);
+  }
+  .g-pager span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--curtain-600);
+  }
+  .g-pager strong {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.15;
+  }
+  .g-pager__next {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  @media (max-width: 560px) {
+    .g-head :global(.g-head__figure) {
+      width: 4.5rem;
+      margin-top: 0;
+    }
+    .g-head {
+      column-gap: var(--space-1);
+    }
+    .g-head__cast :global(img) {
+      width: 5rem;
+    }
+    .g-head__cast :global(picture:nth-child(2) img) {
+      width: 6rem;
+    }
+    .g-facts {
+      gap: 0.5rem;
+    }
+    .g-facts li {
+      padding: 0.7rem 0.4rem;
+    }
+    .g-facts strong {
+      font-size: 1.7rem;
+    }
+    .g-facts span {
+      font-size: 0.78rem;
+    }
+    .g-cast__card {
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+    }
+    .g-cast__card :global(img) {
+      width: 4.5rem;
+    }
+    .g-pager {
+      grid-template-columns: 1fr;
+    }
+    .g-pager__next {
+      grid-column: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .g-chapters a:hover {
+      transform: none;
+    }
+  }
+</style>

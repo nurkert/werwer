@@ -1,5 +1,5 @@
 // Rewrites relative links inside docs/*.md so they work on the website:
-// other docs become /docs/<slug>/, everything else points to the file on GitHub.
+// other docs become /docs/dev/<slug>/, everything else points to the file on GitHub.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,7 +21,7 @@ function rewrite(url, filePath) {
   const absolute = path.resolve(path.dirname(filePath), decodeURIComponent(target));
   const anchor = hash ? `#${hash}` : '';
   if (absolute.startsWith(docsRoot) && absolute.endsWith('.md')) {
-    return `/docs/${slugOf(path.relative(docsRoot, absolute))}/${anchor}`;
+    return `/docs/dev/${slugOf(path.relative(docsRoot, absolute))}/${anchor}`;
   }
   const relative = path.relative(repoRoot, absolute).split(path.sep).join('/');
   if (relative.startsWith('..')) return url;

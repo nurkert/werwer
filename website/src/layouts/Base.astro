@@ -38,7 +38,7 @@ const nav = [
   { href: `${home}#spiel`, label: t.nav.play },
   { href: `${home}#rollen`, label: t.nav.cast },
   { href: `${home}#wolfsspur`, label: t.nav.trail },
-  { href: '/docs/', label: t.nav.docs },
+  { href: path('docs', lang), label: t.nav.docs },
   { href: path('download', lang), label: t.nav.download },
 ];
 
@@ -183,7 +183,7 @@ const jsonLd = {
         </div>
         <nav aria-label="Footer">
           <ul>
-            <li><a href="/docs/">{t.nav.docs}</a></li>
+            <li><a href={path('docs', lang)}>{t.nav.docs}</a></li>
             <li><a href={path('download', lang)}>{t.nav.download}</a></li>
             <li><a href={repoUrl}>GitHub</a></li>
             <li><a href={`${repoUrl}/blob/main/SECURITY.md`}>{t.footer.security}</a></li>

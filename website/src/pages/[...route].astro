@@ -1,11 +1,12 @@
 ---
 // Every localized page comes from here: one static route per (language, page) pair.
 import Download from '../components/pages/Download.astro';
+import Guide from '../components/pages/Guide.astro';
 import Home from '../components/pages/Home.astro';
 import Imprint from '../components/pages/Imprint.astro';
 import Join from '../components/pages/Join.astro';
 import Privacy from '../components/pages/Privacy.astro';
-import { langs, pages, routeParam, type Lang, type Page } from '../i18n/ui';
+import { isGuidePage, langs, pages, routeParam, type Lang, type Page } from '../i18n/ui';
 
 export function getStaticPaths() {
   return langs.flatMap((lang) =>
@@ -18,7 +19,7 @@ export function getStaticPaths() {
 
 const { lang, page } = Astro.props as { lang: Lang; page: Page };
 const views = { home: Home, download: Download, privacy: Privacy, imprint: Imprint, join: Join };
-const View = views[page];
+const View = isGuidePage(page) ? undefined : views[page as keyof typeof views];
 ---
 
-<View lang={lang} />
+{isGuidePage(page) ? <Guide lang={lang} page={page} /> : View && <View lang={lang} />}

@@ -67,10 +67,10 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Datenmodell: Spieler, Rollen, Lager, Einstellungen, Spielzustand, **Sitzordnung**
 - [x] Zustandsmaschine: Lobby → Rollen verteilen → Nacht → Morgen → Tag → Abstimmung → … → Ende
 - [x] Rollen: Dorfbewohner, Werwolf, Seherin; Rollenvorschlag nach Spielerzahl
-- [ ] Anti-Tell: Tarnaufgaben für alle ohne Nachtaktion
+- [x] Anti-Tell: Tarnaufgaben für alle ohne Nachtaktion
 - [x] Siegbedingungen, Gleichstände, Phasen-Timeout
 - [x] Ereignisse für den Erzähler (nur Daten, keine Texte), gefilterte Spieler-Sichten
-- [ ] Zustand serialisierbar (JSON)
+- [x] Zustand serialisierbar (JSON)
 - [x] Sicherheit: Test für **jeden** Spieler, dass seine Sicht keine fremden Geheimnisse enthält; ungültige Aktionen ändern nie den Zustand
 - [x] Tests: jede Regel, komplette Partien über die öffentliche API, kein Informationsleck in den Sichten
 
@@ -102,20 +102,20 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Start: Name eingeben → „Raum erstellen“ oder „Beitreten“
 - [ ] Beitreten: **QR-Scanner in der App** (strenge Link-Prüfung, nur private Adressen, vor dem Verbinden bestätigen), Fallback Raumcode + IP manuell mit Host-Bestätigung und Prüfbild
 - [x] Sitzungstoken im sicheren Speicher (Keychain/Keystore); Berechtigungen erst bei Bedarf; keine Geheimnisse in Logs
-- [ ] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
+- [x] Lobby: **Tischkreis aus der eigenen Perspektive**, Sitzordnung festlegen und korrigieren, Rollenvorschlag, Start
 - [x] Spielbildschirme: Rolle ansehen → Nacht (Aktion bzw. Tarnaufgabe) → Morgen → Tag (wer lebt, Bildschirm dimmen) → Abstimmung → Sieg
-- [ ] Erzähler: Text auf allen Geräten, Sprachausgabe auf dem Host-Gerät
-- [ ] Bildschirm bleibt an (Wakelock), sauberes Reconnect nach Sperren oder Netzwechsel
-- [ ] **Netzwerk-Fallstricke abfangen** und Hilfe anzeigen:
+- [x] Erzähler: Text auf allen Geräten, Sprachausgabe auf dem Host-Gerät
+- [x] Bildschirm bleibt an (Wakelock), sauberes Reconnect nach Sperren oder Netzwechsel
+- [x] **Netzwerk-Fallstricke abfangen** und Hilfe anzeigen:
   - iOS-Berechtigung „Lokales Netzwerk“
   - Firewall-Freigabe auf dem Desktop
   - Gäste-WLAN mit Client-Isolation, Ausweg: Hotspot des Host-Handys
 - [ ] Läuft auf iPhone und Mac (Hauptplattformen, dort wird getestet), Android (im Emulator auf dem Mac), Windows und Linux (CI-Builds, Linux-Test in einer VM)
-- [ ] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
+- [x] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
 
-- [ ] **Beitritt ohne Technik:** Räume im WLAN werden automatisch gefunden (mDNS/Bonjour), QR-Code als zweiter Weg; IP, Port und Codes nur klein unter „Details“
-- [ ] **Website-Startbild aus Pappebenen:** auch der Hintergrund (Himmel, Mond, Berge, Hügel, Wiese) als gestaffelte Pappstücke mit eigener Parallaxe statt einer flachen Fläche
-- [ ] **Docs für Spieler:** Was ist Whowolf, so spielt ihr, Rollen, was ihr braucht, Sicherheit, wie die App funktioniert, Herkunft; die Planungsdokumente getrennt unter „Für Entwickler“
+- [x] **Beitritt ohne Technik:** Räume im WLAN werden automatisch gefunden (mDNS/Bonjour), QR-Code als zweiter Weg; IP, Port und Codes nur klein unter „Details“
+- [x] **Website-Startbild aus Pappebenen:** auch der Hintergrund (Himmel, Mond, Berge, Hügel, Wiese) als gestaffelte Pappstücke mit eigener Parallaxe statt einer flachen Fläche
+- [x] **Docs für Spieler:** Was ist Whowolf, so spielt ihr, Rollen, was ihr braucht, Sicherheit, wie die App funktioniert, Herkunft; die Planungsdokumente getrennt unter „Für Entwickler“
 
 **Fertig, wenn:** Eine **erste Testrunde** mit 5+ Leuten ohne Wolfsspur von Anfang bis Ende funktioniert hat.
 

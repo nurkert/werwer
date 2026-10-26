@@ -13,13 +13,13 @@
 .prose h2 {
   margin-top: 2.2em;
   font-size: 1.9rem;
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: 6.5rem;
 }
 .prose h3 {
   margin-top: 1.8em;
   font-size: 1.4rem;
   color: var(--curtain-600);
-  scroll-margin-top: 1.5rem;
+  scroll-margin-top: 6.5rem;
 }
 .prose h4 {
   margin-top: 1.5em;

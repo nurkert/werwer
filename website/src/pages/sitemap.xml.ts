@@ -1,7 +1,8 @@
-// Sitemap generated from the language config and the docs collection, with hreflang alternates.
+// Sitemap generated from the language config (incl. the player guide) and the developer docs, with hreflang alternates.
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
+import { devBase, devHref } from '../lib/docs';
 import { alternates, defaultLang, pages, path, type Page } from '../i18n/ui';
 
 export const GET: APIRoute = async ({ site }) => {
@@ -16,10 +17,11 @@ export const GET: APIRoute = async ({ site }) => {
     ].join('');
     return versions.map((v) => `<url><loc>${url(v.href)}</loc>${links}</url>`);
   });
-  const docs = (await getCollection('docs')).map((entry) => `<url><loc>${url(`/docs/${entry.id}/`)}</loc></url>`);
+  // The German developer area; the player guide is part of the localized pages above.
+  const docs = (await getCollection('docs')).map((entry) => `<url><loc>${url(devHref(entry.id))}</loc></url>`);
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${[...localized, `<url><loc>${url('/docs/')}</loc></url>`, ...docs].join('\n')}
+${[...localized, `<url><loc>${url(devBase)}</loc></url>`, ...docs].join('\n')}
 </urlset>`;
   return new Response(body, { headers: { 'Content-Type': 'application/xml; charset=utf-8' } });
 };

@@ -7,7 +7,14 @@ import { Picture } from 'astro:assets';
 import { path, repoUrl, ui, type Lang } from '../i18n/ui';
 import { storyPhones } from '../lib/phone-screens';
 import PuppetPhone from './phone/PuppetPhone.astro';
-import prospekt from '../../../design/source/stage/prospekt.png';
+import himmel from '../../../design/source/stage/ebene_himmel.png';
+import mond from '../../../design/source/stage/ebene_mond.png';
+import wolke1 from '../../../design/source/stage/ebene_wolke_1.png';
+import wolke2 from '../../../design/source/stage/ebene_wolke_2.png';
+import wolke3 from '../../../design/source/stage/ebene_wolke_3.png';
+import berge from '../../../design/source/stage/ebene_berge.png';
+import huegel from '../../../design/source/stage/ebene_huegel.png';
+import wiese from '../../../design/source/stage/ebene_wiese.png';
 import wordmark from '../assets/plates/nav-wordmark.png';
 import busch from '../../../design/source/props/busch.png';
 import tanne1 from '../../../design/source/props/tanne_1.png';
@@ -34,9 +41,28 @@ const formats = ['avif', 'webp'] as const;
 <section class="story" aria-labelledby="story-title" data-story data-beat="0">
   <div class="story__stage">
     <div class="scene">
-      <!-- painted backdrop behind the puppets -->
+      <!-- the backdrop: painted sky, then cardboard planes from far to near, each drifting at its own pace -->
       <div class="backdrop">
-        <Picture src={prospekt} alt="" formats={formats} widths={[960, 1672]} sizes="100vw" loading="eager" fetchpriority="high" />
+        <div class="plane plane--sky">
+          <Picture src={himmel} alt="" formats={formats} widths={[960, 1774]} sizes="100vw" loading="eager" fetchpriority="high" />
+        </div>
+        <div class="plane plane--moon">
+          <Picture class="c c-moon" src={mond} alt="" formats={formats} widths={[200, 400]} sizes="(max-width: 760px) 30vw, 20vw" loading="eager" />
+        </div>
+        <div class="plane plane--clouds">
+          <Picture class="c c-cloud1" src={wolke1} alt="" formats={formats} widths={[260, 513]} sizes="18vw" loading="eager" />
+          <Picture class="c c-cloud2" src={wolke2} alt="" formats={formats} widths={[170, 340]} sizes="(max-width: 760px) 28vw, 12vw" loading="eager" />
+          <Picture class="c c-cloud3" src={wolke3} alt="" formats={formats} widths={[140, 273]} sizes="(max-width: 760px) 20vw, 9vw" loading="eager" />
+        </div>
+        <div class="plane plane--mountains">
+          <Picture class="strip" src={berge} alt="" formats={formats} widths={[960, 1758]} sizes="(max-width: 760px) 240vw, 110vw" loading="eager" />
+        </div>
+        <div class="plane plane--hills">
+          <Picture class="strip" src={huegel} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 290vw, 110vw" loading="eager" />
+        </div>
+        <div class="plane plane--meadow">
+          <Picture class="strip" src={wiese} alt="" formats={formats} widths={[960, 1755]} sizes="(max-width: 760px) 215vw, 110vw" loading="eager" />
+        </div>
       </div>
       <div class="set set--far">
         <Picture class="c c-church" src={kirchturm} alt="" formats={formats} widths={[200, 400]} sizes="8vw" loading="eager" />
@@ -242,10 +268,13 @@ const formats = ['avif', 'webp'] as const;
   .pp--phone > :global(picture) {
     display: contents;
   }
-  /* parallax: when scrolling on, far layers lag behind near ones */
-  .backdrop,
+  /* parallax: when scrolling on, far layers lag behind near ones. Each backdrop plane has its
+     own pace (--k); the meadow moves with the far set so the houses stay on their ground. */
+  .plane {
+    translate: 0 calc(var(--drift, 0px) * var(--k));
+  }
   .sky {
-    translate: 0 calc(var(--drift, 0px) * 0.45);
+    translate: 0 calc(var(--drift, 0px) * 0.55);
   }
   .set--far {
     translate: 0 calc(var(--drift, 0px) * 0.3);
@@ -261,21 +290,107 @@ const formats = ['avif', 'webp'] as const;
     height: auto;
     filter: drop-shadow(0 0.6cqh 0.9cqh rgb(0 0 0 / 0.45));
   }
-  /* the painted backdrop fills the stage down to its front edge */
+  /* ---------- Backdrop planes ---------- */
   .backdrop {
     position: absolute;
-    left: 50%;
-    top: 0;
-    width: max(100cqw, 160cqh);
-    height: 100cqh;
-    transform: translateX(-50%);
+    inset: 0;
     overflow: hidden;
+    /* where each strip's top edge sits, in % of the stage height */
+    --mountains-top: 13cqh;
+    --hills-top: 36cqh;
+    --meadow-top: 60cqh;
   }
-  .backdrop :global(img) {
+  .plane {
+    position: absolute;
+    inset: 0;
+  }
+  .plane--sky {
+    --k: 0.55;
+  }
+  .plane--moon {
+    --k: 0.5;
+  }
+  .plane--clouds {
+    --k: 0.46;
+  }
+  .plane--mountains {
+    --k: 0.42;
+  }
+  .plane--hills {
+    --k: 0.36;
+  }
+  .plane--meadow {
+    --k: 0.3;
+  }
+  .plane--sky :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 30%;
+    object-position: 50% 0%;
+  }
+  /* moon and clouds are placed on the same centred frame as the puppets */
+  .plane--moon,
+  .plane--clouds {
+    left: 50%;
+    width: min(100cqw, 160cqh);
+    transform: translateX(-50%);
+  }
+  .c-moon {
+    left: 56%;
+    top: 4cqh;
+    width: 20%;
+  }
+  .c-cloud1 {
+    left: 9%;
+    top: 15cqh;
+    width: 17%;
+  }
+  .c-cloud2 {
+    left: 73%;
+    top: 26cqh;
+    width: 12%;
+  }
+  .c-cloud3 {
+    left: 40%;
+    top: 7cqh;
+    width: 9%;
+  }
+  /* wide strips: always wider than the stage so their cut ends stay off-stage; on narrow
+     screens their height wins and the sides are cropped */
+  .scene :global(.strip) {
+    position: absolute;
+    left: 50%;
+    height: auto;
+    max-width: none;
+    translate: -50% 0;
+    filter: drop-shadow(0 -0.4cqh 1.2cqh rgb(0 0 0 / 0.5));
+  }
+  .plane--mountains :global(.strip) {
+    top: var(--mountains-top);
+    width: max(110cqw, var(--mountains-min, 30cqh) * 3.64);
+  }
+  .plane--hills :global(.strip) {
+    top: var(--hills-top);
+    width: max(110cqw, var(--hills-min, 34cqh) * 3.93);
+  }
+  /* the meadow runs into flat ground below its strip */
+  .plane--meadow {
+    top: var(--meadow-top);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .plane--meadow :global(.strip) {
+    position: relative;
+    flex: none;
+    width: max(110cqw, var(--meadow-min, 12cqh) * 8.28);
+  }
+  .plane--meadow::after {
+    content: '';
+    flex: 1;
+    align-self: stretch;
+    margin-top: -2px;
+    background: #101f23;
   }
   .set,
   .cast,
@@ -627,13 +742,34 @@ const formats = ['avif', 'webp'] as const;
   /* ---------- Phones: scene below, words on top ---------- */
   @media (max-width: 760px) {
     .backdrop {
-      top: 0;
-      height: 100cqh;
+      --mountains-top: 33cqh;
+      --mountains-min: 38cqh;
+      --hills-top: 46cqh;
+      --hills-min: 34cqh;
+      --meadow-top: 64cqh;
+    }
+    /* keep the moon to the right, away from the words */
+    .plane--moon,
+    .plane--clouds {
       width: 100cqw;
     }
-    .backdrop :global(img) {
-      /* keep the moon to the right, away from the words */
-      object-position: 22% 0%;
+    .c-moon {
+      left: 68%;
+      top: 8cqh;
+      width: 30%;
+    }
+    .c-cloud1,
+    .c-cloud3 {
+      display: none;
+    }
+    .c-cloud2 {
+      left: 56%;
+      top: 18cqh;
+      width: 20%;
+    }
+    /* bring the castle a little in from the right edge */
+    .plane--mountains :global(.strip) {
+      translate: -57% 0;
     }
     .set,
     .cast {
@@ -735,7 +871,7 @@ const formats = ['avif', 'webp'] as const;
     display: none;
   }
   @media (prefers-reduced-motion: reduce) {
-    .backdrop,
+    .plane,
     .sky,
     .set,
     .cast {

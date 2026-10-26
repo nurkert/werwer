@@ -11,3 +11,13 @@ Sheet rule: TRANSPARENT background with real alpha, no glow/halo/shadows, elemen
 - `source/stage/prospekt.png`: painted night backdrop (indigo sky, stars, clouds, big cream moon, mountains, castle on a hill, hills and pine forest), opaque.
 
 Cutting: `tool/assets/slice_sheet.py` (sheets) and `tool/assets/clean_alpha.py` (single images) remove generator glow and split elements by alpha.
+
+## Depth planes for the landing hero (replaces the single `prospekt.png` there)
+
+Generated with Codex CLI 0.164.0, 2026-10-25, three generations. Attached references: `source/stage/prospekt.png` (content and palette), `source/props/haeuser.png`, `source/props/tanne_1.png`, `source/props/busch.png` (cardboard cutout style). The exact prompts are embedded in the PNGs (`impeccable embed-prompt --read <file>`).
+
+- `sheets/sheet_stage_far.png` → `source/stage/{ebene_berge,ebene_mond,ebene_wolke_1,ebene_wolke_2,ebene_wolke_3}.png`: long mountain strip with the castle, moon disc, three clouds, all with the cardboard rim, transparent sheet. `ebene_berge.png` was dimmed (brightness 0.8, saturation 0.85) so the far plane sits back.
+- `sheets/sheet_stage_near.png` → `source/stage/{ebene_huegel,ebene_wiese}.png`: forested hill strip and near meadow strip. The bottom cardboard rim of `ebene_wiese.png` was cropped so the meadow runs into a flat fill below.
+- `source/stage/ebene_himmel.png`: opaque painted night sky without moon or landscape. Colour-graded towards the `prospekt.png` sky (stars kept as generated).
+
+Cutting: `tool/assets/slice_sheet.py`.
