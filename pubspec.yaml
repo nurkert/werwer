@@ -10,4 +10,5 @@ workspace:
   - packages/protocol
   - packages/game_host
   - packages/secure_channel
+  - packages/cli
   - server

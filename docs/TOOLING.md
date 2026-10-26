@@ -33,3 +33,16 @@
   - „Erlaube ‚Lokales Netzwerk‘ in den Einstellungen.“
 - **Robust statt empfindlich:** Bildschirm aus, kurz kein WLAN, App aus Versehen geschlossen? Man ist automatisch wieder drin.
 - **Ehrlich:** Keine Fake-Ladebalken, keine Meldung „Etwas ist schiefgelaufen“ ohne Erklärung.
+
+## Kommandozeilen-Client
+
+Zum Testen ohne App (M2): `packages/cli`.
+
+```bash
+dart run packages/cli/bin/whowolf.dart host Ada            # Raum eröffnen, druckt den Beitrittslink
+dart run packages/cli/bin/whowolf.dart join Bo "<link>"    # verschlüsselt und verifiziert beitreten
+dart run packages/cli/bin/whowolf.dart join Cem 192.168.1.5 1234   # per Adresse; der Host lässt nach Prüfcode rein
+```
+
+Befehle im Spiel: `start`, `confirm`, `pick <name>`, `vote`, `vote <name|none>`, `admit <id>`, `refuse <id>`, `again`, `table`, `quit`.
+Hinweis macOS: Eine frisch kompilierte, unsignierte Binärdatei wird von der Firewall für eingehende Verbindungen still blockiert; zum Hosten `dart run` nehmen oder die Firewall-Freigabe erteilen.

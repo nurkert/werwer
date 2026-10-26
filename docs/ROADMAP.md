@@ -94,6 +94,8 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Fertig, wenn:** Zwei Rechner im selben WLAN über den Kommandozeilen-Client eine Partie spielen können und ein abgebrochener Client mit seinem Status zurückkommt.
 
+> Erreicht am 2026-10-26: Drei Kommandozeilen-Prozesse haben über die WLAN-Adresse verschlüsselt eine Partie bis zum Sieg gespielt; Abbruch und Rejoin mit Status deckt `packages/cli/test/cli_test.dart` ab. Ein Test mit zwei physischen Rechnern steht noch aus.
+
 ## M3 – App: spielbarer Prototyp
 
 **Ziel:** Mit Freunden eine echte Runde spielen, mit der App auf jedem Handy.
