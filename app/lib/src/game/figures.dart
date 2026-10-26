@@ -234,6 +234,11 @@ class _TurningFigureState extends State<TurningFigure>
   static final _random = Random();
   Timer? _nextRock;
 
+  /// The next move: a rock to both sides, or a lean to one side that
+  /// shows the board's edge (negative leans to the left).
+  bool _lean = false;
+  double _amount = 0.3;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -257,6 +262,10 @@ class _TurningFigureState extends State<TurningFigure>
         : 9000 + _random.nextInt(9000);
     _nextRock = Timer(Duration(milliseconds: wait), () async {
       if (!mounted) return;
+      _lean = _random.nextBool();
+      _amount = _lean
+          ? (0.45 + _random.nextDouble() * 0.25) * (_random.nextBool() ? 1 : -1)
+          : 0.3;
       await _sway.forward(from: 0).orCancel.catchError((Object _) {});
       if (mounted) _scheduleRock();
     });
@@ -288,9 +297,12 @@ class _TurningFigureState extends State<TurningFigure>
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: Listenable.merge([_turn, _sway]),
     builder: (context, _) {
-      // One rock, easing in and out of the upright: about ±15°.
+      // A rock (about ±15°) or a half lean to one side (25–40°), both
+      // easing in and out of the upright.
       final v = _sway.value;
-      final rock = sin(v * 2 * pi) * sin(v * pi) * 0.3;
+      final rock = _lean
+          ? pow(sin(v * pi), 2) * _amount
+          : sin(v * 2 * pi) * sin(v * pi) * _amount;
       final angle = _turn.value * pi + rock;
       final facing = cos(angle) >= 0;
       final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
