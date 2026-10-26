@@ -38,4 +38,4 @@ Die Pappfiguren im Stil „Mondbühne“, einem Puppentheater bei Mondlicht, sin
 
 ## Wie es weitergeht
 
-Im Moment wird die Testversion in echten Runden ausprobiert. Danach kommen die Wolfsspur, die Verschlüsselung, weitere Rollen und das Spielen im Browser. Später soll Whowolf auch im App Store und bei Google Play erscheinen. Was gerade passiert, steht in der [Roadmap](/docs/dev/roadmap/).
+Im Moment wird die Testversion in echten Runden ausprobiert. Danach kommen die Wolfsspur, weitere Rollen und das Spielen im Browser. Später soll Whowolf auch im App Store und bei Google Play erscheinen. Was gerade passiert, steht in der [Roadmap](/docs/dev/roadmap/).

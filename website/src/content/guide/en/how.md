@@ -44,7 +44,7 @@ There is no official server yet. You can run **your own server**: it is in the [
 docker compose up -d
 ```
 
-In the app, enter its address under Settings, “Server for online players” (it starts with `ws://` or `wss://`). Important: as long as encryption is missing, whoever runs a server can read the messages. So only use a server you trust, ideally your own.
+In the app, enter its address under Settings, “Server for online players” (it starts with `ws://` or `wss://`). The server only passes on encrypted messages and cannot read them.
 
 ## One codebase for everything
 
@@ -53,7 +53,6 @@ Whowolf is written entirely in Dart and Flutter. The same app runs on iPhone, An
 ## What is coming
 
 - **Play in the browser** without installing anything, just via QR code.
-- **End-to-end encryption** of all connections, in the Wi-Fi and through the server (see [Safety & privacy](/en/docs/safety/)).
 - **An official server** running as a completely normal container from the repository, just like your own.
 - **Synchronised sounds** on every phone for the wolf trail, conducted by the host.
 

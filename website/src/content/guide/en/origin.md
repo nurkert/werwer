@@ -38,4 +38,4 @@ The cardboard figures in the “moon stage” style, a puppet theatre by moonlig
 
 ## What comes next
 
-Right now, the test version is being tried out in real rounds. After that come the wolf trail, encryption, more roles and playing in the browser. Later, Whowolf is meant to appear in the App Store and on Google Play too. What is happening right now is in the [roadmap](/docs/dev/roadmap/) (in German).
+Right now, the test version is being tried out in real rounds. After that come the wolf trail, more roles and playing in the browser. Later, Whowolf is meant to appear in the App Store and on Google Play too. What is happening right now is in the [roadmap](/docs/dev/roadmap/) (in German).

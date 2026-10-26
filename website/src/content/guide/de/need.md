@@ -43,4 +43,4 @@ Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) da
 
 ## Gut zu wissen: Es ist eine Testversion
 
-Die aktuellen Versionen (0.0.x) sind **Testversionen**. Eine ganze Runde lässt sich spielen, aber die Verbindungen sind **noch nicht verschlüsselt**. Spielt deshalb im eigenen WLAN oder mit eurem eigenen Server, und mit Leuten, denen ihr vertraut. Warum das so ist und was noch kommt, steht unter [Sicherheit & Privatsphäre](/docs/sicherheit/).
+Die aktuellen Versionen (0.0.x) sind **Testversionen**. Eine ganze Runde lässt sich spielen, und seit 0.0.3 sind alle Verbindungen **Ende-zu-Ende-verschlüsselt**. Es kann aber noch ruckeln: Gebt uns Bescheid, wenn etwas nicht klappt. Mehr zur Sicherheit steht unter [Sicherheit & Privatsphäre](/docs/sicherheit/).

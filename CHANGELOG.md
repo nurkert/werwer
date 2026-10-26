@@ -3,7 +3,7 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 will be the first release ("MVP").
 
-## Unreleased
+## 0.0.3 – 2026-10-26
 
 ### Added
 - End-to-end encryption of every remote connection (Noise NKpsk2 with the key and

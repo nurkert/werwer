@@ -44,7 +44,7 @@ Einen offiziellen Server gibt es noch nicht. **Einen eigenen Server** könnt ihr
 docker compose up -d
 ```
 
-In der App tragt ihr seine Adresse unter Einstellungen bei „Server für Online-Spieler“ ein (sie beginnt mit `ws://` oder `wss://`). Wichtig: Solange die Verschlüsselung fehlt, kann der Betreiber eines Servers die Nachrichten mitlesen. Nutzt deshalb nur einen Server, dem ihr vertraut, am besten euren eigenen.
+In der App tragt ihr seine Adresse unter Einstellungen bei „Server für Online-Spieler“ ein (sie beginnt mit `ws://` oder `wss://`). Der Server reicht nur verschlüsselte Nachrichten weiter und kann sie nicht lesen.
 
 ## Eine Codebasis für alles
 
@@ -53,7 +53,6 @@ Whowolf ist komplett in Dart und Flutter geschrieben. Dieselbe App läuft auf iP
 ## Was noch kommt
 
 - **Im Browser mitspielen**, ohne etwas zu installieren, einfach per QR-Code.
-- **Ende-zu-Ende-Verschlüsselung** aller Verbindungen, im WLAN wie über den Server (siehe [Sicherheit & Privatsphäre](/docs/sicherheit/)).
 - **Ein offizieller Server**, der als ganz normaler Container aus dem Repository läuft, genau wie euer eigener.
 - **Synchrone Geräusche** auf allen Handys für die Wolfsspur, gesteuert vom Gastgeber.
 

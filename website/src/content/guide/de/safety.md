@@ -32,15 +32,14 @@ Auch von außen soll niemand etwas erkennen: Nachts tippen alle, jeder Nacht-Bil
 - **Berechtigungen erst, wenn nötig.** Die Kamera nur zum Scannen, das lokale Netzwerk erst beim Eröffnen oder Beitreten. Kein Standort, keine Kontakte, kein Mikrofon.
 - **Nachprüfbare Downloads.** Jede Version wird automatisch aus dem öffentlichen Quellcode gebaut, mit Prüfsummen und Herkunftsnachweis. Wie ihr eine Datei prüft, steht auf der [Download-Seite](/download/).
 
-## Was noch fehlt (ehrlich)
+## Verschlüsselt, und zwar richtig
 
-Die Testversion ist **noch nicht Ende-zu-Ende-verschlüsselt**. Das heißt: Wer im selben WLAN technisch mitliest oder einen Vermittlungsserver betreibt, könnte die Nachrichten der Runde sehen, also auch Rollen. Spielt deshalb vorerst nur im eigenen WLAN oder mit eurem eigenen Server, unter Leuten, denen ihr vertraut.
+Seit Version 0.0.3 ist **jede Verbindung Ende-zu-Ende-verschlüsselt**, im WLAN wie über einen Vermittlungsserver. Wer mitlauscht, auch der Betreiber eines Servers, sieht nur gleich große Pakete mit Zeichensalat.
 
-Geplant ist vor dem ersten offiziellen Release:
-
-- **Verschlüsselung jeder Verbindung** nach einem etablierten Verfahren (einem sogenannten Noise-Handshake). Der Schlüssel dafür steckt im QR-Code, den man nur am Tisch scannen kann. Wer mitlauscht, sieht dann nur Zeichensalat, auch der Server.
-- **Gleicher Takt für alle:** Nachts bekommt jedes Gerät gleich viele und gleich große Nachrichten, damit nicht einmal die Menge des Datenverkehrs die Werwölfe verrät.
-- **Bestätigung beim Beitritt von Hand:** Wer ohne QR-Code beitritt, muss vom Gastgeber bestätigt werden, und beide Geräte zeigen ein kurzes Prüfbild zum Vergleichen.
+- **Mit QR-Code:** Der Code am Tisch enthält einen Schlüssel und ein Geheimnis dieses Raums. Daran erkennt eure App den echten Gastgeber, ein Betrüger im WLAN kann sich nicht dazwischenschalten.
+- **Ohne QR-Code** (Raum in der Nähe gefunden oder von Hand eingegeben): Die Verbindung ist genauso verschlüsselt. Damit niemand Fremdes hereinrutscht, zeigt euer Handy drei Zeichen, und der Gastgeber lässt euch erst rein, wenn sie mit denen auf seinem Bildschirm übereinstimmen.
+- **Gleich große Nachrichten:** Jede Nachricht wird auf feste Größen aufgefüllt, und alle bekommen bei jeder Änderung dieselbe Menge. So verrät nicht einmal der Datenverkehr, wer nachts als Werwolf mehr zu tun hat.
+- **Geprüftes Verfahren:** Whowolf nutzt das Noise-Protokoll mit X25519, ChaCha20-Poly1305 und BLAKE2s und testet gegen die offiziellen Testdaten des Verfahrens. Ein unabhängiger Blick von außen steht vor Version 1.0 noch aus.
 
 ## Eine ehrliche Grenze
 

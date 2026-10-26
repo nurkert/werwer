@@ -32,15 +32,14 @@ Nothing should give anything away from the outside either: at night everyone tap
 - **Permissions only when needed.** The camera only for scanning, the local network only when opening or joining a room. No location, no contacts, no microphone.
 - **Verifiable downloads.** Every version is built automatically from the public source code, with checksums and proof of origin. How to check a file is explained on the [download page](/en/download/).
 
-## What is still missing (honestly)
+## Encrypted, properly
 
-The test version is **not end-to-end encrypted yet**. That means: someone on the same Wi-Fi with the right tools, or whoever runs a relay server, could read the game’s messages, roles included. For now, play only in your own Wi-Fi or with your own server, among people you trust.
+Since version 0.0.3, **every connection is end-to-end encrypted**, in the Wi-Fi and through a relay server. Eavesdroppers, including whoever runs a server, only see equally sized packets of gibberish.
 
-Planned before the first official release:
-
-- **Encryption of every connection** using an established method (a so-called Noise handshake). The key is in the QR code, which can only be scanned at the table. Eavesdroppers, the server included, would then see only gibberish.
-- **The same rhythm for everyone:** at night, every device gets the same number of equally sized messages, so not even the amount of traffic gives the werewolves away.
-- **Confirmation for manual joins:** whoever joins without the QR code has to be confirmed by the host, and both devices show a short check picture to compare.
+- **With the QR code:** the code at the table contains a key and a secret of this room. That is how your app recognises the real host; an impostor on the Wi-Fi cannot slip in between.
+- **Without the QR code** (room found nearby or typed in): the connection is just as encrypted. So that no stranger slips in, your phone shows three symbols, and the host only lets you in when they match the ones on their screen.
+- **Equally sized messages:** every message is padded to fixed sizes, and everyone gets the same amount on every change. So not even the traffic reveals who has more to do at night as a werewolf.
+- **An established method:** Whowolf uses the Noise protocol with X25519, ChaCha20-Poly1305 and BLAKE2s, tested against the method’s official test data. An independent outside review is still due before version 1.0.
 
 ## An honest limit
 

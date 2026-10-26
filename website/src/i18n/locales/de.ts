@@ -110,7 +110,7 @@ const de = {
       { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail, keine Telefonnummer.' },
       { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker. Weder in der App noch hier.' },
       { title: 'Lokal im WLAN', text: 'Ein Handy ist die Bühne. Eure Partie verlässt den Tisch nicht.' },
-      { title: 'Bald verschlüsselt', text: 'Vor der ersten offiziellen Version wird jede Verbindung Ende-zu-Ende verschlüsselt. Wer dann mitlauscht, hört nur Rauschen.' },
+      { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
       { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
       { title: 'Für alle Geräte', text: 'Android, iOS, macOS, Windows und Linux aus einer Codebasis.' },
     ],
@@ -239,8 +239,8 @@ const de = {
     privacy: 'Diese Seite schickt nichts weiter: Die Angaben aus dem Link bleiben in deinem Browser.',
   },
   dl: {
-    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Die Versionen 0.0.x sind Testversionen: spielbar im eigenen WLAN oder über einen eigenen Server, noch ohne Verschlüsselung.',
-    prereleaseNote: 'Testversion: spielbar mit Freunden im eigenen WLAN, noch ohne Verschlüsselung.',
+    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Die Versionen 0.0.x sind Testversionen: spielbar im WLAN oder über einen eigenen Server, ab 0.0.3 Ende-zu-Ende-verschlüsselt.',
+    prereleaseNote: 'Testversion: spielbar mit Freunden, es kann noch ruckeln.',
     requirements: 'Voraussetzungen',
     recommended: 'Für dein Gerät',
     others: 'Andere Systeme',
@@ -289,7 +289,7 @@ const de = {
       { value: '1', label: 'Gerät pro Person' },
       { value: '0', label: 'Konten, Werbung, Tracker' },
     ],
-    testNote: 'Whowolf ist eine frühe Testversion: spielbar, aber noch nicht verschlüsselt. Spielt im eigenen WLAN mit Leuten, denen ihr vertraut.',
+    testNote: 'Whowolf ist eine frühe Testversion: spielbar und verschlüsselt, aber es kann noch ruckeln.',
     chapters: 'Die Kapitel',
     /** Heading id of the wolf trail section on the how-to-play page. */
     trailAnchor: 'die-wolfsspur-geplant',

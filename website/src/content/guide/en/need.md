@@ -43,4 +43,4 @@ Anyone not on the same Wi-Fi can join through a **relay server**. There is no of
 
 ## Good to know: this is a test version
 
-The current versions (0.0.x) are **test versions**. A full round is playable, but connections are **not encrypted yet**. So play in your own Wi-Fi or with your own server, with people you trust. Why that is and what is coming is explained in [Safety & privacy](/en/docs/safety/).
+The current versions (0.0.x) are **test versions**. A full round is playable, and since 0.0.3 all connections are **end-to-end encrypted**. Things may still be rough around the edges: tell us when something doesn’t work. More about safety in [Safety & privacy](/en/docs/safety/).
