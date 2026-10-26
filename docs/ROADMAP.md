@@ -10,8 +10,22 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ## Was ins MVP 0.1 gehört und was nicht
 
-| Im MVP 0.1 | Bewusst später |
+| Im MVP 0.1 (bis 2026-11-01) | Bewusst später |
 |---|---|
+| Lokal im WLAN, ein Handy ist Host; Relay mit eigenem Server | Offizieller Server, gemischtes Spiel |
+| Beitritt per Raumsuche (Bonjour) und QR-Code, Raumcode/IP als Fallback | Beitritt im Browser ohne Installation |
+| Rollen: Dorfbewohner, Werwolf, Seherin, **Hexe, Jäger, Amor** | Beschützer, eigene Rollen, Beitritt während der Partie |
+| Stufen Klassisch → Whowolf → Volle Bühne, jede eigene Funktion abschaltbar | Menschlicher Erzähler |
+| Tarnaufgaben für alle (Schäfchen zählen) | Eulenspur und weitere Spuren |
+| **Wolfsspur light:** Morgen-Gähnen + Atmosphäre | Volle Wolfsspur mit Uhrabgleich |
+| **Fehlertolerant:** Pausenmodus, Wiederfinden, Aktionen gehen nie verloren | Host-Übernahme durch einen Spieler |
+| Mondbühnen-Design in der App, Figuren als Pappmodell, gleich viele Frauen und Männer | Eigene Figuren (Editor + Teilen), Musik, Stimmungen |
+| Einfacher Erzähler: Text + Sprachausgabe | Eigene Stimmen, Story am Spielende, Geistermodus |
+| Deutsch + Englisch | Weitere Sprachen |
+| iPhone und Mac zuerst, dazu Android, Windows, Linux als Download | App Store, Google Play |
+| Zuverlässigkeit durch Chaos- und Simulationstests | Externer Krypto-Review (Pflicht vor den Stores) |
+
+---|---|
 | Lokal im WLAN, ein Handy ist Host | Server, Relay, gemischtes Spiel |
 | Beitritt per QR-Scanner in der App, Raumcode/IP als Fallback | Beitritt im Browser ohne Installation, mDNS-Suche |
 | Rollen: Dorfbewohner, Werwolf, Seherin | Hexe, Jäger, Amor, Beschützer, eigene Rollen |
@@ -121,37 +135,46 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Fertig, wenn:** Eine **erste Testrunde** mit 5+ Leuten ohne Wolfsspur von Anfang bis Ende funktioniert hat.
 
-## M4 – Wolfsspur v1
+## MVP-Sprint (bis 2026-11-01)
 
-**Ziel:** Das Alleinstellungsmerkmal ist spielbar ([NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)).
+**Ziel:** Ein MVP, das man Freunden zeigen kann: stabil, schön, mit genug Rollen für richtige Runden. Statt Testabenden (früher M5) sichern **definierte automatische Tests** die Zuverlässigkeit ab. Die volle Wolfsspur (früher M4) kommt nach dem MVP, ins MVP kommt eine einfache Version.
 
-- [ ] Uhrabgleich mit dem Host, synchrones Abspielen („Geräusch S auf Gerät D um Zeitpunkt T“)
-- [ ] Spur-Logik in `game_core`: Wolfsspur nach der Spur-Regel, Atmosphäre-Geräusche, Überdecken, Morgen-Gähnen
-- [ ] Audio in der App: Stummschalter auf iOS umgehen, Kopfhörer erkennen
-- [ ] Einstellung aus / subtil / deutlich; Startwerte per **Simulation** mit einfachen Bots abschätzen
-- [ ] Erste eigene bzw. lizenzfreie Geräusche (Herkunft dokumentiert)
+### S – Stabiles Netz ([Task 002](tasks/002-stabiles-netz.md))
 
-**Fertig, wenn:** Die Wolfsspur in einer Testrunde zu Verdächtigungen am Tisch geführt hat und niemand sie als nervig empfand.
+- [ ] Zustand mit Versionsnummer; veraltete Nachrichten werden verworfen
+- [ ] Aktionen mit Nummer, Bestätigung und Doppel-Erkennung (keine Stimme geht verloren oder zählt doppelt)
+- [ ] Pausenmodus: Fehlt der Host, frieren die Timer ein, alle sehen eine ruhige Pause statt eines Fehlers; Apps warten die ganze Spielsitzung
+- [ ] Host wiederfinden: Bonjour-Suche nach Raum und Schlüssel statt fester IP, WLAN und Relay parallel
+- [ ] Android: Vordergrund-Dienst für den Host; iOS: Hinweis, die App offen zu lassen
+- [ ] Chaos-Tests: simuliertes Netz mit Verlust, Verzögerung, Doppelungen, Vertauschen und Host-Abstürzen; jede Partie endet regelkonform, alle Sichten stimmen überein
 
-## M5 – Testen & Nachschärfen
+### D – Mondbühne in der App ([Task 003](tasks/003-mondbuehne-app.md))
 
-**Ziel:** Aus „funktioniert“ wird „macht Spaß und ist zuverlässig“.
+- [ ] Einheitliches Design aus den gemeinsamen Tokens: Papier, Pappkarten, Bühnenrahmen, Lilita One; verspielt, aber ernst zu nehmen
+- [ ] Figuren als Pappmodell mit Tiefe: beim Drehen eine echte Kartonkante, Rückseite aus dem Umriss (graue Pappe, Stempel); in App und Website gleich
+- [ ] Jeder Bildschirm durchdacht: Start, Lobby, Rolle, Nacht, Morgen, Tag, Abstimmung, Ende, Pause
 
-- [ ] 3–4 Testrunden mit verschiedenen Gruppen; Feedback in Issues festhalten
-- [ ] Balance der Wolfsspur und der Rollenverteilung nachjustieren
-- [ ] Bedienung vereinfachen: in unter 30 Sekunden vom Öffnen bis zur ersten Nacht
-- [ ] Zuverlässigkeit: keine Spielabbrüche durch Verbindungsprobleme (häufigste Kritik bei der Konkurrenz)
+### F – Rollen, Einstellungen, Figuren ([Task 004](tasks/004-rollen-und-einstellungen.md), [Task 005](tasks/005-figuren.md))
 
-**Fertig, wenn:** Testgruppen von sich aus nochmal spielen wollen.
+- [ ] Rollen Hexe, Jäger, Amor (mit Liebespaar) in `game_core`, mit Tarnaufgaben für alle
+- [ ] Alles Eigene optional, in Stufen: **Klassisch** (wie das Kartenspiel, nur mit der App als Erzähler) → **Whowolf** (Schäfchen, Gähnen, Atmosphäre) → **Volle Bühne**; danach jede Einstellung einzeln
+- [ ] Einstellungen: Rollen und Anzahl, Phasenzeiten, Rollen nach dem Tod aufdecken, Schäfchen, Wolfsspur, Figurenwahl, Erzählstimme
+- [ ] Gleich viele weibliche und männliche Figuren (neue Figurenbilder im Mondbühnen-Stil)
 
-## M6 – Release 0.1
+### W – Wolfsspur light ([Task 006](tasks/006-wolfsspur-light.md))
+
+- [ ] Morgen-Gähnen auf allen Geräten und ein paar Atmosphäre-Geräusche in der Nacht, ohne genauen Uhrabgleich; Einstellung aus/an
+
+**Fertig, wenn:** Alle Chaos-Tests grün sind, eine Runde mit 6 Rollen auf echten Geräten ohne Abbruch durchläuft, auch wenn der Host die App kurz schließt, und 0.1 veröffentlicht ist.
+
+## M6 – Release 0.1 ([Task 007](tasks/007-release-0-1.md))
 
 **Ziel:** Whowolf ist öffentlich herunterladbar und verständlich präsentiert.
 
 - [ ] Visuelle Identität aus Spur D in der App angekommen
 - [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
 - [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
-- [ ] **Externer Review des Handshakes** (`packages/secure_channel`) durch jemanden mit Krypto-Erfahrung
+- [ ] **Externer Review des Handshakes** (`packages/secure_channel`) durch jemanden mit Krypto-Erfahrung (bis 2026-11-01 nicht zu schaffen: 0.1 bleibt als Entwickler-Beta gekennzeichnet, der Review ist Pflicht vor den Stores)
 - [ ] iOS über **TestFlight** von Anfang an (Apple Developer Account vorhanden), macOS signiert und notarisiert
 - [ ] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
 - [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
@@ -167,16 +190,17 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.
 
 1. **Beitritt im Browser ohne Installation:** Der Host liefert die Flutter-Web-App im WLAN aus. Das ist der stärkste Wachstumshebel laut Marktanalyse.
-2. **Mehr Spiel:**
-   - Hexe, Jäger, Amor, Beschützer
+2. **Volle Wolfsspur** (früher M4, [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)): Uhrabgleich mit dem Host, synchrones Abspielen, Spur-Regel, Überdecken, Stummschalter auf iOS umgehen, Kopfhörer erkennen, Startwerte per Simulation mit Bots, eigene bzw. lizenzfreie Geräusche.
+3. **Mehr Spiel:**
+   - Beschützer
    - Eulenspur und eigene Whowolf-Rollen (Fährtenleger, Lauscher, Stille Pfote)
-   - Einstellungen
    - Beitritt während der Partie
    - menschlicher Erzähler, Story am Ende, Geistermodus
-   - mDNS-Suche
-3. **Design & Atmosphäre:** Rollen-Artwork, Stimmen, Musik, Stimmungen, Animationen.
-4. **Stores:** Google Play (25 $ einmalig) und App Store, Datenschutzerklärung, Store-Einträge.
-5. **Server (ganz zum Schluss):**
+4. **Host-Übernahme:** Fällt das Host-Gerät ganz aus, übernimmt ein Spieler. Der Spielstand liegt dafür verschlüsselt verteilt bei den Spielern, und nur mehrere zusammen können ihn öffnen (Secret Sharing), damit niemand allein schummeln kann.
+5. **Eigene Figuren (nur notiert, noch nicht umsetzen):** In der App eigene Figuren mit einem kleinen Zeichenprogramm erstellen. Für die Fähigkeiten einer Figur bieten wir eine Schnittstelle an. Hat jemand im Raum eine eigene Figur, wird sie automatisch an alle geteilt; jeder entscheidet, ob er sie offline behalten oder immer ignorieren will. Sicherheit: geteilte Figuren sind nur Daten (keine ausführbaren Inhalte), mit festen Größen- und Formatgrenzen, strenger Prüfung und Zustimmung pro Gerät.
+6. **Design & Atmosphäre:** Rollen-Artwork, Stimmen, Musik, Stimmungen, Animationen.
+7. **Stores:** Google Play (25 $ einmalig) und App Store, Datenschutzerklärung, Store-Einträge.
+8. **Server (ganz zum Schluss):**
    - Relay-Server (`server/`) ohne Spiellogik
    - gemischtes Spiel
    - Beitrittsseite `whowolf.de/join` mit Deep Links
