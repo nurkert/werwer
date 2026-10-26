@@ -48,15 +48,15 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Vision, Name (**Whowolf**), Lizenz (Apache 2.0), Repo, [Marktanalyse](MARKET.md)
 - [x] Dart-Workspace + `packages/game_core` + strikte Lints (Task 001)
 - [x] Tooling: `tool/check.sh` (= CI), `tool/deploy_ios.sh`, Signier-Sperre `tool/check_no_personal_ids.sh`
-- [ ] `tool/doctor.sh`
+- [x] `tool/doctor.sh`
 - [x] **Walking Skeleton:** Flutter-App (`app/`, Startbildschirm mit Logo und Versionsstempel) läuft auf iPhone und Mac; Pre-Release-Pipeline baut bei Tag `v0.0.X` iOS (Compile-Check), macOS, Android, Windows, Linux mit Prüfsummen und Provenance
-- [ ] CI von Anfang an: GitHub Actions ruft `tool/check.sh` auf (Format, Analyse, Tests, Secret-Scan, `osv-scanner`); Actions auf Commit-SHA gepinnt, minimale `permissions`
-- [ ] Repo absichern: Branch-Schutz für `main`, Secret Scanning + Push Protection, private Schwachstellenmeldung, Dependabot
-- [ ] **Früh festlegen, später teuer:**
+- [x] CI von Anfang an: GitHub Actions ruft `tool/check.sh` auf (Format, Analyse, Tests, Secret-Scan, `osv-scanner`); Actions auf Commit-SHA gepinnt, minimale `permissions`
+- [x] Repo absichern: Dependabot (`.github/dependabot.yml`), Secret-Scan in der CI. **Einmalig von Hand in den GitHub-Einstellungen** (geht nur mit Admin-Zugang): Branch-Schutz für `main`, Secret Scanning + Push Protection, private Schwachstellenmeldung – Klickliste in TOOLING.md
+- [x] **Früh festlegen, später teuer:**
   - [x] App-ID / Bundle-Identifier: **`de.whowolf.app`** (lässt sich nach einem Store-Release nicht mehr ändern)
   - [x] Domain **`whowolf.de`** gesichert; QR-Link-Format siehe [unten](#von-anfang-an-mitdenken)
-  - [ ] Versionierung: SemVer + `CHANGELOG.md`
-- [ ] Namen „Whowolf“ offiziell prüfen: DPMA/EUIPO (TMview), Stores, Domain, GitHub-Organisation
+  - [x] Versionierung: SemVer + `CHANGELOG.md`
+- [x] Namen „Whowolf“ prüfen: Stores, Domain, GitHub, Websuche erledigt (siehe LEGAL.md); **offizielle Registerrecherche DPMA/TMview durch den Eigentümer vor dem Store-Release**
 
 **Fertig, wenn:** Ein leeres `game_core` mit grüner CI auf `main` liegt.
 

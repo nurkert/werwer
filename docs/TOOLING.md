@@ -46,3 +46,14 @@ dart run packages/cli/bin/whowolf.dart join Cem 192.168.1.5 1234   # per Adresse
 
 Befehle im Spiel: `start`, `confirm`, `pick <name>`, `vote`, `vote <name|none>`, `admit <id>`, `refuse <id>`, `again`, `table`, `quit`.
 Hinweis macOS: Eine frisch kompilierte, unsignierte Binärdatei wird von der Firewall für eingehende Verbindungen still blockiert; zum Hosten `dart run` nehmen oder die Firewall-Freigabe erteilen.
+
+## Einmalige GitHub-Einstellungen (Admin)
+
+Repository → **Settings**:
+
+1. **Branches → Add branch ruleset** für `main`: Pull Request oder Status-Checks verlangen, „CI / check“ und „CI / security“ als Pflicht-Checks, Force-Push und Löschen verbieten.
+2. **Code security → Secret Protection:** einschalten, dazu **Push protection**.
+3. **Code security → Private vulnerability reporting:** einschalten (passt zu `SECURITY.md`).
+4. **Code security → Dependabot alerts** und **security updates** einschalten (die Versions-Updates kommen aus `.github/dependabot.yml`).
+
+Neue Umgebung prüfen: `tool/doctor.sh`.

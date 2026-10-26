@@ -77,3 +77,11 @@ Option für später: den Server unter **AGPL** stellen, damit Änderungen an öf
 - Apple: 99 $/Jahr, iOS-Apps nur über den App Store.
 - Google: 25 $ einmalig. Neue private Entwicklerkonten müssen eine Testphase mit mehreren Testern durchlaufen.
 - Altersfreigabe: Werwolf hat „Töten“ als Thema, aber ohne Gewaltdarstellung. Beim Fragebogen ehrlich angeben.
+
+## Namensprüfung „Whowolf“ (Stand 2026-10-26)
+
+- **Domain:** `whowolf.de` gehört dem Projekt.
+- **App Store / Google Play:** keine App namens „Whowolf“ gefunden (Suche über die öffentliche iTunes-Suche und Google Play).
+- **Websuche** nach „Whowolf“ als Marke, App oder Spiel: keine Treffer.
+- **GitHub:** Der Name `github.com/whowolf` ist bereits vergeben (fremdes Konto); das Projekt liegt unter `nurkert/whowolf`. Eine eigene Organisation bräuchte einen anderen Namen (z. B. `whowolf-game`).
+- **Markenregister:** DPMAregister und TMview (EUIPO) lassen sich nicht automatisiert abfragen. **Vor einem Store-Release** muss der Eigentümer dort eine Identitäts- und Ähnlichkeitsrecherche für die Klassen 9 und 41 machen (oder machen lassen).
