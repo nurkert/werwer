@@ -157,7 +157,11 @@ class Table {
       CustodyConfig(sealer: sealer, room: (snapshot) => snapshot);
 
   void open(int players) {
-    host = GameHost(roomCode: code, random: Random(1))..custody = custody;
+    host = GameHost(
+      settings: const GameSettings(),
+      roomCode: code,
+      random: Random(1),
+    )..custody = custody;
     hosts.add(host);
     final transport = MemoryTransport();
     host.serve(transport);

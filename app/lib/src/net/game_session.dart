@@ -225,6 +225,10 @@ class GameSession extends ChangeNotifier {
   Violation? get refused => _link.refused;
   set refused(Violation? value) => _link.refused = value;
 
+  /// When the current phase began, on this device's clock (synced with
+  /// the host's), or `null` until the clocks are in step.
+  int? get phaseStartedAtMs => _link.phaseStartedAtMs;
+
   /// When the phase timer runs out, on this device's clock.
   DateTime? get phaseEndsAt {
     final ms = _link.phaseEndsAtMs;

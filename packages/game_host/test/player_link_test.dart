@@ -70,6 +70,7 @@ void main() {
   setUp(() {
     timers = _Timers();
     host = GameHost(
+      settings: const GameSettings(),
       roomCode: '1234',
       random: Random(3),
       roomSecret: List.filled(32, 5),

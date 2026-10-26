@@ -117,15 +117,21 @@ class Atmosphere {
     required this.room,
     Sounds? sounds,
     void Function() Function(Duration, void Function())? startTimer,
-    Random? random,
+    int Function()? clock,
   }) : _sounds = sounds ?? AudioSounds(),
        _startTimer = startTimer ?? _realTimer,
-       _random = random ?? Random();
+       _clock = clock ?? _now;
+
+  static int _now() => DateTime.now().millisecondsSinceEpoch;
 
   final String room;
   final Sounds _sounds;
   final void Function() Function(Duration, void Function()) _startTimer;
-  final Random _random;
+  final int Function() _clock;
+
+  /// When the current phase began on this device's clock, translated from
+  /// the host's (see `PlayerLink.phaseStartedAtMs`); `null` until known.
+  int? _phaseStart;
   final _cancels = <void Function()>[];
   PlayerView? _last;
   bool _muted = false;
@@ -136,9 +142,14 @@ class Atmosphere {
     if (value) _stop();
   }
 
-  void update(PlayerView view) {
+  /// Follows the game to [view]. With [phaseStartedAt] (this device's
+  /// time the phase began, from the synced clock) the shared moments sound
+  /// at the same instant on every phone, not just whenever each phone
+  /// heard of the new phase.
+  void update(PlayerView view, {int? phaseStartedAt}) {
     final before = _last;
     _last = view;
+    _phaseStart = phaseStartedAt;
     final on = view.settings.atmosphere && !_muted;
     final night = view.phase == Phase.night;
     final wasNight = before?.phase == Phase.night;
@@ -146,19 +157,15 @@ class Atmosphere {
       _stop();
       // Night falls: the gong, and everyone goes to sleep with a yawn.
       _moment(Duration.zero, Sound.night);
-      _moment(Duration(milliseconds: 1600 + _random.nextInt(800)), Sound.yawn);
+      _moment(const Duration(milliseconds: 2000), Sound.yawn);
       if (on) _planNight(view, after: const Duration(seconds: 3));
     } else if (!night && wasNight) {
       _stop();
       if (view.phase == Phase.day) {
         _moment(Duration.zero, Sound.wake);
-        // Everyone yawns as the sun comes up, not quite in unison.
-        if (on) {
-          _later(
-            Duration(milliseconds: 2200 + _random.nextInt(1200)),
-            Sound.yawn,
-          );
-        }
+        // Everyone yawns as the sun comes up, all at once: a phone that
+        // stays silent stands out.
+        if (on) _shared(const Duration(milliseconds: 2600), Sound.yawn);
       }
     }
     if (before == null || _muted) return;
@@ -191,9 +198,20 @@ class Atmosphere {
       view.seats.where((s) => s.isAlive).length;
 
   /// A shared moment: on every phone that is not muted, whatever the
-  /// atmosphere setting.
+  /// atmosphere setting, [at] after the phase began.
   void _moment(Duration at, Sound sound) {
-    if (!_muted) _later(at, sound);
+    if (!_muted) _shared(at, sound);
+  }
+
+  /// Plays [sound] [at] after the phase began, by the synced clock if
+  /// known (so in unison with the others), else from now. A moment missed
+  /// by more than a second is skipped rather than played late.
+  void _shared(Duration at, Sound sound) {
+    final start = _phaseStart;
+    if (start == null) return _later(at, sound);
+    final wait = start + at.inMilliseconds - _clock();
+    if (wait < -1000) return;
+    _later(Duration(milliseconds: wait < 0 ? 0 : wait), sound);
   }
 
   /// A sound only this player hears, for their own taps (never at night:

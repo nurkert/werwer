@@ -122,10 +122,10 @@ class GameHost {
     required this._random,
     this.roomSecret,
     this.config = const HostConfig(),
-    GameSettings settings = const GameSettings(),
+    GameSettings? settings,
     this._startTimer = _realTimer,
     this._clock = _realClock,
-  }) : _state = GameState.lobby(settings: settings);
+  }) : _state = GameState.lobby(settings: settings ?? defaultSettings);
 
   /// Restores a room from a [snapshot] written earlier (e.g. before the host
   /// app crashed). Players come back with their tokens and find exactly
@@ -195,6 +195,11 @@ class GameHost {
       );
   }
 
+  /// What a new room starts with: werewolf as everyone knows it (the
+  /// narrator calls the roles, eyes closed, no sheep). Whowolf's extras are
+  /// one tap away in the settings.
+  static final GameSettings defaultSettings = Preset.classic.settings;
+
   static Candidate? _readCandidate(JsonReader json) {
     final key = json.maybeString('ck');
     final secret = json.maybeString('cs');
@@ -253,6 +258,9 @@ class GameHost {
   int _nextPending = 1;
   void Function()? _cancelPhaseTimer;
   int? _phaseDeadline;
+
+  /// When the current phase or night step began (host clock).
+  int _phaseStartedAt = 0;
   bool _closed = false;
 
   /// Counts every broadcast state, so players drop states that arrive late.
@@ -550,10 +558,18 @@ class GameHost {
       return _bye(link, ByeReason.misbehaved);
     }
     if (message is PingIntent) {
-      if (message.version < _version) {
-        _sendState(session);
-      } else {
-        link.connection.send(Pong(_version).encode());
+      final sent = message.sent;
+      if (message.version < _version) _sendState(session);
+      // A timed ping always gets its pong: it keeps the player's clock in
+      // step with the host's.
+      if (sent != null || message.version >= _version) {
+        link.connection.send(
+          Pong(
+            _version,
+            echo: sent,
+            at: sent == null ? null : _clock(),
+          ).encode(),
+        );
       }
       return;
     }
@@ -845,6 +861,7 @@ class GameHost {
   }
 
   void _schedulePhaseTimer({Duration? remaining}) {
+    _phaseStartedAt = _clock();
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
@@ -886,6 +903,7 @@ class GameHost {
         view: viewFor(_state, session.player),
         isOwner: session.owner,
         phaseEndsInMs: _phaseLeft(),
+        phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
         pending: session.owner
             ? [
                 for (final p in _pending.values)

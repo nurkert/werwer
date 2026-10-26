@@ -17,11 +17,16 @@ class RoomKeys {
   List<int>? roomSecret;
 }
 
-/// Dials a host every way at once and takes the first that answers:
-/// the last known address on the local network, the address the room search
-/// sees now for this room and key (the host may have moved), and the relay
-/// server. Each path is end-to-end encrypted; with the [keys] the host is
-/// authenticated, without them it lets the player in after the check code.
+/// Dials a host and takes the first way that answers: the last known
+/// address on the local network, the address the room search sees now for
+/// this room and key (the host may have moved), and the relay server. Each
+/// path is end-to-end encrypted; with the [keys] the host is authenticated,
+/// without them it lets the player in after the check code.
+///
+/// The local network goes first: the relay is only tried after
+/// [relayAfter] if no local way answered by then, so players in the same
+/// Wi-Fi stay local and the server carries only those who need it (a
+/// table can be mixed: some in the Wi-Fi, some on mobile data).
 Dial dialerFor({
   required RoomKeys keys,
   required String room,
@@ -29,6 +34,7 @@ Dial dialerFor({
   String? relayRoom,
   Uri? server,
   HostLocator? locator,
+  Duration relayAfter = const Duration(milliseconds: 1500),
 }) {
   Future<Connection> secure(Future<Connection> raw) async => connectSecure(
     await raw,
@@ -38,12 +44,26 @@ Dial dialerFor({
   return () {
     final found = locator?.find(room, keys.hostKey);
     final addresses = {?lan, ?found}.toList();
-    return firstConnection([
+    var settled = false;
+    final local = [
       for (final a in addresses)
-        () =>
-            secure(dialHost(a.ip, a.port, timeout: const Duration(seconds: 5))),
+        () async {
+          final c = await secure(
+            dialHost(a.ip, a.port, timeout: const Duration(seconds: 5)),
+          );
+          settled = true;
+          return c;
+        },
+    ];
+    return firstConnection([
+      ...local,
       if (relayRoom != null && server != null)
-        () => secure(dialRelay(server, relayRoom)),
+        () async {
+          if (local.isNotEmpty) await Future<void>.delayed(relayAfter);
+          // Someone local answered meanwhile: the server is not needed.
+          if (settled) throw StateError('reached locally');
+          return secure(dialRelay(server, relayRoom));
+        },
     ]);
   };
 }

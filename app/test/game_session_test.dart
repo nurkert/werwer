@@ -8,7 +8,11 @@ import 'package:whowolf/src/net/game_session.dart';
 
 void main() {
   test('sessions join a host, play into the night and come back', () async {
-    final host = GameHost(roomCode: '1234', random: Random(4));
+    final host = GameHost(
+      roomCode: '1234',
+      random: Random(4),
+      settings: const GameSettings(),
+    );
     final lan = MemoryTransport();
     host.serve(lan);
     Future<void> settle() => Future<void>.delayed(Duration.zero);
@@ -50,7 +54,11 @@ void main() {
   });
 
   test('a taken name is changed in place', () async {
-    final host = GameHost(roomCode: '1234', random: Random(4));
+    final host = GameHost(
+      roomCode: '1234',
+      random: Random(4),
+      settings: const GameSettings(),
+    );
     final lan = MemoryTransport();
     host.serve(lan);
     final first = GameSession(
@@ -78,7 +86,11 @@ void main() {
   test(
     'back in the foreground, a lost connection is retried at once',
     () async {
-      final host = GameHost(roomCode: '1234', random: Random(4));
+      final host = GameHost(
+        roomCode: '1234',
+        random: Random(4),
+        settings: const GameSettings(),
+      );
       final lan = MemoryTransport();
       host.serve(lan);
       final dialed = <Connection>[];
@@ -108,7 +120,11 @@ void main() {
   );
 
   test('a wrong room code ends the session with a reason', () async {
-    final host = GameHost(roomCode: '1234', random: Random(4));
+    final host = GameHost(
+      roomCode: '1234',
+      random: Random(4),
+      settings: const GameSettings(),
+    );
     final lan = MemoryTransport();
     host.serve(lan);
     final session = GameSession(

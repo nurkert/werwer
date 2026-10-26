@@ -20,8 +20,11 @@ void main() {
   test('three terminals play a whole game over encrypted sockets', () async {
     final keys = await HostKeys.generate();
     final lan = await LanTransport.bind(port: 0);
-    final host = GameHost(roomCode: '2580', random: Random(11))
-      ..serve(SecureTransport(lan, keys));
+    final host = GameHost(
+      settings: const GameSettings(),
+      roomCode: '2580',
+      random: Random(11),
+    )..serve(SecureTransport(lan, keys));
     final logs = {
       for (final n in ['Ada', 'Bo', 'Cem']) n: StringBuffer(),
     };

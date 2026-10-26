@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
@@ -56,7 +54,6 @@ void main() {
       return Atmosphere(
         room: '1234',
         sounds: ear,
-        random: Random(1),
         startTimer: (_, callback) {
           timers.add(callback);
           return () => timers.remove(callback);

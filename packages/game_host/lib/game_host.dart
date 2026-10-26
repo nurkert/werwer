@@ -3,6 +3,7 @@
 /// later, on a server. The LAN WebSocket transport lives in `lan.dart`.
 library;
 
+export 'src/clock_sync.dart';
 export 'src/custody.dart';
 export 'src/host.dart';
 export 'src/player_link.dart';

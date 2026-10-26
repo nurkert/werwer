@@ -79,6 +79,7 @@ class CliPlayer {
         pending = message.pending;
         if (before?.phase != view!.phase ||
             before?.round != view!.round ||
+            before?.nightStep != view!.nightStep ||
             before?.seats.length != view!.seats.length) {
           _describe();
         }
@@ -120,8 +121,14 @@ class CliPlayer {
                   'or just "pick" to do nothing '
                   '(victim: ${v.victim == null ? 'none' : _nameOf(v.victim!)},'
                   ' potions: ${v.potions.map((p) => p.name).join(', ')})',
-            _ => '"pick <name>" for anyone (it has no effect)',
+            NightAbility.decoy => '"pick <name>" for anyone (it has no effect)',
+            // The classic night: someone else is called.
+            null => null,
           };
+          if (action == null) {
+            _say('Night: eyes closed, the narrator calls someone else.');
+            return;
+          }
           _say('Night: type $action.');
           if (v.yourDoorSign case final sign?) {
             _say('Your door sign: ${sign.join(' ')}.');
@@ -133,7 +140,7 @@ class CliPlayer {
               '${mark.correct ? 'right' : 'wrong'} sign.',
             );
           } else if (v.yourNightTask == NightAbility.hunt &&
-              v.settings.doorSigns) {
+              v.settings.doorSignsInPlay) {
             _say(
               'Guess a door: "mark <name>${' <0-15>' * doorSignLength}"'
               ' (once per night for the pack).',

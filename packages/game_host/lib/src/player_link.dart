@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:game_core/game_core.dart';
+import 'package:game_host/src/clock_sync.dart';
 import 'package:game_host/src/host.dart';
 import 'package:game_host/src/transport.dart';
 import 'package:protocol/protocol.dart';
@@ -199,6 +200,20 @@ class PlayerLink {
   int get epoch => _epoch;
   int _epoch;
 
+  /// How this device's clock stands to the host's (from timed pings).
+  final clock = ClockSync();
+
+  /// When the current phase began, on the host's clock.
+  int? phaseStartedAtHostMs;
+
+  /// When the current phase began, on this device's clock: shared moments
+  /// planned from it sound at the same instant on every phone. `null`
+  /// until the clocks are in step.
+  int? get phaseStartedAtMs {
+    final at = phaseStartedAtHostMs;
+    return at == null ? null : clock.toLocal(at);
+  }
+
   /// For the successor: the sealed room, if the host chose this player.
   HeldCustody? custody;
 
@@ -262,6 +277,8 @@ class PlayerLink {
       }
     }
     _connection = connection;
+    // Possibly another host now (after a takeover): another clock.
+    clock.reset();
     _subscription = connection.messages.listen(
       (raw) => _receive(connection, raw),
       onDone: () => _dropped(connection),
@@ -372,10 +389,13 @@ class PlayerLink {
       case Ack(:final seq, version: final hostVersion):
         _queue.removeWhere((q) => q.seq != null && q.seq! <= seq);
         _confirmed = max(_confirmed, seq);
-        if (hostVersion > version) _send(PingIntent(max(version, 0)));
+        if (hostVersion > version) _ping();
         return;
-      case Pong(version: final hostVersion):
-        if (hostVersion > version) _send(PingIntent(max(version, 0)));
+      case Pong(version: final hostVersion, :final echo, :final at):
+        if (echo != null && at != null) {
+          clock.add(sent: echo, hostAt: at, received: _clock());
+        }
+        if (hostVersion > version) _ping();
         return;
       case StateMessage():
         if (message.version < version) return;
@@ -383,6 +403,7 @@ class PlayerLink {
         view = message.view;
         isOwner = message.isOwner;
         pending = message.pending;
+        phaseStartedAtHostMs = message.phaseAt;
         final endsIn = message.phaseEndsInMs;
         phaseEndsAtMs = endsIn == null ? null : _clock() + endsIn;
       case Refused(:final reason):
@@ -443,7 +464,15 @@ class PlayerLink {
       _timers.add(_startTimer(period, tick));
     }
 
-    every(config.ping, () => _send(PingIntent(max(version, 0))));
+    every(config.ping, _ping);
+    // A few quick pings at the start put the clocks in step at once.
+    for (final ms in const [0, 250, 600]) {
+      _timers.add(
+        _startTimer(Duration(milliseconds: ms), () {
+          if (!_closed && _connection == connection) _ping();
+        }),
+      );
+    }
     every(config.resend, _flush);
   }
 
@@ -462,6 +491,9 @@ class PlayerLink {
   }
 
   void _send(ClientMessage message) => _connection?.send(message.encode());
+
+  /// "Still here", with this device's time for the clock sync.
+  void _ping() => _send(PingIntent(max(version, 0), sent: _clock()));
 
   void _dropped(Connection connection) {
     if (_connection != connection) return;

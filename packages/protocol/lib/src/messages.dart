@@ -12,8 +12,13 @@ import 'package:protocol/src/view_codec.dart';
 /// 3: door signs (the mark intent, the door sign setting and views).
 /// 4: host takeover (candidates in the hello, the room's epoch in the
 /// welcome, custody for the successor and the key for the witness).
-/// 5: the called night (night mode setting, a step per role).
+/// 5: the called night (night mode setting, a step per role), clock
+/// sync (times in ping and pong, the phase's start in the state).
 const protocolVersion = 5;
+
+/// Largest clock value a message may carry (milliseconds since the epoch;
+/// safely below what JavaScript numbers hold exactly).
+const int maxClock = 1 << 50;
 
 /// Largest message a player may send.
 const maxClientMessage = 1024;
@@ -131,7 +136,10 @@ sealed class ClientMessage {
 
   static ClientMessage _parseBody(JsonReader json) {
     return switch (json.string('type', max: 16)) {
-      'ping' => PingIntent(json.integer('version', max: maxSeq)),
+      'ping' => PingIntent(
+        json.integer('version', max: maxSeq),
+        sent: json.maybeInteger('sent', max: maxClock),
+      ),
       'hello' => Hello._parse(json),
       'start' => const StartGameIntent(),
       'confirm' => const ConfirmRoleIntent(),
@@ -196,16 +204,20 @@ const int maxSeq = 1 << 40;
 /// the current state if the player missed one. Keeps the link alive.
 final class PingIntent extends ClientMessage {
   /// Creates the message.
-  const PingIntent(this.version);
+  const PingIntent(this.version, {this.sent});
 
   /// The newest state version this player has.
   final int version;
+
+  /// When the player sent it, on its own clock (milliseconds), so the
+  /// host's pong can tell the player how its clock stands to the host's.
+  final int? sent;
 
   @override
   String get _type => 'ping';
 
   @override
-  Map<String, Object?> get _fields => {'version': version};
+  Map<String, Object?> get _fields => {'version': version, 'sent': ?sent};
 }
 
 /// First message on every connection: join a room, or come back with a token.
@@ -557,6 +569,7 @@ sealed class HostMessage {
         view: decodeView(json.object('view')),
         isOwner: json.boolean('owner'),
         phaseEndsInMs: json.maybeInteger('endsIn'),
+        phaseAt: json.maybeInteger('phaseAt', max: maxClock),
         pending: [
           for (final p in json.objects('pending', max: 40))
             PendingJoin(
@@ -570,7 +583,11 @@ sealed class HostMessage {
         ],
       ),
       'waiting' => const Waiting(),
-      'pong' => Pong(json.integer('version', max: maxSeq)),
+      'pong' => Pong(
+        json.integer('version', max: maxSeq),
+        echo: json.maybeInteger('echo', max: maxClock),
+        at: json.maybeInteger('at', max: maxClock),
+      ),
       'refused' => Refused(json.enumValue('reason', Violation.values)),
       'bye' => Bye(json.enumValue('reason', ByeReason.values)),
       _ => throw const ProtocolError('unknown type'),
@@ -744,16 +761,26 @@ class Release {
 /// Answer to a [PingIntent] when the player is up to date.
 final class Pong extends HostMessage {
   /// Creates the message.
-  const Pong(this.version);
+  const Pong(this.version, {this.echo, this.at});
 
   /// The host's current state version.
   final int version;
+
+  /// The ping's own time, sent back.
+  final int? echo;
+
+  /// The host's clock when it answered (milliseconds).
+  final int? at;
 
   @override
   String get _type => 'pong';
 
   @override
-  Map<String, Object?> get _fields => {'version': version};
+  Map<String, Object?> get _fields => {
+    'version': version,
+    'echo': ?echo,
+    'at': ?at,
+  };
 }
 
 /// The host applied (or had already applied) intent [seq].
@@ -801,8 +828,14 @@ final class StateMessage extends HostMessage {
     required this.isOwner,
     this.version = 0,
     this.phaseEndsInMs,
+    this.phaseAt,
     this.pending = const [],
   });
+
+  /// When the current phase (or night step) began, on the host's clock
+  /// (milliseconds): every phone plans shared moments from it, e.g. the
+  /// morning yawn, so they sound at the same instant everywhere.
+  final int? phaseAt;
 
   /// For the room owner: people waiting to be let in.
   final List<PendingJoin> pending;
@@ -828,6 +861,7 @@ final class StateMessage extends HostMessage {
     'owner': isOwner,
     'version': version,
     'endsIn': ?phaseEndsInMs,
+    'phaseAt': ?phaseAt,
     'pending': [
       for (final p in pending)
         {

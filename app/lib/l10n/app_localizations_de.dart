@@ -1035,4 +1035,32 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get privacyRights =>
       'Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch (Art. 15 bis 21 DSGVO) und kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO). Da der Server nichts speichert, gibt es über dich keine gespeicherten Daten. Die ausführliche Fassung steht auf whowolf.de.';
+
+  @override
+  String get lobbyNightCalled =>
+      'Nachts ruft der Erzähler die Rollen auf, alle anderen haben die Augen zu.';
+
+  @override
+  String get lobbyNightTogether =>
+      'Nachts tippen alle zugleich, damit niemand auffällt.';
+
+  @override
+  String lobbyExtras(String list) {
+    return 'Dazu: $list';
+  }
+
+  @override
+  String get extraVoice => 'Erzählerstimme';
+
+  @override
+  String get extraSheep => 'Schäfchen zählen';
+
+  @override
+  String get extraDoorSigns => 'Türzeichen';
+
+  @override
+  String get extraAtmosphere => 'Nachtgeräusche';
+
+  @override
+  String get extraPersonas => 'freie Figurenwahl';
 }

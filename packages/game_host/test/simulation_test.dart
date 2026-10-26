@@ -171,6 +171,7 @@ class Room {
   Room(this.timers) {
     _open(
       GameHost(
+        settings: const GameSettings(),
         roomCode: room,
         random: Random(1),
         startTimer: timers.start,
@@ -490,6 +491,7 @@ void main() {
   test('a player let in after the check code gets the room secret', () async {
     final secret = [for (var i = 0; i < 32; i++) i];
     final host = GameHost(
+      settings: const GameSettings(),
       roomCode: room,
       random: Random(3),
       roomSecret: secret,

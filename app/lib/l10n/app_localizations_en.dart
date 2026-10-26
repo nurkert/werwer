@@ -1023,4 +1023,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyRights =>
       'You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de.';
+
+  @override
+  String get lobbyNightCalled =>
+      'At night the narrator calls the roles; everyone else keeps their eyes closed.';
+
+  @override
+  String get lobbyNightTogether =>
+      'At night everyone taps at once, so nobody stands out.';
+
+  @override
+  String lobbyExtras(String list) {
+    return 'Plus: $list';
+  }
+
+  @override
+  String get extraVoice => 'narrator\'s voice';
+
+  @override
+  String get extraSheep => 'counting sheep';
+
+  @override
+  String get extraDoorSigns => 'door signs';
+
+  @override
+  String get extraAtmosphere => 'night sounds';
+
+  @override
+  String get extraPersonas => 'free choice of figures';
 }

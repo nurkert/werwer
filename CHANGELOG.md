@@ -10,6 +10,11 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   roles one by one (cupid, the werewolves, the seer, the witch); only
   whoever is called picks up their phone. It is the night of the "Classic"
   level and can be switched on in the settings.
+- Shared sounds (the gong, the morning yawn, the rooster) play at the same
+  instant on every phone: the phones keep their clocks in step with the
+  host.
+- Players in the same Wi-Fi always connect locally; only those who need it
+  go through the online server.
 - A short privacy notice on first start, the full privacy notice in the
   settings, and a switch to play Wi-Fi only without the online server.
 

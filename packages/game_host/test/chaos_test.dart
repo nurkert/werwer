@@ -301,6 +301,7 @@ class Table {
     final generation = ++_generation;
     host = snapshot == null
         ? GameHost(
+            settings: const GameSettings(),
             roomCode: '1234',
             random: Random(seed),
             startTimer: sim.start,

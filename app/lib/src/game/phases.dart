@@ -239,6 +239,23 @@ class _LobbyPhaseState extends State<LobbyPhase> {
                 Body(rolesLine(roles))
               else if (count >= minPlayers)
                 Body(l10n.tooManyRoles(count), muted: true),
+              // Everyone sees live what the host sets up.
+              const SizedBox(height: 8),
+              Body(
+                settings.nightMode == NightMode.called
+                    ? l10n.lobbyNightCalled
+                    : l10n.lobbyNightTogether,
+                muted: true,
+              ),
+              if ([
+                    if (settings.narratorVoice) l10n.extraVoice,
+                    if (settings.sheepInPlay) l10n.extraSheep,
+                    if (settings.doorSignsInPlay) l10n.extraDoorSigns,
+                    if (settings.atmosphere) l10n.extraAtmosphere,
+                    if (settings.personaChoice) l10n.extraPersonas,
+                  ]
+                  case final extras when extras.isNotEmpty)
+                Body(l10n.lobbyExtras(extras.join(', ')), muted: true),
               if (session.isOwner) ...[
                 const SizedBox(height: 12),
                 SecondaryButton(

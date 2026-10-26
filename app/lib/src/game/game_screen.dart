@@ -116,7 +116,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     }
     final view = session.view;
     if (view != null && !identical(view, _lastView) && mounted) {
-      _atmosphere.update(view);
+      _atmosphere.update(view, phaseStartedAt: session.phaseStartedAtMs);
       final l10n = AppLocalizations.of(context);
       final line = narration(_lastView, view, l10n);
       _lastView = view;

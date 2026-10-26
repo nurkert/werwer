@@ -142,6 +142,8 @@ class _Table {
   /// [youOwn]: "you" opened the room (and see its settings button).
   _Table(int seed, {this.youOwn = false})
     : host = GameHost(
+        // Whowolf's night, for the sheep and door sign screens.
+        settings: const GameSettings(),
         roomCode: '1234',
         random: Random(seed),
         startTimer: (_, _) => () {},

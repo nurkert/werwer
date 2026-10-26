@@ -1813,6 +1813,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de.'**
   String get privacyRights;
+
+  /// No description provided for @lobbyNightCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'At night the narrator calls the roles; everyone else keeps their eyes closed.'**
+  String get lobbyNightCalled;
+
+  /// No description provided for @lobbyNightTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'At night everyone taps at once, so nobody stands out.'**
+  String get lobbyNightTogether;
+
+  /// No description provided for @lobbyExtras.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus: {list}'**
+  String lobbyExtras(String list);
+
+  /// No description provided for @extraVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'narrator\'s voice'**
+  String get extraVoice;
+
+  /// No description provided for @extraSheep.
+  ///
+  /// In en, this message translates to:
+  /// **'counting sheep'**
+  String get extraSheep;
+
+  /// No description provided for @extraDoorSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'door signs'**
+  String get extraDoorSigns;
+
+  /// No description provided for @extraAtmosphere.
+  ///
+  /// In en, this message translates to:
+  /// **'night sounds'**
+  String get extraAtmosphere;
+
+  /// No description provided for @extraPersonas.
+  ///
+  /// In en, this message translates to:
+  /// **'free choice of figures'**
+  String get extraPersonas;
 }
 
 class _AppLocalizationsDelegate

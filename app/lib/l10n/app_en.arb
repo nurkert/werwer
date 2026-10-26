@@ -603,5 +603,14 @@
   "privacyDeviceTitle": "On your device",
   "privacyDevice": "Your name and a session key for rejoining are kept in your device's protected storage (12 hours at most). The host's device keeps the game state until the room closes. None of it leaves your device except encrypted, for the game.",
   "privacyRightsTitle": "Your rights",
-  "privacyRights": "You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de."
+  "privacyRights": "You have the right to access, rectification, erasure and restriction of processing, to data portability and to object (Art. 15 to 21 GDPR), and you may complain to a data protection authority (Art. 77 GDPR). As the server stores nothing, there is no stored data about you. The full version is on whowolf.de.",
+  "lobbyNightCalled": "At night the narrator calls the roles; everyone else keeps their eyes closed.",
+  "lobbyNightTogether": "At night everyone taps at once, so nobody stands out.",
+  "lobbyExtras": "Plus: {list}",
+  "@lobbyExtras": {"placeholders": {"list": {"type": "String"}}},
+  "extraVoice": "narrator's voice",
+  "extraSheep": "counting sheep",
+  "extraDoorSigns": "door signs",
+  "extraAtmosphere": "night sounds",
+  "extraPersonas": "free choice of figures"
 }

@@ -118,6 +118,7 @@ void main() {
   setUp(() {
     timers = FakeTimers();
     host = GameHost(
+      settings: const GameSettings(),
       roomCode: room,
       random: Random(9),
       startTimer: timers.start,
@@ -584,6 +585,7 @@ void main() {
       }
       await host.close();
       host = GameHost(
+        settings: const GameSettings(),
         roomCode: room,
         random: Random(seed + 100),
         startTimer: timers.start,
