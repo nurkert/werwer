@@ -4,6 +4,7 @@ library;
 
 export 'src/join_link.dart';
 export 'src/messages.dart';
-export 'src/reader.dart' show ProtocolError;
+export 'src/reader.dart' show JsonReader, ProtocolError;
 export 'src/relay.dart';
+export 'src/state_codec.dart';
 export 'src/view_codec.dart';

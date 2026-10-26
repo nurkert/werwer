@@ -88,6 +88,21 @@ extension type const JsonReader(Map<String, Object?> _map) {
     ];
   }
 
+  /// A required list of strings with at most [max] entries.
+  List<String> strings(String key, {int max = 64, int maxLength = 64}) {
+    final value = _map[key];
+    if (value is! List<Object?> || value.length > max) {
+      throw ProtocolError('bad list "$key"');
+    }
+    return [
+      for (final item in value)
+        if (item is String && item.length <= maxLength)
+          item
+        else
+          throw ProtocolError('bad item in "$key"'),
+    ];
+  }
+
   /// A required enum value by name.
   T enumValue<T extends Enum>(String key, List<T> values) {
     final name = string(key, max: 32);
