@@ -15,12 +15,18 @@ import 'package:protocol/protocol.dart';
 class RelayConfig {
   const RelayConfig({
     this.maxRooms = 200,
+    this.maxRoomsPerAddress = 4,
     this.maxPeersPerRoom = maxRelayPeers,
     this.maxMessagesPerSecond = 30,
   });
 
   /// Most rooms open at once.
   final int maxRooms;
+
+  /// Most rooms one network address may hold open, so one client cannot
+  /// take them all. 0 turns the limit off (behind a reverse proxy every
+  /// request comes from the proxy's address).
+  final int maxRoomsPerAddress;
 
   /// Most players per room.
   final int maxPeersPerRoom;
@@ -30,10 +36,13 @@ class RelayConfig {
 }
 
 class _Room {
-  _Room(this.id, this.host);
+  _Room(this.id, this.host, this.address);
 
   final String id;
   final WebSocket host;
+
+  /// Where the host connected from.
+  final String? address;
   final peers = <int, WebSocket>{};
   int nextPeer = 1;
 }
@@ -107,7 +116,13 @@ class RelayServer {
       await request.response.close();
       return;
     }
-    if (isHost && _rooms.length >= config.maxRooms) {
+    final address = request.connectionInfo?.remoteAddress.address;
+    final perAddress = config.maxRoomsPerAddress;
+    if (isHost &&
+        (_rooms.length >= config.maxRooms ||
+            (perAddress > 0 &&
+                _rooms.values.where((r) => r.address == address).length >=
+                    perAddress))) {
       request.response.statusCode = HttpStatus.serviceUnavailable;
       await request.response.close();
       return;
@@ -127,7 +142,7 @@ class RelayServer {
     }
     socket.pingInterval = const Duration(seconds: 10);
     if (isHost) {
-      _openRoom(socket);
+      _openRoom(socket, address);
     } else {
       _joinRoom(room!, socket);
     }
@@ -143,8 +158,8 @@ class RelayServer {
     }
   }
 
-  void _openRoom(WebSocket host) {
-    final room = _Room(_newRoomId(), host);
+  void _openRoom(WebSocket host, String? address) {
+    final room = _Room(_newRoomId(), host, address);
     _rooms[room.id] = room;
     host.add(RoomOpened(room.id).encode());
     final meter = _Meter(config.maxMessagesPerSecond * config.maxPeersPerRoom);

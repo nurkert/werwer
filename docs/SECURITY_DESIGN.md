@@ -154,18 +154,24 @@
 
 ## Stand der Umsetzung (2026-10-26)
 
-- **Ende-zu-Ende-Verschlüsselung (Handshake Version 2):** Jede Verbindung über WLAN oder Relay läuft durch `packages/secure_channel`, gebaut nur aus libsodium (Paket `sodium`, nativ mitgebaut, im Browser sodium.js):
+- **Ende-zu-Ende-Verschlüsselung (Handshake Version 3):** Jede Verbindung über WLAN oder Relay läuft durch `packages/secure_channel`, gebaut nur aus libsodium (Paket `sodium`, nativ mitgebaut, im Browser sodium.js):
   - **Mit QR-Code** (Host-Schlüssel und 256-Bit-Raumgeheimnis im Fragment `#k=…&s=…`): `crypto_kx` zwischen einem frischen Spielerschlüssel und dem Raumschlüssel; beide Sitzungsschlüssel werden mit dem Raumgeheimnis per schlüsselbehaftetem BLAKE2b gebunden. Der Spieler schickt zuerst eine Bestätigungsnachricht, der Host antwortet erst, wenn sie sich entschlüsseln lässt. Damit beweist der Spieler das Geheimnis und der Host seinen Schlüssel.
-  - **Ohne QR-Code:** Der Spieler legt sich mit einem Hash seines Schlüssels fest (Commitment), bevor der Host seinen Schlüssel zeigt. Das Prüfbild (4 von 16 Symbolen, 16 Bit) ergibt sich aus beiden Schlüsseln; ein Angreifer in der Mitte kann es nicht passend rechnen, nur raten (1 zu 65 536), und der Gastgeber muss trotzdem zustimmen.
+  - **Frischer Wert vom Host:** Pro Verbindung schickt der Host 32 frische Zufallsbytes, bevor der Spieler etwas Verschlüsseltes sendet; sie gehen in beide Richtungsschlüssel und ins Prüfbild ein. Eine aufgezeichnete Verbindung lässt sich deshalb nicht noch einmal abspielen (sonst könnte ein Mithörer oder das Relay Spieler per „ersetzt“ hinauswerfen).
+  - **Ohne QR-Code:** Der Spieler legt sich mit einem Hash seines Schlüssels fest (Commitment), bevor der Host seinen Schlüssel und den frischen Wert zeigt. Das Prüfbild (4 von 16 Symbolen, 16 Bit) ergibt sich aus Spielerschlüssel, Host-Schlüssel und frischem Wert; ein Angreifer in der Mitte kann es nicht im Voraus passend rechnen, nur online raten (1 zu 65 536 pro Versuch). Der Host lässt höchstens 12 solcher Handshakes pro Minute zu (Raten würde Tage dauern), und der Gastgeber muss trotzdem zustimmen. Bis Handshake 2 war der Host-Beitrag der feste Raumschlüssel, so dass ein Angreifer im WLAN das Prüfbild offline passend rechnen konnte (gefunden im Sicherheits-Check vor 0.1).
   - **Danach** `crypto_secretstream_xchacha20poly1305` pro Richtung (eigene Nonces, Manipulations-, Wiederholungs- und Reihenfolgeschutz).
   - Schlüssel pro Raum, gespeichert nur zusammen mit dem Raum-Schnappschuss im App-Ordner (Seed, nicht der Schlüssel selbst).
 - **Padding:** Jede Nachricht wird vor der Verschlüsselung auf feste Größenstufen (512 B, 2 KiB, 8 KiB, 32 KiB, ~64 KiB) aufgefüllt. **Takt:** Der Host schickt bei jeder Änderung allen denselben Zustand, die Anzahl der Nachrichten hängt also nicht von der Rolle ab.
 - **Manipulation** einer Nachricht beendet die Verbindung; eine falsche Antwort im Handshake ebenso.
+- **Überlast:** höchstens 16 gleichzeitig laufende Handshakes, höchstens 6 Wartende ohne QR-Code (eine Namensänderung verlängert die Wartezeit nicht), am Relay höchstens 4 Räume pro Adresse.
 - **Weiter umgesetzt:** gefilterte Sichten (getestet für jeden Spieler), Identität nur aus der Sitzung, 128-Bit-Sitzungstokens im sicheren Speicher, strenges Parsen mit Größenlimits, Ratenlimits, Handshake- und Hello-Timeout, Verbindungslimit, LAN-Socket nur für private/Loopback-Adressen, strenge Prüfung des QR-Links mit Bestätigung vor dem Verbinden, Relay ohne Spielwissen (sieht nur Chiffretext), Container ohne Root und ohne Shell, Fuzz-Tests für Protokoll und Host.
 - **Grenzen:**
   - Wer ohne QR-Code beitritt, ist bis zum Vergleich des Prüfbilds nicht authentisch. Danach bekommt er mit dem Welcome das Raumgeheimnis; ein Rejoin mit Token über einen nicht geprüften Kanal wird abgelehnt, und die App schickt ihr Token dort gar nicht erst.
   - Wer den Raumschlüssel stiehlt (er liegt bis zum Schließen des Raums im App-Ordner des Hosts), kann aufgezeichnete Verbindungen dieses Raums entschlüsseln; kein Forward Secrecy innerhalb eines Raums.
-  - Die Komposition der libsodium-Bausteine ist unsere; ein externer Review steht vor 0.1 noch aus.
+  - Die Komposition der libsodium-Bausteine ist unsere; ein externer Review steht noch aus (Pflicht vor den Stores, 0.1 bleibt Entwickler-Beta).
+  - `dart:io`-WebSockets lesen eine Nachricht vollständig, bevor unsere Größenprüfung greift; ein Gerät im WLAN kann den Host mit riesigen Frames belasten (offen: eigene Rahmung oder Bibliothek mit Größenlimit).
+  - Die Anzahl der Nachrichten eines Spielers an den Host ist nicht ausgeglichen (wer nachts mehr tippt, sendet mehr); Größen sind verborgen, Anzahlen nicht.
+  - Die Herdengröße folgt aus einem 32-Bit-Startwert; ein veränderter Client könnte sie nach einigen Runden für alle ausrechnen. Da jeder seine Schäfchenzahl frei angeben darf, verrät das nur eine Obergrenze (bewusst akzeptiert).
+  - Unbekannte JSON-Felder werden derzeit ignoriert statt abgelehnt; der Raum-Schnappschuss (`room.json`) kann unter iOS ins Backup gelangen; der LAN-Socket lauscht auf allen Schnittstellen (nur private Absender werden angenommen).
 
 ## Offene Entscheidungen
 

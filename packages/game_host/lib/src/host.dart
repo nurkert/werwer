@@ -30,6 +30,7 @@ class HostConfig {
     this.maxConnections = 40,
     this.maxMessagesPerSecond = 20,
     this.maxBadMessages = 3,
+    this.maxPending = 6,
   });
 
   /// How long players have to look at their role before the first night
@@ -50,6 +51,9 @@ class HostConfig {
 
   /// More malformed messages than this end the connection.
   final int maxBadMessages;
+
+  /// Most joins without the QR code waiting for the owner at once.
+  final int maxPending;
 }
 
 class _Session {
@@ -408,16 +412,21 @@ class GameHost {
       if (!_nameAvailable(link, hello.name)) return;
       final waiting = _pending.values.where((p) => p.link == link).firstOrNull;
       if (waiting != null) {
+        // A new name does not buy more time on the waiting list.
         waiting.name = hello.name;
       } else {
+        // A few may wait at once; strangers cannot fill every slot.
+        if (_pending.length >= config.maxPending) {
+          return _bye(link, ByeReason.refused);
+        }
         final id = _nextPending++;
         _pending[id] = _Pending(id, link, hello.name);
+        link
+          ..cancelHello?.call()
+          ..cancelHello = _startTimer(config.renameTimeout, () {
+            if (link.session == null) _drop(link);
+          });
       }
-      link
-        ..cancelHello?.call()
-        ..cancelHello = _startTimer(config.renameTimeout, () {
-          if (link.session == null) _drop(link);
-        });
       connection.send(const Waiting().encode());
       _broadcast();
       return;

@@ -16,24 +16,29 @@ import 'package:sodium/sodium.dart';
 // * crypto_secretstream_xchacha20poly1305: one stream per direction with
 //   its own nonces, ordering and tamper detection.
 //
-// Handshake (version 2), all frames are text:
+// Handshake (version 3), all frames are text. N is 32 fresh random bytes
+// from the host for this one connection.
 //
 //   QR code (host key S and room secret known):
-//     player → host  {"secure":2,"p":"qr","e":E}, header, confirm
+//     player → host  {"secure":3,"p":"qr","e":E}
+//     host → player  {"n":N}
+//     player → host  header, confirm
 //     host → player  header, confirm
 //
 //   Without QR code (players compare the check code):
-//     player → host  {"secure":2,"p":"nn","c":H(E)}
-//     host → player  {"s":S}
+//     player → host  {"secure":3,"p":"nn","c":H(E)}
+//     host → player  {"s":S,"n":N}
 //     player → host  {"e":E}, header, confirm
 //     host → player  header, confirm
 //
-// The commitment H(E) fixes the player's key before the host's key is
-// known, and the host's key is sent before the player reveals E, so a
-// man in the middle cannot search for keys that give both sides the same
-// check code; it can only guess (1 in 16^4).
+// N goes into both direction keys and into the check code. So a recorded
+// connection is worthless later (the replayed confirm does not match a new
+// N), and the check code depends on something fresh from the host that
+// comes after the player's commitment H(E): a man in the middle cannot
+// compute keys that give both sides the same code in advance, only guess
+// online (1 in 16^4 per try), and the host lets few such tries in.
 
-const _version = 2;
+const _version = 3;
 
 /// Plaintexts are padded to one of these sizes, so message sizes say
 /// nothing about their content (e.g. whether someone is a werewolf).
@@ -44,6 +49,18 @@ const maxFrame = 90000;
 
 /// How long a peer may take for the handshake.
 const handshakeTimeout = Duration(seconds: 5);
+
+/// Bytes of the host's fresh value per connection.
+const _nonceBytes = 32;
+
+/// At most this many handshakes without the QR code start per minute: a
+/// man in the middle would need tens of thousands of tries to match a
+/// check code, a table needs a few.
+const maxUncheckedJoinsPerMinute = 12;
+
+/// At most this many handshakes run at once; more connections are closed
+/// right away, so half-open sockets cannot pile up on the host.
+const maxHandshakes = 16;
 
 /// Number of different symbols in a check code.
 const checkSymbols = 16;
@@ -135,6 +152,7 @@ SecureKey _directionKey(
   Sodium sodium,
   SecureKey kxKey,
   String direction,
+  List<int> nonce,
   List<int>? roomSecret,
 ) {
   final secret = roomSecret == null
@@ -143,7 +161,7 @@ SecureKey _directionKey(
   try {
     final bytes = kxKey.runUnlockedSync(
       (key) => sodium.crypto.genericHash(
-        message: _concat([_label(direction), key]),
+        message: _concat([_label(direction), nonce, key]),
         outLen: sodium.crypto.secretStream.keyBytes,
         key: secret,
       ),
@@ -158,9 +176,14 @@ SecureKey _directionKey(
 Uint8List _commitment(Sodium sodium, List<int> playerKey) => sodium.crypto
     .genericHash(message: _concat([_label('commit'), playerKey]), outLen: 32);
 
-List<int> _checkCode(Sodium sodium, List<int> playerKey, List<int> hostKey) {
+List<int> _checkCode(
+  Sodium sodium,
+  List<int> playerKey,
+  List<int> hostKey,
+  List<int> nonce,
+) {
   final hash = sodium.crypto.genericHash(
-    message: _concat([_label('check'), playerKey, hostKey]),
+    message: _concat([_label('check'), playerKey, hostKey, nonce]),
     outLen: 16,
   );
   return [for (var i = 0; i < checkLength; i++) hash[i] % checkSymbols];
@@ -384,6 +407,14 @@ Future<SecureConnection> connectSecure(
   try {
     return await () async {
       final Uint8List serverKey;
+      final Uint8List nonce;
+      Future<String> next() async {
+        if (!await frames.moveNext()) {
+          throw const SecureChannelError('host closed the connection');
+        }
+        return frames.current;
+      }
+
       if (qr) {
         serverKey = Uint8List.fromList(hostKey);
         raw.send(
@@ -393,6 +424,7 @@ Future<SecureConnection> connectSecure(
             'e': base64Url.encode(mine.publicKey),
           }),
         );
+        nonce = _readKey(await next(), 'n', _nonceBytes);
       } else {
         raw.send(
           jsonEncode({
@@ -401,10 +433,9 @@ Future<SecureConnection> connectSecure(
             'c': base64Url.encode(_commitment(sodium, mine.publicKey)),
           }),
         );
-        if (!await frames.moveNext()) {
-          throw const SecureChannelError('host closed the connection');
-        }
-        serverKey = _readKey(frames.current, 's', kx.publicKeyBytes);
+        final reply = await next();
+        serverKey = _readKey(reply, 's', kx.publicKeyBytes);
+        nonce = _readKey(reply, 'n', _nonceBytes);
         raw.send(jsonEncode({'e': base64Url.encode(mine.publicKey)}));
       }
       final keys = kx.clientSessionKeys(
@@ -417,8 +448,8 @@ Future<SecureConnection> connectSecure(
         sodium,
         raw,
         frames,
-        sendKey: _directionKey(sodium, keys.tx, 'to host', secret),
-        receiveKey: _directionKey(sodium, keys.rx, 'to player', secret),
+        sendKey: _directionKey(sodium, keys.tx, 'to host', nonce, secret),
+        receiveKey: _directionKey(sodium, keys.rx, 'to player', nonce, secret),
       )..sendConfirm();
       final plain = await streams.receiveConfirm();
       return SecureConnection._(
@@ -426,7 +457,7 @@ Future<SecureConnection> connectSecure(
         streams,
         plain,
         verified: qr,
-        checkCode: _checkCode(sodium, mine.publicKey, serverKey),
+        checkCode: _checkCode(sodium, mine.publicKey, serverKey, nonce),
         hostKey: serverKey,
       );
     }().timeout(timeout);
@@ -454,8 +485,10 @@ Uint8List _readKey(String frame, String field, int length) {
 /// Peers who show the room secret come in as verified; others come in
 /// unverified and need the host's approval.
 class SecureTransport implements Transport {
-  /// Wraps [_inner] with the room's [_keys].
-  SecureTransport(this._inner, this._keys) {
+  /// Wraps [_inner] with the room's [_keys]. [clock] (milliseconds) is
+  /// injectable for tests.
+  SecureTransport(this._inner, this._keys, {int Function()? clock})
+    : _clock = clock ?? (() => DateTime.now().millisecondsSinceEpoch) {
     _inner.connections.listen(
       (raw) => unawaited(_accept(raw)),
       onDone: () => unawaited(_incoming.close()),
@@ -464,12 +497,32 @@ class SecureTransport implements Transport {
 
   final Transport _inner;
   final HostKeys _keys;
+  final int Function() _clock;
   final _incoming = StreamController<Connection>();
+
+  /// When the recent handshakes without QR code started.
+  final _unchecked = <int>[];
+
+  /// Whether one more handshake without QR code may start now.
+  bool _allowUnchecked() {
+    final now = _clock();
+    _unchecked.removeWhere((at) => now - at > 60000);
+    if (_unchecked.length >= maxUncheckedJoinsPerMinute) return false;
+    _unchecked.add(now);
+    return true;
+  }
 
   @override
   Stream<Connection> get connections => _incoming.stream;
 
+  int _handshakes = 0;
+
   Future<void> _accept(Connection raw) async {
+    if (_handshakes >= maxHandshakes) {
+      await raw.close();
+      return;
+    }
+    _handshakes++;
     final frames = StreamIterator(raw.messages);
     try {
       final connection = await _handshake(raw, frames).timeout(
@@ -484,6 +537,8 @@ class SecureTransport implements Transport {
       // Wrong secret, garbage or too slow: drop silently.
       await frames.cancel();
       await raw.close();
+    } finally {
+      _handshakes--;
     }
   }
 
@@ -505,12 +560,20 @@ class SecureTransport implements Transport {
       'nn' => false,
       _ => throw const SecureChannelError('unknown pattern'),
     };
+    final nonce = sodium.randombytes.buf(_nonceBytes);
     final Uint8List playerKey;
     if (qr) {
       playerKey = _readKey(hello, 'e', kxBytes);
+      raw.send(jsonEncode({'n': base64Url.encode(nonce)}));
     } else {
+      if (!_allowUnchecked()) throw const SecureChannelError('too many');
       final commitment = _readKey(hello, 'c', 32);
-      raw.send(jsonEncode({'s': base64Url.encode(_keys.publicKey)}));
+      raw.send(
+        jsonEncode({
+          's': base64Url.encode(_keys.publicKey),
+          'n': base64Url.encode(nonce),
+        }),
+      );
       if (!await frames.moveNext()) throw const SecureChannelError('closed');
       playerKey = _readKey(frames.current, 'e', kxBytes);
       if (!_same(_commitment(sodium, playerKey), commitment)) {
@@ -527,8 +590,8 @@ class SecureTransport implements Transport {
       sodium,
       raw,
       frames,
-      sendKey: _directionKey(sodium, keys.tx, 'to player', secret),
-      receiveKey: _directionKey(sodium, keys.rx, 'to host', secret),
+      sendKey: _directionKey(sodium, keys.tx, 'to player', nonce, secret),
+      receiveKey: _directionKey(sodium, keys.rx, 'to host', nonce, secret),
     );
     // The player proves the room secret (or, without QR code, just a
     // working key) before the host says anything encrypted.
@@ -539,7 +602,7 @@ class SecureTransport implements Transport {
       streams,
       plain,
       verified: qr,
-      checkCode: _checkCode(sodium, playerKey, _keys.publicKey),
+      checkCode: _checkCode(sodium, playerKey, _keys.publicKey, nonce),
     );
   }
 

@@ -226,7 +226,8 @@ void main() {
   test('old or unknown handshakes are dropped', () async {
     for (final hello in [
       jsonEncode({'noise': 1, 'p': 'nn', 'm': 'AAAA'}),
-      jsonEncode({'secure': 2, 'p': 'xx'}),
+      jsonEncode({'secure': 2, 'p': 'qr', 'e': 'AAAA'}),
+      jsonEncode({'secure': 3, 'p': 'xx'}),
       'x' * 5000,
     ]) {
       final raw = wire.connect();
@@ -236,6 +237,85 @@ void main() {
       await done.future.timeout(const Duration(seconds: 2));
     }
     expect(accepted, isEmpty);
+  });
+
+  test('a whole recorded connection cannot be played again', () async {
+    // Someone on the Wi-Fi (or the relay) records every frame the player
+    // sends, then opens a new connection and sends them all again.
+    final sent = <String>[];
+    wire.tamper = (frame) {
+      sent.add(frame);
+      return frame;
+    };
+    final client = await connectSecure(
+      wire.connect(),
+      hostKey: keys.publicKey,
+      roomSecret: keys.roomSecret,
+    );
+    client.send('{"type":"hello"}');
+    await settle();
+    wire.tamper = null;
+    expect(accepted, hasLength(1));
+    expect(received, ['{"type":"hello"}']);
+
+    final replay = wire.connect();
+    final done = Completer<void>();
+    replay.messages.listen((_) {}, onDone: done.complete);
+    sent.forEach(replay.send);
+    // The host's fresh value for this connection gives other keys: the old
+    // confirm does not open, the host hangs up and nothing is delivered.
+    await done.future.timeout(const Duration(seconds: 2));
+    expect(accepted, hasLength(1));
+    expect(received, hasLength(1));
+  });
+
+  test('only a few joins without the QR code start per minute', () async {
+    var now = 0;
+    final slow = SecureTransport(Wire(), keys, clock: () => now);
+    final limited = Wire();
+    final gate = SecureTransport(limited, keys, clock: () => now);
+    var admitted = 0;
+    gate.connections.listen((_) => admitted++);
+    Future<bool> tryJoin() async {
+      try {
+        await connectSecure(limited.connect());
+        return true;
+      } on SecureChannelError {
+        return false;
+      }
+    }
+
+    for (var i = 0; i < maxUncheckedJoinsPerMinute; i++) {
+      expect(await tryJoin(), isTrue);
+    }
+    expect(await tryJoin(), isFalse);
+    // With the QR code nothing is limited.
+    expect(
+      await connectSecure(
+        limited.connect(),
+        hostKey: keys.publicKey,
+        roomSecret: keys.roomSecret,
+      ),
+      isA<SecureConnection>(),
+    );
+    now += 61000;
+    expect(await tryJoin(), isTrue);
+    await settle();
+    expect(admitted, maxUncheckedJoinsPerMinute + 2);
+    await slow.close();
+  });
+
+  test('half-open connections cannot pile up', () async {
+    // Silent sockets that never finish a handshake.
+    final silent = [for (var i = 0; i < maxHandshakes; i++) wire.connect()];
+    for (final c in silent) {
+      c.messages.listen((_) {});
+    }
+    await settle();
+    final late = wire.connect();
+    final done = Completer<void>();
+    late.messages.listen((_) {}, onDone: done.complete);
+    await done.future.timeout(const Duration(seconds: 1));
   });
 
   test('host keys survive saving and loading', () async {

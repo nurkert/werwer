@@ -68,6 +68,10 @@ jobs:
       - name: Version
         run: |
           version="${VERSION#v}"
+          # Only a plain version number goes into the environment of later steps.
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must look like 0.1.0, got: $version"; exit 1
+          fi
           echo "NAME=$version" >> "$GITHUB_ENV"
           echo "FLAGS=--release --build-name=$version --build-number=${{ github.run_number }} --dart-define=APP_VERSION=$version" >> "$GITHUB_ENV"
       - name: Build
@@ -119,14 +123,30 @@ jobs:
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: 'dist/*'
-      - name: Publish pre-release
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+        # 0.0.x are test versions (pre-releases); from 0.1 on a release is a real one, still marked
+        # as developer beta until the security review is done.
         run: |
           tag="v${VERSION#v}"
-          gh release create "$tag" dist/* --prerelease --generate-notes --title "Whowolf ${tag#v} (test version)" --target "${{ github.sha }}" \
-            --notes "**Developer beta.** Playable with friends in your own Wi-Fi (or through your own relay server, see docker-compose.yml), end-to-end encrypted. Expect bugs, give every device at the table the same version, and only play with people you trust: an independent security review is still due. See CHANGELOG.md; bug reports welcome in the issues."
+          cat > notes.md <<'NOTES'
+          **Developer beta.** Playable with friends in your own Wi-Fi (or through your own relay server, see docker-compose.yml), end-to-end encrypted. Give every device at the table the same version, and only play with people you trust: an independent security review is still due. See CHANGELOG.md; bug reports welcome in the issues.
+
+          **Opening the builds.** They are not signed by Apple or Microsoft yet:
+          - **macOS:** open the `.zip`, then right-click Whowolf → Open → Open (only the first time).
+          - **Windows:** unpack the `.zip` and start `whowolf.exe`; at "Windows protected your PC" choose More info → Run anyway.
+          - **Android:** allow installing apps from your browser or file manager when asked.
+          - **Linux:** `sudo apt install ./whowolf-*-linux-amd64.deb`.
+          - **iPhone:** via TestFlight as soon as it is set up.
+
+          Check a download against `SHA256SUMS.txt`, or verify its build provenance with `gh attestation verify <file> --repo nurkert/whowolf`.
+          NOTES
+          case "${tag#v}" in
+            0.0.*) gh release create "$tag" dist/* --prerelease --title "Whowolf ${tag#v} (test version)" --target "${{ github.sha }}" --notes-file notes.md --generate-notes ;;
+            *) gh release create "$tag" dist/* --latest --title "Whowolf ${tag#v} (developer beta)" --target "${{ github.sha }}" --notes-file notes.md --generate-notes ;;
+          esac
       - name: Rebuild the website download page
         env:
           GH_TOKEN: ${{ github.token }}

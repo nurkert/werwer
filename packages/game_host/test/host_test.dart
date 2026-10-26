@@ -648,4 +648,30 @@ void main() {
     await welcomed.future.timeout(const Duration(seconds: 5));
     expect(player.view.seats.single.name, 'Net');
   });
+
+  test(
+    'strangers cannot fill the waiting list or keep their place forever',
+    () async {
+      final owner = await join('Owner', owner: true);
+      final open = UnverifiedTransport();
+      host.serve(open);
+      final waiting = [
+        for (var i = 0; i < 6; i++)
+          Player(open.connect())..send(Hello(name: 'W$i', room: room)),
+      ];
+      final extra = Player(open.connect())
+        ..send(const Hello(name: 'Extra', room: room));
+      await settle();
+      expect(owner.last!.pending, hasLength(6));
+      expect(extra.bye, ByeReason.refused);
+      // Renaming does not restart the clock: the wait still ends on time.
+      waiting.first.send(const Hello(name: 'Renamed', room: room));
+      await settle();
+      expect(owner.last!.pending.first.name, 'Renamed');
+      timers.fire(const HostConfig().renameTimeout);
+      await settle();
+      expect(owner.last!.pending, isEmpty);
+      expect(waiting.every((p) => p.closed), isTrue);
+    },
+  );
 }

@@ -40,6 +40,8 @@ void main() {
         'whatever',
         'https://whowolf.de/join?room=1234&lan=192.168.1.5:1#k=abc&s=def',
         'https://whowolf.de/join?room=1234&lan=192.168.1.5:1#x=1',
+        // A server without the host's key and secret: could be anyone's.
+        'https://whowolf.de/join?room=1234&relay=abcd2345&srv=wss://relay.example.org',
       ]) {
         expect(JoinLink.tryParse(raw), isNull, reason: raw);
       }

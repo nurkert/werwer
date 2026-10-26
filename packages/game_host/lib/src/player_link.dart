@@ -82,7 +82,7 @@ class PlayerLink {
     this._startTimer = _timer,
     this._clock = _now,
     Random? random,
-  }) : _random = random ?? Random() {
+  }) : _random = random ?? Random.secure() {
     unawaited(_connect());
   }
 
@@ -118,7 +118,9 @@ class PlayerLink {
   String _name;
   String? _token;
 
-  /// This link's join number (see [Hello.join]).
+  /// This link's join number (see [Hello.join]). Over a checked channel it
+  /// claims a seat like a token does, so it comes from a secure random
+  /// source unless a test passes its own.
   late final String _join = List.generate(
     tokenLength,
     (_) => _random.nextInt(16).toRadixString(16),

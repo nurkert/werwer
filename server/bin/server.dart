@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:whowolf_server/relay_server.dart';
 
 /// Configuration comes from the environment (see docker-compose.yml):
-/// `PORT` (8080), `MAX_ROOMS` (200), `MAX_PEERS` (24).
+/// `PORT` (8080), `MAX_ROOMS` (200), `MAX_ROOMS_PER_ADDRESS` (4, 0 = off,
+/// e.g. behind a reverse proxy), `MAX_PEERS` (24).
 ///
 /// `server healthcheck` asks the running server for `/health` and exits with
 /// 0 or 1 (the container image has no shell or curl).
@@ -32,6 +33,7 @@ Future<void> main(List<String> args) async {
     port: env('PORT', 8080),
     config: RelayConfig(
       maxRooms: env('MAX_ROOMS', 200),
+      maxRoomsPerAddress: env('MAX_ROOMS_PER_ADDRESS', 4),
       maxPeersPerRoom: env('MAX_PEERS', 24),
     ),
   );

@@ -87,4 +87,19 @@ void main() {
     await done.future.timeout(const Duration(seconds: 5));
     expect(relay.roomCount, 0);
   });
+
+  test('one address cannot hold every room', () async {
+    final hosts = <RelayTransport>[];
+    for (var i = 0; i < const RelayConfig().maxRoomsPerAddress; i++) {
+      hosts.add(await RelayTransport.open(server));
+    }
+    expect(relay.roomCount, hosts.length);
+    await expectLater(RelayTransport.open(server), throwsA(anything));
+    await hosts.first.close();
+    await eventually(() => relay.roomCount == hosts.length - 1 ? true : null);
+    hosts[0] = await RelayTransport.open(server);
+    for (final h in hosts) {
+      await h.close();
+    }
+  });
 }

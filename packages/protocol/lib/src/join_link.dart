@@ -56,6 +56,10 @@ class JoinLink {
       secret = _key32(f['s']);
       if (key == null || secret == null) return null;
     }
+    // A server named by a link is only trusted with the host's key and
+    // secret from the same link (end-to-end encrypted and authenticated);
+    // a bare server could be anyone's.
+    if (server != null && key == null) return null;
     return JoinLink(
       room: room,
       lan: lan,
