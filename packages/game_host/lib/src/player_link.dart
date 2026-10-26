@@ -34,6 +34,7 @@ class LinkConfig {
     this.firstRetry = const Duration(milliseconds: 500),
     this.maxRetry = const Duration(seconds: 5),
     this.maxQueue = 64,
+    this.joinAttempts = 6,
   });
 
   /// How often a connected player says "still here" with its state version.
@@ -51,8 +52,12 @@ class LinkConfig {
   /// Longest pause between redials.
   final Duration maxRetry;
 
-  /// Most unconfirmed intents kept; older ones are dropped beyond that.
+  /// Most unconfirmed intents kept; beyond that new ones are refused.
   final int maxQueue;
+
+  /// How often a first join is tried before giving up (a host that never
+  /// answers at all is probably not there).
+  final int joinAttempts;
 }
 
 /// One player's side of a room, in pure Dart: it joins, keeps the newest
@@ -112,6 +117,12 @@ class PlayerLink {
 
   String _name;
   String? _token;
+
+  /// This link's join number (see [Hello.join]).
+  late final String _join = List.generate(
+    tokenLength,
+    (_) => _random.nextInt(16).toRadixString(16),
+  ).join();
   Connection? _connection;
   StreamSubscription<String>? _subscription;
   final _timers = <void Function()>[];
@@ -120,9 +131,14 @@ class PlayerLink {
   int _attempt = 0;
   bool _closed = false;
 
-  /// Intents not yet confirmed, oldest first.
-  final _queue = <({int seq, ClientMessage intent})>[];
-  int _nextSeq = 1;
+  /// Intents not yet confirmed, oldest first. They get their number only
+  /// once the host has welcomed this link, so numbers always continue the
+  /// host's count without gaps.
+  final _queue = <_Queued>[];
+
+  /// The highest number the host has confirmed.
+  int _confirmed = 0;
+  bool _joined = false;
 
   /// Where the link stands.
   LinkStatus status = LinkStatus.connecting;
@@ -163,6 +179,9 @@ class PlayerLink {
   /// Number of intents still waiting for the host's confirmation.
   int get unconfirmed => _queue.length;
 
+  /// The highest intent number the host has confirmed.
+  int get confirmed => _confirmed;
+
   void _changed() => onChange?.call();
 
   Future<void> _connect() async {
@@ -194,7 +213,9 @@ class PlayerLink {
       cancelOnError: true,
     );
     _expectAnswer(connection);
-    connection.send(Hello(name: _name, room: roomCode, token: _token).encode());
+    connection.send(
+      Hello(name: _name, room: roomCode, token: _token, join: _join).encode(),
+    );
   }
 
   /// Redials if [connection] stays silent: a half-dead link (e.g. after the
@@ -219,9 +240,12 @@ class PlayerLink {
       case Waiting():
         waitingForHost = true;
       case Welcome(:final token, :final roomSecret, :final lastSeq):
+        // One welcome per connection; a late copy would rewind the count.
+        if (_joined) return;
         _welcomed(connection, token, roomSecret, lastSeq);
       case Ack(:final seq, version: final hostVersion):
-        _queue.removeWhere((q) => q.seq <= seq);
+        _queue.removeWhere((q) => q.seq != null && q.seq! <= seq);
+        _confirmed = max(_confirmed, seq);
         if (hostVersion > version) _send(PingIntent(max(version, 0)));
         return;
       case Pong(version: final hostVersion):
@@ -264,9 +288,17 @@ class PlayerLink {
     _token = token;
     _attempt = 0;
     status = LinkStatus.connected;
-    // Everything up to lastSeq arrived; send the rest again, in order.
-    _queue.removeWhere((q) => q.seq <= lastSeq);
-    _nextSeq = max(_nextSeq, lastSeq + 1);
+    // Everything up to lastSeq arrived. If the host lost some confirmed
+    // intents (restored from an older save), the rest continues from its
+    // count instead of leaving a gap it would wait for forever.
+    if (lastSeq >= _confirmed) {
+      _queue.removeWhere((q) => q.seq != null && q.seq! <= lastSeq);
+    }
+    _confirmed = lastSeq;
+    for (final (i, q) in _queue.indexed) {
+      q.seq = lastSeq + 1 + i;
+    }
+    _joined = true;
     _flush();
     _startLoops(connection);
     onWelcome?.call(token, _name);
@@ -296,6 +328,7 @@ class PlayerLink {
   }
 
   void _flush() {
+    if (!_joined) return;
     for (final q in _queue) {
       _connection?.send(q.intent.encode(seq: q.seq));
     }
@@ -313,13 +346,15 @@ class PlayerLink {
     unawaited(_subscription?.cancel());
     _subscription = null;
     _connection = null;
+    _joined = false;
     _cancelSilence?.call();
     _stopLoops();
-    // Never joined and the host never answered: there is nothing to wait for.
-    if (_token == null && status == LinkStatus.connecting && !waitingForHost) {
-      return _end(null);
-    }
-    status = LinkStatus.paused;
+    // Never joined: a few more tries (the first hello may just have been
+    // lost), then there is nothing to wait for. A link that already saw its
+    // seat (only the welcome got lost) has a place to come back to.
+    final joining = _token == null && !waitingForHost && view == null;
+    if (joining && _attempt + 1 >= config.joinAttempts) return _end(null);
+    if (!joining) status = LinkStatus.paused;
     _changed();
     // Back off with some randomness, so a table of phones does not hammer a
     // host that just came back all at the same moment.
@@ -350,19 +385,31 @@ class PlayerLink {
 
   /// Sends an intent; it is numbered and sent again until the host confirms
   /// it, across reconnects, and applied exactly once.
-  void send(ClientMessage intent) {
-    if (_closed) return;
-    if (intent is Hello || intent is PingIntent) return _send(intent);
-    _queue.add((seq: _nextSeq++, intent: intent));
-    if (_queue.length > config.maxQueue) _queue.removeAt(0);
-    _connection?.send(_queue.last.intent.encode(seq: _queue.last.seq));
+  /// Returns whether the intent was taken (false when the link ended or too
+  /// many intents are still unconfirmed).
+  bool send(ClientMessage intent) {
+    if (_closed) return false;
+    if (intent is Hello || intent is PingIntent) {
+      _send(intent);
+      return true;
+    }
+    // Full: refuse the new one rather than drop an old one, which would
+    // leave a gap in the numbers.
+    if (_queue.length >= config.maxQueue) return false;
+    final q = _Queued(intent);
+    _queue.add(q);
+    if (_joined) {
+      q.seq = _confirmed + _queue.length;
+      _connection?.send(intent.encode(seq: q.seq));
+    }
+    return true;
   }
 
   /// Joins with another name after the host refused the first one.
   void rename(String name) {
     _name = name.trim();
     nameRefused = false;
-    _send(Hello(name: _name, room: roomCode));
+    _send(Hello(name: _name, room: roomCode, join: _join));
     _changed();
   }
 
@@ -391,4 +438,11 @@ class PlayerLink {
     unawaited(_subscription?.cancel());
     unawaited(_connection?.close());
   }
+}
+
+class _Queued {
+  _Queued(this.intent);
+
+  final ClientMessage intent;
+  int? seq;
 }

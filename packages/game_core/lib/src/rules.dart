@@ -184,11 +184,15 @@ GameUpdate _confirmRole(GameState state, ConfirmRole action) {
   if (confirmed.length < state.players.length) {
     return GameUpdate(state.copyWith(confirmed: confirmed));
   }
-  return GameUpdate(
-    state.copyWith(confirmed: confirmed, phase: Phase.night, round: 1),
-    const [NightFell(1)],
-  );
+  return _beginFirstNight(state.copyWith(confirmed: confirmed));
 }
+
+/// Everyone has seen their role, or the time to look ran out (someone's
+/// phone is away; they can still look later from their own view).
+GameUpdate _beginFirstNight(GameState state) => GameUpdate(
+  state.copyWith(phase: Phase.night, round: 1),
+  const [NightFell(1)],
+);
 
 GameUpdate _night(
   GameState state,
@@ -395,6 +399,7 @@ GameUpdate _resolveVote(GameState state) {
 }
 
 GameUpdate _timeout(GameState state) => switch (state.phase) {
+  Phase.roleReveal => _beginFirstNight(state),
   Phase.night => _resolveNight(state),
   Phase.day => _endDiscussion(state),
   Phase.vote => _resolveVote(state),

@@ -253,6 +253,15 @@ void main() {
       expect(update.state.round, 1);
       expect(update.events.single, isA<NightFell>());
     });
+
+    test('an absent player cannot hold up the first night', () {
+      var state = apply(lobby(5), StartGame(random: Random(3))).state;
+      state = apply(state, ConfirmRole(id(0))).state;
+      final update = apply(state, const PhaseTimeout());
+      expect(update.state.phase, Phase.night);
+      expect(update.state.round, 1);
+      expect(update.events.single, isA<NightFell>());
+    });
   });
 
   group('night', () {

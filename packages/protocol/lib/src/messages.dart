@@ -140,7 +140,7 @@ final class PingIntent extends ClientMessage {
 /// First message on every connection: join a room, or come back with a token.
 final class Hello extends ClientMessage {
   /// Creates the message.
-  const Hello({required this.name, required this.room, this.token});
+  const Hello({required this.name, required this.room, this.token, this.join});
 
   factory Hello._parse(JsonReader json) {
     final room = json.string('room', max: roomCodeLength);
@@ -153,6 +153,7 @@ final class Hello extends ClientMessage {
       token: json.maybeString('token') == null
           ? null
           : _readToken(json, 'token'),
+      join: json.maybeString('join') == null ? null : _readToken(json, 'join'),
     );
   }
 
@@ -165,6 +166,11 @@ final class Hello extends ClientMessage {
   /// Session token from an earlier `Welcome`, to rejoin as the same player.
   final String? token;
 
+  /// A random number for this join attempt (same length as a token). If the
+  /// welcome got lost and the player says hello again, the host recognises
+  /// the attempt instead of seating the player twice.
+  final String? join;
+
   @override
   String get _type => 'hello';
 
@@ -173,6 +179,7 @@ final class Hello extends ClientMessage {
     'name': name,
     'room': room,
     'token': ?token,
+    'join': ?join,
   };
 }
 

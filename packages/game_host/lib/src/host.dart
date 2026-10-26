@@ -23,6 +23,7 @@ int _realClock() => DateTime.now().millisecondsSinceEpoch;
 class HostConfig {
   /// Creates a configuration; the defaults suit a table of friends.
   const HostConfig({
+    this.revealTime = const Duration(seconds: 90),
     this.nightTime = const Duration(seconds: 90),
     this.dayTime = const Duration(minutes: 8),
     this.voteTime = const Duration(minutes: 2),
@@ -32,6 +33,10 @@ class HostConfig {
     this.maxMessagesPerSecond = 20,
     this.maxBadMessages = 3,
   });
+
+  /// How long players have to look at their role before the first night
+  /// falls anyway, so one absent phone cannot hold up the table.
+  final Duration revealTime;
 
   /// How long a night may take before it resolves with what was picked.
   final Duration nightTime;
@@ -59,7 +64,16 @@ class HostConfig {
 }
 
 class _Session {
-  _Session(this.token, this.player, {required this.owner, this.lastSeq = 0});
+  _Session(
+    this.token,
+    this.player, {
+    required this.owner,
+    this.lastSeq = 0,
+    this.join,
+  });
+
+  /// The join number of the hello that created this session.
+  final String? join;
 
   final String token;
   final PlayerId player;
@@ -147,6 +161,7 @@ class GameHost {
           PlayerId(s.string('player', max: 16)),
           owner: s.boolean('owner'),
           lastSeq: s.maybeInteger('lastSeq', max: maxSeq) ?? 0,
+          join: s.maybeString('join', max: tokenLength),
         ),
     };
     if (sessions.values.any((s) => state.player(s.player) == null)) {
@@ -214,6 +229,7 @@ class GameHost {
           'player': s.player.value,
           'owner': s.owner,
           'lastSeq': s.lastSeq,
+          'join': ?s.join,
         },
     ],
   });
@@ -348,6 +364,9 @@ class GameHost {
     // knows it: a restored host never applies it a second time.
     session.lastSeq = seq;
     _intent(link, session, message);
+    // Saved before confirming, also for refused intents (which change no
+    // state and so broadcast nothing): confirmed always means saved.
+    onSnapshot?.call(snapshot());
     if (!link.closed) {
       link.connection.send(Ack(seq, version: _version).encode());
     }
@@ -376,6 +395,17 @@ class GameHost {
       _bind(link, session);
       return;
     }
+    // The same join attempt again (its welcome got lost on the way): bind to
+    // the seat it already has. Only over checked channels, like a token.
+    final again = hello.join == null || unverified
+        ? null
+        : _sessions.values.where((s) => s.join == hello.join).firstOrNull;
+    if (again != null) {
+      final previous = again.link;
+      if (previous != null && previous != link) _drop(previous);
+      _bind(link, again);
+      return;
+    }
     if (_state.phase != Phase.lobby) return _bye(link, ByeReason.gameRunning);
     // Joined without the QR code's secret: the host checks the code first.
     if (!link.owner && unverified) {
@@ -396,7 +426,7 @@ class GameHost {
       _broadcast();
       return;
     }
-    _join(link, hello.name);
+    _join(link, hello.name, join: hello.join);
   }
 
   /// Checks [name] without joining; on a taken name the player may retry.
@@ -435,7 +465,7 @@ class GameHost {
     _join(pending.link, pending.name);
   }
 
-  void _join(_Link link, String name) {
+  void _join(_Link link, String name, {String? join}) {
     final id = PlayerId('p${_nextId++}');
     try {
       _state = apply(_state, AddPlayer(id, name)).state;
@@ -454,7 +484,12 @@ class GameHost {
       return;
     }
     final hasOwner = _sessions.values.any((s) => s.owner);
-    final session = _Session(_newToken(), id, owner: link.owner && !hasOwner);
+    final session = _Session(
+      _newToken(),
+      id,
+      owner: link.owner && !hasOwner,
+      join: join,
+    );
     _sessions[session.token] = session;
     _bind(link, session);
     _broadcast();
@@ -583,6 +618,7 @@ class GameHost {
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
     final full = switch (_state.phase) {
+      Phase.roleReveal => config.revealTime,
       Phase.night => config.nightTime,
       Phase.day => config.dayTime,
       Phase.vote => config.voteTime,
