@@ -161,15 +161,15 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Whowolf ist öffentlich herunterladbar und verständlich präsentiert.
 
-- [ ] Visuelle Identität aus Spur D in der App angekommen
-- [ ] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
-- [ ] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan
+- [x] Visuelle Identität aus Spur D in der App angekommen
+- [x] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
+- [x] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan (unabhängige Prüfung 2026-10-26, Befunde behoben oder unter „Grenzen“ in SECURITY_DESIGN)
 - [ ] **Externer Review des Handshakes** (`packages/secure_channel`) durch jemanden mit Krypto-Erfahrung (bis 2026-11-01 nicht zu schaffen: 0.1 bleibt als Entwickler-Beta gekennzeichnet, der Review ist Pflicht vor den Stores)
-- [ ] iOS über **TestFlight** von Anfang an (Apple Developer Account vorhanden), macOS signiert und notarisiert
-- [ ] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
-- [ ] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen
-- [ ] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren (`SECURITY.md` existiert bereits)
-- [ ] Release-Hinweise: unsignierte Builds (Warnung unter macOS und Windows) erklären
+- [ ] iOS über **TestFlight** von Anfang an (Apple Developer Account vorhanden), macOS signiert und notarisiert (braucht die Apple-Secrets in GitHub vom Eigentümer; nach 0.1 verschoben, siehe DECISIONS)
+- [x] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
+- [x] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen; Datenschutz der App ergänzt
+- [x] `CONTRIBUTING.md`, Issue-Templates, README aktualisieren (`SECURITY.md` existiert bereits)
+- [x] Release-Hinweise: unsignierte Builds (Warnung unter macOS und Windows) erklären
 
 **Fertig, wenn:** Jemand Fremdes über die Website die App findet, installiert und mit Freunden spielt.
 

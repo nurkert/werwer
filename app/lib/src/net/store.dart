@@ -93,10 +93,17 @@ class Store {
   static const _resumeKey = 'resume';
   static const _serverKey = 'relayServer';
 
+  /// The way back into a recent game; an older record is deleted (the
+  /// game is surely over, and the token should not linger).
   Future<ResumeInfo?> loadResume() async {
     try {
       final raw = await _storage.read(key: _resumeKey);
-      return raw == null ? null : ResumeInfo.fromJson(raw);
+      final info = raw == null ? null : ResumeInfo.fromJson(raw);
+      if (raw != null && (info == null || !info.isFresh)) {
+        await clearResume();
+        return null;
+      }
+      return info;
     } on Object {
       return null;
     }

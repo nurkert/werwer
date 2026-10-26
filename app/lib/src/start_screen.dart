@@ -56,7 +56,7 @@ class _StartScreenState extends State<StartScreen> {
     // straight back to the table. Leaving on purpose clears these records.
     if (savedRoom != null) {
       await _restore(savedRoom);
-    } else if (resume != null && resume.isFresh) {
+    } else if (resume != null) {
       await _continue(resume);
     }
   }

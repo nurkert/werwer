@@ -255,6 +255,11 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
             <a class="button button--primary" href={repoUrl}>{t.hero.primary}</a>
             <a class="button button--ghost" href="/docs/dev/">{t.open.docs}</a>
           </div>
+          <p class="open__contribute" data-reveal style="--i: 3">
+            {t.open.contribute}{' '}
+            <a href={`${repoUrl}/blob/main/CONTRIBUTING.md`}>{t.open.github}</a> ·{' '}
+            <a href={`${repoUrl}/issues/new/choose`}>{t.open.bug}</a>
+          </p>
           {lang === 'en' && <p class="open__note">{t.open.note}</p>}
         </div>
         <ol class="toc">
@@ -1049,6 +1054,12 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
   .ensemble__row span {
     font-size: 0.9rem;
     font-weight: 700;
+    color: var(--moon-200);
+  }
+
+  .open__contribute {
+    margin-top: var(--space-3);
+    max-width: 52ch;
     color: var(--moon-200);
   }
 </style>
