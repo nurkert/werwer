@@ -52,6 +52,7 @@ flutter:
     - assets/sheep/
     - assets/licenses/
     - assets/sounds/
+    - assets/ui/
   fonts:
     - family: LilitaOne
       fonts:

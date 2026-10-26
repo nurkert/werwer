@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:whowolf/src/game/cardboard.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The stock everything is printed on: a small tile of noise, made once and
@@ -109,9 +110,9 @@ class _StageBackgroundState extends State<StageBackground> {
   @override
   void initState() {
     super.initState();
-    if (Grain.image == null) {
+    if (Grain.image == null || !Board.ready) {
       unawaited(
-        Grain.load().then((_) {
+        Future.wait([Grain.load(), Board.load()]).then((_) {
           if (mounted) setState(() {});
         }),
       );

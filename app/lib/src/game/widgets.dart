@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/cardboard.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/theme.dart';
@@ -138,51 +139,47 @@ class Panel extends StatelessWidget {
   final bool paper;
   final EdgeInsets padding;
 
+  /// How deep the board is: its corrugated edge shows below the face.
+  static const double thickness = 6;
+
+  /// How much kraft shows around a glued-on playbill.
+  static const double _paperInset = 6;
+
   @override
-  Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(Radii.m);
-    final edge = highlight
-        ? Palette.lantern400
-        : paper
-        ? Palette.paperDeep
-        : Palette.card200.withValues(alpha: 0.22);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: paper ? Palette.paper : Palette.night800,
-        borderRadius: radius,
-        border: Border.all(color: edge, width: highlight ? 2.5 : 1.5),
-        boxShadow: const [
-          // The card's thickness, then its shadow on the stage.
-          BoxShadow(color: Palette.night950, offset: Offset(0, 3)),
-          BoxShadow(
-            color: Color(0x66000000),
-            offset: Offset(0, 10),
-            blurRadius: 18,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: CustomPaint(
-          foregroundPainter: GrainPainter(
-            opacity: paper ? 0.16 : 0.08,
-            blend: paper ? BlendMode.multiply : BlendMode.overlay,
-          ),
-          child: paper
-              ? _GoldRule(
-                  child: Surface(
-                    onPaper: true,
-                    child: Padding(padding: padding, child: child),
+  Widget build(BuildContext context) => CustomPaint(
+    painter: BoardPainter(
+      radius: Radii.m,
+      face: paper ? BoardFace.kraft : BoardFace.night,
+      rim: highlight ? Palette.lantern400 : null,
+      paperInset: paper ? _paperInset : null,
+    ),
+    child: Padding(
+      padding: const EdgeInsets.only(bottom: thickness),
+      child: paper
+          ? Padding(
+              padding: const EdgeInsets.all(_paperInset),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(Radii.m - _paperInset),
+                child: CustomPaint(
+                  foregroundPainter: GrainPainter(
+                    opacity: 0.16,
+                    blend: BlendMode.multiply,
                   ),
-                )
-              : Surface(
-                  onPaper: false,
-                  child: Padding(padding: padding, child: child),
+                  child: _GoldRule(
+                    child: Surface(
+                      onPaper: true,
+                      child: Padding(padding: padding, child: child),
+                    ),
+                  ),
                 ),
-        ),
-      ),
-    );
-  }
+              ),
+            )
+          : Surface(
+              onPaper: false,
+              child: Padding(padding: padding, child: child),
+            ),
+    ),
+  );
 }
 
 /// The double gold rule just inside a paper card, as on the playbill.
@@ -483,8 +480,8 @@ class _CountdownState extends State<Countdown> {
   }
 }
 
-/// The main action: a lantern-orange pill with a wooden rim that gives a
-/// little when pressed, like the website's buttons.
+/// The main action: a lantern-orange board whose cut edge gives under a
+/// finger.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     required this.label,
@@ -498,22 +495,18 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
-    child: _Pressable(
-      enabled: onPressed != null,
-      child: FilledButton(
-        style: _pill(
-          background: Palette.lantern400,
-          foreground: Palette.ink,
-          rim: Palette.wood700,
-        ),
-        onPressed: onPressed,
-        child: Text(label),
-      ),
+    child: _BoardButton(
+      face: BoardFace.paint,
+      paint: Palette.lantern400,
+      foreground: Palette.ink,
+      onPressed: onPressed,
+      label: label,
     ),
   );
 }
 
-/// A quieter action next to the primary one: an outlined pill.
+/// A quieter action next to the primary one: a plain board (midnight on
+/// the stage, kraft on paper) with a rim.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     required this.label,
@@ -535,84 +528,106 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paper = Surface.paper(context);
-    final button = _Pressable(
-      enabled: onPressed != null,
-      child: OutlinedButton(
-        style: _pill(
-          background: Colors.transparent,
-          foreground: paper ? Palette.ink : Palette.moon100,
-          rim: selected
-              ? Palette.lantern400
-              : paper
-              ? Palette.inkSoft
-              : Palette.night500,
-        ),
-        onPressed: onPressed,
-        child: Text(label),
-      ),
+    final button = _BoardButton(
+      face: paper ? BoardFace.kraft : BoardFace.night,
+      foreground: paper ? Palette.ink : Palette.moon100,
+      rim: selected
+          ? Palette.lantern400
+          : paper
+          ? Palette.wood700
+          : Palette.night500,
+      onPressed: onPressed,
+      label: label,
     );
     return expand ? SizedBox(width: double.infinity, child: button) : button;
   }
 }
 
-ButtonStyle _pill({
-  required Color background,
-  required Color foreground,
-  required Color rim,
-}) => ButtonStyle(
-  backgroundColor: WidgetStateProperty.resolveWith(
-    (states) =>
-        states.contains(WidgetState.disabled) ? Palette.night700 : background,
-  ),
-  foregroundColor: WidgetStateProperty.resolveWith(
-    (states) => states.contains(WidgetState.disabled)
-        ? Palette.moon200.withValues(alpha: 0.45)
-        : foreground,
-  ),
-  side: WidgetStateProperty.resolveWith(
-    (states) => BorderSide(
-      color: states.contains(WidgetState.disabled) ? Palette.night500 : rim,
-      width: 3,
-    ),
-  ),
-  padding: const WidgetStatePropertyAll(
-    EdgeInsets.symmetric(horizontal: 26, vertical: 15),
-  ),
-  minimumSize: const WidgetStatePropertyAll(Size(48, 52)),
-  textStyle: const WidgetStatePropertyAll(
-    TextStyle(fontFamily: textFont, fontSize: 18, fontWeight: FontWeight.w800),
-  ),
-  shape: const WidgetStatePropertyAll(StadiumBorder()),
-  elevation: const WidgetStatePropertyAll(0),
-);
+/// A button cut from board: the face sinks into the corrugated edge while
+/// pressed and springs back.
+class _BoardButton extends StatefulWidget {
+  const _BoardButton({
+    required this.face,
+    required this.foreground,
+    required this.onPressed,
+    required this.label,
+    this.paint,
+    this.rim,
+  });
 
-/// Presses in a little, like card under a finger.
-class _Pressable extends StatefulWidget {
-  const _Pressable({required this.child, required this.enabled});
-
-  final Widget child;
-  final bool enabled;
+  final BoardFace face;
+  final Color? paint;
+  final Color foreground;
+  final Color? rim;
+  final VoidCallback? onPressed;
+  final String label;
 
   @override
-  State<_Pressable> createState() => _PressableState();
+  State<_BoardButton> createState() => _BoardButtonState();
 }
 
-class _PressableState extends State<_Pressable> {
+class _BoardButtonState extends State<_BoardButton> {
+  static const double _thickness = 6;
   bool _down = false;
 
   void _set(bool down) {
-    if (widget.enabled && down != _down) setState(() => _down = down);
+    if (widget.onPressed != null && down != _down) setState(() => _down = down);
   }
 
   @override
-  Widget build(BuildContext context) => Listener(
-    onPointerDown: (_) => _set(true),
-    onPointerUp: (_) => _set(false),
-    onPointerCancel: (_) => _set(false),
-    child: AnimatedScale(
-      scale: _down ? 0.97 : 1,
-      duration: const Duration(milliseconds: 120),
-      child: widget.child,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final enabled = widget.onPressed != null;
+    return Listener(
+      onPointerDown: (_) => _set(true),
+      onPointerUp: (_) => _set(false),
+      onPointerCancel: (_) => _set(false),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(end: _down ? 0.7 : 0),
+        duration: Duration(milliseconds: _down ? 60 : 160),
+        curve: _down ? Curves.easeOut : Curves.easeOutBack,
+        builder: (context, press, child) => CustomPaint(
+          painter: BoardPainter(
+            radius: 999,
+            face: enabled ? widget.face : BoardFace.paint,
+            color: enabled ? widget.paint : Palette.night700,
+            rim: enabled ? widget.rim : Palette.night500,
+            press: press,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: _thickness),
+            child: Transform.translate(
+              offset: Offset(0, _thickness * press),
+              child: child,
+            ),
+          ),
+        ),
+        child: TextButton(
+          style: ButtonStyle(
+            foregroundColor: WidgetStateProperty.resolveWith(
+              (states) => states.contains(WidgetState.disabled)
+                  ? Palette.moon200.withValues(alpha: 0.45)
+                  : widget.foreground,
+            ),
+            overlayColor: WidgetStatePropertyAll(
+              widget.foreground.withValues(alpha: 0.08),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 26, vertical: 15),
+            ),
+            minimumSize: const WidgetStatePropertyAll(Size(48, 52)),
+            textStyle: const WidgetStatePropertyAll(
+              TextStyle(
+                fontFamily: textFont,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            shape: const WidgetStatePropertyAll(StadiumBorder()),
+          ),
+          onPressed: widget.onPressed,
+          child: Text(widget.label, textAlign: TextAlign.center),
+        ),
+      ),
+    );
+  }
 }

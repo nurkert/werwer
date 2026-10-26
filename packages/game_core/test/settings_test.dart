@@ -10,7 +10,7 @@ void main() {
     test('each preset is recognised, a change makes it custom', () {
       for (final preset in Preset.values) {
         expect(preset.settings.preset, preset);
-        expect(preset.settings.copyWith(narratorVoice: false).preset, isNull);
+        expect(preset.settings.copyWith(narratorVoice: true).preset, isNull);
         preset.settings.validate();
       }
       expect(const GameSettings().preset, isNull);

@@ -42,7 +42,7 @@ class GameSettings {
     this.wolfTrail = false,
     this.atmosphere = false,
     this.personaChoice = true,
-    this.narratorVoice = true,
+    this.narratorVoice = false,
     this.doorSigns = false,
   });
 
@@ -83,7 +83,9 @@ class GameSettings {
   /// the one they got).
   final bool personaChoice;
 
-  /// Whether the narrator speaks aloud (otherwise text only).
+  /// Whether the narrator speaks aloud (otherwise text only). Off unless
+  /// the host turns it on: the system voices are no pleasure to hear yet;
+  /// recorded lines come later.
   final bool narratorVoice;
 
   /// Whether door signs are in play: every night each living player gets a
