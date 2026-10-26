@@ -25,6 +25,8 @@ class Player {
           bye = message.reason;
         case Refused():
           refused.add(message.reason);
+        case Waiting():
+          waiting = true;
       }
     }, onDone: () => closed = true);
   }
@@ -37,6 +39,7 @@ class Player {
   StateMessage? last;
   ByeReason? bye;
   bool closed = false;
+  bool waiting = false;
 
   PlayerView get view => last!.view;
 
@@ -60,6 +63,39 @@ class FakeTimers {
       if (entry.$1 == after && pending.remove(entry)) entry.$2();
     }
   }
+}
+
+/// A connection that came in encrypted but without the QR code's secret.
+class UnverifiedTransport implements Transport {
+  final _inner = MemoryTransport();
+
+  @override
+  Stream<Connection> get connections => _inner.connections.map(_Unverified.new);
+
+  Connection connect() => _inner.connect();
+
+  @override
+  Future<void> close() => _inner.close();
+}
+
+class _Unverified implements Connection, PeerTrust {
+  _Unverified(this._raw);
+  final Connection _raw;
+
+  @override
+  bool get verified => false;
+
+  @override
+  List<int> get checkCode => const [1, 2, 3];
+
+  @override
+  Stream<String> get messages => _raw.messages;
+
+  @override
+  void send(String message) => _raw.send(message);
+
+  @override
+  Future<void> close() => _raw.close();
 }
 
 Future<void> settle() => Future<void>.delayed(Duration.zero);
@@ -229,6 +265,44 @@ void main() {
     expect(twin.view.seats.map((s) => s.name), ['Owner', 'P1', 'Other']);
   });
 
+  test(
+    'without the QR secret, the host lets people in after a check',
+    () async {
+      final owner = await join('Owner', owner: true);
+      final open = UnverifiedTransport();
+      host.serve(open);
+      final eve = Player(open.connect())
+        ..send(const Hello(name: 'Eve', room: room));
+      final mallory = Player(open.connect())
+        ..send(const Hello(name: 'Mallory', room: room));
+      await settle();
+      expect(eve.waiting, isTrue);
+      expect(eve.id, isNull);
+      final pending = owner.last!.pending;
+      expect(pending.map((p) => p.name), ['Eve', 'Mallory']);
+      expect(pending.first.checkCode, [1, 2, 3]);
+      expect(owner.view.seats, hasLength(1));
+
+      owner
+        ..send(AdmitIntent(pending.first.id, admit: true))
+        ..send(AdmitIntent(pending.last.id, admit: false));
+      await settle();
+      expect(eve.id, isNotNull);
+      expect(mallory.bye, ByeReason.refused);
+      expect(owner.view.seats.map((s) => s.name), ['Owner', 'Eve']);
+      expect(owner.last!.pending, isEmpty);
+
+      // Only the owner may let people in.
+      final sneaky = Player(open.connect())
+        ..send(const Hello(name: 'Sneaky', room: room));
+      await settle();
+      eve.send(AdmitIntent(owner.last!.pending.single.id, admit: true));
+      await settle();
+      expect(eve.refused, [Violation.notYourAction]);
+      expect(sneaky.id, isNull);
+    },
+  );
+
   test('the owner kicks a player from the lobby', () async {
     final players = await table(3);
     players.first.send(KickIntent(players[2].id!));
@@ -359,6 +433,75 @@ void main() {
       () => GameHost.restore('nonsense', random: Random(1)),
       throwsA(isA<ProtocolError>()),
     );
+  });
+
+  test('random and broken messages never crash the host or leak', () async {
+    for (var seed = 0; seed < 20; seed++) {
+      final random = Random(seed);
+      final players = await table(5);
+      final ids = [for (final p in players) p.id!, const PlayerId('p99')];
+      PlayerId anyId() => ids[random.nextInt(ids.length)];
+      ClientMessage anyIntent() => switch (random.nextInt(12)) {
+        0 => const StartGameIntent(),
+        1 => const ConfirmRoleIntent(),
+        2 => NightIntent(anyId()),
+        3 => VoteIntent(random.nextBool() ? null : anyId()),
+        4 => const EndDiscussionIntent(),
+        5 => KickIntent(anyId()),
+        6 => SheepIntent(random.nextInt(60) - 10),
+        7 => PersonaIntent(Persona.values[random.nextInt(11)]),
+        8 => SwapSeatsIntent(anyId(), anyId()),
+        9 => AdmitIntent(random.nextInt(5), admit: random.nextBool()),
+        10 => const RematchIntent(),
+        _ => Hello(name: 'X${random.nextInt(9)}', room: room),
+      };
+      for (var step = 0; step < 300; step++) {
+        final p = players[random.nextInt(players.length)];
+        if (random.nextInt(10) == 0) {
+          // Raw garbage straight onto the wire.
+          p.connection.send(
+            String.fromCharCodes([
+              for (var i = 0; i < random.nextInt(40); i++)
+                32 + random.nextInt(90),
+            ]),
+          );
+        } else {
+          p.send(anyIntent());
+        }
+        if (step % 25 == 0) {
+          timers
+            ..fire(const HostConfig().nightTime)
+            ..fire(const HostConfig().dayTime)
+            ..fire(const HostConfig().voteTime)
+            ..now += 2000; // keep the rate limit happy
+        }
+        await settle();
+      }
+      // Whatever happened, the rules held and no one saw a hidden role.
+      final state = host.state;
+      expect(state.players.length, inInclusiveRange(0, maxPlayers));
+      for (final p in players.where((p) => p.last != null)) {
+        final view = p.view;
+        if (view.phase == Phase.ended) continue;
+        for (final seat in view.seats) {
+          if (seat.id == p.id || !seat.isAlive || seat.role == null) continue;
+          expect(
+            view.yourRole == Role.werewolf && seat.role == Role.werewolf,
+            isTrue,
+            reason: 'seed $seed: ${p.id} sees ${seat.id}',
+          );
+        }
+      }
+      await host.close();
+      host = GameHost(
+        roomCode: room,
+        random: Random(seed + 100),
+        startTimer: timers.start,
+        clock: () => timers.now,
+      );
+      transport = MemoryTransport();
+      host.serve(transport);
+    }
   });
 
   test('a real WebSocket on localhost carries a lobby', () async {

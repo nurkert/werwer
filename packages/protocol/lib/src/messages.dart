@@ -67,6 +67,10 @@ sealed class ClientMessage {
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
       'persona' => PersonaIntent(json.enumValue('persona', Persona.values)),
+      'admit' => AdmitIntent(
+        json.integer('id', max: 1 << 20),
+        admit: json.boolean('ok'),
+      ),
       'swap' => SwapSeatsIntent(
         _readPlayerId(json, 'a'),
         _readPlayerId(json, 'b'),
@@ -224,6 +228,25 @@ final class PersonaIntent extends ClientMessage {
   Map<String, Object?> get _fields => {'persona': persona.name};
 }
 
+/// Room owner: let a waiting player in (after comparing the check code at
+/// the table) or turn them away.
+final class AdmitIntent extends ClientMessage {
+  /// Creates the message.
+  const AdmitIntent(this.id, {required this.admit});
+
+  /// The waiting join's id from [PendingJoin.id].
+  final int id;
+
+  /// Whether to let them in.
+  final bool admit;
+
+  @override
+  String get _type => 'admit';
+
+  @override
+  Map<String, Object?> get _fields => {'id': id, 'ok': admit};
+}
+
 /// Room owner: swap the seats of two players in the lobby.
 final class SwapSeatsIntent extends ClientMessage {
   /// Creates the message.
@@ -314,7 +337,19 @@ sealed class HostMessage {
         view: decodeView(json.object('view')),
         isOwner: json.boolean('owner'),
         phaseEndsInMs: json.maybeInteger('endsIn'),
+        pending: [
+          for (final p in json.objects('pending', max: 40))
+            PendingJoin(
+              id: p.integer('id', max: 1 << 20),
+              name: p.string('name', max: maxNameLength * 2),
+              checkCode: [
+                for (final c in p.strings('code', max: 8, maxLength: 2))
+                  int.tryParse(c) ?? (throw const ProtocolError('code')),
+              ],
+            ),
+        ],
       ),
+      'waiting' => const Waiting(),
       'refused' => Refused(json.enumValue('reason', Violation.values)),
       'bye' => Bye(json.enumValue('reason', ByeReason.values)),
       _ => throw const ProtocolError('unknown type'),
@@ -348,6 +383,25 @@ final class Welcome extends HostMessage {
   Map<String, Object?> get _fields => {'token': token, 'you': you.value};
 }
 
+/// Someone who wants to join without the QR code's secret.
+class PendingJoin {
+  /// Creates a pending join.
+  const PendingJoin({
+    required this.id,
+    required this.name,
+    required this.checkCode,
+  });
+
+  /// Id to answer with an [AdmitIntent].
+  final int id;
+
+  /// The name they want.
+  final String name;
+
+  /// The check code their device shows.
+  final List<int> checkCode;
+}
+
 /// The game as you may see it.
 final class StateMessage extends HostMessage {
   /// Creates the message.
@@ -355,7 +409,11 @@ final class StateMessage extends HostMessage {
     required this.view,
     required this.isOwner,
     this.phaseEndsInMs,
+    this.pending = const [],
   });
+
+  /// For the room owner: people waiting to be let in.
+  final List<PendingJoin> pending;
 
   /// Your filtered view.
   final PlayerView view;
@@ -374,7 +432,27 @@ final class StateMessage extends HostMessage {
     'view': encodeView(view),
     'owner': isOwner,
     'endsIn': ?phaseEndsInMs,
+    'pending': [
+      for (final p in pending)
+        {
+          'id': p.id,
+          'name': p.name,
+          'code': [for (final c in p.checkCode) '$c'],
+        },
+    ],
   };
+}
+
+/// You are encrypted but not verified: wait until the host lets you in.
+final class Waiting extends HostMessage {
+  /// Creates the message.
+  const Waiting();
+
+  @override
+  String get _type => 'waiting';
+
+  @override
+  Map<String, Object?> get _fields => const {};
 }
 
 /// Your last intent was refused; nothing changed.

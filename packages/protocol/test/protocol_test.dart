@@ -25,6 +25,7 @@ void main() {
         const SheepIntent(-3),
         const PersonaIntent(Persona.hunter),
         const SwapSeatsIntent(PlayerId('p1'), PlayerId('p2')),
+        const AdmitIntent(3, admit: true),
       ];
       for (final m in messages) {
         final back = ClientMessage.parse(m.encode());
@@ -97,6 +98,9 @@ void main() {
         view: viewFor(state, wolf.id),
         isOwner: true,
         phaseEndsInMs: 4200,
+        pending: const [
+          PendingJoin(id: 2, name: 'Eve', checkCode: [3, 15, 0]),
+        ],
       );
       final back = HostMessage.parse(message.encode()) as StateMessage;
       expect(back.encode(), message.encode());
@@ -109,6 +113,7 @@ void main() {
         const Welcome(token: token, you: PlayerId('p1')),
         const Refused(Violation.invalidTarget),
         const Bye(ByeReason.kicked),
+        const Waiting(),
       ]) {
         expect(HostMessage.parse(m.encode()).encode(), m.encode());
       }

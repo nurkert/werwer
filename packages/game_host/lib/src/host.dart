@@ -67,6 +67,14 @@ class _Session {
   _Link? link;
 }
 
+class _Pending {
+  _Pending(this.id, this.link, this.name);
+
+  final int id;
+  final _Link link;
+  String name;
+}
+
 class _Link {
   _Link(this.connection, {required this.owner});
 
@@ -159,6 +167,8 @@ class GameHost {
   final _transports = <Transport>[];
   final _ownerTransport = MemoryTransport();
   int _nextId = 1;
+  final _pending = <int, _Pending>{};
+  int _nextPending = 1;
   void Function()? _cancelPhaseTimer;
   int? _phaseDeadline;
   bool _closed = false;
@@ -243,6 +253,9 @@ class GameHost {
     link.cancelHello?.call();
     unawaited(link.subscription?.cancel());
     _links.remove(link);
+    final before = _pending.length;
+    _pending.removeWhere((_, p) => p.link == link);
+    if (_pending.length != before && !_closed) _broadcast();
     if (link.session?.link == link) link.session!.link = null;
     unawaited(link.connection.close());
   }
@@ -298,9 +311,71 @@ class GameHost {
       return;
     }
     if (_state.phase != Phase.lobby) return _bye(link, ByeReason.gameRunning);
+    // Joined without the QR code's secret: the host checks the code first.
+    final connection = link.connection;
+    final unverified = switch (connection) {
+      PeerTrust(verified: false) => true,
+      _ => false,
+    };
+    if (!link.owner && unverified) {
+      if (!_nameAvailable(link, hello.name)) return;
+      final waiting = _pending.values.where((p) => p.link == link).firstOrNull;
+      if (waiting != null) {
+        waiting.name = hello.name;
+      } else {
+        final id = _nextPending++;
+        _pending[id] = _Pending(id, link, hello.name);
+      }
+      link
+        ..cancelHello?.call()
+        ..cancelHello = _startTimer(config.renameTimeout, () {
+          if (link.session == null) _drop(link);
+        });
+      connection.send(const Waiting().encode());
+      _broadcast();
+      return;
+    }
+    _join(link, hello.name);
+  }
+
+  /// Checks [name] without joining; on a taken name the player may retry.
+  bool _nameAvailable(_Link link, String name) {
+    try {
+      apply(_state, AddPlayer(const PlayerId('probe'), name));
+      return true;
+    } on RuleViolation catch (violation) {
+      if (violation.reason != Violation.invalidName) {
+        _bye(link, ByeReason.refused);
+        return false;
+      }
+      link
+        ..cancelHello?.call()
+        ..cancelHello = _startTimer(config.renameTimeout, () {
+          if (link.session == null) _drop(link);
+        })
+        ..connection.send(const Refused(Violation.invalidName).encode());
+      return false;
+    }
+  }
+
+  void _admit(int id, {required bool admit}) {
+    final pending = _pending.remove(id);
+    if (pending == null) throw const RuleViolation(Violation.unknownPlayer);
+    if (pending.link.closed) return _broadcast();
+    if (!admit) {
+      _bye(pending.link, ByeReason.refused);
+      return _broadcast();
+    }
+    if (_state.phase != Phase.lobby) {
+      return _bye(pending.link, ByeReason.gameRunning);
+    }
+    _join(pending.link, pending.name);
+  }
+
+  void _join(_Link link, String name) {
     final id = PlayerId('p${_nextId++}');
     try {
-      _state = apply(_state, AddPlayer(id, hello.name)).state;
+      _state = apply(_state, AddPlayer(id, name)).state;
     } on RuleViolation catch (violation) {
       if (violation.reason != Violation.invalidName) {
         return _bye(link, ByeReason.refused);
@@ -370,6 +445,9 @@ class GameHost {
           final update = apply(_state, RemovePlayer(me));
           _endSession(me, ByeReason.left);
           _commit(update);
+        case AdmitIntent(:final id, :final admit):
+          _ownerOnly(session);
+          _admit(id, admit: admit);
         case SwapSeatsIntent(:final first, :final second):
           _ownerOnly(session);
           _commit(apply(_state, SwapSeats(first, second)));
@@ -454,6 +532,19 @@ class GameHost {
         view: viewFor(_state, session.player),
         isOwner: session.owner,
         phaseEndsInMs: deadline == null ? null : max(0, deadline - _clock()),
+        pending: session.owner
+            ? [
+                for (final p in _pending.values)
+                  PendingJoin(
+                    id: p.id,
+                    name: p.name,
+                    checkCode: switch (p.link.connection) {
+                      final PeerTrust trust => trust.checkCode,
+                      _ => const [],
+                    },
+                  ),
+              ]
+            : const [],
       ).encode(),
     );
   }
