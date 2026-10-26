@@ -3,8 +3,8 @@ page: docsHow
 lang: de
 title: Wie die App funktioniert
 short: Wie die App funktioniert
-description: "Wie Whowolf technisch funktioniert, in einfachen Worten: ein Handy ist Gastgeber, die anderen verbinden sich im WLAN, und ein eigener Server kann Mitspieler von außen vermitteln."
-lead: "Kein Rechenzentrum, keine Cloud: Bei Whowolf ist ein Handy am Tisch der Spielleiter. Hier steht in einfachen Worten, wie das funktioniert."
+description: "Wie Whowolf technisch funktioniert, in einfachen Worten: ein Handy ist Gastgeber, die anderen verbinden sich im WLAN, und ein Vermittlungsserver bringt Mitspieler von außen dazu."
+lead: "Bei Whowolf ist ein Handy am Tisch der Spielleiter, ganz ohne Rechenzentrum und Cloud. Hier steht in einfachen Worten, wie das funktioniert."
 figure: lauscherin
 ---
 
@@ -24,9 +24,9 @@ Der Gastgeber ist trotzdem ein ganz normaler Mitspieler. Seine App verbindet sic
 
 Der Gastgeber schickt nie den ganzen Spielstand herum, sondern baut für jeden Spieler eine eigene, gefilterte Sicht: deine Rolle, dein Rudel, deine Blicke als Seherin, dazu alles, was ohnehin alle wissen. Was du nicht wissen darfst, kommt auf deinem Gerät gar nicht erst an.
 
-## Verbindung weg? Kein Problem.
+## Wenn die Verbindung abreißt
 
-Jedes Gerät bekommt beim Beitritt einen geheimen Sitzungsschlüssel und speichert ihn sicher. Bricht die Verbindung ab, weil der Bildschirm ausgeht oder das WLAN hakt, meldet sich die App damit wieder an und ist mit genau ihrer Rolle zurück. Das klappt sogar nach einem Neustart der App. Nur wenn das Gastgeber-Gerät die Runde verlässt, ist sie vorbei. Dass der Gastgeber den Spielstand laufend sichert und nach einem Absturz weitermachen kann, ist geplant.
+Jedes Gerät bekommt beim Beitritt einen geheimen Sitzungsschlüssel und speichert ihn sicher. Bricht die Verbindung ab, weil der Bildschirm ausgeht oder das WLAN hakt, meldet sich die App damit wieder an und ist mit genau ihrer Rolle zurück. Das klappt sogar nach einem Neustart der App. Der Gastgeber sichert außerdem laufend den Spielstand, sodass eine Runde auch einen Absturz oder einen Neustart seiner App übersteht.
 
 ## Mitspieler von außen: der Vermittlungsserver
 
@@ -38,13 +38,9 @@ Wer nicht im selben WLAN sitzt, kann über einen **Vermittlungsserver** (Relay) 
 
 Spieler am Tisch bleiben dabei direkt im WLAN verbunden, die anderen kommen über den Server dazu. Für die Partie macht das keinen Unterschied.
 
-Einen offiziellen Server gibt es noch nicht. **Einen eigenen Server** könnt ihr selbst betreiben: Er liegt im [Repository](https://github.com/nurkert/whowolf) und startet mit Docker und einem einzigen Befehl:
+Die App nutzt dafür von sich aus den offiziellen Server `wss://play.whowolf.de`, den der Projektinhaber betreibt. Er reicht nur Ende-zu-Ende verschlüsselte Nachrichten weiter und kann sie nicht lesen. Wer das nicht möchte, wählt in den Einstellungen „Kein Online-Server (nur WLAN)“; dann geht nichts an einen Server, und mitspielen kann nur, wer im selben WLAN ist.
 
-```bash
-docker compose up -d
-```
-
-In der App tragt ihr seine Adresse unter Einstellungen bei „Server für Online-Spieler“ ein (sie beginnt mit `ws://` oder `wss://`). Der Server reicht nur verschlüsselte Nachrichten weiter und kann sie nicht lesen.
+Ihr könnt auch **einen eigenen Server** betreiben. Was er braucht und wie ihr ihn einrichtet, steht in der [Anleitung im Repository](https://github.com/nurkert/whowolf/tree/main/server/deploy). Seine Adresse tragt ihr in der App unter Einstellungen bei „Server für Online-Spieler“ ein (sie beginnt mit `ws://` oder `wss://`).
 
 ## Eine Codebasis für alles
 
@@ -53,7 +49,6 @@ Whowolf ist komplett in Dart und Flutter geschrieben. Dieselbe App läuft auf iP
 ## Was noch kommt
 
 - **Im Browser mitspielen**, ohne etwas zu installieren, einfach per QR-Code.
-- **Ein offizieller Server**, der als ganz normaler Container aus dem Repository läuft, genau wie euer eigener.
 - **Synchrone Geräusche** auf allen Handys für die Wolfsspur, gesteuert vom Gastgeber.
 
 Wer es ganz genau wissen will, findet die Pläne im Bereich [Für Entwickler](/docs/dev/).

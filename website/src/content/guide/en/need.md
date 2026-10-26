@@ -3,8 +3,8 @@ page: docsNeed
 lang: en
 title: What you need
 short: What you need
-description: "What you need for a round of Whowolf: 3 to 20 people, one device each, the same Wi-Fi or your own server, and the app."
-lead: "A table, a few people and a device for everyone. That is all: no account, no cards, not even internet."
+description: "What you need for a round of Whowolf: 3 to 20 people, one device each, the same Wi-Fi or internet for remote players, and the app."
+lead: "A table, a few people and a device for everyone. You don’t need an account, cards or even internet."
 figure: dorfbewohner
 ---
 
@@ -39,11 +39,11 @@ Some guest networks, in cafés or hotels for example, don’t let devices talk t
 
 ## Players who aren’t at the table
 
-Anyone not on the same Wi-Fi can join through a **relay server**. There is no official server yet, but you can run your own: it is part of the repository and starts with a single command (`docker compose up -d`). Enter its address in the app under Settings, “Server for online players”. More in [How the app works](/en/docs/how-it-works/).
+Anyone not on the same Wi-Fi can join through a **relay server**. By default the app uses the official server play.whowolf.de, which only passes on encrypted messages. In the settings you can switch it off (“Wi-Fi only”) or enter [your own server](https://github.com/nurkert/whowolf/tree/main/server/deploy). More in [How the app works](/en/docs/how-it-works/).
 
 ## Good to know: this is a developer beta
 
-The current versions (0.0.x) are a **developer beta**. A full round is playable, and all connections are **end-to-end encrypted**. Still:
+Whowolf is a **developer beta**. A full round is playable, and all connections are **end-to-end encrypted**. Still:
 
 - **Expect bugs.** Rounds may get stuck or break off.
 - **Everyone needs the same version.** New versions often don’t work with old ones; update every device before game night.

@@ -4,7 +4,7 @@ lang: en
 title: Player guide
 short: Overview
 description: "The Whowolf player guide: what Whowolf is, how a round works, which roles there are, what you need and why your game stays at the table."
-lead: "Werewolf at the table, everyone on their own phone, and the app tells the story. Here is everything you need for your first round: short, honest and free of tech talk, unless you want it."
+lead: "Werewolf at the table, everyone on their own phone, and the app tells the story. Here is everything you need for your first round, kept short and free of tech talk. That is only there if you go looking for it."
 figure: werwolf
 ---
 

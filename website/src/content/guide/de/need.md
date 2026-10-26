@@ -3,8 +3,8 @@ page: docsNeed
 lang: de
 title: Was ihr braucht
 short: Was ihr braucht
-description: "Was ihr für eine Runde Whowolf braucht: 3 bis 20 Leute, ein Gerät pro Person, dasselbe WLAN oder einen eigenen Server, und die App."
-lead: "Ein Tisch, ein paar Leute und für jeden ein Gerät. Mehr braucht es nicht: kein Konto, keine Karten und nicht einmal Internet."
+description: "Was ihr für eine Runde Whowolf braucht: 3 bis 20 Leute, ein Gerät pro Person, dasselbe WLAN oder Internet für Mitspieler von außen, und die App."
+lead: "Ein Tisch, ein paar Leute und für jeden ein Gerät. Ein Konto, Karten oder auch nur Internet braucht ihr nicht."
 figure: dorfbewohner
 ---
 
@@ -39,11 +39,11 @@ Manche Gäste-WLANs, etwa in Cafés oder Hotels, lassen Geräte nicht miteinande
 
 ## Mitspieler, die nicht am Tisch sitzen
 
-Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) dazukommen. Einen offiziellen Server gibt es noch nicht. Ihr könnt aber euren eigenen betreiben: Er steckt im Repository und startet mit einem einzigen Befehl (`docker compose up -d`). Die Adresse tragt ihr in der App unter Einstellungen bei „Server für Online-Spieler“ ein. Mehr dazu unter [Wie die App funktioniert](/docs/wie-die-app-funktioniert/).
+Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) dazukommen. Die App nutzt dafür von sich aus den offiziellen Server play.whowolf.de, der nur verschlüsselte Nachrichten weiterreicht. In den Einstellungen könnt ihr ihn abschalten („nur WLAN“) oder einen [eigenen Server](https://github.com/nurkert/whowolf/tree/main/server/deploy) eintragen. Mehr dazu unter [Wie die App funktioniert](/docs/wie-die-app-funktioniert/).
 
 ## Gut zu wissen: Es ist eine Entwickler-Beta
 
-Die aktuellen Versionen (0.0.x) sind eine **Entwickler-Beta**. Eine ganze Runde lässt sich spielen, und alle Verbindungen sind **Ende-zu-Ende-verschlüsselt**. Trotzdem gilt:
+Whowolf ist eine **Entwickler-Beta**. Eine ganze Runde lässt sich spielen, und alle Verbindungen sind **Ende-zu-Ende-verschlüsselt**. Trotzdem gilt:
 
 - **Rechnet mit Fehlern.** Runden können hängen bleiben oder abbrechen.
 - **Alle brauchen dieselbe Version.** Neue Versionen passen oft nicht zu alten; aktualisiert vor dem Spieleabend alle Geräte.

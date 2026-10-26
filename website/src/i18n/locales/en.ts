@@ -17,14 +17,14 @@ const en: Copy = {
   },
   hero: {
     statement: 'Werewolf at the table. Everyone on their own phone.',
-    sub: 'The app is the narrator: no game master, no paper slips, no telltale noises.',
+    sub: 'The app tells the story. Nobody has to be game master, you need no paper slips, and no noise gives you away at night.',
     primary: 'Follow the project',
     secondary: 'How it will play',
   },
   playbill: {
     title: 'No game master needed.',
     intro:
-      'Werewolf lives on secrets. Whowolf puts them where they belong: on each player’s own phone. Everyone sits at the table, everyone plays.',
+      'Werewolf lives on secrets. In Whowolf each one sits on the phone of the player it belongs to, so everyone stays at the table and plays, even whoever would otherwise call the night.',
     pillars: [
       { icon: 'phone', title: 'Everyone has a phone', text: 'Scan the QR code, type your name, done. Only you see your role.' },
       { icon: 'scroll', title: 'The app narrates', text: 'It leads you through night and day, counts the votes and never forgets a rule.' },
@@ -35,7 +35,7 @@ const en: Copy = {
     title: 'The programme.',
     intro: 'This is how an evening with Whowolf is meant to go.',
     acts: [
-      { icon: 'qr', act: 'Prologue', title: 'Open a room', text: 'One phone opens the room, everyone else scans the code. No account, no internet.' },
+      { icon: 'qr', act: 'Prologue', title: 'Open a room', text: 'One phone opens the room, everyone else scans the code. Nobody needs an account or internet for it.' },
       { icon: 'circle', act: 'Act one', title: 'Take your seats', text: 'The app shows the table circle from your point of view, so the seating is right at once.' },
       { icon: 'moon', act: 'Act two', title: 'The night', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
       { icon: 'sun', act: 'Act three', title: 'The morning', text: 'Every phone yawns. Then the app announces who was caught.' },
@@ -72,13 +72,13 @@ const en: Copy = {
       werewolf: { name: 'Werewolf', text: 'Picks a victim with the pack at night and knows the other wolves. By day, as harmless as everyone else.' },
       seer: { name: 'Seer', text: 'Looks into one player every night and learns their role. Whether anyone else finds out is the seer’s call.' },
       witch: { name: 'Witch', text: 'One healing potion and one poison, each once per game. Sees whom the werewolves take and decides after them.' },
-      hunter: { name: 'Hunter', text: 'Whoever brings the hunter down, at night or by the vote, does not go alone: the hunter takes someone along at once.' },
+      hunter: { name: 'Hunter', text: 'If the hunter falls, at night or by the vote, he takes someone with him at once.' },
       cupid: { name: 'Cupid', text: 'Binds two players as lovers on the first night. If one dies, so does the other.' },
     },
     doorSigns: {
       title: 'Door signs.',
       level: 'From the “Whowolf” level on',
-      text: 'At night every phone shows a secret sign of three symbols, big, and a new one every night. If a werewolf spotted the sign on your screen, the pack may enter it once a night. If it is right, that person may die as well, about every second time. So let nobody look at your phone, whatever your role.',
+      text: 'At night every phone shows a big secret sign of three symbols, a new one each night. If a werewolf spotted the sign on your screen, the pack may enter it once a night. If it is right, that person may die as well, about every second time. So let nobody look at your phone, whatever your role.',
       example: 'Example of a door sign: moon, key, star',
     },
     ensemble: {
@@ -128,8 +128,8 @@ const en: Copy = {
   rules: {
     title: 'House rules.',
     items: [
-      { title: 'No account', text: 'Open and play. No sign-up, no e-mail, no phone number.' },
-      { title: 'No ads', text: 'No subscription, no in-app purchases, no trackers. Not in the app, not here.' },
+      { title: 'No account', text: 'Open it and play. You don’t sign up or hand over an e-mail address or phone number.' },
+      { title: 'No ads', text: 'No subscription, in-app purchases or trackers either, in the app or on this site.' },
       { title: 'At the table', text: 'One phone is the stage. In your Wi-Fi the game stays at the table; through the relay server it only travels encrypted.' },
       { title: 'Encrypted', text: 'Every connection is end-to-end encrypted. Eavesdroppers only hear noise.' },
       { title: 'Open source', text: 'Apache 2.0. Anyone can look inside, contribute and self-host.' },
@@ -138,15 +138,15 @@ const en: Copy = {
   },
   progress: {
     title: 'Where we are.',
-    intro: 'Whowolf is built in the open. This is where it stands, honestly and without promises.',
+    intro: 'Whowolf is built in the open. This is how far it has come. We would rather not make promises.',
     done: 'Released',
     now: 'In progress',
     next: 'Still open',
     steps: [
       { state: 'done', title: 'Version 0.1', text: 'Out since 26 October 2026 as a developer beta: playable in your own Wi-Fi, end-to-end encrypted, downloads for Android, macOS, Windows and Linux.' },
-      { state: 'now', title: '0.1.1: Every device', text: 'The app fits phones, tablets and desktops, gets cardboard in its interface and new, wordless sounds. The narrator’s voice becomes optional.' },
-      { state: 'now', title: '0.1.1: The game goes on', text: 'If the host’s phone goes away, another one takes over within seconds. Through play.whowolf.de, players on mobile data can join too.' },
-      { state: 'next', title: 'Before the app stores', text: 'An independent review of the encryption. iPhone via TestFlight as soon as there is an Apple developer account.' },
+      { state: 'done', title: '0.1.1: Every device', text: 'Same day: the app fits phones, tablets and desktops, has cardboard in its interface, new wordless sounds and a narrator voice you can turn off. If the host’s phone goes away, another one takes over within seconds. And the app knows the official relay server play.whowolf.de, which goes live soon.' },
+      { state: 'now', title: '0.1.2: The classic night', text: 'Everyone closes their eyes, the narrator calls the roles one by one, and only the one called picks up their phone. This becomes the app’s default. The release also brings sounds in sync on every phone, players in the same Wi-Fi always stay connected locally, and a privacy notice in the app. Also in progress: joining in the browser, no app needed.' },
+      { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',
   },
@@ -232,8 +232,8 @@ const en: Copy = {
   unbox: {
     captions: [
       { title: 'Unbox it.', text: 'Role cards, rules, and a phone for everyone.' },
-      { title: 'Only you see your role.', text: 'It appears on your phone. Nobody else can see it.' },
-      { title: 'At night, everyone taps.', text: 'Wolves pick a victim, the village counts sheep. Nobody stands out.' },
+      { title: 'Only you see your role.', text: 'It appears on your own phone and nowhere else.' },
+      { title: 'At night, everyone taps.', text: 'Wolves pick a victim, the village counts sheep. From outside, it all looks the same.' },
       { title: 'The vote is secret.', text: 'You argue at the table, the app counts.' },
     ],
     youAre: 'You are',
@@ -265,7 +265,7 @@ const en: Copy = {
     privacy: 'This page sends nothing anywhere: the details from the link stay in your browser.',
   },
   dl: {
-    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Versions 0.0.x are a developer beta: playable in the Wi-Fi or through your own server and end-to-end encrypted, but still full of building sites. All devices at the table need the same version.',
+    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Whowolf is a developer beta: playable in the Wi-Fi or through a relay server and end-to-end encrypted, but still full of building sites. All devices at the table need the same version.',
     prereleaseNote: 'Developer beta: for trying out with friends. Expect bugs, and please report them.',
     requirements: 'Requirements',
     recommended: 'For your device',
@@ -298,7 +298,7 @@ const en: Copy = {
       { title: 'One of them is a werewolf.', text: 'Maybe two. By day they look like everyone else.' },
       { title: 'Everyone has a phone.', text: 'It shows your role. Only you can see it.' },
       { title: 'At night, everyone taps.', text: 'The wolves pick a victim, the seer looks into a soul, the village counts sheep.' },
-      { title: 'By day, you vote.', text: 'You argue at the table, the app counts. In secret.' },
+      { title: 'By day, you vote.', text: 'You argue at the table, and the app counts the secret votes.' },
     ],
   },
   guide: {
@@ -309,7 +309,7 @@ const en: Copy = {
     prev: 'Previous',
     next: 'Next',
     metaDescription: 'The Whowolf player guide: what Whowolf is, how a round works, which roles there are, what you need and why your game stays at the table.',
-    lead: 'Everything you need to know for your first round. Short, honest and free of tech talk, unless you want it.',
+    lead: 'Everything you need to know for your first round, in short chapters. The tech talk is only there if you go looking.',
     facts: [
       { value: '3–20', label: 'players, best from 5' },
       { value: '1', label: 'device per person' },

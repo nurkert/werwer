@@ -10,9 +10,9 @@ figure: seherin
 
 ## In short
 
-- **No account.** You only enter a name for the table. No email, no phone number, no sign-up.
+- **No account.** You only enter a name for the table, never an email address or phone number, and there is nothing to sign up for.
 - **No tracking, no ads.** The app has no analytics, no ads and no purchases. Neither does this website.
-- **Your data stays at the table.** In your Wi-Fi, the devices play directly with each other. Nothing goes to us or to anyone else.
+- **Your data stays at the table.** In your Wi-Fi, the devices play directly with each other. Through the relay server only encrypted data travels, and it cannot read it.
 - **Open source.** Anyone can check the source code to see that this is true.
 
 ## Nobody sees more than they should
@@ -32,16 +32,16 @@ Nothing should give anything away from the outside either: at night everyone tap
 - **Permissions only when needed.** The camera only for scanning, the local network only when opening or joining a room. No location, no contacts, no microphone.
 - **Verifiable downloads.** Every version is built automatically from the public source code, with checksums and proof of origin. How to check a file is explained on the [download page](/en/download/).
 
-## Encrypted, properly
+## How the encryption works
 
 Since version 0.0.3, **every connection is end-to-end encrypted**, in the Wi-Fi and through a relay server. Eavesdroppers, including whoever runs a server, only see equally sized packets of gibberish.
 
 - **With the QR code:** the code at the table contains a key and a secret of this room. That is how your app recognises the real host; an impostor on the Wi-Fi cannot slip in between.
 - **Without the QR code** (room found nearby or typed in): the connection is just as encrypted. So that no stranger slips in, your phone shows four symbols, and the host only lets you in when they match the ones on their screen. From 0.0.4 nobody in the middle can force matching symbols either, and once let in, you always come back over the checked way when you reconnect.
 - **Equally sized messages:** every message is padded to fixed sizes, and everyone gets the same amount on every change. So not even the traffic reveals who has more to do at night as a werewolf.
-- **A proven library:** since 0.0.4 all encryption comes from [libsodium](https://doc.libsodium.org/), a widely used and independently audited library (X25519 key exchange, XChaCha20-Poly1305, BLAKE2b). Whowolf computes none of it itself. How we put the pieces together is to get an outside review before version 0.1.
+- **A proven library:** since 0.0.4 all encryption comes from [libsodium](https://doc.libsodium.org/), a widely used and independently audited library (X25519 key exchange, XChaCha20-Poly1305, BLAKE2b). Whowolf computes none of it itself. How we put the pieces together has not had an outside review yet; that review is still pending.
 
-## An honest limit
+## Where the protection ends
 
 The host device necessarily knows every role, otherwise it couldn’t run the game. The normal app doesn’t show them to the host. But someone using a modified app as host could cheat. It’s like card games: whoever shuffles could stack the deck. So play with people you trust. Later, the idea is that a server can run the game too.
 

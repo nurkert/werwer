@@ -30,4 +30,4 @@ Jeder sucht sich eine Pappfigur aus, zum Beispiel die Magd, den Jäger oder die 
 
 ## Wie weit ist Whowolf?
 
-Whowolf ist eine **frühe Testversion**. Eine komplette Runde mit Dorfbewohnern, Werwölfen und Seherin lässt sich schon spielen, im eigenen WLAN oder über einen eigenen Server. Vieles ist noch geplant: weitere Rollen, die Wolfsspur, der Tischkreis mit Sitzordnung, Musik und die Verschlüsselung der Verbindungen. Auf diesen Seiten steht bei allem dabei, ob es schon geht oder noch kommt.
+Whowolf ist eine **frühe Testversion**. Eine komplette Runde lässt sich schon spielen, im eigenen WLAN oder über einen Vermittlungsserver, und seit Version 0.0.3 ist jede Verbindung Ende-zu-Ende-verschlüsselt (mit libsodium; eine unabhängige Prüfung steht noch aus). Vieles ist noch geplant: weitere Rollen, die Wolfsspur, der Tischkreis mit Sitzordnung und Musik. Auf diesen Seiten steht bei allem dabei, ob es schon geht oder noch kommt.

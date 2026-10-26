@@ -3,8 +3,8 @@ page: docsHow
 lang: en
 title: How the app works
 short: How the app works
-description: "How Whowolf works, in plain words: one phone is the host, the others connect over Wi-Fi, and your own server can bring in remote players."
-lead: "No data centre, no cloud: in Whowolf, one phone at the table runs the game. Here is how that works, in plain words."
+description: "How Whowolf works, in plain words: one phone is the host, the others connect over Wi-Fi, and a relay server brings in remote players."
+lead: "In Whowolf, one phone at the table runs the game, without a data centre or a cloud. Here is how that works, in plain words."
 figure: lauscherin
 ---
 
@@ -24,9 +24,9 @@ The host is still a completely normal player. Its app connects to the game just 
 
 The host never sends the whole game state around. Instead it builds a separate, filtered view for every player: your role, your pack, your visions as seer, plus everything that everyone knows anyway. What you may not know never reaches your device.
 
-## Connection lost? No problem.
+## When the connection drops
 
-Every device gets a secret session key when joining and stores it safely. If the connection drops because the screen turns off or the Wi-Fi hiccups, the app signs back in with it and returns with exactly its role. That even works after restarting the app. Only when the host device leaves is the round over. Having the host save the game continuously so it can carry on after a crash is planned.
+Every device gets a secret session key when joining and stores it safely. If the connection drops because the screen turns off or the Wi-Fi hiccups, the app signs back in with it and returns with exactly its role. That even works after restarting the app. The host also saves the game state as it goes, so a round survives a crash or a restart of the host app.
 
 ## Players from elsewhere: the relay server
 
@@ -38,13 +38,9 @@ Anyone not on the same Wi-Fi can play through a **relay server**:
 
 Players at the table stay connected directly through the Wi-Fi, the others come in through the server. For the game, it makes no difference.
 
-There is no official server yet. You can run **your own server**: it is in the [repository](https://github.com/nurkert/whowolf) and starts with Docker and a single command:
+By default the app uses the official server `wss://play.whowolf.de`, run by the project owner. It only passes on end-to-end encrypted messages and cannot read them. If you don’t want that, pick “No online server (Wi-Fi only)” in the settings; then nothing goes to a server, and only devices in the same Wi-Fi can play.
 
-```bash
-docker compose up -d
-```
-
-In the app, enter its address under Settings, “Server for online players” (it starts with `ws://` or `wss://`). The server only passes on encrypted messages and cannot read them.
+You can also run **your own server**. What it needs and how to set it up is in the [guide in the repository](https://github.com/nurkert/whowolf/tree/main/server/deploy). Enter its address in the app under Settings, “Server for online players” (it starts with `ws://` or `wss://`).
 
 ## One codebase for everything
 
@@ -53,7 +49,6 @@ Whowolf is written entirely in Dart and Flutter. The same app runs on iPhone, An
 ## What is coming
 
 - **Play in the browser** without installing anything, just via QR code.
-- **An official server** running as a completely normal container from the repository, just like your own.
 - **Synchronised sounds** on every phone for the wolf trail, conducted by the host.
 
 If you want every detail, the plans are in the [for developers](/docs/dev/) area (in German).

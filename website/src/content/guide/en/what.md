@@ -30,4 +30,4 @@ Everyone picks a cardboard figure, such as the maid, the hunter or the lantern b
 
 ## How far along is Whowolf?
 
-Whowolf is an **early test version**. A complete round with villagers, werewolves and a seer can already be played, in your own Wi-Fi or through your own server. A lot is still planned: more roles, the wolf trail, the table circle with seating order, music, and encrypted connections. These pages always say whether something works today or is still to come.
+Whowolf is an **early test version**. A complete round can already be played, in your own Wi-Fi or through a relay server, and since version 0.0.3 every connection is end-to-end encrypted (with libsodium; an independent review is still pending). A lot is still planned: more roles, the wolf trail, the table circle with seating order, and music. These pages always say whether something works today or is still to come.

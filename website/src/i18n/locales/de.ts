@@ -16,14 +16,14 @@ const de = {
   },
   hero: {
     statement: 'Werwolf am Tisch. Jeder mit seinem Handy.',
-    sub: 'Die App ist der Erzähler: kein Spielleiter, keine Zettel, keine verräterischen Geräusche.',
+    sub: 'Die App erzählt. Niemand muss Spielleiter sein, Zettel braucht ihr keine, und nachts verrät euch kein Geräusch.',
     primary: 'Projekt verfolgen',
     secondary: 'So soll es werden',
   },
   playbill: {
     title: 'Ein Spieleabend ohne Spielleiter.',
     intro:
-      'Werwolf lebt von Geheimnissen. Whowolf legt sie dahin, wo sie hingehören: auf das Handy jedes einzelnen Spielers. Alle sitzen am Tisch, alle spielen mit.',
+      'Werwolf lebt von Geheimnissen. Bei Whowolf steckt jedes davon im Handy des Spielers, dem es gehört. So sitzen alle am Tisch und spielen mit, auch wer sonst die Nacht ansagen müsste.',
     pillars: [
       { icon: 'phone', title: 'Jeder hat sein Handy', text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du.' },
       { icon: 'scroll', title: 'Die App erzählt', text: 'Sie führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.' },
@@ -34,7 +34,7 @@ const de = {
     title: 'Der Spielplan.',
     intro: 'So soll ein Abend mit Whowolf ablaufen.',
     acts: [
-      { icon: 'qr', act: 'Vorspiel', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Kein Konto, kein Internet.' },
+      { icon: 'qr', act: 'Vorspiel', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Ein Konto oder Internet braucht dafür niemand.' },
       { icon: 'circle', act: 'Erster Akt', title: 'Platz nehmen', text: 'Die App zeigt den Tischkreis aus deiner Sicht. So stimmt die Sitzordnung sofort.' },
       { icon: 'moon', act: 'Zweiter Akt', title: 'Die Nacht', text: 'Die Wölfe wählen ihr Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
       { icon: 'sun', act: 'Dritter Akt', title: 'Der Morgen', text: 'Jedes Handy gähnt. Dann verkündet die App, wen es erwischt hat.' },
@@ -127,8 +127,8 @@ const de = {
   rules: {
     title: 'Die Hausordnung.',
     items: [
-      { title: 'Kein Konto', text: 'Öffnen und spielen. Keine Anmeldung, keine E-Mail, keine Telefonnummer.' },
-      { title: 'Keine Werbung', text: 'Kein Abo, keine Käufe in der App, keine Tracker. Weder in der App noch hier.' },
+      { title: 'Kein Konto', text: 'Öffnen und losspielen. Ihr meldet euch nirgends an und gebt weder E-Mail noch Telefonnummer her.' },
+      { title: 'Keine Werbung', text: 'Auch kein Abo, keine Käufe in der App und keine Tracker, weder in der App noch auf dieser Seite.' },
       { title: 'Am Tisch', text: 'Ein Handy ist die Bühne. Im WLAN bleibt eure Partie am Tisch, über den Relay-Server geht sie nur verschlüsselt.' },
       { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
       { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
@@ -137,14 +137,14 @@ const de = {
   },
   progress: {
     title: 'Wo wir stehen.',
-    intro: 'Whowolf wird offen entwickelt. Das ist der aktuelle Stand, ehrlich und ohne Versprechen.',
+    intro: 'Whowolf wird offen entwickelt. Hier steht, wie weit es gerade ist. Versprechen machen wir lieber keine.',
     done: 'Erschienen',
     now: 'In Arbeit',
     next: 'Noch offen',
     steps: [
       { state: 'done', title: 'Version 0.1', text: 'Seit dem 26. Oktober 2026 als Entwickler-Beta: spielbar im eigenen WLAN, Ende-zu-Ende verschlüsselt, zum Download für Android, macOS, Windows und Linux.' },
-      { state: 'now', title: '0.1.1: Jedes Gerät', text: 'Die App passt sich Handy, Tablet und Desktop an, bekommt Pappe in der Oberfläche und neue, wortlose Klänge. Die Erzählstimme wird optional.' },
-      { state: 'now', title: '0.1.1: Das Spiel geht weiter', text: 'Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Über play.whowolf.de spielen auch Leute mit mobilen Daten mit.' },
+      { state: 'done', title: '0.1.1: Jedes Gerät', text: 'Am selben Tag: Die App passt sich Handy, Tablet und Desktop an, hat Pappe in der Oberfläche, neue wortlose Klänge und eine abschaltbare Erzählstimme. Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Und die App kennt den offiziellen Relay-Server play.whowolf.de, der bald online geht.' },
+      { state: 'now', title: '0.1.2: Die klassische Nacht', text: 'Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, und nur wer gerufen wird, nimmt sein Handy. So spielt die App künftig von Haus aus. Dazu kommen Klänge im Gleichtakt auf allen Handys, Spieler im selben WLAN bleiben immer lokal verbunden, und die App bekommt einen Datenschutzhinweis. Ebenfalls in Arbeit: im Browser mitspielen, ganz ohne App.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',
@@ -207,7 +207,7 @@ const de = {
   privacy: {
     updated: 'Stand: 26. Oktober 2026',
     sections: [
-      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto.  Auf deinem Gerät wird nur gespeichert, dass du den Hinweis zu Cookies bestätigt hast (Eintrag im lokalen Speicher des Browsers, technisch notwendig nach § 25 Abs. 2 TDDDG). Er enthält keine personenbezogenen Daten und wird nicht übertragen.' },
+      { title: 'Kurz gesagt', html: 'Diese Website setzt <strong>keine Cookies</strong>, nutzt <strong>kein Tracking</strong>, keine Analyse-Werkzeuge und lädt <strong>keine Inhalte von Dritten</strong> nach. Schriften, Bilder und Skripte kommen ausschließlich von dieser Domain. Es gibt keine Formulare und kein Kundenkonto. Auf deinem Gerät wird nur gespeichert, dass du den Hinweis zu Cookies bestätigt hast (Eintrag im lokalen Speicher des Browsers, technisch notwendig nach § 25 Abs. 2 TDDDG). Er enthält keine personenbezogenen Daten und wird nicht übertragen.' },
       { title: 'Verantwortlicher', html: 'Verantwortlich für diese Website ist die im <a href="/impressum/">Impressum</a> genannte Person.' },
       { title: 'Hosting durch GitHub Pages', html: 'Die Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub B.V., Prins Bernhardplein 200, 1097 JB Amsterdam, Niederlande, bzw. der GitHub Inc., USA. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Datum und Uhrzeit, die aufgerufene Seite sowie Angaben zu Browser und Betriebssystem, um die Seite auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren und zuverlässigen Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO). Eine Übermittlung in die USA ist möglich; GitHub ist unter dem EU-U.S. Data Privacy Framework zertifiziert. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.' },
       { title: 'Externe Links', html: 'Die Seite verlinkt unter anderem auf GitHub. Erst wenn du einem Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.' },
@@ -231,8 +231,8 @@ const de = {
   unbox: {
     captions: [
       { title: 'Auspacken.', text: 'Rollenkarten, Regeln und für jeden ein Handy.' },
-      { title: 'Deine Rolle siehst nur du.', text: 'Sie erscheint auf deinem Handy. Niemand sonst sieht sie.' },
-      { title: 'Nachts tippen alle.', text: 'Wölfe wählen ein Opfer, das Dorf zählt Schäfchen. Niemand fällt auf.' },
+      { title: 'Deine Rolle siehst nur du.', text: 'Sie erscheint auf deinem eigenen Handy und sonst nirgends.' },
+      { title: 'Nachts tippen alle.', text: 'Wölfe wählen ein Opfer, das Dorf zählt Schäfchen. Von außen sieht das gleich aus.' },
       { title: 'Abgestimmt wird geheim.', text: 'Am Tag wird diskutiert, gezählt wird in der App.' },
     ],
     youAre: 'Du bist',
@@ -264,7 +264,7 @@ const de = {
     privacy: 'Diese Seite schickt nichts weiter: Die Angaben aus dem Link bleiben in deinem Browser.',
   },
   dl: {
-    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Die Versionen 0.0.x sind eine Entwickler-Beta: spielbar im WLAN oder über einen eigenen Server und Ende-zu-Ende-verschlüsselt, aber noch voller Baustellen. Alle Geräte am Tisch brauchen dieselbe Version.',
+    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Whowolf ist eine Entwickler-Beta: spielbar im WLAN oder über einen Vermittlungsserver und Ende-zu-Ende-verschlüsselt, aber noch voller Baustellen. Alle Geräte am Tisch brauchen dieselbe Version.',
     prereleaseNote: 'Entwickler-Beta: zum Ausprobieren mit Freunden. Rechnet mit Fehlern und meldet sie gern.',
     requirements: 'Voraussetzungen',
     recommended: 'Für dein Gerät',
@@ -297,7 +297,7 @@ const de = {
       { title: 'Einer von ihnen ist ein Werwolf.', text: 'Vielleicht auch zwei. Tagsüber sehen sie aus wie alle anderen.' },
       { title: 'Jeder hat sein Handy.', text: 'Darauf steht deine Rolle. Nur du siehst sie.' },
       { title: 'Nachts tippen alle.', text: 'Die Wölfe wählen ein Opfer, die Seherin blickt in eine Seele, das Dorf zählt Schäfchen.' },
-      { title: 'Am Tag wird abgestimmt.', text: 'Ihr streitet am Tisch, die App zählt. Geheim.' },
+      { title: 'Am Tag wird abgestimmt.', text: 'Ihr streitet am Tisch, die App zählt die geheimen Stimmen.' },
     ],
   },
   guide: {
@@ -308,7 +308,7 @@ const de = {
     prev: 'Zurück',
     next: 'Weiter',
     metaDescription: 'Die Whowolf-Spielanleitung: was Whowolf ist, wie eine Runde abläuft, welche Rollen es gibt, was ihr braucht und warum eure Partie am Tisch bleibt.',
-    lead: 'Alles, was ihr für eure erste Runde wissen müsst. Kurz, ehrlich und ohne Technikkram, außer ihr wollt ihn.',
+    lead: 'Alles, was ihr für eure erste Runde wissen müsst, in kurzen Kapiteln. Technikkram gibt es nur, wenn ihr ihn sucht.',
     facts: [
       { value: '3–20', label: 'Spieler, am schönsten ab 5' },
       { value: '1', label: 'Gerät pro Person' },

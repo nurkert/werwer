@@ -12,7 +12,7 @@ figure: faehrtenleger
 
 If you play werewolf, you know it: someone has to be the game master and can’t play. At night, rustling and pointing give away who has which role. Special rules get forgotten, and cards go missing. Whowolf tries to solve all of that with the phones that are lying on the table anyway, without losing the best part of the game: sitting across from each other and looking each other in the eye.
 
-Werewolf itself is a folk game. It goes back to “Mafia”, which was created in the Soviet Union in the 1980s, and belongs to nobody. Whowolf doesn’t reinvent it; it brings it to the phone and adds ideas of its own, such as sheep counting and the wolf trail.
+Werewolf itself is a folk game. It goes back to “Mafia”, which was created in the Soviet Union in the 1980s, and belongs to nobody. Whowolf brings it to the phone and adds ideas of its own, such as sheep counting and the wolf trail.
 
 ## The name
 
@@ -30,11 +30,9 @@ All names, texts and graphics in Whowolf were made for it. There are no cards, i
 
 The cardboard figures in the “moon stage” style, a puppet theatre by moonlight, are original designs. They were created with an image generator, and how each image came about is documented.
 
-## What Whowolf never wants to be
+## What Whowolf will never have
 
-- **No account**, no sign-up, no email.
-- **No ads**, no subscription, no in-app purchases.
-- **No trackers**, no analytics, neither in the app nor on this website.
+Whowolf will never ask for an account, a sign-up or an email address. There are no ads, no subscription and no in-app purchases, and neither the app nor this website carries trackers or analytics.
 
 ## What comes next
 

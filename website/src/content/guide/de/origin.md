@@ -12,7 +12,7 @@ figure: faehrtenleger
 
 Wer Werwolf spielt, kennt das: Einer muss Spielleiter sein und darf nicht mitspielen. Nachts verraten Rascheln und Zeigen, wer welche Rolle hat. Sonderregeln werden vergessen, und Karten gehen verloren. Whowolf ist der Versuch, all das mit den Handys zu lösen, die ohnehin auf dem Tisch liegen, ohne das Beste am Spiel zu verlieren: dass man sich gegenübersitzt und in die Augen schaut.
 
-Werwolf selbst ist ein Volksspiel. Es geht auf das Spiel „Mafia“ zurück, das in den 1980er-Jahren in der Sowjetunion entstand, und gehört niemandem. Whowolf erfindet es nicht neu, sondern bringt es aufs Handy und ergänzt eigene Ideen wie das Schäfchenzählen und die Wolfsspur.
+Werwolf selbst ist ein Volksspiel. Es geht auf das Spiel „Mafia“ zurück, das in den 1980er-Jahren in der Sowjetunion entstand, und gehört niemandem. Whowolf bringt es aufs Handy und ergänzt eigene Ideen wie das Schäfchenzählen und die Wolfsspur.
 
 ## Der Name
 
@@ -30,11 +30,9 @@ Alle Namen, Texte und Grafiken bei Whowolf sind eigens dafür entstanden. Es gib
 
 Die Pappfiguren im Stil „Mondbühne“, einem Puppentheater bei Mondlicht, sind eigene Entwürfe. Sie wurden mit einem Bildgenerator erzeugt, und für jedes Bild ist dokumentiert, wie es entstanden ist.
 
-## Was Whowolf nie sein will
+## Was es bei Whowolf nie geben wird
 
-- **Kein Konto**, keine Anmeldung, keine E-Mail.
-- **Keine Werbung**, kein Abo, keine Käufe in der App.
-- **Keine Tracker**, keine Analyse, weder in der App noch auf dieser Website.
+Whowolf wird nie ein Konto, eine Anmeldung oder eine E-Mail-Adresse verlangen. Es gibt keine Werbung, kein Abo und keine Käufe in der App, und weder die App noch diese Website enthalten Tracker oder Analyse-Werkzeuge.
 
 ## Wie es weitergeht
 

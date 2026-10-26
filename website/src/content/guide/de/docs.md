@@ -4,7 +4,7 @@ lang: de
 title: Spielanleitung
 short: Übersicht
 description: "Die Whowolf-Spielanleitung: was Whowolf ist, wie eine Runde abläuft, welche Rollen es gibt, was ihr braucht und warum eure Partie am Tisch bleibt."
-lead: "Werwolf am Tisch, jeder mit seinem eigenen Handy, und die App erzählt. Hier steht alles, was ihr für eure erste Runde wissen müsst: kurz, ehrlich und ohne Technikkram, außer ihr wollt ihn."
+lead: "Werwolf am Tisch, jeder mit seinem eigenen Handy, und die App erzählt. Hier steht alles, was ihr für eure erste Runde wissen müsst, kurz gehalten und ohne Technikkram. Den gibt es nur, wenn ihr danach sucht."
 figure: werwolf
 ---
 
