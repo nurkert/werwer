@@ -55,7 +55,7 @@ const jsonLd = {
       gamePlatform: ['Android', 'iOS', 'macOS', 'Windows', 'Linux'],
       playMode: 'MultiPlayer',
       numberOfPlayers: { '@type': 'QuantitativeValue', minValue: 5, maxValue: 20 },
-      creativeWorkStatus: 'Concept in development',
+      creativeWorkStatus: 'Beta',
       license: 'https://www.apache.org/licenses/LICENSE-2.0',
       codeRepository: repoUrl,
       image: new URL('/og.jpg', site).toString(),
@@ -112,6 +112,12 @@ const jsonLd = {
     <a class="skip" href="#inhalt">{t.skip}</a>
 
     {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
+      <p class="beta-strip">
+        <span class="beta-strip__stamp">{t.status.badge}</span>
+        <span class="beta-strip__long">{t.status.line}</span>
+        <span class="beta-strip__short">{t.status.short}</span>
+        <a href={`${repoUrl}/issues`}>{t.status.report}</a>
+      </p>
       <div class="site-header__inner">
         {
           overlay ? (
@@ -344,6 +350,54 @@ const jsonLd = {
   }
   .site-header--mobile-only {
     display: none;
+  }
+  /* Developer beta: always on top of every page, part of the header so it
+     stays visible on the overlay hero and while scrolling. */
+  .beta-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem 0.9rem;
+    margin: 0;
+    padding: 0.35rem var(--gutter);
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--lantern-400) 0 14px,
+      var(--lantern-300) 14px 28px
+    );
+    color: var(--night-950);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .beta-strip__stamp {
+    flex: none;
+    padding: 0.05rem 0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+  }
+  .beta-strip a {
+    flex: none;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .beta-strip__short {
+    display: none;
+  }
+  @media (max-width: 720px) {
+    .beta-strip__long {
+      display: none;
+    }
+    .beta-strip__short {
+      display: inline;
+    }
   }
   @media (max-width: 900px) {
     .site-header--mobile-only {

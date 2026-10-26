@@ -126,7 +126,7 @@ jobs:
         run: |
           tag="v${VERSION#v}"
           gh release create "$tag" dist/* --prerelease --generate-notes --title "Whowolf ${tag#v} (test version)" --target "${{ github.sha }}" \
-            --notes "**Test version.** Playable with friends in your own Wi-Fi (or through your own relay server, see docker-compose.yml). Not end-to-end encrypted yet: only play with people you trust. Feedback welcome in the issues."
+            --notes "**Developer beta.** Playable with friends in your own Wi-Fi (or through your own relay server, see docker-compose.yml), end-to-end encrypted. Expect bugs, give every device at the table the same version, and only play with people you trust: an independent security review is still due. See CHANGELOG.md; bug reports welcome in the issues."
       - name: Rebuild the website download page
         env:
           GH_TOKEN: ${{ github.token }}

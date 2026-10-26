@@ -3,6 +3,27 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 will be the first release ("MVP").
 
+## 0.0.4 – 2026-10-26
+
+### Changed
+- Encryption is now built from libsodium only (key exchange, keyed BLAKE2b,
+  secretstream) instead of an own Noise implementation. Handshake version 2:
+  older test versions cannot connect to this one.
+- Joining without the QR code: the check code has 4 symbols and can no longer be
+  forged by someone in the middle (commitment before the key exchange). Players
+  let in this way receive the room secret and always come back over a checked
+  channel; a token over an unchecked channel is refused.
+
+### Fixed
+- A waiting joiner who showed a session token no longer stays on the host's
+  waiting list, and letting them in can no longer create a second player.
+- Sending on a closing LAN connection no longer throws.
+
+### Added
+- Simulation tests for the host: random games with dropouts, rejoins, timers
+  and host crashes in the middle of night and vote.
+- Website: clear notice that Whowolf is in an early developer beta.
+
 ## 0.0.3 – 2026-10-26
 
 ### Added

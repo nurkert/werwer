@@ -10,8 +10,10 @@ const en: Copy = {
   skip: 'Skip to content',
   nav: { play: 'Game', cast: 'Roles', sheep: 'Sheep', trail: 'Wolf trail', docs: 'Guide', download: 'Download', menu: 'Menu', close: 'Close', language: 'Language' },
   status: {
-    badge: 'In development',
-    line: 'Whowolf is currently a concept in development. There is nothing to play yet.',
+    badge: 'Developer beta',
+    line: 'Whowolf is in early development. Expect rough edges and lost games, and new versions do not always work with old ones.',
+    short: 'Early development, expect rough edges.',
+    report: 'Report a bug',
   },
   hero: {
     statement: 'Werewolf at the table. Everyone on their own phone.',
@@ -167,7 +169,7 @@ const en: Copy = {
     checksums: 'Checksums for this version',
     check2: 'Without a paid signature, macOS and Windows show a warning on first launch. The checksum tells you the file is genuine.',
     older: 'Earlier versions',
-    prerelease: 'Test version',
+    prerelease: 'Developer beta',
     source: 'Prefer to build it yourself? The complete source code is on GitHub.',
     platforms: {
       android: 'Install the APK directly, later also on Google Play.',
@@ -198,7 +200,7 @@ const en: Copy = {
     headline: 'One table. Many secrets.',
     lede: ['The werewolf game for your group.', 'Everyone on their own phone. The app narrates,', 'you decide.'],
     cta: 'Follow the project',
-    stamp: 'In development',
+    stamp: 'Developer beta',
     app: 'Free app for iPhone, Android, Mac, Windows and Linux',
     flap: '5–20 players · everyone on their own phone',
     footer: 'Open source. Built together.',
@@ -240,8 +242,8 @@ const en: Copy = {
     privacy: 'This page sends nothing anywhere: the details from the link stay in your browser.',
   },
   dl: {
-    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Versions 0.0.x are test versions: playable in the Wi-Fi or through your own server, end-to-end encrypted from 0.0.3.',
-    prereleaseNote: 'Test version: playable with friends, may still be rough around the edges.',
+    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Versions 0.0.x are a developer beta: playable in the Wi-Fi or through your own server and end-to-end encrypted, but still full of building sites. All devices at the table need the same version.',
+    prereleaseNote: 'Developer beta: for trying out with friends. Expect bugs, and please report them.',
     requirements: 'Requirements',
     recommended: 'For your device',
     others: 'Other systems',

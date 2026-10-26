@@ -41,6 +41,12 @@ Some guest networks, in cafés or hotels for example, don’t let devices talk t
 
 Anyone not on the same Wi-Fi can join through a **relay server**. There is no official server yet, but you can run your own: it is part of the repository and starts with a single command (`docker compose up -d`). Enter its address in the app under Settings, “Server for online players”. More in [How the app works](/en/docs/how-it-works/).
 
-## Good to know: this is a test version
+## Good to know: this is a developer beta
 
-The current versions (0.0.x) are **test versions**. A full round is playable, and since 0.0.3 all connections are **end-to-end encrypted**. Things may still be rough around the edges: tell us when something doesn’t work. More about safety in [Safety & privacy](/en/docs/safety/).
+The current versions (0.0.x) are a **developer beta**. A full round is playable, and all connections are **end-to-end encrypted**. Still:
+
+- **Expect bugs.** Rounds may get stuck or break off.
+- **Everyone needs the same version.** New versions often don’t work with old ones; update every device before game night.
+- **Play with people you trust.** An independent security review is still due.
+
+Tell us when something doesn’t work: [report a bug](https://github.com/nurkert/whowolf/issues). More about safety in [Safety & privacy](/en/docs/safety/).

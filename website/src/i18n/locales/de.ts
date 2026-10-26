@@ -9,8 +9,10 @@ const de = {
   skip: 'Zum Inhalt springen',
   nav: { play: 'Spiel', cast: 'Rollen', sheep: 'Schäfchen', trail: 'Wolfsspur', docs: 'Anleitung', download: 'Download', menu: 'Menü', close: 'Schließen', language: 'Sprache' },
   status: {
-    badge: 'In Entwicklung',
-    line: 'Whowolf ist derzeit ein Konzept in Entwicklung. Noch gibt es nichts zu spielen.',
+    badge: 'Entwickler-Beta',
+    line: 'Whowolf ist in früher Entwicklung. Es kann ruckeln, Spielstände gehen verloren, und neue Versionen passen nicht immer zu alten.',
+    short: 'Früh in Entwicklung, es kann ruckeln.',
+    report: 'Fehler melden',
   },
   hero: {
     statement: 'Werwolf am Tisch. Jeder mit seinem Handy.',
@@ -166,7 +168,7 @@ const de = {
     checksums: 'Prüfsummen dieser Version',
     check2: 'Ohne kostenpflichtige Signatur zeigen macOS und Windows beim ersten Start eine Warnung. Die Prüfsumme zeigt dir, dass die Datei echt ist.',
     older: 'Frühere Versionen',
-    prerelease: 'Testversion',
+    prerelease: 'Entwickler-Beta',
     source: 'Lieber selbst bauen? Der komplette Quellcode liegt auf GitHub.',
     platforms: {
       android: 'APK direkt installieren, später auch bei Google Play.',
@@ -197,7 +199,7 @@ const de = {
     headline: 'Ein Tisch. Viele Geheimnisse.',
     lede: ['Das Werwolfspiel für eure Runde.', 'Jeder mit dem eigenen Handy. Die App erzählt,', 'ihr entscheidet.'],
     cta: 'Projekt verfolgen',
-    stamp: 'In Entwicklung',
+    stamp: 'Entwickler-Beta',
     app: 'Kostenlose App für iPhone, Android, Mac, Windows und Linux',
     flap: '5–20 Spieler · jeder mit seinem Handy',
     footer: 'Open Source. Gemeinsam entwickelt.',
@@ -239,8 +241,8 @@ const de = {
     privacy: 'Diese Seite schickt nichts weiter: Die Angaben aus dem Link bleiben in deinem Browser.',
   },
   dl: {
-    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Die Versionen 0.0.x sind Testversionen: spielbar im WLAN oder über einen eigenen Server, ab 0.0.3 Ende-zu-Ende-verschlüsselt.',
-    prereleaseNote: 'Testversion: spielbar mit Freunden, es kann noch ruckeln.',
+    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Die Versionen 0.0.x sind eine Entwickler-Beta: spielbar im WLAN oder über einen eigenen Server und Ende-zu-Ende-verschlüsselt, aber noch voller Baustellen. Alle Geräte am Tisch brauchen dieselbe Version.',
+    prereleaseNote: 'Entwickler-Beta: zum Ausprobieren mit Freunden. Rechnet mit Fehlern und meldet sie gern.',
     requirements: 'Voraussetzungen',
     recommended: 'Für dein Gerät',
     others: 'Andere Systeme',

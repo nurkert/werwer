@@ -37,9 +37,9 @@ Nothing should give anything away from the outside either: at night everyone tap
 Since version 0.0.3, **every connection is end-to-end encrypted**, in the Wi-Fi and through a relay server. Eavesdroppers, including whoever runs a server, only see equally sized packets of gibberish.
 
 - **With the QR code:** the code at the table contains a key and a secret of this room. That is how your app recognises the real host; an impostor on the Wi-Fi cannot slip in between.
-- **Without the QR code** (room found nearby or typed in): the connection is just as encrypted. So that no stranger slips in, your phone shows three symbols, and the host only lets you in when they match the ones on their screen.
+- **Without the QR code** (room found nearby or typed in): the connection is just as encrypted. So that no stranger slips in, your phone shows four symbols, and the host only lets you in when they match the ones on their screen. From 0.0.4 nobody in the middle can force matching symbols either, and once let in, you always come back over the checked way when you reconnect.
 - **Equally sized messages:** every message is padded to fixed sizes, and everyone gets the same amount on every change. So not even the traffic reveals who has more to do at night as a werewolf.
-- **An established method:** Whowolf uses the Noise protocol with X25519, ChaCha20-Poly1305 and BLAKE2s, tested against the method’s official test data. An independent outside review is still due before version 1.0.
+- **A proven library:** since 0.0.4 all encryption comes from [libsodium](https://doc.libsodium.org/), a widely used and independently audited library (X25519 key exchange, XChaCha20-Poly1305, BLAKE2b). Whowolf computes none of it itself. How we put the pieces together is to get an outside review before version 0.1.
 
 ## An honest limit
 

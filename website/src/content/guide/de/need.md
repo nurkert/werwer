@@ -41,6 +41,12 @@ Manche Gäste-WLANs, etwa in Cafés oder Hotels, lassen Geräte nicht miteinande
 
 Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) dazukommen. Einen offiziellen Server gibt es noch nicht. Ihr könnt aber euren eigenen betreiben: Er steckt im Repository und startet mit einem einzigen Befehl (`docker compose up -d`). Die Adresse tragt ihr in der App unter Einstellungen bei „Server für Online-Spieler“ ein. Mehr dazu unter [Wie die App funktioniert](/docs/wie-die-app-funktioniert/).
 
-## Gut zu wissen: Es ist eine Testversion
+## Gut zu wissen: Es ist eine Entwickler-Beta
 
-Die aktuellen Versionen (0.0.x) sind **Testversionen**. Eine ganze Runde lässt sich spielen, und seit 0.0.3 sind alle Verbindungen **Ende-zu-Ende-verschlüsselt**. Es kann aber noch ruckeln: Gebt uns Bescheid, wenn etwas nicht klappt. Mehr zur Sicherheit steht unter [Sicherheit & Privatsphäre](/docs/sicherheit/).
+Die aktuellen Versionen (0.0.x) sind eine **Entwickler-Beta**. Eine ganze Runde lässt sich spielen, und alle Verbindungen sind **Ende-zu-Ende-verschlüsselt**. Trotzdem gilt:
+
+- **Rechnet mit Fehlern.** Runden können hängen bleiben oder abbrechen.
+- **Alle brauchen dieselbe Version.** Neue Versionen passen oft nicht zu alten; aktualisiert vor dem Spieleabend alle Geräte.
+- **Spielt mit Leuten, denen ihr vertraut.** Ein unabhängiger Sicherheits-Review steht noch aus.
+
+Gebt uns Bescheid, wenn etwas nicht klappt: [Fehler melden](https://github.com/nurkert/whowolf/issues). Mehr zur Sicherheit steht unter [Sicherheit & Privatsphäre](/docs/sicherheit/).

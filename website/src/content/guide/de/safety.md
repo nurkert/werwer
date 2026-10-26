@@ -37,9 +37,9 @@ Auch von außen soll niemand etwas erkennen: Nachts tippen alle, jeder Nacht-Bil
 Seit Version 0.0.3 ist **jede Verbindung Ende-zu-Ende-verschlüsselt**, im WLAN wie über einen Vermittlungsserver. Wer mitlauscht, auch der Betreiber eines Servers, sieht nur gleich große Pakete mit Zeichensalat.
 
 - **Mit QR-Code:** Der Code am Tisch enthält einen Schlüssel und ein Geheimnis dieses Raums. Daran erkennt eure App den echten Gastgeber, ein Betrüger im WLAN kann sich nicht dazwischenschalten.
-- **Ohne QR-Code** (Raum in der Nähe gefunden oder von Hand eingegeben): Die Verbindung ist genauso verschlüsselt. Damit niemand Fremdes hereinrutscht, zeigt euer Handy drei Zeichen, und der Gastgeber lässt euch erst rein, wenn sie mit denen auf seinem Bildschirm übereinstimmen.
+- **Ohne QR-Code** (Raum in der Nähe gefunden oder von Hand eingegeben): Die Verbindung ist genauso verschlüsselt. Damit niemand Fremdes hereinrutscht, zeigt euer Handy vier Zeichen, und der Gastgeber lässt euch erst rein, wenn sie mit denen auf seinem Bildschirm übereinstimmen. Ab 0.0.4 kann auch niemand in der Mitte passende Zeichen erzwingen, und nach dem Reinlassen kommt ihr bei jedem Wiederverbinden über den geprüften Weg zurück.
 - **Gleich große Nachrichten:** Jede Nachricht wird auf feste Größen aufgefüllt, und alle bekommen bei jeder Änderung dieselbe Menge. So verrät nicht einmal der Datenverkehr, wer nachts als Werwolf mehr zu tun hat.
-- **Geprüftes Verfahren:** Whowolf nutzt das Noise-Protokoll mit X25519, ChaCha20-Poly1305 und BLAKE2s und testet gegen die offiziellen Testdaten des Verfahrens. Ein unabhängiger Blick von außen steht vor Version 1.0 noch aus.
+- **Geprüfte Bibliothek:** Seit 0.0.4 kommt die gesamte Verschlüsselung aus [libsodium](https://doc.libsodium.org/), einer weit verbreiteten und unabhängig geprüften Bibliothek (Schlüsseltausch mit X25519, XChaCha20-Poly1305, BLAKE2b). Whowolf rechnet nichts davon selbst. Wie wir die Bausteine zusammensetzen, soll vor Version 0.1 jemand von außen prüfen.
 
 ## Eine ehrliche Grenze
 
