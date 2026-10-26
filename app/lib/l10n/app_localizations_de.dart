@@ -593,6 +593,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren.';
 
   @override
+  String get pauseLeave => 'Spiel verlassen';
+
+  @override
   String roomOpenNotice(String room) {
     return 'Raum $room ist offen';
   }

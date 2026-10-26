@@ -123,14 +123,24 @@ void main() {
     await host.close();
   });
 
-  test('an unreachable host ends the session instead of retrying', () async {
+  test('an unreachable host ends a join after a few tries', () async {
+    var dials = 0;
     final session = GameSession(
       name: 'X',
       roomCode: '1234',
-      dial: () => Future.error(const SocketExceptionLike()),
+      dial: () {
+        dials++;
+        return Future.error(const SocketExceptionLike());
+      },
+      config: const LinkConfig(
+        firstRetry: Duration(milliseconds: 1),
+        maxRetry: Duration(milliseconds: 1),
+        joinAttempts: 3,
+      ),
     );
-    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     expect(session.status, SessionStatus.ended);
+    expect(dials, 3);
     expect(session.byeReason, isNull);
     session.dispose();
   });

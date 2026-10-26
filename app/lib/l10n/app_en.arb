@@ -356,6 +356,10 @@
   "refuse": "Refuse",
   "pauseTitle": "A short pause",
   "pauseText": "The narrator is catching their breath … The game goes on in a moment, nothing is lost.",
+  "pauseLeave": "Leave the game",
+  "@pauseLeave": {
+    "description": "Quiet button that appears after a long pause, in case the room is gone."
+  },
   "roomOpenNotice": "Room {room} is open",
   "@roomOpenNotice": {
     "description": "Silent Android notification while this device hosts a room.",

@@ -586,6 +586,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The narrator is catching their breath … The game goes on in a moment, nothing is lost.';
 
   @override
+  String get pauseLeave => 'Leave the game';
+
+  @override
   String roomOpenNotice(String room) {
     return 'Room $room is open';
   }

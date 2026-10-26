@@ -1064,6 +1064,12 @@ abstract class AppLocalizations {
   /// **'The narrator is catching their breath … The game goes on in a moment, nothing is lost.'**
   String get pauseText;
 
+  /// Quiet button that appears after a long pause, in case the room is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the game'**
+  String get pauseLeave;
+
   /// Silent Android notification while this device hosts a room.
   ///
   /// In en, this message translates to:

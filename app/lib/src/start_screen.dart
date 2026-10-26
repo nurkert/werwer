@@ -30,13 +30,18 @@ class _StartScreenState extends State<StartScreen> {
   ResumeInfo? _resume;
   SavedRoom? _savedRoom;
 
+  /// Rejoining by itself happens once per app start; coming back to this
+  /// screen afterwards (the player left) shows the buttons instead.
+  static bool _autoResumed = false;
+
   @override
   void initState() {
     super.initState();
-    unawaited(_loadResume());
+    unawaited(_loadResume(auto: !_autoResumed));
+    _autoResumed = true;
   }
 
-  Future<void> _loadResume() async {
+  Future<void> _loadResume({bool auto = false}) async {
     final resume = await const Store().loadResume();
     final savedRoom = await const RoomStore().load();
     if (!mounted) return;
@@ -45,6 +50,14 @@ class _StartScreenState extends State<StartScreen> {
       _savedRoom = savedRoom;
       if (resume != null && _name.text.isEmpty) _name.text = resume.name;
     });
+    if (!auto) return;
+    // The app was closed in the middle of a game (on purpose or not): go
+    // straight back to the table. Leaving on purpose clears these records.
+    if (savedRoom != null) {
+      await _restore(savedRoom);
+    } else if (resume != null && resume.isFresh) {
+      await _continue(resume);
+    }
   }
 
   Future<void> _continue(ResumeInfo resume) async {

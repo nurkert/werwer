@@ -170,9 +170,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                   _NarratorLine(text: _narration!),
                 Expanded(
                   child: _Paused(
-                    paused:
-                        session.status == SessionStatus.reconnecting &&
-                        view != null,
+                    paused: session.status == SessionStatus.reconnecting,
+                    onLeave: _leave,
                     child: session.status == SessionStatus.ended
                         ? _Ended(reason: session.byeReason)
                         : session.nameRefused
@@ -361,14 +360,61 @@ class _Ended extends StatelessWidget {
 
 /// The host is out of reach: a calm pause over the last view, never an
 /// error. Everything typed meanwhile is kept and sent when it is back.
-class _Paused extends StatelessWidget {
-  const _Paused({required this.paused, required this.child});
+/// The host is out of reach: a calm pause over the last view. After a long
+/// while a quiet way out appears, in case the room is really gone.
+class _Paused extends StatefulWidget {
+  const _Paused({
+    required this.paused,
+    required this.onLeave,
+    required this.child,
+  });
 
   final bool paused;
+  final VoidCallback onLeave;
   final Widget child;
 
   @override
+  State<_Paused> createState() => _PausedState();
+}
+
+class _PausedState extends State<_Paused> {
+  static const _offerLeaveAfter = Duration(seconds: 45);
+
+  Timer? _timer;
+  bool _offerLeave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _watch();
+  }
+
+  @override
+  void didUpdateWidget(_Paused old) {
+    super.didUpdateWidget(old);
+    if (old.paused != widget.paused) _watch();
+  }
+
+  void _watch() {
+    _timer?.cancel();
+    _offerLeave = false;
+    if (widget.paused) {
+      _timer = Timer(_offerLeaveAfter, () {
+        if (mounted) setState(() => _offerLeave = true);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final paused = widget.paused;
+    final child = widget.child;
     final l10n = AppLocalizations.of(context);
     return Stack(
       children: [
@@ -395,6 +441,17 @@ class _Paused extends StatelessWidget {
                       Headline(l10n.pauseTitle),
                       const SizedBox(height: 8),
                       Body(l10n.pauseText),
+                      AnimatedOpacity(
+                        opacity: _offerLeave ? 1 : 0,
+                        duration: const Duration(milliseconds: 600),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 24),
+                          child: TextButton(
+                            onPressed: _offerLeave ? widget.onLeave : null,
+                            child: Text(l10n.pauseLeave),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

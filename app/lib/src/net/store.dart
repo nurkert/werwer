@@ -20,7 +20,11 @@ class ResumeInfo {
     this.server,
     this.hostKey,
     this.roomSecret,
+    this.savedAt,
   });
+
+  /// Older than this, the game is surely over: nothing to come back to.
+  static const maxAge = Duration(hours: 12);
 
   static ResumeInfo? fromJson(String raw) {
     try {
@@ -29,6 +33,7 @@ class ResumeInfo {
       final server = json['server'] as String?;
       final key = json['hostKey'] as String?;
       final secret = json['roomSecret'] as String?;
+      final savedAt = json['savedAt'] as int?;
       return ResumeInfo(
         name: json['name']! as String,
         room: json['room']! as String,
@@ -38,6 +43,9 @@ class ResumeInfo {
         server: server == null ? null : parseRelayServer(server),
         hostKey: key == null ? null : base64Url.decode(key),
         roomSecret: secret == null ? null : base64Url.decode(secret),
+        savedAt: savedAt == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(savedAt),
       );
     } on Object {
       return null;
@@ -53,6 +61,15 @@ class ResumeInfo {
   final List<int>? hostKey;
   final List<int>? roomSecret;
 
+  /// When the host last welcomed this player.
+  final DateTime? savedAt;
+
+  /// Recent enough to rejoin by itself when the app starts.
+  bool get isFresh {
+    final at = savedAt;
+    return at != null && DateTime.now().difference(at) < maxAge;
+  }
+
   String toJson() => jsonEncode({
     'name': name,
     'room': room,
@@ -62,6 +79,7 @@ class ResumeInfo {
     'server': ?server?.toString(),
     'hostKey': ?(hostKey == null ? null : base64Url.encode(hostKey!)),
     'roomSecret': ?(roomSecret == null ? null : base64Url.encode(roomSecret!)),
+    'savedAt': ?savedAt?.millisecondsSinceEpoch,
   });
 }
 

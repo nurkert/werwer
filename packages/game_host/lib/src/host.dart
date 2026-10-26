@@ -251,7 +251,12 @@ class GameHost {
   /// Accepts connections from [transport] until [close].
   void serve(Transport transport) {
     _transports.add(transport);
-    transport.connections.listen((c) => _accept(c, owner: false));
+    transport.connections.listen(
+      (c) => _accept(c, owner: false),
+      // A transport replaced by a new one (the app came back and rebound
+      // its socket) is forgotten once it is closed.
+      onDone: () => _transports.remove(transport),
+    );
   }
 
   /// A connection for the host player's own app. Whoever joins through it

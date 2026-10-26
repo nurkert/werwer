@@ -1,6 +1,6 @@
 # Task 002 – Stabiles Netz: Fehler ausgleichen, ohne dass es jemand merkt
 
-**Status:** offen
+**Status:** umgesetzt; offen ist nur der Test auf echten Geräten (siehe „Fertig, wenn“)
 **Roadmap:** MVP-Sprint, Spur S
 
 ## Ziel

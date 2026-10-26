@@ -129,12 +129,14 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ### S – Stabiles Netz ([Task 002](tasks/002-stabiles-netz.md))
 
-- [ ] Zustand mit Versionsnummer; veraltete Nachrichten werden verworfen
-- [ ] Aktionen mit Nummer, Bestätigung und Doppel-Erkennung (keine Stimme geht verloren oder zählt doppelt)
-- [ ] Pausenmodus: Fehlt der Host, frieren die Timer ein, alle sehen eine ruhige Pause statt eines Fehlers; Apps warten die ganze Spielsitzung
-- [ ] Host wiederfinden: Bonjour-Suche nach Raum und Schlüssel statt fester IP, WLAN und Relay parallel
+- [x] Zustand mit Versionsnummer; veraltete Nachrichten werden verworfen
+- [x] Aktionen mit Nummer, Bestätigung und Doppel-Erkennung (keine Stimme geht verloren oder zählt doppelt)
+- [x] Pausenmodus: Fehlt der Host, frieren die Timer ein, alle sehen eine ruhige Pause statt eines Fehlers; Apps warten die ganze Spielsitzung
+- [x] Host wiederfinden: Bonjour-Suche nach Raum und Schlüssel statt fester IP, WLAN und Relay parallel
 - [x] Android: Vordergrund-Dienst für den Host; iOS: Hinweis, die App offen zu lassen
-- [ ] Chaos-Tests: simuliertes Netz mit Verlust, Verzögerung, Doppelungen, Vertauschen und Host-Abstürzen; jede Partie endet regelkonform, alle Sichten stimmen überein
+- [x] Chaos-Tests: simuliertes Netz mit Verlust, Verzögerung, Doppelungen, Vertauschen und Host-Abstürzen; jede Partie endet regelkonform, alle Sichten stimmen überein
+- [x] Nahtlos zurück: Wer rausfliegt, verbindet sich von selbst neu; nach einem App-Neustart springt die App direkt zurück an den Tisch (Spieler und Gastgeber); eine abwesende Person hält keine Phase auf
+- [ ] Auf echten Geräten: Host schließt die App mitten in der Abstimmung und öffnet sie nach 30 s wieder
 
 ### D – Mondbühne in der App ([Task 003](tasks/003-mondbuehne-app.md))
 

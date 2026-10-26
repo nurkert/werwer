@@ -54,6 +54,7 @@ GameSession playerSession({
           server: server,
           hostKey: keys.hostKey,
           roomSecret: keys.roomSecret,
+          savedAt: DateTime.now(),
         ),
       ),
     ),
