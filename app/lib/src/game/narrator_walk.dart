@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:game_core/game_core.dart' show stableHash;
+
 /// How loud this phone plays the narrator at each moment while the voice
 /// walks around the table: a pure function of public values, so every
 /// phone computes the same walk and plays its part of it.
@@ -33,10 +35,7 @@ class NarratorWalk {
     required String line,
     int? to,
   }) {
-    var hash = 0x811c9dc5;
-    for (final unit in '$room/$round/$line'.codeUnits) {
-      hash = ((hash ^ unit) * 0x01000193) & 0xffffffff;
-    }
+    final hash = stableHash('$room/$round/$line');
     return NarratorWalk(seats: seats, start: hash % seats, to: to);
   }
 

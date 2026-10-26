@@ -60,7 +60,8 @@ GameUpdate playNight(
   var current = state;
   while (current.phase == Phase.night && current.round == round) {
     final step = current.nightStep;
-    if (current.alive.every((p) => nightTask(current, p.id) == null)) {
+    final called = current.settings.nightMode == NightMode.called;
+    if (called && !calledStepPending(current)) {
       final update = apply(current, const PhaseTimeout());
       events.addAll(update.events);
       current = update.state;

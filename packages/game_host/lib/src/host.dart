@@ -856,12 +856,24 @@ class GameHost {
         before.round != _state.round ||
         before.nightStep != _state.nightStep) {
       _schedulePhaseTimer();
+    } else if (_state.phase == Phase.night &&
+        timeLimit(before) != timeLimit(_state)) {
+      // The same step with a new limit (nobody in a called step is left to
+      // decide): counted from the step's start, not from now.
+      final limit = timeLimit(_state);
+      if (limit != null) {
+        final left = _phaseStartedAt + limit.inMilliseconds - _clock();
+        _schedulePhaseTimer(
+          remaining: Duration(milliseconds: left < 0 ? 0 : left),
+          sameStep: true,
+        );
+      }
     }
     _broadcast();
   }
 
-  void _schedulePhaseTimer({Duration? remaining}) {
-    _phaseStartedAt = _clock();
+  void _schedulePhaseTimer({Duration? remaining, bool sameStep = false}) {
+    if (!sameStep) _phaseStartedAt = _clock();
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
@@ -902,7 +914,14 @@ class GameHost {
         version: _version,
         view: viewFor(_state, session.player),
         isOwner: session.owner,
-        phaseEndsInMs: _phaseLeft(),
+        // In the called night only whoever is called sees the time: its
+        // changes would tell the others when someone picked.
+        phaseEndsInMs:
+            _state.phase == Phase.night &&
+                _state.settings.nightMode == NightMode.called &&
+                nightTask(_state, session.player) == null
+            ? null
+            : _phaseLeft(),
         phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
         pending: session.owner
             ? [

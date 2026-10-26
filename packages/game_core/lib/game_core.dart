@@ -6,6 +6,7 @@ library;
 
 export 'src/actions.dart';
 export 'src/events.dart';
+export 'src/hash.dart';
 export 'src/model.dart';
 export 'src/role.dart';
 export 'src/rules.dart';

@@ -5,6 +5,14 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Fixed
+- In the classic night the werewolves' turn waits until they agree.
+- The classic night no longer gives away, through counts or timing, how
+  many werewolves there are or whether the seer or witch is still alive.
+- Browser players hear the same night sounds and narrator as everyone else,
+  and come back to their seat after the page reloads.
+- "Wi-Fi only" also applies when joining by link or coming back to a game.
+
 ### Added
 - The classic night: everyone closes their eyes and the narrator calls the
   roles one by one (cupid, the werewolves, the seer, the witch); only

@@ -43,11 +43,7 @@ typedef Cue = ({Sound sound, Duration at});
 /// and no sound can ever depend on a role or a night action (that would be
 /// a tell).
 List<Cue> nightCues(String room, int round, {Duration length = _night}) {
-  var hash = 0x811c9dc5;
-  for (final unit in '$room/$round'.codeUnits) {
-    hash = ((hash ^ unit) * 0x01000193) & 0xffffffff;
-  }
-  final random = Random(hash);
+  final random = Random(stableHash('$room/$round'));
   final seconds = length.inSeconds;
   Duration at(double from, double to) => Duration(
     milliseconds: ((from + random.nextDouble() * (to - from)) * 1000).round(),

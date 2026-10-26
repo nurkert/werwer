@@ -109,9 +109,5 @@ int pickVariant({
   int occurrence = 0,
 }) {
   if (count <= 1) return 0;
-  var hash = 0x811c9dc5;
-  for (final unit in '$room/$key'.codeUnits) {
-    hash = ((hash ^ unit) * 0x01000193) & 0xffffffff;
-  }
-  return (hash + round + occurrence) % count;
+  return (stableHash('$room/$key') + round + occurrence) % count;
 }

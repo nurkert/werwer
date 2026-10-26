@@ -23,15 +23,36 @@ class WebJoinScreen extends StatefulWidget {
 }
 
 class _WebJoinScreenState extends State<WebJoinScreen> {
-  // Read once and kept in memory only; the address bar forgets it.
-  static final JoinLink? _link = () {
+  // Read once; the address bar forgets it. After a reload (phones throw
+  // away background tabs) the tab's own storage brings it back, with the
+  // session token: the player is back at their seat.
+  static final ({JoinLink link, String? token, String? name})? _game = () {
     final link = JoinLink.tryParse(Uri.base.toString());
-    if (link != null) forgetPageLink();
-    return link;
+    if (link != null) {
+      forgetPageLink();
+      return (link: link, token: null, name: null);
+    }
+    final kept = recallGame();
+    final keptLink = kept == null ? null : JoinLink.tryParse(kept.link);
+    if (kept == null || keptLink == null) return null;
+    return (link: keptLink, token: kept.token, name: kept.name);
   }();
 
   final _name = TextEditingController();
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final game = _game;
+    _name.text = game?.name ?? '';
+    // Seated before the reload: straight back in.
+    if (game?.token case final token?) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _join(game!.link, token: token),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -39,17 +60,22 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
     super.dispose();
   }
 
-  Future<void> _join(JoinLink link) async {
+  Future<void> _join(JoinLink link, {String? token}) async {
     final l10n = AppLocalizations.of(context);
     final name = _name.text.trim();
-    if (name.isEmpty) {
+    if (name.isEmpty && token == null) {
       setState(() => _error = l10n.nameRequired);
       return;
     }
     setState(() => _error = null);
+    final text = link.encodeLocal() ?? link.encode();
+    rememberGame(text, token: token, name: name);
     final session = GameSession(
       name: name,
       roomCode: link.room,
+      token: token,
+      onWelcome: (token, name) => rememberGame(text, token: token, name: name),
+      onEnded: forgetGame,
       dial: () async => connectSecure(
         await dialPageHost(),
         hostKey: link.hostKey,
@@ -65,7 +91,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final link = _link;
+    final link = _game?.link;
     return StageScaffold(
       floatingAppBar: true,
       appBar: AppBar(),

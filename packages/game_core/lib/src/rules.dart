@@ -86,7 +86,11 @@ const shotTime = Duration(seconds: 30);
 /// [PhaseTimeout] resolves it; `null` where the rules set no limit (the
 /// host decides how long players may look at their role).
 Duration? timeLimit(GameState state) => switch (state.phase) {
-  Phase.night when _called(state) && !_anyoneCalled(state) => emptyStepTime,
+  // A called step runs at least this long whatever happens in it, and no
+  // longer once nobody is left to decide: a dead role's step and a quick
+  // living role's look the same from outside.
+  Phase.night when _called(state) && !calledStepPending(state) =>
+    calledStepTime,
   Phase.night => switch (state.nightStep) {
     NightStep.hunt => state.settings.nightTime,
     NightStep.brew || NightStep.link || NightStep.inspect => brewTime,
@@ -97,15 +101,26 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
   Phase.lobby || Phase.roleReveal || Phase.ended => null,
 };
 
-/// How long the narrator lets a called step run whose role is dead: as if
-/// someone were still deciding, so nobody hears who is gone.
-const emptyStepTime = Duration(seconds: 8);
+/// How long a called step lasts once nobody is left to decide (or from the
+/// start, if its role is dead): as if someone were still deciding, so
+/// nobody hears who is gone or how quickly someone picked.
+const calledStepTime = Duration(seconds: 8);
 
 bool _called(GameState state) => state.settings.nightMode == NightMode.called;
 
-/// Whether any living player is called in the current step.
-bool _anyoneCalled(GameState state) =>
-    state.alive.any((p) => nightTask(state, p.id) != null);
+/// Whether someone called in the current step still has to decide: a
+/// living role that has not picked, or a pack that does not agree yet.
+bool calledStepPending(GameState state) {
+  final called = [
+    for (final p in state.alive)
+      if (nightTask(state, p.id) != null) p.id,
+  ];
+  if (called.any((p) => !state.nightChoices.containsKey(p))) return true;
+  if (state.nightStep != NightStep.hunt) return false;
+  // The pack agrees on one victim before the step can end; until the time
+  // runs out they can change their minds.
+  return {for (final p in called) state.nightChoices[p]!.first}.length > 1;
+}
 
 /// The steps of a called night, in order: every role in the game gets
 /// its step, alive or not.
@@ -413,10 +428,10 @@ GameUpdate _night(
   next = next.copyWith(
     nightChoices: {...state.nightChoices, actor.id: targetIds},
   );
-  // The step ends once everyone with a task in it has picked.
-  if (next.alive
-      .where((p) => nightTask(next, p.id) != null)
-      .every((p) => next.nightChoices.containsKey(p.id))) {
+  // Whowolf's night: the step ends once everyone has picked. A called step
+  // ends by its time (see timeLimit), so its length tells nobody anything.
+  if (!_called(next) &&
+      next.alive.every((p) => next.nightChoices.containsKey(p.id))) {
     final ended = _endStep(next);
     return GameUpdate(ended.state, [...events, ...ended.events]);
   }

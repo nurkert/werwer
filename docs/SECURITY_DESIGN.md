@@ -83,6 +83,15 @@
   - kein dynamisches Ausführen
 - **Fuzz- bzw. Property-Tests** für Parser und Protokoll: Zufällige und kaputte Eingaben dürfen nie abstürzen und nie den Zustand verändern.
 
+### Die klassische Nacht (A1)
+
+- Die Länge eines aufgerufenen Schritts verrät nichts:
+  - Jeder Schritt läuft mindestens `calledStepTime` (8 s), auch wenn die Rolle schneller wählt, und eine tote Rolle wird genauso lange aufgerufen.
+  - Die Restzeit sehen nur die Aufgerufenen, die Wartezahl ist in dieser Nacht für alle 0.
+  - Sonst verrieten sie, wann jemand gewählt hat, ob Seherin oder Hexe noch lebt und wie viele Wölfe es gibt (gefunden im Review vom 2026-10-26).
+- Die Wölfe müssen sich einig sein, bevor ihr Schritt enden kann; bis zum Ablauf der Zeit dürfen sie umentscheiden.
+- **Tests:** `packages/game_core/test/called_night_test.dart`, `packages/game_host/test/called_night_host_test.dart`.
+
 ### Host-Übernahme (A1, A2)
 
 - **Kein Gerät allein liest den Raum:**
@@ -123,6 +132,7 @@
 - **Keine Drittanbieter:** Die Web-App lädt nichts aus dem Internet, weder CDN noch Schriftendienst noch Service Worker.
 - **Schlüssel:** Der QR-Code verweist auf `http://<private Adresse>/join?…#k=…&s=…`. Die Schlüssel stehen im Fragment, das der Browser nie sendet. Ein solcher Link gilt nur mit Schlüssel, der Handshake beweist also, dass die Seite vom echten Host stammt. Nach dem Lesen entfernt die Seite den Schlüssel aus Adresszeile und Verlauf.
 - **Restrisiko:** Die Seite selbst kommt über unverschlüsseltes HTTP im WLAN. Ein aktiver Angreifer im selben Netz könnte eine veränderte Web-App ausliefern. Das ist dasselbe Vertrauen wie bei jeder lokal ausgelieferten Seite; die Spieldaten bleiben Ende-zu-Ende verschlüsselt, solange die Seite echt ist. Wer das ausschließen will, nimmt die App.
+- **Neu laden:** Damit ein Browser-Spieler nach dem Neuladen (Handys verwerfen Hintergrund-Tabs) an seinen Platz zurückkommt, liegen Link und Sitzungstoken im `sessionStorage` dieses Tabs. Das gehört nur diesem Tab, verschwindet beim Schließen und wird am Spielende gelöscht.
 - **Tests:** `packages/game_host/test/site_test.dart` (Header, Ausbruchsversuche, nur lesen), `packages/protocol/test/link_test.dart` (lokale Links nur mit Schlüssel und privater Adresse).
 
 ### QR-Codes und Links (A3)

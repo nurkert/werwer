@@ -192,7 +192,9 @@ class _StartScreenState extends State<StartScreen> {
             FilledButton(
               onPressed: () async {
                 final text = field.text.trim();
-                if (text.isNotEmpty && parseRelayServer(text) == null) {
+                // Switched off, the address does not matter (and its error
+                // would sit in a hidden field).
+                if (!off && text.isNotEmpty && parseRelayServer(text) == null) {
                   setDialog(() => error = l10n.invalidServer);
                   return;
                 }

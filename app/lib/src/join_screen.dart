@@ -32,6 +32,10 @@ Future<GameSession> playerSession({
 }) async {
   const store = Store();
   final keys = RoomKeys(hostKey: hostKey, roomSecret: roomSecret);
+  // Wi-Fi only means Wi-Fi only, whatever a link or an old game says.
+  final off = await store.relayOff();
+  final viaRelay = off ? null : relayRoom;
+  final viaServer = off ? null : server;
   return GameSession(
     name: name,
     roomCode: room,
@@ -42,8 +46,8 @@ Future<GameSession> playerSession({
       keys: keys,
       room: room,
       lan: lan,
-      relayRoom: relayRoom,
-      server: server,
+      relayRoom: viaRelay,
+      server: viaServer,
       locator: HostLocator.shared..warmUp(),
     ),
     onRoomKeys: (hostKey, roomSecret) => keys

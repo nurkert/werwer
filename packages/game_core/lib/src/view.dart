@@ -313,6 +313,8 @@ List<DeathView> _deaths(GameState state) => [
 
 int _waitingFor(GameState state) => switch (state.phase) {
   Phase.roleReveal => state.players.length - state.confirmed.length,
+  // In the called night this would count the werewolves as they pick.
+  Phase.night when state.settings.nightMode == NightMode.called => 0,
   Phase.night =>
     state.alive.where((p) => !state.nightChoices.containsKey(p.id)).length,
   Phase.vote => state.alive.where((p) => !state.votes.containsKey(p.id)).length,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:js_interop';
 
 import 'package:game_host/game_host.dart';
@@ -80,4 +81,46 @@ void forgetPageLink() {
   final history = web.window.history;
   // Keep the router's own state; only the address changes.
   history.replaceState(history.state, '', '/join');
+}
+
+const _gameKey = 'whowolf.game';
+
+/// Keeps the way back into this game (link with the room's key, the
+/// session token) in this tab's session storage: a phone that throws away
+/// a background tab reloads the page and comes back to its seat. Session
+/// storage belongs to this tab only and is gone when the tab closes.
+void rememberGame(String link, {String? token, String? name}) {
+  try {
+    web.window.sessionStorage.setItem(
+      _gameKey,
+      jsonEncode({'link': link, 'token': ?token, 'name': ?name}),
+    );
+  } on Object {
+    // No storage: a reload means scanning again.
+  }
+}
+
+/// The way back into this tab's game, if any.
+({String link, String? token, String? name})? recallGame() {
+  try {
+    final raw = web.window.sessionStorage.getItem(_gameKey);
+    if (raw == null) return null;
+    final json = jsonDecode(raw) as Map<String, Object?>;
+    return (
+      link: json['link']! as String,
+      token: json['token'] as String?,
+      name: json['name'] as String?,
+    );
+  } on Object {
+    return null;
+  }
+}
+
+/// Forgets this tab's game (it ended, or the player left).
+void forgetGame() {
+  try {
+    web.window.sessionStorage.removeItem(_gameKey);
+  } on Object {
+    // Nothing kept.
+  }
 }

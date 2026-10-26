@@ -48,11 +48,17 @@ void main() {
       refuses(Violation.notYourAction),
     );
     state = apply(state, nightAction(state, id(3), [id(4), id(5)])).state;
+    // The step ends by its time, never right after the pick.
+    expect(state.nightStep, NightStep.link);
+    expect(calledStepPending(state), isFalse);
+    expect(timeLimit(state), calledStepTime);
+    state = apply(state, const PhaseTimeout()).state;
     expect(state.lovers, [id(4), id(5)]);
 
     expect(state.nightStep, NightStep.hunt);
     expect(tasks(state), [0]);
     state = apply(state, nightAction(state, id(0), [id(1)])).state;
+    state = apply(state, const PhaseTimeout()).state;
 
     expect(state.nightStep, NightStep.inspect);
     expect(tasks(state), [1]);
@@ -61,13 +67,14 @@ void main() {
       update.events.whereType<SeerSaw>().single.result.role,
       Role.werewolf,
     );
-    state = update.state;
+    state = apply(update.state, const PhaseTimeout()).state;
 
     expect(state.nightStep, NightStep.brew);
     expect(tasks(state), [2]);
     expect(viewFor(state, id(2)).victim, id(1));
     // The witch saves the seer.
     state = apply(state, nightAction(state, id(2), [id(1)])).state;
+    state = apply(state, const PhaseTimeout()).state;
     expect(state.phase, Phase.day);
     expect(state.alive, hasLength(6));
   });
@@ -98,12 +105,45 @@ void main() {
     expect(state.phase, Phase.night);
     expect(state.nightStep, NightStep.hunt);
     state = apply(state, nightAction(state, id(0), [id(4)])).state;
-    // The seer's step comes all the same, with nobody to call.
+    state = apply(state, const PhaseTimeout()).state;
+    // The seer's step comes all the same, with nobody to call, and lasts
+    // as long as a quick living seer's would.
     expect(state.nightStep, NightStep.inspect);
     expect(tasks(state), isEmpty);
-    expect(timeLimit(state), emptyStepTime);
+    expect(timeLimit(state), calledStepTime);
     state = apply(state, const PhaseTimeout()).state;
     expect(state.nightStep, NightStep.brew);
+  });
+
+  test('the pack must agree before its step can end', () {
+    var state = night(const [
+      Role.werewolf,
+      Role.werewolf,
+      Role.seer,
+      Role.villager,
+      Role.villager,
+      Role.villager,
+      Role.villager,
+    ], settings: called.copyWith(roles: {Role.seer}));
+    expect(state.nightStep, NightStep.hunt);
+    state = apply(state, nightAction(state, id(0), [id(3)])).state;
+    state = apply(state, nightAction(state, id(1), [id(4)])).state;
+    // They disagree: the step goes on and the time stays the full one.
+    expect(calledStepPending(state), isTrue);
+    expect(timeLimit(state), called.nightTime);
+    state = apply(state, nightAction(state, id(1), [id(3)])).state;
+    expect(calledStepPending(state), isFalse);
+    state = apply(state, const PhaseTimeout()).state;
+    expect(state.nightVictim, id(3));
+  });
+
+  test('nobody learns how many wolves are picking', () {
+    var state = night(table, settings: called);
+    state = apply(state, nightAction(state, id(3), [id(4), id(5)])).state;
+    state = apply(state, const PhaseTimeout()).state;
+    expect(viewFor(state, id(4)).waitingFor, 0);
+    state = apply(state, nightAction(state, id(0), [id(1)])).state;
+    expect(viewFor(state, id(4)).waitingFor, 0);
   });
 
   test('whole called games always end by the rules', () {
@@ -130,7 +170,7 @@ void main() {
               for (final p in alive)
                 if (nightTask(state, p.id) != null) p,
             ];
-            if (actors.isEmpty) {
+            if (!calledStepPending(state)) {
               action = const PhaseTimeout();
               break;
             }
