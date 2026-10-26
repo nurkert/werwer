@@ -584,4 +584,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pauseText =>
       'The narrator is catching their breath … The game goes on in a moment, nothing is lost.';
+
+  @override
+  String roomOpenNotice(String room) {
+    return 'Room $room is open';
+  }
+
+  @override
+  String get keepAppOpenHint =>
+      'You are hosting this room: please keep Whowolf open while you play. If you switch apps for a moment, the game simply carries on when you come back.';
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
@@ -44,11 +45,25 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  /// Back from the lock screen or another app: reconnect right away
-  /// instead of waiting for the next retry.
+  /// Back from the lock screen or another app: host again if this device
+  /// hosts (iOS kills the server socket in the background) and reconnect
+  /// right away instead of waiting for the next retry.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) session.reconnectNow();
+    if (state != AppLifecycleState.resumed) return;
+    final room = widget.room;
+    if (room != null) unawaited(_revive(room));
+    session.reconnectNow();
+  }
+
+  Future<void> _revive(HostedRoom room) async {
+    try {
+      await room.revive();
+    } on Object {
+      // No network right now; the next resume tries again.
+    }
+    // The invite may show a new port or address.
+    if (mounted) setState(() {});
   }
 
   @override
@@ -177,11 +192,23 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Phones suspend a backgrounded app and with it the room, unless a
+  /// foreground service keeps it alive (Android).
+  bool get _mustStayOpen {
+    final room = widget.room;
+    if (room == null || room.keptAlive || kIsWeb) return false;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.iOS || TargetPlatform.android => true,
+      _ => false,
+    };
+  }
+
   Widget _phase(PlayerView view) => switch (view.phase) {
     Phase.lobby => LobbyPhase(
       session: session,
       link: widget.room?.link,
       relayFailed: widget.room?.relayFailed ?? false,
+      keepAppOpen: _mustStayOpen,
     ),
     Phase.roleReveal => RevealPhase(session: session),
     Phase.night => NightPhase(session: session),

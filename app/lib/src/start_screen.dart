@@ -74,6 +74,7 @@ class _StartScreenState extends State<StartScreen> {
         saved,
         hostName: _name.text.trim(),
         relayServer: await const Store().relayServer(),
+        notice: l10n.roomOpenNotice,
       );
       final session = GameSession(
         name: _name.text.trim().isEmpty ? 'Host' : _name.text.trim(),
@@ -174,6 +175,7 @@ class _StartScreenState extends State<StartScreen> {
       final room = await HostedRoom.open(
         hostName: name,
         relayServer: await const Store().relayServer(),
+        notice: l10n.roomOpenNotice,
       );
       final session = GameSession(
         name: name,

@@ -45,6 +45,7 @@ class LobbyPhase extends StatefulWidget {
     required this.session,
     this.link,
     this.relayFailed = false,
+    this.keepAppOpen = false,
     super.key,
   });
 
@@ -53,6 +54,10 @@ class LobbyPhase extends StatefulWidget {
   /// How others reach this room (only on the host device).
   final JoinLink? link;
   final bool relayFailed;
+
+  /// This device hosts and the system may suspend the room in the
+  /// background: ask the host to keep the app open.
+  final bool keepAppOpen;
 
   @override
   State<LobbyPhase> createState() => _LobbyPhaseState();
@@ -145,6 +150,8 @@ class _LobbyPhaseState extends State<LobbyPhase> {
           _PendingPanel(session: session, join: p),
         if (session.isOwner && link != null) _Invite(link: link),
         if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
+        if (session.isOwner && widget.keepAppOpen)
+          Body(l10n.keepAppOpenHint, muted: true),
         if (session.isOwner && count < 2) const HelpLink(),
         _PersonaPicker(session: session),
         Headline(l10n.players(count)),

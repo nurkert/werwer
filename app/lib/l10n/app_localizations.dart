@@ -1063,6 +1063,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The narrator is catching their breath … The game goes on in a moment, nothing is lost.'**
   String get pauseText;
+
+  /// Silent Android notification while this device hosts a room.
+  ///
+  /// In en, this message translates to:
+  /// **'Room {room} is open'**
+  String roomOpenNotice(String room);
+
+  /// No description provided for @keepAppOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You are hosting this room: please keep Whowolf open while you play. If you switch apps for a moment, the game simply carries on when you come back.'**
+  String get keepAppOpenHint;
 }
 
 class _AppLocalizationsDelegate

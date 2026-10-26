@@ -122,6 +122,50 @@ void main() {
     }
   });
 
+  testWidgets('a revived room keeps its port, players and announcement', (
+    tester,
+  ) async {
+    final room = await HostedRoom.open(hostName: 'Ada');
+    Bot.room = room.roomCode;
+    final port = room.link.lan!.port;
+    try {
+      await tester.runAsync(() async {
+        final bea = Bot('Bea', await dialRoom(room));
+        for (var i = 0; i < 50 && bea.view == null; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+        }
+        expect(bea.view, isNotNull);
+        // As after coming back from the background, also twice at once.
+        await Future.wait([room.revive(), room.revive()]);
+        await room.revive();
+        expect(room.link.lan!.port, port);
+        // Someone new still gets in on the same port, and Bea, whose
+        // connection survived, sees them arrive.
+        final cem = Bot('Cem', await dialRoom(room));
+        for (var i = 0; i < 50 && (bea.view?.seats.length ?? 0) < 2; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+        }
+        expect(cem.token, isNotNull);
+        expect(bea.view!.seats.length, 2);
+        // The room is announced again, once.
+        final finder = RoomFinder();
+        Iterable<NearbyRoom> found() =>
+            finder.rooms.where((r) => r.room == room.roomCode);
+        for (var i = 0; i < 100 && found().isEmpty; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+        }
+        // A stale twin would show up right with the real one.
+        await Future<void>.delayed(const Duration(seconds: 2));
+        final rooms = found().toList();
+        finder.dispose();
+        expect(rooms.length, 1);
+        expect(rooms.first.lan.port, port);
+      });
+    } finally {
+      await room.close();
+    }
+  });
+
   testWidgets('the host plays a round with four players over the network', (
     tester,
   ) async {

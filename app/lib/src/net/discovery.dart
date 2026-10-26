@@ -13,6 +13,10 @@ const roomServiceType = '_whowolf._tcp';
 /// see it under "Join a room" without typing anything.
 class RoomAnnouncer {
   BonsoirBroadcast? _broadcast;
+  // Cancelled in stop().
+  // ignore: cancel_subscriptions
+  StreamSubscription<BonsoirBroadcastEvent>? _events;
+  Completer<void>? _stopped;
 
   Future<void> start({
     required String hostName,
@@ -36,6 +40,15 @@ class RoomAnnouncer {
         ),
       );
       await broadcast.initialize();
+      // stop() returns before the system has withdrawn the announcement;
+      // the stopped event says when it has.
+      final stopped = Completer<void>();
+      _events = broadcast.eventStream?.listen((event) {
+        if (event is BonsoirBroadcastStoppedEvent && !stopped.isCompleted) {
+          stopped.complete();
+        }
+      });
+      _stopped = stopped;
       await broadcast.start();
       _broadcast = broadcast;
     } on Object {
@@ -43,13 +56,25 @@ class RoomAnnouncer {
     }
   }
 
+  /// Withdraws the announcement and waits (briefly) until the system has,
+  /// so that announcing the same room again right after does not show it
+  /// twice.
   Future<void> stop() async {
-    try {
-      await _broadcast?.stop();
-    } on Object {
-      // Already gone.
-    }
+    final broadcast = _broadcast;
+    final stopped = _stopped;
+    final events = _events;
     _broadcast = null;
+    _stopped = null;
+    _events = null;
+    try {
+      if (broadcast != null) {
+        await broadcast.stop();
+        await stopped?.future.timeout(const Duration(seconds: 2));
+      }
+    } on Object {
+      // Already gone, or the system did not confirm in time.
+    }
+    await events?.cancel();
   }
 }
 

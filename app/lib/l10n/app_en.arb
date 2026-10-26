@@ -355,5 +355,15 @@
   "letIn": "Let in",
   "refuse": "Refuse",
   "pauseTitle": "A short pause",
-  "pauseText": "The narrator is catching their breath … The game goes on in a moment, nothing is lost."
+  "pauseText": "The narrator is catching their breath … The game goes on in a moment, nothing is lost.",
+  "roomOpenNotice": "Room {room} is open",
+  "@roomOpenNotice": {
+    "description": "Silent Android notification while this device hosts a room.",
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "keepAppOpenHint": "You are hosting this room: please keep Whowolf open while you play. If you switch apps for a moment, the game simply carries on when you come back."
 }

@@ -160,5 +160,7 @@
   "letIn": "Reinlassen",
   "refuse": "Ablehnen",
   "pauseTitle": "Kurze Pause",
-  "pauseText": "Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren."
+  "pauseText": "Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren.",
+  "roomOpenNotice": "Raum {room} ist offen",
+  "keepAppOpenHint": "Du bist Gastgeber: Lass Whowolf bitte offen, solange ihr spielt. Wechselst du kurz in eine andere App, geht es weiter, sobald du zurück bist."
 }

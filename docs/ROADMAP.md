@@ -133,7 +133,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [ ] Aktionen mit Nummer, Bestätigung und Doppel-Erkennung (keine Stimme geht verloren oder zählt doppelt)
 - [ ] Pausenmodus: Fehlt der Host, frieren die Timer ein, alle sehen eine ruhige Pause statt eines Fehlers; Apps warten die ganze Spielsitzung
 - [ ] Host wiederfinden: Bonjour-Suche nach Raum und Schlüssel statt fester IP, WLAN und Relay parallel
-- [ ] Android: Vordergrund-Dienst für den Host; iOS: Hinweis, die App offen zu lassen
+- [x] Android: Vordergrund-Dienst für den Host; iOS: Hinweis, die App offen zu lassen
 - [ ] Chaos-Tests: simuliertes Netz mit Verlust, Verzögerung, Doppelungen, Vertauschen und Host-Abstürzen; jede Partie endet regelkonform, alle Sichten stimmen überein
 
 ### D – Mondbühne in der App ([Task 003](tasks/003-mondbuehne-app.md))

@@ -591,4 +591,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pauseText =>
       'Der Erzähler holt kurz Luft … Gleich geht es weiter, nichts geht verloren.';
+
+  @override
+  String roomOpenNotice(String room) {
+    return 'Raum $room ist offen';
+  }
+
+  @override
+  String get keepAppOpenHint =>
+      'Du bist Gastgeber: Lass Whowolf bitte offen, solange ihr spielt. Wechselst du kurz in eine andere App, geht es weiter, sobald du zurück bist.';
 }
