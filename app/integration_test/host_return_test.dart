@@ -97,12 +97,16 @@ void main() {
             GameSession(name: name, roomCode: code, dial: dial),
         ];
         [owner, ...players].forEach(autoplay);
-        Future<void> until(String what, bool Function() done) async {
+        Future<void> until(
+          String what,
+          bool Function() done, {
+          String Function()? detail,
+        }) async {
           for (var i = 0; i < 600; i++) {
             if (done()) return;
             await Future<void>.delayed(const Duration(milliseconds: 100));
           }
-          fail('timed out waiting for: $what');
+          fail('timed out waiting for: $what ${detail?.call() ?? ''}');
         }
 
         await until('everyone seated', () => owner.view?.seats.length == 5);
@@ -168,17 +172,36 @@ void main() {
         final now = owner.phaseEndsAt!.difference(DateTime.now());
         expect(now, lessThanOrEqualTo(left + const Duration(seconds: 2)));
 
-        // The rest vote, and the round goes on.
+        // The rest vote, and the round goes on. The bots act at once, so
+        // the game may race through night and day into the next vote
+        // between two looks: a higher round counts as resolved too.
+        final voteRound = owner.view!.round;
         for (final s in [owner, ...players.skip(1)]) {
           if (s.view!.yourSeat.isAlive) s.send(const VoteIntent(null));
         }
+        String votes() => [
+          for (final s in [owner, ...players])
+            [
+              '${s.name}: ${s.status.name}',
+              'alive ${s.view?.yourSeat.isAlive}',
+              'voted ${s.view?.youVoted}',
+              'unconfirmed ${s.unconfirmed}',
+            ].join(', '),
+        ].join('; ');
         await until(
           'the vote resolved',
-          () => owner.view?.phase != Phase.vote,
+          () =>
+              owner.view?.phase != Phase.vote || owner.view!.round > voteRound,
+          detail: () => '(waiting for ${owner.view?.waitingFor}; ${votes()})',
         );
         expect(
-          owner.view!.phase,
-          anyOf(Phase.night, Phase.ended, Phase.hunterShot),
+          owner.view!.round > voteRound ||
+              [
+                Phase.night,
+                Phase.ended,
+                Phase.hunterShot,
+              ].contains(owner.view!.phase),
+          isTrue,
         );
 
         for (final s in [owner, ...players]) {

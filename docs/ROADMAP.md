@@ -114,7 +114,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
   - iOS-Berechtigung „Lokales Netzwerk“
   - Firewall-Freigabe auf dem Desktop
   - Gäste-WLAN mit Client-Isolation, Ausweg: Hotspot des Host-Handys
-- [ ] Läuft auf iPhone und Mac (Hauptplattformen, dort wird getestet), Android (im Emulator auf dem Mac), Windows und Linux (CI-Builds, Linux-Test in einer VM)
+- [x] Läuft auf iPhone und Mac (Hauptplattformen, dort wird getestet), Android (im Emulator auf dem Mac), Windows und Linux (CI-Builds, Linux-Test in einer VM) – 2026-10-26: iPhone und Mac vom Eigentümer gespielt, Integrationstests auf macOS und im Android-Emulator grün, Windows/Linux bauen in der CI, das 0.1.0-`.deb` läuft in einem frischen Debian-13-Container
 - [x] Deploy aufs eigene Handy per Skript (`tool/deploy_ios.sh`, Android per APK); Signierung nur lokal in git-ignorierten Dateien, nichts Persönliches im Repo
 
 - [x] **Beitritt ohne Technik:** Räume im WLAN werden automatisch gefunden (mDNS/Bonjour), QR-Code als zweiter Weg; IP, Port und Codes nur klein unter „Details“

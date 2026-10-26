@@ -74,6 +74,9 @@ class GameSession extends ChangeNotifier {
   /// The host refused the name; [rename] tries another.
   bool get nameRefused => _link.nameRefused;
 
+  /// Intents sent but not yet confirmed by the host.
+  int get unconfirmed => _link.unconfirmed;
+
   /// The last refused intent; the screen clears it after showing it.
   Violation? get refused => _link.refused;
   set refused(Violation? value) => _link.refused = value;
