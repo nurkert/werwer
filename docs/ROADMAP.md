@@ -25,18 +25,6 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 | iPhone und Mac zuerst, dazu Android, Windows, Linux als Download | App Store, Google Play |
 | Zuverlässigkeit durch Chaos- und Simulationstests | Externer Krypto-Review (Pflicht vor den Stores) |
 
----|---|
-| Lokal im WLAN, ein Handy ist Host | Server, Relay, gemischtes Spiel |
-| Beitritt per QR-Scanner in der App, Raumcode/IP als Fallback | Beitritt im Browser ohne Installation, mDNS-Suche |
-| Rollen: Dorfbewohner, Werwolf, Seherin | Hexe, Jäger, Amor, Beschützer, eigene Rollen |
-| Tarnaufgaben für alle (Anti-Tell) | Menschlicher Erzähler |
-| Sitzordnung + Tischkreis aus eigener Perspektive | Beitritt während der Partie |
-| **Wolfsspur v1** mit Morgen-Gähnen | Eulenspur und weitere Spuren |
-| Einfacher Erzähler: Text + Sprachausgabe | Eigene Stimmen, Musik, Stimmungen |
-| Rejoin mit vollem Status | Story am Spielende, Geistermodus |
-| Deutsch + Englisch | Weitere Sprachen |
-| iPhone (TestFlight) und Mac zuerst, dazu Android, Windows, Linux als Download | App Store, Google Play |
-| Minimales eigenes Logo, Icon und Farben | Rollen-Artwork, Animationen |
 
 ---
 
