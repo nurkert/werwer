@@ -422,6 +422,8 @@ void main() {
             ),
           );
           await tester.pump();
+          // The host opens on the invitation.
+          await shot.shoot('09-host-lobby');
           final l10n = await AppLocalizations.delegate.load(Locale(locale));
           // On a phone the settings are the lobby's last page; on wider
           // windows they sit in the lobby itself.

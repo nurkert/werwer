@@ -352,6 +352,9 @@ class _LobbyPhaseState extends State<LobbyPhase> {
       );
       return StagePages(
         action: action,
+        // The host opens on the table with the invitation; a guest on
+        // their figure.
+        initialPage: session.isOwner ? 1 : 0,
         pages: [
           (
             label: l10n.pageFigure,
@@ -360,12 +363,12 @@ class _LobbyPhaseState extends State<LobbyPhase> {
               child: page([...pending, _FigureStage(session: session)]),
             ),
           ),
-          // The table, who is there, the invitation and what will be
-          // played, on one page that scrolls.
+          // The invitation first (the host's QR code), then the table, who
+          // is there and what will be played, on one page that scrolls.
           (
             label: l10n.pageTable,
             child: ScrollingPage(
-              child: page([title, ...pending, ...table, ...invite, ...game]),
+              child: page([title, ...pending, ...invite, ...table, ...game]),
             ),
           ),
           // The host sets up the game right here, no sheet to open.
