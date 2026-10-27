@@ -1,14 +1,35 @@
 # TLS for the relay. Caddy sets X-Forwarded-For to the real client (it does
 # not trust one sent by the client), which the relay uses for its limits.
+#
+# No addresses of players in the logs: an access or error entry carries the
+# request (address, port, URI with the room, headers). Both loggers drop
+# those fields; what remains is the time, the status and the error.
 {
 	admin off
+	log default {
+		level ERROR
+		format filter {
+			request>remote_ip delete
+			request>remote_port delete
+			request>client_ip delete
+			request>uri delete
+			request>headers delete
+		}
+	}
 }
 
 {$RELAY_DOMAIN} {
 	reverse_proxy relay:8080
 	header -Server
 	log {
-		# Errors only: no addresses or paths of players in the logs.
 		level ERROR
+		format filter {
+			request>remote_ip delete
+			request>remote_port delete
+			request>client_ip delete
+			request>uri delete
+			request>headers delete
+			resp_headers delete
+		}
 	}
 }
