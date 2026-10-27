@@ -7,6 +7,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,9 @@ void main() {
     final key = GlobalKey();
     // `LIGHTS=1` marks every found light, to check it sits on its window.
     LifePainter.showMarks = Platform.environment['LIGHTS'] != null;
+    // `LIFE=1` keeps the stage moving and takes three frames per scene.
+    final life = Platform.environment['LIFE'] != null;
+    if (life) debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     for (final MapEntry(key: label, value: size) in sizes.entries) {
       tester.view
         ..physicalSize = size
@@ -43,7 +47,7 @@ void main() {
           RepaintBoundary(
             key: key,
             child: MediaQuery(
-              data: MediaQueryData(size: size, disableAnimations: true),
+              data: MediaQueryData(size: size, disableAnimations: !life),
               child: MaterialApp(
                 theme: buildTheme(),
                 debugShowCheckedModeBanner: false,
@@ -56,16 +60,21 @@ void main() {
           () => Future<void>.delayed(const Duration(milliseconds: 700)),
         );
         await tester.pump(const Duration(seconds: 1));
-        final boundary =
-            key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-        await tester.runAsync(() async {
-          final image = await boundary.toImage();
-          final png = await image.toByteData(format: ui.ImageByteFormat.png);
-          File('$_out/$label-${scene.name}.png')
-            ..createSync(recursive: true)
-            ..writeAsBytesSync(png!.buffer.asUint8List());
-        });
+        for (var frame = 0; frame < (life ? 3 : 1); frame++) {
+          if (frame > 0) await tester.pump(const Duration(milliseconds: 700));
+          final boundary =
+              key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+          await tester.runAsync(() async {
+            final image = await boundary.toImage();
+            final png = await image.toByteData(format: ui.ImageByteFormat.png);
+            final suffix = life ? '-$frame' : '';
+            File('$_out/$label-${scene.name}$suffix.png')
+              ..createSync(recursive: true)
+              ..writeAsBytesSync(png!.buffer.asUint8List());
+          });
+        }
       }
     }
+    debugDefaultTargetPlatformOverride = null;
   });
 }

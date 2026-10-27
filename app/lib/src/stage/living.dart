@@ -160,6 +160,8 @@ typedef SceneLife = ({
   int moths,
   // Mirror bulbs that now and then flicker (backstage).
   bool bulbs,
+  // The water's surface: moonlight glints travel on its waves.
+  Rect? water,
   Color tint,
 });
 
@@ -170,7 +172,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
   Scene.village => (
     plate: 'village',
     flames: false,
-    sky: const Rect.fromLTRB(0.06, 0.02, 0.94, 0.2),
+    sky: const Rect.fromLTRB(0.04, 0.02, 0.96, 0.27),
     shooting: true,
     fireflies: 14,
     fireflyArea: const Rect.fromLTRB(0.02, 0.6, 0.98, 0.76),
@@ -179,6 +181,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     drift: _noDrift,
     moths: 0,
     bulbs: false,
+    water: const Rect.fromLTRB(0.2, 0.625, 0.96, 0.7),
     tint: _warm,
   ),
   Scene.theatre => (
@@ -201,6 +204,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
   Scene.nightLake => (
@@ -215,6 +219,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     drift: _noDrift,
     moths: 0,
     bulbs: false,
+    water: const Rect.fromLTRB(0, 0.6, 1, 0.74),
     tint: _warm,
   ),
   Scene.morning => (
@@ -237,6 +242,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
   Scene.dusk => (
@@ -251,6 +257,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     drift: _noDrift,
     moths: 3,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
   Scene.hunt => (
@@ -268,6 +275,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     drift: _noDrift,
     moths: 0,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
   Scene.finale => (
@@ -282,6 +290,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     drift: _noDrift,
     moths: 0,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
   Scene.finaleWolves => (
@@ -304,6 +313,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: false,
+    water: null,
     tint: const Color(0xFFFF6A40),
   ),
   Scene.finaleLovers => (
@@ -326,6 +336,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: false,
+    water: const Rect.fromLTRB(0, 0.6, 1, 0.74),
     tint: const Color(0xFFFFA0C0),
   ),
   Scene.backstage => (
@@ -348,6 +359,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: true,
+    water: null,
     tint: _warm,
   ),
   Scene.curtain => (
@@ -370,6 +382,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
     ),
     moths: 0,
     bulbs: false,
+    water: null,
     tint: _warm,
   ),
 };
@@ -466,19 +479,21 @@ class LifePainter extends CustomPainter {
     }
 
     if (data != null) {
-      // Water: glints of the lights above swaying on the ripples.
+      // Water: the reflections of the lights break into swaying strips.
       for (final (i, l) in data.ripples.indexed) {
         final (x, y, rad, s) = l;
-        final dx = sin(t * 1.1 + y * 90 + i) * rad * 0.9;
-        final a = s * (0.3 + 0.25 * sin(t * 2.3 + x * 50 + i * 1.7));
-        _stamp(
-          _Sprite.streak,
-          at(x + dx, y),
-          max(10, rad * w * 9),
-          life.tint.withValues(alpha: a.clamp(0, 1)),
-        );
+        for (var k = 0; k < 3; k++) {
+          final ky = y + (k - 1) * rad * 0.9;
+          final dx = sin(t * (1.1 + 0.3 * k) + ky * 140 + i) * rad * 1.1;
+          final a = s * (0.22 + 0.2 * sin(t * 2.3 + x * 50 + i * 1.7 + k * 2));
+          _stamp(
+            _Sprite.streak,
+            at(x + dx, ky),
+            max(10, rad * w * (7 + 3 * sin(t * 1.7 + k + i))),
+            life.tint.withValues(alpha: a.clamp(0, 1)),
+          );
+        }
       }
-
       // Painted stars twinkle, each at its own pace.
       for (final (i, l) in data.stars.indexed) {
         final (x, y, rad, s) = l;
@@ -487,7 +502,7 @@ class LifePainter extends CustomPainter {
         _stamp(
           _Sprite.star,
           at(x, y),
-          max(9, rad * w * 10) * (0.7 + 0.5 * tw),
+          max(20, rad * w * 14) * (0.7 + 0.5 * tw),
           const Color(0xFFFFF4D6).withValues(alpha: 0.25 + 0.6 * tw * s),
         );
       }
@@ -553,21 +568,44 @@ class LifePainter extends CustomPainter {
       }
     }
 
+    // Moonlight glints come and go on the waves, drifting with them.
+    final water = life.water;
+    if (water != null) {
+      for (var i = 0; i < 46; i++) {
+        final depth = pow(_hash(i, 61), 0.8).toDouble();
+        final y = water.top + water.height * depth;
+        final x =
+            water.left +
+            water.width * ((_hash(i, 62) + t * (0.004 + 0.006 * depth)) % 1);
+        final on = pow(0.5 + 0.5 * sin(t * (0.8 + _hash(i, 63)) + i * 2.3), 6);
+        _stamp(
+          _Sprite.streak,
+          at(x, y),
+          6 + 22 * depth,
+          const Color(0xFFCFE0FF).withValues(alpha: (0.5 * on).clamp(0, 1)),
+        );
+      }
+    }
+
     // Faint stars of our own where the sky is clear.
     final sky = life.sky;
     if (sky != null) {
-      for (var i = 0; i < 26; i++) {
+      // Many stars of our own: most faint and small, a few bright ones;
+      // neighbours share a slow swell, so the sky twinkles together.
+      for (var i = 0; i < 90; i++) {
         final x = sky.left + sky.width * _hash(i, 21);
-        final y = sky.top + sky.height * _hash(i, 22);
-        final tw = pow(
-          0.5 + 0.5 * sin(t * (0.6 + 1.8 * _hash(i, 23)) + i),
-          4,
-        ).toDouble();
+        final y = sky.top + sky.height * pow(_hash(i, 22), 1.4);
+        final big = _hash(i, 24) > 0.88;
+        final swell = 0.6 + 0.4 * sin(t * 0.35 + x * 6 + y * 4);
+        final tw =
+            pow(0.5 + 0.5 * sin(t * (0.6 + 1.8 * _hash(i, 23)) + i), 3) * swell;
         _stamp(
           _Sprite.star,
           at(x, y),
-          6 + 8 * tw,
-          const Color(0xFFFFF4D6).withValues(alpha: 0.12 + 0.55 * tw),
+          (big ? 28 : 14) + (big ? 20 : 8) * tw,
+          const Color(0xFFFFF4D6).withValues(
+            alpha: ((big ? 0.3 : 0.15) + 0.6 * tw).clamp(0, 1),
+          ),
         );
       }
     }

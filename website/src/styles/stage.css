@@ -582,3 +582,63 @@ body.has-backdrop .site-footer {
     padding-top: 16vw;
   }
 }
+
+/* ---- The life of the stage (task 015) ------------------------------- */
+.scene__life {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+.scene + .scene .scene__life {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
+  mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
+}
+/* A piece's picture and its lanterns share one frame. */
+.piece__frame {
+  position: relative;
+  display: block;
+  height: 100%;
+}
+.piece--top .piece__frame,
+.piece--span .piece__frame {
+  height: auto;
+  flex: none;
+}
+.piece--top .piece__frame + .piece__frame {
+  margin-left: -3%;
+}
+.piece--top picture + picture img {
+  margin-left: 0;
+}
+.piece__light {
+  position: absolute;
+  width: calc(var(--r) * 2200%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 226 160 / 0.95), rgb(255 186 90 / 0.55) 18%, rgb(255 170 80 / 0.2) 48%, rgb(255 160 70 / 0));
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: flame 1.9s linear infinite;
+  animation-delay: calc(var(--i) * -0.73s);
+}
+@keyframes flame {
+  0%, 100% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+  9% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+  17% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.95); }
+  26% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.03); }
+  38% { opacity: 0.8; }
+  44% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.92); }
+  52% { opacity: 1; transform: translate(-50%, -50%) scale(1.07); }
+  67% { opacity: 0.82; transform: translate(-50%, -50%) scale(0.98); }
+  79% { opacity: 0.97; transform: translate(-50%, -50%) scale(1.04); }
+  90% { opacity: 0.75; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .piece__light {
+    animation: none;
+  }
+}
