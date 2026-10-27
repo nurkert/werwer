@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whowolf/src/game/stage.dart';
+import 'package:whowolf/src/stage/living.dart';
 import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -24,6 +25,8 @@ void main() {
       'desktop': Size(1440, 900),
     };
     final key = GlobalKey();
+    // `LIGHTS=1` marks every found light, to check it sits on its window.
+    LifePainter.showMarks = Platform.environment['LIGHTS'] != null;
     for (final MapEntry(key: label, value: size) in sizes.entries) {
       tester.view
         ..physicalSize = size

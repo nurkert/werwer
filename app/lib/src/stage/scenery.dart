@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:whowolf/src/stage/living.dart';
 import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/stage/scenery.g.dart';
 import 'package:whowolf/src/stage/tilt.dart';
@@ -309,10 +310,20 @@ class Scenery extends StatelessWidget {
                   height: height,
                   child: TiltShift(
                     depth: piece.depth,
-                    child: CardboardPiece(
-                      asset: 'assets/stage/scenery/${piece.name}.webp',
-                      mirror: i.isOdd && piece.mirror,
-                      tint: tint,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CardboardPiece(
+                          asset: 'assets/stage/scenery/${piece.name}.webp',
+                          mirror: i.isOdd && piece.mirror,
+                          tint: tint,
+                        ),
+                        PieceLights(
+                          name: piece.name,
+                          mirror: i.isOdd && piece.mirror,
+                          tint: tint,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -368,10 +379,16 @@ class Scenery extends StatelessWidget {
               height: height,
               child: TiltShift(
                 depth: piece.depth,
-                child: CardboardPiece(
-                  asset: 'assets/stage/scenery/${piece.name}.webp',
-                  mirror: mirror,
-                  tint: tint,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CardboardPiece(
+                      asset: 'assets/stage/scenery/${piece.name}.webp',
+                      mirror: mirror,
+                      tint: tint,
+                    ),
+                    PieceLights(name: piece.name, mirror: mirror, tint: tint),
+                  ],
                 ),
               ),
             ),

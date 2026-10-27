@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
+import 'package:whowolf/src/stage/living.dart';
 import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/stage/scenery.dart';
@@ -79,7 +80,8 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.theatre => (
     sky: const [Color(0xFF070F1E), Color(0xFF13243F), Color(0xFF243552)],
     moon: MoonPhase.full,
-    moonAt: const Alignment(0, 0.02),
+    // High in the sky above the hills, never behind them.
+    moonAt: const Alignment(0.52, -0.6),
     stars: 0.6,
     horizon: const Color(0xFF0B1424),
     wings: const Color(0xFF4A1210),
@@ -428,50 +430,78 @@ class StageSet extends StatelessWidget {
     final plate = plateOf(scene);
     Widget shift(double depth, Widget child) =>
         TiltShift(depth: depth, child: child);
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 600),
-      child: KeyedSubtree(
-        key: ValueKey(scene),
-        child: plate == null
-            ? RepaintBoundary(
-                child: CustomPaint(
-                  painter: ScenePainter(scene),
-                  size: Size.infinite,
-                ),
-              )
-            : Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Behind the plate, in case it is not decoded yet.
-                  RepaintBoundary(
-                    child: CustomPaint(painter: ScenePainter(scene)),
+    return StageClock(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        child: KeyedSubtree(
+          key: ValueKey(scene),
+          child: plate == null
+              ? RepaintBoundary(
+                  child: CustomPaint(
+                    painter: ScenePainter(scene),
+                    size: Size.infinite,
                   ),
-                  // A little larger than the screen, so tilting never
-                  // shows its edge.
-                  shift(
-                    4,
-                    Transform.scale(
-                      scale: 1.04,
-                      child: RepaintBoundary(child: _Plate(scene, plate)),
-                    ),
-                  ),
-                  shift(
-                    8,
+                )
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Behind the plate, in case it is not decoded yet.
                     RepaintBoundary(
-                      child: CustomPaint(painter: _MoonLayer(scene)),
+                      child: CustomPaint(painter: ScenePainter(scene)),
                     ),
-                  ),
-                  // The scenery (cut-outs at the sides and from the
-                  // top), each piece at its own depth.
-                  _PanningScenery(scene: scene),
-                  RepaintBoundary(
-                    child: CustomPaint(painter: _PlateLight(scene)),
-                  ),
-                ],
-              ),
+                    // A little larger than the screen, so tilting never
+                    // shows its edge.
+                    // The plate and its life (lights, stars, fireflies) share
+                    // one frame, so every glow stays on its painted light.
+                    shift(
+                      4,
+                      Transform.scale(
+                        scale: 1.04,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            RepaintBoundary(child: _Plate(scene, plate)),
+                            RepaintBoundary(child: _Life(scene)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    shift(
+                      8,
+                      RepaintBoundary(
+                        child: CustomPaint(painter: _MoonLayer(scene)),
+                      ),
+                    ),
+                    // The scenery (cut-outs at the sides and from the
+                    // top), each piece at its own depth.
+                    _PanningScenery(scene: scene),
+                    RepaintBoundary(
+                      child: CustomPaint(painter: _PlateLight(scene)),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }
+}
+
+/// The life of a stage set, on the plate's own frame.
+class _Life extends StatelessWidget {
+  const _Life(this.scene);
+
+  final Scene scene;
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: CustomPaint(
+      painter: LifePainter(
+        scene: scene,
+        time: StageClock.of(context),
+        pan: StagePan.of(context),
+      ),
+    ),
+  );
 }
 
 /// The scenery as one panorama three pages wide: swiping a page in front
