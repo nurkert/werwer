@@ -265,9 +265,27 @@ class _SettingsBody extends StatelessWidget {
         onChanged: (v) => onChanged(s.copyWith(narratorVoice: v)),
       ),
     ];
+    // Each section on its own plaque, so it reads on any stage set; the
+    // presets before the first section are plaques already.
+    final groups = <List<Widget>>[[]];
+    for (final child in children) {
+      if (child is _Section) groups.add([child]);
+      if (child is! _Section) groups.last.add(child);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
+      children: [
+        ...groups.first,
+        for (final group in groups.skip(1)) ...[
+          group.first,
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: group.skip(1).toList(),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

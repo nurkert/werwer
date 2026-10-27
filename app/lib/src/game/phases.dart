@@ -360,10 +360,13 @@ class _LobbyPhaseState extends State<LobbyPhase> {
               child: page([...pending, _FigureStage(session: session)]),
             ),
           ),
-          (label: l10n.pageTable, child: page([title, ...pending, ...table])),
+          // The table, who is there, the invitation and what will be
+          // played, on one page that scrolls.
           (
-            label: l10n.pageGame,
-            child: page([title, ...pending, ...invite, ...game]),
+            label: l10n.pageTable,
+            child: ScrollingPage(
+              child: page([title, ...pending, ...table, ...invite, ...game]),
+            ),
           ),
           // The host sets up the game right here, no sheet to open.
           if (session.isOwner)
