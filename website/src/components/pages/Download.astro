@@ -36,6 +36,12 @@ const platforms: { id: Platform; name: string; icon: PlatformIcon }[] = [
   { id: 'windows', name: 'Windows', icon: 'window' },
   { id: 'linux', name: 'Linux', icon: 'linux' },
 ];
+// Download figures as GitHub counts them, summed over every release.
+const total = releases.reduce((sum, release) => sum + release.totalDownloads, 0);
+const byPlatform = platforms
+  .map((p) => ({ ...p, count: releases.flatMap((r) => r.downloads).filter((f) => f.platform === p.id).reduce((sum, f) => sum + f.count, 0) }))
+  .filter((p) => p.count > 0);
+const number = (value: number) => value.toLocaleString(languages[lang].locale);
 const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, { day: 'numeric', month: 'long', year: 'numeric' });
 const formats = ['avif', 'webp'] as const;
 ---
@@ -68,6 +74,33 @@ const formats = ['avif', 'webp'] as const;
     </header>
 
     {shown?.prerelease && <p class="dl-note container">{x.prereleaseNote}</p>}
+
+    {
+      total > 0 && (
+        <section class="box-office container" aria-labelledby="stats-title" data-reveal>
+          <p class="eyebrow">{x.stats.eyebrow}</p>
+          <h2 id="stats-title" class="visually-hidden">{x.stats.title}</h2>
+          <div class="box-office__total plaque">
+            <span class="box-office__number">{number(total)}</span>
+            <span class="box-office__label">{x.stats.total}</span>
+            <span class="box-office__releases">{number(releases.length)} {x.stats.releases}</span>
+          </div>
+          {
+            byPlatform.length > 0 && (
+              <ul class="box-office__platforms">
+                {byPlatform.map((p) => (
+                  <li class="plaque">
+                    <span class="box-office__count">{number(p.count)}</span>
+                    <span>{p.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+          <p class="box-office__note">{x.stats.note}</p>
+        </section>
+      )
+    }
 
     <section class="container" aria-label={d.title}>
       <ul class="cards" data-cards>
@@ -205,6 +238,69 @@ const formats = ['avif', 'webp'] as const;
 </script>
 
 <style>
+  /* ---- The box office: download figures in the stage's type ---- */
+  .box-office {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    margin-block: clamp(1.5rem, 5vh, 3rem);
+    text-align: center;
+  }
+  .box-office__total {
+    display: grid;
+    justify-items: center;
+    padding: 1.2rem 2.4rem 1.1rem;
+  }
+  .box-office__number {
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(3.6rem, 12vw, 6.5rem);
+    line-height: 1;
+    color: var(--lantern-400);
+    text-shadow: 0 2px 0 #6e4e2e, 0 0 32px rgb(242 166 74 / 0.35);
+    font-variant-numeric: tabular-nums;
+  }
+  .box-office__label {
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-size: 1.25rem;
+    color: var(--stage-ivory);
+  }
+  .box-office__releases {
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+    color: #d9c9a6;
+  }
+  .box-office__platforms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .box-office__platforms li {
+    display: grid;
+    justify-items: center;
+    min-width: 7.5rem;
+    padding: 0.7rem 1rem;
+    color: var(--stage-ivory);
+    font-size: 0.95rem;
+  }
+  .box-office__count {
+    font-family: 'Ancizar Serif', Georgia, serif;
+    font-weight: 700;
+    font-size: 1.9rem;
+    line-height: 1.1;
+    color: var(--stage-ivory);
+    font-variant-numeric: tabular-nums;
+  }
+  .box-office__note {
+    max-width: 34rem;
+    font-size: 0.9rem;
+    color: #d9c9a6;
+  }
+
   .dl {
     padding-bottom: var(--space-5);
   }

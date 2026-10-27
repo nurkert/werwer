@@ -272,6 +272,13 @@ const de = {
     privacy: 'Diese Seite schickt nichts weiter: Die Angaben aus dem Link bleiben in deinem Browser.',
   },
   dl: {
+    stats: {
+      eyebrow: 'Die Theaterkasse',
+      title: 'Bisher geladen',
+      total: 'Downloads insgesamt',
+      releases: 'Versionen',
+      note: 'GitHub zählt die Downloads jeder Version. Whowolf selbst zählt nichts und funkt nichts nach Hause.',
+    },
     lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Whowolf ist eine Entwickler-Beta: spielbar im WLAN oder über einen Vermittlungsserver und Ende-zu-Ende-verschlüsselt, aber noch voller Baustellen. Alle Geräte am Tisch brauchen dieselbe Version.',
     prereleaseNote: 'Entwickler-Beta: zum Ausprobieren mit Freunden. Rechnet mit Fehlern und meldet sie gern.',
     requirements: 'Voraussetzungen',

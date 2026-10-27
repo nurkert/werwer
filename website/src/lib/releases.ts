@@ -8,6 +8,8 @@ export interface Download {
   name: string;
   url: string;
   sizeMb: number;
+  /** How often GitHub has served this file. */
+  count: number;
 }
 
 export interface Release {
@@ -18,6 +20,8 @@ export interface Release {
   prerelease: boolean;
   downloads: Download[];
   checksumsUrl?: string;
+  /** Downloads of every file of the release, as GitHub counts them. */
+  totalDownloads: number;
 }
 
 const api = 'https://api.github.com/repos/nurkert/whowolf/releases?per_page=10';
@@ -33,6 +37,7 @@ interface ApiAsset {
   name: string;
   browser_download_url: string;
   size: number;
+  download_count?: number;
 }
 interface ApiRelease {
   tag_name: string;
@@ -59,6 +64,7 @@ export async function loadReleases(): Promise<Release[]> {
         url: release.html_url,
         publishedAt: new Date(release.published_at),
         prerelease: release.prerelease,
+        totalDownloads: release.assets.reduce((sum, asset) => sum + (asset.download_count ?? 0), 0),
         checksumsUrl: release.assets.find((asset) => /sha256/i.test(asset.name))?.browser_download_url,
         downloads: release.assets.flatMap((asset) => {
           const match = patterns.find(([, pattern]) => pattern.test(asset.name));
@@ -69,6 +75,7 @@ export async function loadReleases(): Promise<Release[]> {
                   name: asset.name,
                   url: asset.browser_download_url,
                   sizeMb: Math.round((asset.size / 1_048_576) * 10) / 10,
+                  count: asset.download_count ?? 0,
                 },
               ]
             : [];

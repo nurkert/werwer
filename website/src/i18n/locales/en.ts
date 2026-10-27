@@ -273,6 +273,13 @@ const en: Copy = {
     privacy: 'This page sends nothing anywhere: the details from the link stay in your browser.',
   },
   dl: {
+    stats: {
+      eyebrow: 'The box office',
+      title: 'Downloads so far',
+      total: 'downloads in total',
+      releases: 'releases',
+      note: 'GitHub counts the downloads of every release. Whowolf itself counts nothing and sends nothing home.',
+    },
     lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Whowolf is a developer beta: playable in the Wi-Fi or through a relay server and end-to-end encrypted, but still full of building sites. All devices at the table need the same version.',
     prereleaseNote: 'Developer beta: for trying out with friends. Expect bugs, and please report them.',
     requirements: 'Requirements',
