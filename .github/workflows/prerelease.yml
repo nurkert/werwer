@@ -121,7 +121,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: matrix.target != 'ios'
         with:
-          name: ${{ matrix.target }}
+          name: app-${{ matrix.target }}
           path: dist/*
           if-no-files-found: error
 
@@ -194,6 +194,8 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
+          # Only the app builds, not e.g. the relay image's build record.
+          pattern: app-*
           merge-multiple: true
       - name: Checksums
         working-directory: dist
