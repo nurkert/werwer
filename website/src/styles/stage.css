@@ -155,24 +155,29 @@ img.scene__set {
   object-position: 50% 80%;
   z-index: -3;
 }
-/* Scenes melt into each other through the night: the set and its scenery
-   fade out at the top and the foot, and the next scene fades in. */
-img.scene__set {
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 84%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 84%, transparent);
+/* Scenes cross-fade: each scene's set stays whole to its foot, and the
+   next scene fades in over it across --blend, so there is never a dark
+   gap between them. */
+.scene {
+  --blend: 22vh;
 }
-.scene--first img.scene__set {
-  -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent);
-  mask-image: linear-gradient(180deg, #000 84%, transparent);
+.scene + .scene {
+  margin-top: calc(-1 * var(--blend));
+}
+.scene + .scene img.scene__set {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
+  mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
+}
+/* The last scene fades into the footer's night. */
+.scene:last-child img.scene__set {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 var(--blend), #000 85%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 var(--blend), #000 85%, transparent);
 }
 /* Scenery standing on the floor fades into the night at its foot. */
 .piece--left img,
 .piece--right img {
   -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
   mask-image: linear-gradient(180deg, #000 72%, transparent);
-}
-.scene + .scene {
-  margin-top: -9vh;
 }
 .scene__moon {
   position: absolute;
@@ -483,35 +488,33 @@ body.has-backdrop {
   text-shadow: 0 1px 6px rgb(0 0 0 / 0.9);
 }
 
-/* Scenes overlap by the fade between them: what hangs from the top of a
-   later scene starts below the overlap, and the content keeps clear of it. */
+/* Scenes overlap by the blend: what hangs from the top of a later scene
+   starts below it, and content keeps clear of it on both sides. */
 .scene + .scene {
-  padding-top: calc(clamp(5.5rem, 9vh, 7.5rem) + 7vh);
+  padding-top: calc(clamp(5.5rem, 9vh, 7.5rem) + var(--blend));
 }
 .scene:has(+ .scene) {
-  padding-bottom: calc(clamp(3rem, 7vh, 5rem) + 9vh);
+  padding-bottom: calc(clamp(3rem, 7vh, 5rem) + var(--blend));
 }
 .scene + .scene .piece--top,
 .scene + .scene .piece--top-left,
 .scene + .scene .piece--top-right,
 .scene + .scene .piece--hang-left,
 .scene + .scene .piece--hang-right {
-  top: 7vh;
+  top: var(--blend);
+}
+.scene + .scene .scene__moon {
+  top: calc(var(--moon-y, 12%) + var(--blend));
 }
 /* The footer continues the night the last scene fades into. */
 body.has-backdrop .site-footer {
   background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.25) 60%);
 }
-/* The scrim and a borrowed set's tint fade with the set, so no layer of a
-   scene shows a straight edge where it overlaps its neighbour. */
-.scene::before,
-.scene__tint {
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 84%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 84%, transparent);
-}
-.scene--first::before {
-  -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent);
-  mask-image: linear-gradient(180deg, #000 84%, transparent);
+/* The scrim and a borrowed set's tint blend in with the set. */
+.scene + .scene::before,
+.scene + .scene .scene__tint {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
+  mask-image: linear-gradient(180deg, transparent, #000 var(--blend));
 }
 .piece--hang-left img,
 .piece--hang-right img {
