@@ -388,7 +388,7 @@ class _Nearby extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Material(
-                  color: Palette.night700,
+                  color: Palette.stagePlaque.withValues(alpha: 0.88),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                     side: const BorderSide(color: Palette.lantern400, width: 2),

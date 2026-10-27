@@ -1279,4 +1279,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get howDone => 'Verstanden';
+
+  @override
+  String get pagePlay => 'Spielen';
+
+  @override
+  String get pageAbout => 'Über';
+
+  @override
+  String get pageTable => 'Tisch';
+
+  @override
+  String get pageInvite => 'Einladen';
+
+  @override
+  String get pageGame => 'Spiel';
 }

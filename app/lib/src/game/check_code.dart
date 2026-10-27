@@ -38,16 +38,16 @@ class CheckCode extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Palette.night700,
+              color: Palette.stagePlaque,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Palette.lantern400, width: 2),
+              border: Border.all(color: Palette.stageBrassLight, width: 2),
             ),
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Icon(
                 checkSymbols[c % checkSymbols.length],
                 size: size,
-                color: Palette.moon100,
+                color: Palette.stageIvory,
               ),
             ),
           ),

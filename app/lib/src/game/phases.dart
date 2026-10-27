@@ -17,6 +17,7 @@ import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
+import 'package:whowolf/src/stage/stage_pages.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// Shared scaffold of every phase. On a phone it is one column; a wide
@@ -199,7 +200,6 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     final view = session.view!;
     final choice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: Palette.night800,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -264,89 +264,125 @@ class _LobbyPhaseState extends State<LobbyPhase> {
 
     final link = widget.link;
     final swapFrom = _swapFrom;
-    return PhaseBody(
-      action: session.isOwner
-          ? PrimaryButton(
-              label: l10n.startGame,
-              onPressed: canStart
-                  ? () => session.send(const StartGameIntent())
-                  : null,
-            )
-          : null,
-      children: [
-        Headline(l10n.lobbyTitle, eyebrow: l10n.eyebrowEvening),
-        for (final p in session.pending)
-          _PendingPanel(session: session, join: p),
-        if (session.isOwner && link != null)
-          _Invite(link: link, qr: widget.qr ?? link.encode()),
-        if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
-        if (session.isOwner && widget.keepAppOpen)
-          Body(l10n.keepAppOpenHint, muted: true),
-        if (session.isOwner && count < 2) const HelpLink(),
-        _PersonaPicker(session: session),
-        Aside(child: Headline(l10n.players(count))),
-        if (count > 1) Aside(child: Body(l10n.tableHint, muted: true)),
-        if (swapFrom != null)
-          Aside(
-            child: Panel(
-              highlight: true,
-              child: Body(l10n.swapHint(view.nameOf(swapFrom))),
-            ),
-          ),
-        Aside(
-          child: TableCircle(
-            view: view,
-            poseTick: _poseTick,
-            selected: swapFrom,
-            onTap: session.isOwner ? _tapSeat : null,
-          ),
-        ),
-        // What the table will play; the host can change it.
+    final action = session.isOwner
+        ? PrimaryButton(
+            label: l10n.startGame,
+            onPressed: canStart
+                ? () => session.send(const StartGameIntent())
+                : null,
+          )
+        : null;
+    final title = Headline(l10n.lobbyTitle, eyebrow: l10n.eyebrowEvening);
+    final pending = [
+      for (final p in session.pending) _PendingPanel(session: session, join: p),
+    ];
+    final invite = [
+      if (session.isOwner && link != null)
+        _Invite(link: link, qr: widget.qr ?? link.encode()),
+      if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
+      if (session.isOwner && widget.keepAppOpen)
+        Body(l10n.keepAppOpenHint, muted: true),
+      if (session.isOwner && count < 2) const HelpLink(),
+    ];
+    final table = [
+      Headline(l10n.players(count)),
+      if (count > 1) Body(l10n.tableHint, muted: true),
+      if (swapFrom != null)
         Panel(
-          child: Column(
-            children: [
-              Stamp(l10n.settingsName(settings), size: 17),
-              const SizedBox(height: 10),
-              if (roles != null)
-                Body(rolesLine(roles))
-              else if (count >= minPlayers)
-                Body(l10n.tooManyRoles(count), muted: true),
-              // Everyone sees live what the host sets up.
-              const SizedBox(height: 8),
-              Body(
-                settings.nightMode == NightMode.called
-                    ? l10n.lobbyNightCalled
-                    : l10n.lobbyNightTogether,
-                muted: true,
-              ),
-              if ([
-                    if (settings.narratorVoice) l10n.extraVoice,
-                    if (settings.sheepInPlay) l10n.extraSheep,
-                    if (settings.doorSignsInPlay) l10n.extraDoorSigns,
-                    if (settings.atmosphere) l10n.extraAtmosphere,
-                    if (settings.ghosts != GhostSight.off) l10n.extraGhosts,
-                    if (settings.tieRule == TieRule.runoff) l10n.extraRunoff,
-                  ]
-                  case final extras when extras.isNotEmpty)
-                Body(l10n.lobbyExtras(extras.join(', ')), muted: true),
-              if (session.isOwner) ...[
-                const SizedBox(height: 12),
-                SecondaryButton(
-                  label: l10n.settingsButton,
-                  expand: false,
-                  onPressed: () => showSettingsSheet(context, session),
-                ),
-              ],
-            ],
-          ),
+          highlight: true,
+          child: Body(l10n.swapHint(view.nameOf(swapFrom))),
         ),
-        if (session.isOwner) ...[
-          if (count < recommendedMinPlayers)
-            Body(l10n.fewPlayersHint, muted: true),
-          if (count < minPlayers)
-            Body(l10n.needPlayers(minPlayers), muted: true),
-        ] else
-          Body(l10n.waitingForOwner, muted: true),
+      TableCircle(
+        view: view,
+        poseTick: _poseTick,
+        selected: swapFrom,
+        onTap: session.isOwner ? _tapSeat : null,
+      ),
+    ];
+    // What the table will play; the host can change it.
+    final game = [
+      Panel(
+        child: Column(
+          children: [
+            Stamp(l10n.settingsName(settings), size: 17),
+            const SizedBox(height: 10),
+            if (roles != null)
+              Body(rolesLine(roles))
+            else if (count >= minPlayers)
+              Body(l10n.tooManyRoles(count), muted: true),
+            // Everyone sees live what the host sets up.
+            const SizedBox(height: 8),
+            Body(
+              settings.nightMode == NightMode.called
+                  ? l10n.lobbyNightCalled
+                  : l10n.lobbyNightTogether,
+              muted: true,
+            ),
+            if ([
+                  if (settings.narratorVoice) l10n.extraVoice,
+                  if (settings.sheepInPlay) l10n.extraSheep,
+                  if (settings.doorSignsInPlay) l10n.extraDoorSigns,
+                  if (settings.atmosphere) l10n.extraAtmosphere,
+                  if (settings.ghosts != GhostSight.off) l10n.extraGhosts,
+                  if (settings.tieRule == TieRule.runoff) l10n.extraRunoff,
+                ]
+                case final extras when extras.isNotEmpty)
+              Body(l10n.lobbyExtras(extras.join(', ')), muted: true),
+            if (session.isOwner) ...[
+              const SizedBox(height: 12),
+              SecondaryButton(
+                label: l10n.settingsButton,
+                expand: false,
+                onPressed: () => showSettingsSheet(context, session),
+              ),
+            ],
+          ],
+        ),
+      ),
+      if (session.isOwner) ...[
+        if (count < recommendedMinPlayers)
+          Body(l10n.fewPlayersHint, muted: true),
+        if (count < minPlayers) Body(l10n.needPlayers(minPlayers), muted: true),
+      ] else
+        Body(l10n.waitingForOwner, muted: true),
+    ];
+    if (!StageLayout.of(context).twoColumns) {
+      // Pages to swipe instead of one long scroll (task 012).
+      Widget page(List<Widget> children) => Column(
+        children: [
+          for (final (i, child) in children.indexed) ...[
+            if (i > 0) const SizedBox(height: 14),
+            child,
+          ],
+        ],
+      );
+      return StagePages(
+        action: action,
+        pages: [
+          (
+            label: l10n.pageTable,
+            child: page([
+              title,
+              ...pending,
+              _PersonaPicker(session: session),
+              ...table,
+            ]),
+          ),
+          if (invite.isNotEmpty)
+            (label: l10n.pageInvite, child: page([title, ...invite])),
+          (label: l10n.pageGame, child: page([title, ...game])),
+        ],
+      );
+    }
+    return PhaseBody(
+      action: action,
+      children: [
+        title,
+        ...pending,
+        ...invite,
+        _PersonaPicker(session: session),
+        for (final child in table) Aside(child: child),
+        ...game,
       ],
     );
   }

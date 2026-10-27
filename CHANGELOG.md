@@ -6,6 +6,14 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 ## Unreleased
 
 ### Added
+- A new look: every moment of the evening is a painted stage set by
+  moonlight, framed by wings that shift as you tilt your phone. The moon
+  tells the time, players are puppet cards in villager poses that change,
+  the curtain falls between phases, and the end is a curtain call in
+  costume.
+- Swipe instead of scroll: the start screen and the lobby are pages, like
+  a home screen. A short "How it works" sits on the start screen.
+- The figure choice is a shelf of all figures.
 - Ghosts: the dead can watch, holding a button to see every role and, if
   the table allows it, what happens at night and who votes for whom.
 - A tied vote leads to a runoff between the tied.
@@ -13,6 +21,7 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 ### Changed
 - In the lobby everyone picks their own figure among the free ones, at
   every level (Classic used to switch this off).
+- Phones play upright only.
 
 ## 0.1.2 – 2026-10-27
 

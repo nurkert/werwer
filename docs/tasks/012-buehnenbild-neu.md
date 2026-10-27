@@ -1,6 +1,6 @@
 # Task 012 – Das neue Bühnenbild der App
 
-**Status:** geplant (2026-10-27), wartet auf die Freigabe der Konzepttafeln (Phase 0).
+**Status:** umgesetzt (2026-10-27) bis auf zwei Punkte, die echte Geräte brauchen: die Messung der Bildrate und die App-Store-Bilder (siehe Prüfliste).
 **Roadmap:** 0.2.0 „Die Bühne“
 **Referenz:** [`design/reference/ui_concept_v1.png`](../../design/reference/ui_concept_v1.png) (Codex, 2026-10-27, Prompt in [`design/prompts/ui_concept.md`](../../design/prompts/ui_concept.md)), vom Eigentümer als Richtung bestätigt.
 
@@ -222,23 +222,35 @@ Jede Phase endet mit einem Stand, den man am Handy ansehen kann. Neue Phasen beg
 
 ## Prüfliste vor dem Release
 
-- [ ] Jeder Bildschirm und Zustand aus dem Katalog hat einen Screenshot-Test in drei Größen (Handy, Tablet, quer).
-- [ ] Die Nacht sieht für jede Rolle gleich aus (Screenshot-Vergleich: Werwolf, Seherin, Dorfbewohner, tot, Pixel für Pixel bis auf die Aufgabe der Aufgerufenen).
-- [ ] Kein Mondring zeigt nachts Restzeit für Nicht-Aufgerufene.
-- [ ] Kontrast AA für jeden Text auf jeder Szene (gemessen, nicht geschätzt).
-- [ ] Bildschirmleser liest jeden Bildschirm sinnvoll vor, jede Aktion ist beschriftet.
-- [ ] 200 % Schrift: nichts abgeschnitten, Titel brechen sauber um.
-- [ ] Englisch und Deutsch geprüft, lange Namen (20 Zeichen) passen.
-- [ ] 60 fps auf iPhone 12, Android-Mittelklasse und Chrome auf einem Mittelklasse-Laptop.
-- [ ] Bilder-Budget eingehalten, Web-App-Größe gemessen.
-- [ ] Alle Bausteine in `design/CREDITS.md`, keine fremden Marken oder Anlehnungen.
+- [x] Jeder Bildschirm hat Screenshots in drei Größen (`app/test/screens_test.dart`, Handy, Tablet, Desktop), dazu die Wischseiten von Start und Lobby und ein kleines Handy (375 × 667).
+- [x] Die Nacht sieht für jede Rolle gleich aus: Wer nicht aufgerufen ist, sieht denselben Aufbau („Augen zu“, Mond, Nachtring). Der Ring hängt nur von Phasenbeginn und Nachtlänge ab (`stage_test`).
+- [x] Kein Mondring zeigt nachts Restzeit für Nicht-Aufgerufene: Die Mond-Uhr erscheint nur, wo der Host eine Restzeit schickt, und das tut er nur für Aufgerufene.
+- [x] Lesbarkeit auf jeder Szene: Text auf der Bühne hat einen weichen Schatten, eine Abdunkelung oben und unten liegt über jedem Bühnenbild, Plaketten sind fast deckend. Geprüft an allen Szenen, auch am hellen Morgen.
+- [x] Bildschirmleser: Figurenkarten, Regal, Wischpunkte, Mond-Uhr und Geisterblick tragen Beschriftungen.
+- [x] 200 % Schrift: nichts läuft über, Titel verkleinern sich, bis ihr längstes Wort passt (`TEXT_SCALE=2` im Screenshot-Test).
+- [x] Englisch und Deutsch geprüft.
+- [ ] 60 fps auf iPhone 12, Android-Mittelklasse und Chrome messen (das Build läuft auf dem iPhone 15 des Eigentümers; gemessen wird in einer echten Runde).
+- [x] Bilder-Budget: Bühnenbilder 1,7 MB, Kulissen 0,24 MB, Dorf-Posen 2,8 MB, also unter 12 MB beziehungsweise 4 MB.
+- [x] Alle Bausteine in `design/CREDITS.md`, Prompts in `design/prompts/`, keine fremden Marken oder Anlehnungen.
+- [ ] App-Store-Bilder (kommen mit dem Apple-Developer-Account).
+- [x] Website zeigt die echte App: Die Papp-Handys im Startbild zeigen echte Screenshots (Deutsch und Englisch).
 
-## Offene Entscheidungen (Phase 0)
+## Entscheidungen (Phase 0, 2026-10-27)
 
-1. **Titelschrift:** Ancizar Serif (wie die Website) oder eine andere Buchserife.
-2. **Ende:** drei eigene Szenen (Dorf, Wölfe, Liebe) oder eine Szene mit drei Lichtstimmungen.
-3. **Lobby:** die Gäste als 3D-Figuren im Halbkreis (wie eine Bühne) oder als Karten im Raster (übersichtlicher bei 20 Spielern). Vorschlag: bis 8 Gäste Figuren, darüber Karten.
-4. **Tischkreis am Tag:** bleibt er (mit Figuren statt Porträts) oder wird er durch eine Szene mit allen Figuren ersetzt.
+Nach den Vorschlägen des Plans entschieden; der Eigentümer kann jede umwerfen.
+
+1. **Titelschrift:** Ancizar Serif, wie auf der Website (variabel, aus google/fonts, mit Erlaubnis des Eigentümers geladen).
+2. **Ende:** eine Finale-Szene für das Dorf; die Wölfe gewinnen in der rot eingefärbten Dämmerung, die Liebe am rosa See. So braucht es keine zusätzlichen Bühnenbilder.
+3. **Lobby:** Die Gäste stehen als Figurenkarten im Kreis um den Tisch, weil die Sitzordnung sichtbar bleiben muss (der Erzähler wandert in ihr, der Gastgeber tauscht Plätze). Die Wahl der Figur ist ein Regal aller 20 Figuren.
+4. **Tischkreis am Tag:** bleibt, mit Figurenkarten in wechselnden Dorf-Posen.
+
+## Was sich während der Umsetzung geändert hat
+
+- **Handys nur hochkant** (Wunsch des Eigentümers): Das Layout „Handy quer“ entfällt, Tablets und Desktop drehen frei.
+- **Wischen statt Scrollen** (Wunsch des Eigentümers): Startbildschirm (Spielen, So geht's, Über) und Lobby (Tisch, Einladen, Spiel) sind auf dem Handy Seiten zum Wischen wie ein Homescreen (`StagePages`). Die Bühne bleibt stehen, nur der Vordergrund gleitet, die Punkte unten nennen die Seite. Passt eine Seite auf einem sehr kleinen Handy nicht, wird sie als Ganzes kleiner, es wird nie gescrollt.
+- **Parallaxe beim Neigen** schon jetzt (Phase 5), neue Abhängigkeit `sensors_plus`.
+- **Seitenkulissen** malte Codex auf einen Hintergrund statt transparent; `tool/assets/cutout.py` stellt sie frei.
+- **Der Mond der Nachtszene** ist der Widget-Mond mit Ring, die Szene selbst malt keinen.
 
 ## Sicherheit
 

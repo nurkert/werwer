@@ -17,6 +17,7 @@ import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/privacy_screen.dart';
+import 'package:whowolf/src/stage/stage_pages.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// First screen: the wordmark, your name, open or join a room.
@@ -311,7 +312,7 @@ class _StartScreenState extends State<StartScreen> {
               ),
             ),
           ];
-          final form = [
+          final play = [
             if (_savedRoom case final saved?) ...[
               PrimaryButton(
                 label: l10n.restoreRoom,
@@ -343,6 +344,34 @@ class _StartScreenState extends State<StartScreen> {
             ),
             const SizedBox(height: 12),
             SecondaryButton(label: l10n.joinRoom, onPressed: _join),
+          ];
+          final about = [
+            Headline(l10n.pageAbout, eyebrow: 'Whowolf'),
+            const SizedBox(height: 18),
+            Panel(
+              child: Column(
+                children: [
+                  Stamp(l10n.devStamp(widget.version), size: 18),
+                  const SizedBox(height: 12),
+                  Body(l10n.testNote),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SecondaryButton(
+              label: l10n.settings,
+              icon: Icons.settings_outlined,
+              onPressed: _settings,
+            ),
+            const SizedBox(height: 12),
+            SecondaryButton(
+              label: l10n.privacyRead,
+              icon: Icons.shield_outlined,
+              onPressed: () => showPrivacy(context),
+            ),
+          ];
+          final form = [
+            ...play,
             const SizedBox(height: 6),
             TextButton.icon(
               onPressed: () => showHowItWorks(context),
@@ -355,12 +384,27 @@ class _StartScreenState extends State<StartScreen> {
             Body(l10n.testNote, muted: true),
           ];
           if (!layout.twoColumns) {
-            return StageScroll(
-              maxWidth: 440,
-              horizontal: 28,
-              child: Column(
-                children: [...stage, const SizedBox(height: 28), ...form],
-              ),
+            // Pages to swipe instead of one long scroll (task 012).
+            return StagePages(
+              pages: [
+                (
+                  label: l10n.pagePlay,
+                  child: Column(
+                    children: [...stage, const SizedBox(height: 22), ...play],
+                  ),
+                ),
+                (
+                  label: l10n.howTitle,
+                  child: Column(
+                    children: [
+                      Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
+                      const SizedBox(height: 16),
+                      const HowSteps(figure: 64),
+                    ],
+                  ),
+                ),
+                (label: l10n.pageAbout, child: Column(children: about)),
+              ],
             );
           }
           // Wide: the stage with its ensemble on the left, the form beside.

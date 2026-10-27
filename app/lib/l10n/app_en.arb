@@ -752,5 +752,10 @@
   "how4Text": "In the morning you find out who is gone. Then you argue: who could the werewolf be?",
   "how5Title": "Vote",
   "how5Text": "Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.",
-  "howDone": "Got it"
+  "howDone": "Got it",
+  "pagePlay": "Play",
+  "pageAbout": "About",
+  "pageTable": "Table",
+  "pageInvite": "Invite",
+  "pageGame": "Game"
 }

@@ -62,7 +62,7 @@ class _MarkFormState extends State<MarkForm> {
                 IconButton.outlined(
                   iconSize: 32,
                   onPressed: () => Navigator.pop(context, i),
-                  icon: Icon(checkSymbols[i], color: Palette.moon100),
+                  icon: Icon(checkSymbols[i], color: Palette.stageIvory),
                 ),
             ],
           ),
@@ -113,12 +113,12 @@ class _MarkFormState extends State<MarkForm> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: Palette.night700,
+                        color: Palette.stagePlaque,
                         borderRadius: BorderRadius.circular(Radii.s + 4),
                         border: Border.all(
                           color: _sign[slot] == null
-                              ? Palette.night500
-                              : Palette.lantern400,
+                              ? Palette.stageBrassDark
+                              : Palette.stageBrassLight,
                           width: 2,
                         ),
                       ),
@@ -128,8 +128,8 @@ class _MarkFormState extends State<MarkForm> {
                             : checkSymbols[_sign[slot]!],
                         size: 34,
                         color: _sign[slot] == null
-                            ? Palette.night500
-                            : Palette.moon100,
+                            ? Palette.stageBrassDark
+                            : Palette.stageIvory,
                       ),
                     ),
                   ),

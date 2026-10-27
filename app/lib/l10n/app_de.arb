@@ -370,5 +370,10 @@
   "how4Text": "Am Morgen erfahrt ihr, wer fehlt. Dann wird diskutiert: Wer könnte der Werwolf sein?",
   "how5Title": "Abstimmen",
   "how5Text": "Alle stimmen geheim auf dem Handy ab. Wer die meisten Stimmen hat, verlässt das Dorf.",
-  "howDone": "Verstanden"
+  "howDone": "Verstanden",
+  "pagePlay": "Spielen",
+  "pageAbout": "Über",
+  "pageTable": "Tisch",
+  "pageInvite": "Einladen",
+  "pageGame": "Spiel"
 }

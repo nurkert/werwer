@@ -75,7 +75,6 @@ Future<void> showPrivacyNoticeOnce(BuildContext context) async {
   final l10n = AppLocalizations.of(context);
   final read = await showModalBottomSheet<bool>(
     context: context,
-    backgroundColor: Palette.night800,
     isScrollControlled: true,
     builder: (context) => SafeArea(
       child: Padding(

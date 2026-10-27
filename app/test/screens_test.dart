@@ -317,6 +317,14 @@ void main() {
           );
           await _precache(tester);
           await shot.shoot('01-start');
+          // The start screen's other pages, swiped to like a home screen.
+          if (find.byType(PageView).evaluate().isNotEmpty) {
+            for (final page in ['how', 'about']) {
+              await tester.drag(find.byType(PageView), const Offset(-500, 0));
+              await tester.pumpAndSettle();
+              await shot.shoot('01-start-$page');
+            }
+          }
 
           // Find a seed per role, so every night screen gets a picture.
           final wanted = {Role.villager, Role.werewolf, Role.seer};
@@ -338,6 +346,11 @@ void main() {
                 () => Future<void>.delayed(const Duration(seconds: 2)),
               );
               await shot.shoot('02-lobby');
+              if (find.byType(PageView).evaluate().isNotEmpty) {
+                await tester.drag(find.byType(PageView), const Offset(-500, 0));
+                await tester.pumpAndSettle();
+                await shot.shoot('02-lobby-game');
+              }
             }
             table.ownerSends(const StartGameIntent());
             await tester.pump();
@@ -394,6 +407,15 @@ void main() {
           );
           await tester.pump();
           final l10n = await AppLocalizations.delegate.load(Locale(locale));
+          // On a phone the settings sit on the lobby's last page.
+          for (
+            var i = 0;
+            i < 3 && find.text(l10n.settingsButton).evaluate().isEmpty;
+            i++
+          ) {
+            await tester.drag(find.byType(PageView), const Offset(-500, 0));
+            await tester.pumpAndSettle();
+          }
           await tester.ensureVisible(find.text(l10n.settingsButton));
           await tester.tap(find.text(l10n.settingsButton));
           await tester.pump(const Duration(milliseconds: 400));

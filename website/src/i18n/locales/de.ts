@@ -244,6 +244,12 @@ const de = {
     vote: 'Wen verdächtigst du?',
     voteButton: 'Abstimmen',
     scroll: 'Scrollen zum Auspacken',
+    /** Language of the real app screenshots in the story phones. */
+    screens: 'de',
+    shotRole: 'Die App zeigt deine Rolle: die Magd als Dorfbewohnerin im Theater.',
+    shotEyes: 'Die Nacht in der App: Augen zu, der Vollmond mit seinem Ring.',
+    shotCalled: 'Die Werwölfe sind wach: Figurenkarten zur Wahl und die Mond-Uhr.',
+    shotSheep: 'Die Nacht für alle: Schäfchen zählen auf der Wiese.',
   },
   join: {
     metaTitle: 'Einladung zu einer Runde Whowolf',

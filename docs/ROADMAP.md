@@ -211,14 +211,14 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 **Ziel:** Die App sieht aus wie das freigegebene Konzept: jeder Moment ein Bühnenbild bei Mondlicht, Pappfiguren in 3D, eine ruhige, hochwertige Bedienung. Plan und Bildschirm-Katalog in [Task 012](tasks/012-buehnenbild-neu.md).
 
-- [ ] Phase 0: Konzepttafeln für alle Bildschirme und „Figuren in 3D“, Titelschrift entschieden
-- [ ] Phase 1: Tokens, Schriften, Komponenten mit Galerie und Screenshot-Tests
-- [ ] Phase 2: Bausteine (Szenen-Ebenen, Requisiten, Monde, Dorf-Posen aller 20 Figuren, Symbole)
-- [ ] Phase 3: der Kernabend (Start, Beitreten, Lobby, Rolle, Nacht, Abstimmung, Ende)
-- [ ] Phase 4: alle übrigen Bildschirme und Zustände
-- [ ] Phase 5: Bewegung (Vorhang, Wiegen, Mondring, Parallaxe)
-- [ ] Phase 6: Barrierefreiheit, Leistung, Screenshots, Store-Bilder
-- [ ] Phase 7: Website mit echten Screenshots angleichen
+- [x] Phase 0: Konzepttafeln für alle Bildschirme und „Figuren in 3D“, Titelschrift entschieden
+- [x] Phase 1: Tokens, Schriften, Komponenten (Screenshot-Tests in drei Größen statt eigener Galerie)
+- [x] Phase 2: Bausteine (elf Bühnenbilder, Seitenkulissen, Dorf-Posen aller 20 Figuren; Mond und Symbole gezeichnet)
+- [x] Phase 3: der Kernabend (Start, Beitreten, Lobby, Rolle, Nacht, Abstimmung, Ende)
+- [x] Phase 4: alle übrigen Bildschirme und Zustände, dazu Wischseiten statt Scrollen
+- [x] Phase 5: Bewegung (Vorhang, Wiegen mit Bodenschatten, Mondring, Parallaxe beim Neigen)
+- [ ] Phase 6: Barrierefreiheit, 200 % Schrift und Screenshots erledigt; Bildrate am Gerät und Store-Bilder offen
+- [x] Phase 7: Website zeigt echte Screenshots der neuen App
 - [x] Figurenwahl in der Lobby in jeder Stufe (2026-10-27)
 
 ---

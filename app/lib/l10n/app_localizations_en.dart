@@ -1267,4 +1267,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get howDone => 'Got it';
+
+  @override
+  String get pagePlay => 'Play';
+
+  @override
+  String get pageAbout => 'About';
+
+  @override
+  String get pageTable => 'Table';
+
+  @override
+  String get pageInvite => 'Invite';
+
+  @override
+  String get pageGame => 'Game';
 }

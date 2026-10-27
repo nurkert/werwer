@@ -2239,6 +2239,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Got it'**
   String get howDone;
+
+  /// No description provided for @pagePlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get pagePlay;
+
+  /// No description provided for @pageAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get pageAbout;
+
+  /// No description provided for @pageTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get pageTable;
+
+  /// No description provided for @pageInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get pageInvite;
+
+  /// No description provided for @pageGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get pageGame;
 }
 
 class _AppLocalizationsDelegate

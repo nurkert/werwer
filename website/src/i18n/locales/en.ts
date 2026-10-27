@@ -245,6 +245,12 @@ const en: Copy = {
     vote: 'Who do you suspect?',
     voteButton: 'Vote',
     scroll: 'Scroll to unbox',
+    /** Language of the real app screenshots in the story phones. */
+    screens: 'en',
+    shotRole: 'The app shows your role: the maid as a villager on the theatre stage.',
+    shotEyes: 'Night in the app: eyes closed, the full moon with its ring.',
+    shotCalled: 'The werewolves are awake: puppet cards to choose and the moon clock.',
+    shotSheep: 'Night for everyone: counting sheep on the meadow.',
   },
   join: {
     metaTitle: 'You are invited to a round of Whowolf',
