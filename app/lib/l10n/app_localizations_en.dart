@@ -994,7 +994,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyTitle => 'Privacy in the app';
 
   @override
-  String get privacyUpdated => 'Last updated: 26 October 2026';
+  String get privacyUpdated => 'Last updated: 27 October 2026';
 
   @override
   String get privacySummaryTitle => 'In short';
@@ -1015,7 +1015,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyServer =>
-      'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, run by the project owner (see the imprint on whowolf.de). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is our legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.';
+      'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, run by the project owner (see the imprint on whowolf.de). The server is located in Germany, hosted by ZAP-Hosting GmbH (Münster). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is our legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.';
 
   @override
   String get privacyDeviceTitle => 'On your device';
