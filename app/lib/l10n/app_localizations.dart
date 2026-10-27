@@ -1927,6 +1927,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Narrator\'s language'**
   String get settingsNarratorLanguage;
+
+  /// No description provided for @runoffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Runoff'**
+  String get runoffTitle;
+
+  /// No description provided for @runoffPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'A tie! Vote once more, only between these: {names}'**
+  String runoffPrompt(String names);
+
+  /// No description provided for @narrateRunoff.
+  ///
+  /// In en, this message translates to:
+  /// **'A tie. A runoff decides now.'**
+  String get narrateRunoff;
+
+  /// No description provided for @ghostHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghost sight: press and hold'**
+  String get ghostHold;
+
+  /// No description provided for @ghostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As a ghost you see more than the living. Give nothing away.'**
+  String get ghostHint;
+
+  /// No description provided for @ghostRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is who'**
+  String get ghostRoles;
+
+  /// No description provided for @ghostLovers.
+  ///
+  /// In en, this message translates to:
+  /// **'In love: {a} and {b}'**
+  String ghostLovers(String a, String b);
+
+  /// No description provided for @ghostTonight.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight'**
+  String get ghostTonight;
+
+  /// No description provided for @ghostPick.
+  ///
+  /// In en, this message translates to:
+  /// **'{who} → {whom}'**
+  String ghostPick(String who, String whom);
+
+  /// No description provided for @ghostVictim.
+  ///
+  /// In en, this message translates to:
+  /// **'The pack\'s victim: {name}'**
+  String ghostVictim(String name);
+
+  /// No description provided for @ghostSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'The seer saw {name}: {what}'**
+  String ghostSeen(String name, String what);
+
+  /// No description provided for @ghostPotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Potions used: {potions}'**
+  String ghostPotions(String potions);
+
+  /// No description provided for @potionHeal.
+  ///
+  /// In en, this message translates to:
+  /// **'healing potion'**
+  String get potionHeal;
+
+  /// No description provided for @potionPoison.
+  ///
+  /// In en, this message translates to:
+  /// **'poison'**
+  String get potionPoison;
+
+  /// No description provided for @ghostVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Votes'**
+  String get ghostVotes;
+
+  /// No description provided for @ghostNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has happened yet.'**
+  String get ghostNothingYet;
+
+  /// No description provided for @settingsGhosts.
+  ///
+  /// In en, this message translates to:
+  /// **'What the dead see'**
+  String get settingsGhosts;
+
+  /// No description provided for @ghostsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing'**
+  String get ghostsOff;
+
+  /// No description provided for @ghostsRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles'**
+  String get ghostsRoles;
+
+  /// No description provided for @ghostsEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get ghostsEverything;
+
+  /// No description provided for @settingsGhostsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only once they have nothing left to do, and only while holding a button.'**
+  String get settingsGhostsHint;
+
+  /// No description provided for @settingsRunoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Runoff on a tie (otherwise nobody goes)'**
+  String get settingsRunoff;
+
+  /// No description provided for @extraGhosts.
+  ///
+  /// In en, this message translates to:
+  /// **'ghosts watch'**
+  String get extraGhosts;
+
+  /// No description provided for @extraRunoff.
+  ///
+  /// In en, this message translates to:
+  /// **'runoff on a tie'**
+  String get extraRunoff;
 }
 
 class _AppLocalizationsDelegate

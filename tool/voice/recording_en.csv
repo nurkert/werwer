@@ -149,6 +149,11 @@ vote_late_2_en.mp3,This vote could decide everything. Choose wisely.,"Grave, slo
 vote_late_3_en.mp3,Only a few votes are left. Cast them now.,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_4_en.mp3,This is serious now. Who should go?,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_5_en.mp3,This may decide everything. Cast your vote.,"Grave, slow, the weight of it.",The vote in the endgame.
+runoff_1_en.mp3,A tie! A runoff decides now.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_2_en.mp3,"The village is divided. Vote again, only between the tied.","Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_3_en.mp3,It is a draw. A second vote is needed.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_4_en.mp3,No majority. Now the choice is only between the tied.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_5_en.mp3,"Exactly as many votes each. So once more, and this time every vote counts.","Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
 voted_out_1_en.mp3,The village has decided.,Solemn.,The vote has a result (the narrator walks to that seat).
 voted_out_2_en.mp3,The votes are counted. The village has spoken.,Solemn.,The vote has a result (the narrator walks to that seat).
 voted_out_3_en.mp3,So be it. This person must leave.,Solemn.,The vote has a result (the narrator walks to that seat).

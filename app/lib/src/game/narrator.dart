@@ -18,6 +18,11 @@ String? narration(
   if (before != null &&
       before.phase == after.phase &&
       before.round == after.round) {
+    if (after.phase == Phase.vote &&
+        before.runoff.isEmpty &&
+        after.runoff.isNotEmpty) {
+      return l10n.narrateRunoff;
+    }
     // In the called night the narrator wakes one role after another.
     if (called &&
         after.phase == Phase.night &&

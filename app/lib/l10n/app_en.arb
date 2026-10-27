@@ -578,7 +578,13 @@
   "nightEyesClosed": "Eyes closed",
   "nightEyesClosedHint": "Put your phone down until the narrator wakes you.",
   "nightAwakeNow": "Awake now: {who}",
-  "@nightAwakeNow": {"placeholders": {"who": {"type": "String"}}},
+  "@nightAwakeNow": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
   "nightWerewolves": "the werewolves",
   "nightYourTurn": "Your turn. Eyes open!",
   "settingsNight": "The night",
@@ -609,7 +615,13 @@
   "lobbyNightCalled": "At night the narrator calls the roles; everyone else keeps their eyes closed.",
   "lobbyNightTogether": "At night everyone taps at once, so nobody stands out.",
   "lobbyExtras": "Plus: {list}",
-  "@lobbyExtras": {"placeholders": {"list": {"type": "String"}}},
+  "@lobbyExtras": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
   "extraVoice": "narrator's voice",
   "extraSheep": "counting sheep",
   "extraDoorSigns": "door signs",
@@ -623,5 +635,80 @@
   "inviteHintWeb": "Scan the code with the Whowolf app, or without the app with your phone's camera to play in the browser.",
   "language": "Language",
   "languageSystem": "Like the system",
-  "settingsNarratorLanguage": "Narrator's language"
+  "settingsNarratorLanguage": "Narrator's language",
+  "runoffTitle": "Runoff",
+  "runoffPrompt": "A tie! Vote once more, only between these: {names}",
+  "@runoffPrompt": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "narrateRunoff": "A tie. A runoff decides now.",
+  "ghostHold": "Ghost sight: press and hold",
+  "ghostHint": "As a ghost you see more than the living. Give nothing away.",
+  "ghostRoles": "Who is who",
+  "ghostLovers": "In love: {a} and {b}",
+  "@ghostLovers": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostTonight": "Tonight",
+  "ghostPick": "{who} → {whom}",
+  "@ghostPick": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "whom": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostVictim": "The pack's victim: {name}",
+  "@ghostVictim": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostSeen": "The seer saw {name}: {what}",
+  "@ghostSeen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "ghostPotions": "Potions used: {potions}",
+  "@ghostPotions": {
+    "placeholders": {
+      "potions": {
+        "type": "String"
+      }
+    }
+  },
+  "potionHeal": "healing potion",
+  "potionPoison": "poison",
+  "ghostVotes": "Votes",
+  "ghostNothingYet": "Nothing has happened yet.",
+  "settingsGhosts": "What the dead see",
+  "ghostsOff": "Nothing",
+  "ghostsRoles": "Roles",
+  "ghostsEverything": "Everything",
+  "settingsGhostsHint": "Only once they have nothing left to do, and only while holding a button.",
+  "settingsRunoff": "Runoff on a tie (otherwise nobody goes)",
+  "extraGhosts": "ghosts watch",
+  "extraRunoff": "runoff on a tie"
 }

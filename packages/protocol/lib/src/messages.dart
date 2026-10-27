@@ -15,7 +15,9 @@ import 'package:protocol/src/view_codec.dart';
 /// 5: the called night (night mode setting, a step per role), clock
 /// sync (times in ping and pong, the phase's start in the state).
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
-const protocolVersion = 6;
+/// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
+/// candidates in the view).
+const protocolVersion = 7;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).

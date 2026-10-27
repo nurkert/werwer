@@ -1100,4 +1100,90 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsNarratorLanguage => 'Sprache des Erzählers';
+
+  @override
+  String get runoffTitle => 'Stichwahl';
+
+  @override
+  String runoffPrompt(String names) {
+    return 'Gleichstand! Stimmt noch einmal ab, nur zwischen: $names';
+  }
+
+  @override
+  String get narrateRunoff => 'Gleichstand. Jetzt entscheidet eine Stichwahl.';
+
+  @override
+  String get ghostHold => 'Geisterblick: gedrückt halten';
+
+  @override
+  String get ghostHint =>
+      'Als Geist siehst du mehr als die Lebenden. Verrate nichts.';
+
+  @override
+  String get ghostRoles => 'Wer ist wer';
+
+  @override
+  String ghostLovers(String a, String b) {
+    return 'Verliebt: $a und $b';
+  }
+
+  @override
+  String get ghostTonight => 'Heute Nacht';
+
+  @override
+  String ghostPick(String who, String whom) {
+    return '$who → $whom';
+  }
+
+  @override
+  String ghostVictim(String name) {
+    return 'Opfer des Rudels: $name';
+  }
+
+  @override
+  String ghostSeen(String name, String what) {
+    return 'Die Seherin sah $name: $what';
+  }
+
+  @override
+  String ghostPotions(String potions) {
+    return 'Benutzte Tränke: $potions';
+  }
+
+  @override
+  String get potionHeal => 'Heiltrank';
+
+  @override
+  String get potionPoison => 'Gift';
+
+  @override
+  String get ghostVotes => 'Stimmen';
+
+  @override
+  String get ghostNothingYet => 'Noch ist nichts passiert.';
+
+  @override
+  String get settingsGhosts => 'Was die Toten sehen';
+
+  @override
+  String get ghostsOff => 'Nichts';
+
+  @override
+  String get ghostsRoles => 'Rollen';
+
+  @override
+  String get ghostsEverything => 'Alles';
+
+  @override
+  String get settingsGhostsHint =>
+      'Erst wenn sie nichts mehr zu tun haben, und nur solange ein Knopf gedrückt ist.';
+
+  @override
+  String get settingsRunoff => 'Stichwahl bei Gleichstand (sonst geht niemand)';
+
+  @override
+  String get extraGhosts => 'Geister schauen zu';
+
+  @override
+  String get extraRunoff => 'Stichwahl bei Gleichstand';
 }

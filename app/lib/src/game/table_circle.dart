@@ -68,7 +68,7 @@ class TableCircle extends StatelessWidget {
                       portrait: portrait,
                       subtitle: [
                         if (seat.id == view.you) l10n.you,
-                        if (seat.role != null) l10n.role(seat.role!),
+                        ?openRole(view, seat, l10n),
                         if (!seat.isAlive) l10n.dead,
                         ?badges[seat.id],
                       ].join(' · '),

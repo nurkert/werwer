@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (de)
 
-189 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -154,6 +154,11 @@
 | `vote_late_3_de.mp3` | Nur noch wenige Stimmen sind übrig. Gebt sie jetzt ab. | Grave, slow, the weight of it. |
 | `vote_late_4_de.mp3` | Es wird ernst. Wer soll gehen? | Grave, slow, the weight of it. |
 | `vote_late_5_de.mp3` | Jetzt entscheidet sich vielleicht alles. Gebt eure Stimme ab. | Grave, slow, the weight of it. |
+| `runoff_1_de.mp3` | Gleichstand! Jetzt entscheidet eine Stichwahl. | Tense, a little surprised, quick. |
+| `runoff_2_de.mp3` | Das Dorf ist sich uneins. Stimmt noch einmal ab, nur zwischen den Gleichplatzierten. | Tense, a little surprised, quick. |
+| `runoff_3_de.mp3` | Es steht unentschieden. Eine zweite Abstimmung muss her. | Tense, a little surprised, quick. |
+| `runoff_4_de.mp3` | Keine Mehrheit. Jetzt bleibt nur noch die Wahl zwischen den Gleichplatzierten. | Tense, a little surprised, quick. |
+| `runoff_5_de.mp3` | Genau gleich viele Stimmen. Also noch einmal, und diesmal zählt jede. | Tense, a little surprised, quick. |
 | `voted_out_1_de.mp3` | Das Dorf hat entschieden. | Solemn. |
 | `voted_out_2_de.mp3` | Die Stimmen sind gezählt. Das Dorf hat gesprochen. | Solemn. |
 | `voted_out_3_de.mp3` | So soll es sein. Diese Person muss gehen. | Solemn. |

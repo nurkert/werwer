@@ -736,6 +736,25 @@
    ]
   },
   {
+   "key": "runoff",
+   "when": "The vote was tied: a runoff between the tied only follows (the screen names them).",
+   "direction": "Tense, a little surprised, quick.",
+   "de": [
+    "Gleichstand! Jetzt entscheidet eine Stichwahl.",
+    "Das Dorf ist sich uneins. Stimmt noch einmal ab, nur zwischen den Gleichplatzierten.",
+    "Es steht unentschieden. Eine zweite Abstimmung muss her.",
+    "Keine Mehrheit. Jetzt bleibt nur noch die Wahl zwischen den Gleichplatzierten.",
+    "Genau gleich viele Stimmen. Also noch einmal, und diesmal zählt jede."
+   ],
+   "en": [
+    "A tie! A runoff decides now.",
+    "The village is divided. Vote again, only between the tied.",
+    "It is a draw. A second vote is needed.",
+    "No majority. Now the choice is only between the tied.",
+    "Exactly as many votes each. So once more, and this time every vote counts."
+   ]
+  },
+  {
    "key": "voted_out",
    "when": "The vote has a result (the narrator walks to that seat).",
    "direction": "Solemn.",

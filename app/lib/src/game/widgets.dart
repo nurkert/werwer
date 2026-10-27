@@ -251,6 +251,21 @@ class Stamp extends StatelessWidget {
 }
 
 /// The seats as tappable cards.
+/// The role to print on [seat]'s card for everyone to see. A ghost knows
+/// every role, but shows openly only its own and those revealed at death:
+/// the rest stays behind the held ghost sight, away from the neighbours.
+String? openRole(PlayerView view, SeatView seat, AppLocalizations l10n) {
+  final role = seat.role;
+  if (role == null) return null;
+  if (view.yourGhostSight == GhostSight.off || seat.id == view.you) {
+    return l10n.role(role);
+  }
+  final revealed = view.deaths.any(
+    (d) => d.player == seat.id && d.role != null,
+  );
+  return revealed ? l10n.role(role) : null;
+}
+
 class SeatGrid extends StatelessWidget {
   const SeatGrid({
     required this.view,
@@ -309,7 +324,7 @@ class SeatGrid extends StatelessWidget {
                 onTap: () => onTap?.call(seat),
                 subtitle: [
                   if (seat.id == view.you) l10n.you,
-                  if (seat.role != null) l10n.role(seat.role!),
+                  ?openRole(view, seat, l10n),
                   ?badges[seat.id],
                 ].where((part) => part.isNotEmpty).join(' · '),
                 deadLabel: l10n.dead,

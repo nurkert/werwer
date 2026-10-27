@@ -8,6 +8,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/figures.dart';
+import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/settings_sheet.dart';
@@ -258,6 +259,8 @@ class _LobbyPhaseState extends State<LobbyPhase> {
                     if (settings.doorSignsInPlay) l10n.extraDoorSigns,
                     if (settings.atmosphere) l10n.extraAtmosphere,
                     if (settings.personaChoice) l10n.extraPersonas,
+                    if (settings.ghosts != GhostSight.off) l10n.extraGhosts,
+                    if (settings.tieRule == TieRule.runoff) l10n.extraRunoff,
                   ]
                   case final extras when extras.isNotEmpty)
                 Body(l10n.lobbyExtras(extras.join(', ')), muted: true),
@@ -797,7 +800,7 @@ class DayPhase extends StatelessWidget {
         Headline(l10n.dayTitle(view.round)),
         LastNews(view: view),
         CoupleNote(view: view),
-        if (!view.yourSeat.isAlive) Body(l10n.youAreDead),
+        if (!view.yourSeat.isAlive) GhostPanel(view: view),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
         if (sheep) Aside(child: Headline(l10n.sleepTitle, size: 28)),
@@ -884,19 +887,29 @@ class VotePhase extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
     final vote = view.yourVote;
+    final runoff = view.runoff.isNotEmpty;
     return PhaseBody(
       children: [
-        Headline(l10n.voteTitle),
+        Headline(runoff ? l10n.runoffTitle : l10n.voteTitle),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
-          Body(l10n.youAreDead)
+          GhostPanel(view: view)
         else ...[
-          Body(l10n.votePrompt),
+          Body(
+            runoff
+                ? l10n.runoffPrompt(view.runoff.map(view.nameOf).join(', '))
+                : l10n.votePrompt,
+          ),
           Countdown(endsAt: session.phaseEndsAt),
           Aside(
             child: SeatGrid(
               view: view,
               selected: vote,
+              // In a runoff only the tied can be chosen.
+              enabled: runoff
+                  ? (seat) =>
+                        view.runoff.contains(seat.id) && seat.id != view.you
+                  : null,
               onTap: (seat) {
                 SoundScope.play(context, Sound.ballot);
                 session.send(VoteIntent(seat.id));

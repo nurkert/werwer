@@ -16,6 +16,7 @@ void main() {
     GameSettings settings = const GameSettings(),
     Faction? winner,
     PlayerId? shooter,
+    List<PlayerId> runoff = const [],
   }) => PlayerView(
     you: ada,
     phase: phase,
@@ -32,6 +33,7 @@ void main() {
     settings: settings,
     winner: winner,
     shooter: shooter,
+    runoff: runoff,
   );
   final classic = Preset.classic.settings;
   List<String> keys(List<Spoken> spoken) => [for (final s in spoken) s.key];
@@ -152,6 +154,18 @@ void main() {
     expect(storyFacts(later), {'deaths', 'wolves', 'witch'});
   });
 
+  test('a tie announces the runoff', () {
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.vote, 2),
+          view(Phase.vote, 2, runoff: [ada, bo]),
+        ),
+      ),
+      ['runoff'],
+    );
+  });
+
   test('the end names the winner', () {
     final end = spokenMoments(
       view(Phase.vote, 3),
@@ -190,6 +204,7 @@ void main() {
       'vote',
       'voted_out',
       'vote_tie',
+      'runoff',
       'hunter',
       'win_village',
       'win_wolves',

@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (en)
 
-189 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -154,6 +154,11 @@
 | `vote_late_3_en.mp3` | Only a few votes are left. Cast them now. | Grave, slow, the weight of it. |
 | `vote_late_4_en.mp3` | This is serious now. Who should go? | Grave, slow, the weight of it. |
 | `vote_late_5_en.mp3` | This may decide everything. Cast your vote. | Grave, slow, the weight of it. |
+| `runoff_1_en.mp3` | A tie! A runoff decides now. | Tense, a little surprised, quick. |
+| `runoff_2_en.mp3` | The village is divided. Vote again, only between the tied. | Tense, a little surprised, quick. |
+| `runoff_3_en.mp3` | It is a draw. A second vote is needed. | Tense, a little surprised, quick. |
+| `runoff_4_en.mp3` | No majority. Now the choice is only between the tied. | Tense, a little surprised, quick. |
+| `runoff_5_en.mp3` | Exactly as many votes each. So once more, and this time every vote counts. | Tense, a little surprised, quick. |
 | `voted_out_1_en.mp3` | The village has decided. | Solemn. |
 | `voted_out_2_en.mp3` | The votes are counted. The village has spoken. | Solemn. |
 | `voted_out_3_en.mp3` | So be it. This person must leave. | Solemn. |

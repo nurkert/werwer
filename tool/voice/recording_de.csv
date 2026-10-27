@@ -149,6 +149,11 @@ vote_late_2_de.mp3,Diese Abstimmung kann alles entscheiden. Wählt mit Bedacht.,
 vote_late_3_de.mp3,Nur noch wenige Stimmen sind übrig. Gebt sie jetzt ab.,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_4_de.mp3,Es wird ernst. Wer soll gehen?,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_5_de.mp3,Jetzt entscheidet sich vielleicht alles. Gebt eure Stimme ab.,"Grave, slow, the weight of it.",The vote in the endgame.
+runoff_1_de.mp3,Gleichstand! Jetzt entscheidet eine Stichwahl.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_2_de.mp3,"Das Dorf ist sich uneins. Stimmt noch einmal ab, nur zwischen den Gleichplatzierten.","Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_3_de.mp3,Es steht unentschieden. Eine zweite Abstimmung muss her.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_4_de.mp3,Keine Mehrheit. Jetzt bleibt nur noch die Wahl zwischen den Gleichplatzierten.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
+runoff_5_de.mp3,"Genau gleich viele Stimmen. Also noch einmal, und diesmal zählt jede.","Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
 voted_out_1_de.mp3,Das Dorf hat entschieden.,Solemn.,The vote has a result (the narrator walks to that seat).
 voted_out_2_de.mp3,Die Stimmen sind gezählt. Das Dorf hat gesprochen.,Solemn.,The vote has a result (the narrator walks to that seat).
 voted_out_3_de.mp3,So soll es sein. Diese Person muss gehen.,Solemn.,The vote has a result (the narrator walks to that seat).

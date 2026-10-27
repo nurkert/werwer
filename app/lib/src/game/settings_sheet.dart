@@ -204,6 +204,47 @@ class _SettingsBody extends StatelessWidget {
           value: s.seerSeesRole,
           onChanged: (v) => onChanged(s.copyWith(seerSeesRole: v)),
         ),
+        _Switch(
+          label: l10n.settingsRunoff,
+          value: s.tieRule == TieRule.runoff,
+          onChanged: (v) => onChanged(
+            s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.settingsGhosts,
+                style: const TextStyle(color: Palette.moon100),
+              ),
+            ),
+            SegmentedButton<GhostSight>(
+              segments: [
+                ButtonSegment(
+                  value: GhostSight.off,
+                  label: Text(l10n.ghostsOff),
+                ),
+                ButtonSegment(
+                  value: GhostSight.roles,
+                  label: Text(l10n.ghostsRoles),
+                ),
+                ButtonSegment(
+                  value: GhostSight.everything,
+                  label: Text(l10n.ghostsEverything),
+                ),
+              ],
+              selected: {s.ghosts},
+              onSelectionChanged: (v) => onChanged(s.copyWith(ghosts: v.first)),
+            ),
+          ],
+        ),
+        if (s.ghosts != GhostSight.off)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Body(l10n.settingsGhostsHint, muted: true),
+          ),
         _Section(l10n.settingsExtras),
         // Both need the phones in hand at night: not in the called night.
         if (s.nightMode == NightMode.together) ...[

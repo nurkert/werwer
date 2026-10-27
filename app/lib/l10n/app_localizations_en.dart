@@ -1088,4 +1088,90 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNarratorLanguage => 'Narrator\'s language';
+
+  @override
+  String get runoffTitle => 'Runoff';
+
+  @override
+  String runoffPrompt(String names) {
+    return 'A tie! Vote once more, only between these: $names';
+  }
+
+  @override
+  String get narrateRunoff => 'A tie. A runoff decides now.';
+
+  @override
+  String get ghostHold => 'Ghost sight: press and hold';
+
+  @override
+  String get ghostHint =>
+      'As a ghost you see more than the living. Give nothing away.';
+
+  @override
+  String get ghostRoles => 'Who is who';
+
+  @override
+  String ghostLovers(String a, String b) {
+    return 'In love: $a and $b';
+  }
+
+  @override
+  String get ghostTonight => 'Tonight';
+
+  @override
+  String ghostPick(String who, String whom) {
+    return '$who → $whom';
+  }
+
+  @override
+  String ghostVictim(String name) {
+    return 'The pack\'s victim: $name';
+  }
+
+  @override
+  String ghostSeen(String name, String what) {
+    return 'The seer saw $name: $what';
+  }
+
+  @override
+  String ghostPotions(String potions) {
+    return 'Potions used: $potions';
+  }
+
+  @override
+  String get potionHeal => 'healing potion';
+
+  @override
+  String get potionPoison => 'poison';
+
+  @override
+  String get ghostVotes => 'Votes';
+
+  @override
+  String get ghostNothingYet => 'Nothing has happened yet.';
+
+  @override
+  String get settingsGhosts => 'What the dead see';
+
+  @override
+  String get ghostsOff => 'Nothing';
+
+  @override
+  String get ghostsRoles => 'Roles';
+
+  @override
+  String get ghostsEverything => 'Everything';
+
+  @override
+  String get settingsGhostsHint =>
+      'Only once they have nothing left to do, and only while holding a button.';
+
+  @override
+  String get settingsRunoff => 'Runoff on a tie (otherwise nobody goes)';
+
+  @override
+  String get extraGhosts => 'ghosts watch';
+
+  @override
+  String get extraRunoff => 'runoff on a tie';
 }

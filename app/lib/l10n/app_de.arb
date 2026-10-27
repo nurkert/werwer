@@ -261,7 +261,13 @@
   "nightEyesClosed": "Augen zu",
   "nightEyesClosedHint": "Leg das Handy weg, bis der Erzähler dich weckt.",
   "nightAwakeNow": "Gerade wach: {who}",
-  "@nightAwakeNow": {"placeholders": {"who": {"type": "String"}}},
+  "@nightAwakeNow": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
   "nightWerewolves": "die Werwölfe",
   "nightYourTurn": "Du bist dran. Augen auf!",
   "settingsNight": "Die Nacht",
@@ -292,7 +298,13 @@
   "lobbyNightCalled": "Nachts ruft der Erzähler die Rollen auf, alle anderen haben die Augen zu.",
   "lobbyNightTogether": "Nachts tippen alle zugleich, damit niemand auffällt.",
   "lobbyExtras": "Dazu: {list}",
-  "@lobbyExtras": {"placeholders": {"list": {"type": "String"}}},
+  "@lobbyExtras": {
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
   "extraVoice": "Erzählerstimme",
   "extraSheep": "Schäfchen zählen",
   "extraDoorSigns": "Türzeichen",
@@ -306,5 +318,29 @@
   "inviteHintWeb": "Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.",
   "language": "Sprache",
   "languageSystem": "Wie das System",
-  "settingsNarratorLanguage": "Sprache des Erzählers"
+  "settingsNarratorLanguage": "Sprache des Erzählers",
+  "runoffTitle": "Stichwahl",
+  "runoffPrompt": "Gleichstand! Stimmt noch einmal ab, nur zwischen: {names}",
+  "narrateRunoff": "Gleichstand. Jetzt entscheidet eine Stichwahl.",
+  "ghostHold": "Geisterblick: gedrückt halten",
+  "ghostHint": "Als Geist siehst du mehr als die Lebenden. Verrate nichts.",
+  "ghostRoles": "Wer ist wer",
+  "ghostLovers": "Verliebt: {a} und {b}",
+  "ghostTonight": "Heute Nacht",
+  "ghostPick": "{who} → {whom}",
+  "ghostVictim": "Opfer des Rudels: {name}",
+  "ghostSeen": "Die Seherin sah {name}: {what}",
+  "ghostPotions": "Benutzte Tränke: {potions}",
+  "potionHeal": "Heiltrank",
+  "potionPoison": "Gift",
+  "ghostVotes": "Stimmen",
+  "ghostNothingYet": "Noch ist nichts passiert.",
+  "settingsGhosts": "Was die Toten sehen",
+  "ghostsOff": "Nichts",
+  "ghostsRoles": "Rollen",
+  "ghostsEverything": "Alles",
+  "settingsGhostsHint": "Erst wenn sie nichts mehr zu tun haben, und nur solange ein Knopf gedrückt ist.",
+  "settingsRunoff": "Stichwahl bei Gleichstand (sonst geht niemand)",
+  "extraGhosts": "Geister schauen zu",
+  "extraRunoff": "Stichwahl bei Gleichstand"
 }

@@ -195,6 +195,13 @@ class Atmosphere {
     }
     if (changed && phase == Phase.roleReveal) _sounds.play(Sound.start);
     if (changed && phase == Phase.vote) _sounds.play(Sound.vote);
+    // A tie: the bell again for the runoff.
+    if (!changed &&
+        phase == Phase.vote &&
+        before.runoff.isEmpty &&
+        view.runoff.isNotEmpty) {
+      _sounds.play(Sound.vote);
+    }
     if (changed && before.phase == Phase.hunterShot) {
       _sounds.play(Sound.bowstring);
     }

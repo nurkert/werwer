@@ -6,6 +6,7 @@ import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/door_sign.dart';
+import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/sheep.dart';
@@ -140,7 +141,7 @@ class _NightPhaseState extends State<NightPhase> {
         if (view.nightStep == NightStep.hunt) LastNews(view: view),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
-          Body(l10n.youAreDead)
+          GhostPanel(view: view)
         else ...[
           // Everyone's own sign, big: a reason for every player, not just
           // the werewolves, to keep their screen to themselves.
@@ -196,7 +197,7 @@ class _NightPhaseState extends State<NightPhase> {
         if (first) LastNews(view: view),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
-          Body(l10n.youAreDead)
+          GhostPanel(view: view)
         else if (task != null && !view.youActed)
           Panel(
             highlight: true,

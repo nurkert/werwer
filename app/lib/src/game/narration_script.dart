@@ -17,6 +17,11 @@ List<Spoken> spokenMoments(PlayerView? before, PlayerView after) {
       before.phase == after.phase &&
       before.round == after.round;
   if (samePhase) {
+    if (after.phase == Phase.vote &&
+        before.runoff.isEmpty &&
+        after.runoff.isNotEmpty) {
+      return [say('runoff')];
+    }
     if (called &&
         after.phase == Phase.night &&
         before.nightStep != after.nightStep) {
