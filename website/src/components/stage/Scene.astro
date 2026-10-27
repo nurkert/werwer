@@ -9,8 +9,8 @@ import { Picture } from 'astro:assets';
 export interface ScenePiece {
   src: ImageMetadata;
   /** Where it stands. */
-  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top';
-  /** Height as a part of the scene (CSS length or percentage). */
+  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top' | 'hang-left' | 'hang-right';
+  /** Height in hundredths of the screen's height (top pieces: a CSS length). */
   h: string;
   /** How much of it hides beyond the edge (desktop / phone). */
   hide?: string;
@@ -75,6 +75,7 @@ const loading = first ? 'eager' : 'lazy';
           piece.hide && `--hide: ${piece.hide}`,
           piece.hidePhone && `--hide-phone: ${piece.hidePhone}`,
           piece.inset && (piece.at.includes('left') ? `margin-left: ${piece.inset}` : `margin-right: ${piece.inset}`),
+          piece.at === 'top' && `--top-h: ${piece.h}`,
         ]
           .filter(Boolean)
           .join('; ')}
