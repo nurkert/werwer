@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -463,9 +464,10 @@ class _FigureStage extends StatefulWidget {
 }
 
 class _FigureStageState extends State<_FigureStage>
-    with SingleTickerProviderStateMixin {
-  /// The figure shown: it turns away to its edge, becomes the new one
-  /// exactly there, where neither front nor back shows, and turns back.
+    with TickerProviderStateMixin {
+  /// The figure on the big stage. A figure picked from the cards flies up
+  /// there with a turn; a change from elsewhere (the host refused, another
+  /// device) turns it to its edge, swaps it there, and turns it back.
   late Persona _shown;
   Persona? _target;
   late final AnimationController _flip = AnimationController(
@@ -473,6 +475,20 @@ class _FigureStageState extends State<_FigureStage>
     duration: const Duration(milliseconds: 560),
   );
   final ValueNotifier<double> _angle = ValueNotifier(0);
+
+  /// The figure on its way from its card to the stage.
+  Persona? _flying;
+
+  /// The figure that left the stage and slides back into its card.
+  Persona? _returning;
+
+  final GlobalKey _stage = GlobalKey();
+  final Map<Persona, GlobalKey> _cards = {
+    for (final p in Persona.values) p: GlobalKey(),
+  };
+  final List<(OverlayEntry, AnimationController)> _flights = [];
+
+  static const _flight = Duration(milliseconds: 680);
 
   @override
   void initState() {
@@ -499,7 +515,7 @@ class _FigureStageState extends State<_FigureStage>
 
   void _follow() {
     final mine = widget.session.view?.yourSeat.persona;
-    if (mine == null || mine == _shown || !mounted) return;
+    if (mine == null || mine == _shown || _flying != null || !mounted) return;
     _target = mine;
     if (MediaQuery.of(context).disableAnimations) {
       setState(() => _shown = mine);
@@ -516,17 +532,137 @@ class _FigureStageState extends State<_FigureStage>
 
   @override
   void dispose() {
+    for (final (entry, controller) in _flights) {
+      entry.remove();
+      controller.dispose();
+    }
     _flip.dispose();
     _angle.dispose();
     super.dispose();
   }
 
   void _pick(Persona persona) {
-    if (persona == widget.session.view!.yourSeat.persona) return;
-    // Ready before the figure reaches its edge.
+    if (persona == widget.session.view!.yourSeat.persona || _flying != null) {
+      return;
+    }
     unawaited(precacheImage(AssetImage(personaAsset(persona)), context));
     SoundScope.play(context, Sound.tap);
     widget.session.send(PersonaIntent(persona));
+    _fly(persona);
+  }
+
+  static Rect? _rectOf(GlobalKey key) {
+    final box = key.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  /// The picked figure grows out of its card and flies up to the stage
+  /// with a turn while the page scrolls back up; the old one leaves the
+  /// stage upwards and slides back into its card. Only what is on the
+  /// screen moves.
+  void _fly(Persona persona) {
+    final from = _rectOf(_cards[persona]!);
+    final stage = _rectOf(_stage);
+    if (MediaQuery.of(context).disableAnimations ||
+        from == null ||
+        stage == null) {
+      setState(() => _shown = persona);
+      return;
+    }
+    final screen = MediaQuery.sizeOf(context);
+    final scroll = Scrollable.maybeOf(context)?.position;
+    final scrolled = scroll?.pixels ?? 0;
+    final old = _shown;
+    if (stage.bottom > 0 && stage.top < screen.height) {
+      _launch(
+        old,
+        from: stage,
+        to: stage.shift(Offset(0, -stage.bottom - 60)),
+        turns: 0,
+        duration: const Duration(milliseconds: 420),
+        curve: Curves.easeInCubic,
+      );
+    }
+    setState(() {
+      _flying = persona;
+      _returning = old;
+    });
+    if (scroll != null && scrolled > 0) {
+      unawaited(
+        scroll.animateTo(0, duration: _flight, curve: Curves.easeInOutCubic),
+      );
+    }
+    _launch(
+      persona,
+      from: from,
+      to: stage.shift(Offset(0, scrolled)),
+      turns: 1,
+      duration: _flight,
+      curve: Curves.easeInOutCubic,
+      done: () => setState(() {
+        _shown = persona;
+        _flying = null;
+        _target = null;
+        _follow();
+      }),
+    );
+  }
+
+  /// One figure flying above the page, by its centre and height.
+  void _launch(
+    Persona persona, {
+    required Rect from,
+    required Rect to,
+    required double turns,
+    required Duration duration,
+    required Curve curve,
+    VoidCallback? done,
+  }) {
+    final controller = AnimationController(vsync: this, duration: duration);
+    final angle = ValueNotifier<double>(0);
+    controller.addListener(
+      () => angle.value = turns * 2 * pi * curve.transform(controller.value),
+    );
+    final entry = OverlayEntry(
+      builder: (_) => AnimatedBuilder(
+        animation: controller,
+        builder: (_, _) {
+          final t = curve.transform(controller.value);
+          final centre = Offset.lerp(from.center, to.center, t)!;
+          final height = lerpDouble(from.height, to.height, t)!;
+          return Positioned.fromRect(
+            rect: Rect.fromCenter(
+              center: centre,
+              width: height * 1.4,
+              height: height,
+            ),
+            child: IgnorePointer(
+              child: Center(
+                child: TurningFigure(
+                  asset: personaAsset(persona),
+                  height: height,
+                  angle: angle,
+                  shadow: false,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    final flight = (entry, controller);
+    _flights.add(flight);
+    Overlay.of(context).insert(entry);
+    unawaited(
+      controller.forward().whenComplete(() {
+        if (!_flights.remove(flight)) return;
+        entry.remove();
+        controller.dispose();
+        angle.dispose();
+        if (mounted) done?.call();
+      }),
+    );
   }
 
   @override
@@ -539,7 +675,7 @@ class _FigureStageState extends State<_FigureStage>
         if (s.id != view.you) s.persona: s.name,
     };
     final allTaken = taken.length >= Persona.values.length;
-    final shown = _shown;
+    final onStage = _flying ?? _shown;
     final screen = MediaQuery.sizeOf(context);
     final figureHeight = (screen.height * 0.36).clamp(180.0, 340.0);
     return Column(
@@ -549,11 +685,15 @@ class _FigureStageState extends State<_FigureStage>
         SizedBox(
           height: figureHeight + 10,
           child: Center(
-            child: TurningFigure(
-              key: const ValueKey('my-figure'),
-              asset: personaAsset(shown),
-              angle: _angle,
-              height: figureHeight,
+            // Empty while a figure flies up to it.
+            child: Opacity(
+              opacity: _flying == null ? 1 : 0,
+              child: TurningFigure(
+                key: _stage,
+                asset: personaAsset(_shown),
+                angle: _angle,
+                height: figureHeight,
+              ),
             ),
           ),
         ),
@@ -579,7 +719,8 @@ class _FigureStageState extends State<_FigureStage>
         ),
         const SizedBox(height: 16),
         // Every figure as a card big enough for a thumb: three in a row on
-        // a phone, more as the window grows.
+        // a phone, more as the window grows. The one on the stage leaves
+        // its card empty.
         LayoutBuilder(
           builder: (context, box) {
             const gap = 10.0;
@@ -592,8 +733,11 @@ class _FigureStageState extends State<_FigureStage>
                 for (final p in Persona.values)
                   _FigureCard(
                     persona: p,
+                    figureKey: _cards[p]!,
                     width: width,
                     selected: p == mine,
+                    empty: p == onStage,
+                    returning: p == _returning,
                     takenBy: allTaken ? null : taken[p],
                     onTap: () => _pick(p),
                   ),
@@ -608,19 +752,26 @@ class _FigureStageState extends State<_FigureStage>
 
 /// One figure to pick in the lobby: the whole cut-out on a plaque, its
 /// name below; lit when it is yours, in shadow with its player's name when
-/// someone else has it.
+/// someone else has it. While the figure stands on the stage its card
+/// holds only a pool of lantern light; coming back, it slides up into it.
 class _FigureCard extends StatelessWidget {
   const _FigureCard({
     required this.persona,
+    required this.figureKey,
     required this.width,
     required this.selected,
+    required this.empty,
+    required this.returning,
     required this.onTap,
     this.takenBy,
   });
 
   final Persona persona;
+  final GlobalKey figureKey;
   final double width;
   final bool selected;
+  final bool empty;
+  final bool returning;
   final String? takenBy;
   final VoidCallback onTap;
 
@@ -635,12 +786,46 @@ class _FigureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final free = takenBy == null;
+    final height = width * 1.05;
     Widget figure = Image.asset(
       personaAsset(persona),
-      height: width * 1.05,
+      key: figureKey,
+      height: height,
       fit: BoxFit.contain,
     );
     if (!free) figure = ColorFiltered(colorFilter: _shadow, child: figure);
+    if (returning && !empty) {
+      figure = TweenAnimationBuilder<double>(
+        tween: Tween(begin: 1, end: 0),
+        duration: const Duration(milliseconds: 520),
+        curve: Curves.easeOutBack,
+        child: figure,
+        builder: (context, v, child) => Transform.translate(
+          offset: Offset(0, v * height),
+          child: Opacity(opacity: (1 - v).clamp(0.0, 1.0), child: child),
+        ),
+      );
+    }
+    final slot = SizedBox(
+      height: height,
+      child: ClipRect(
+        child: empty
+            ? DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, 0.8),
+                    radius: 0.7,
+                    colors: [
+                      Palette.stageLanternTop.withValues(alpha: 0.28),
+                      Palette.stageLanternTop.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+                child: const SizedBox.expand(),
+              )
+            : Center(child: figure),
+      ),
+    );
     return Semantics(
       button: free,
       selected: selected,
@@ -661,7 +846,7 @@ class _FigureCard extends StatelessWidget {
           decoration: PlaqueDecoration(lit: selected),
           child: Column(
             children: [
-              figure,
+              slot,
               const SizedBox(height: 6),
               Text(
                 l10n.persona(persona),
