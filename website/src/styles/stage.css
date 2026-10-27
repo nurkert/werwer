@@ -546,3 +546,39 @@ body.has-backdrop .site-footer {
     transform: translateX(80%);
   }
 }
+
+/* One curtain valance from side to side, in front of the side curtains
+   (it comes later in the stack), its top hidden above the scene. */
+.piece--span {
+  left: 50%;
+  top: 0;
+  z-index: 2;
+  width: var(--span-w, 106vw);
+  height: auto;
+  transform: translate(-50%, calc(-1 * var(--hide, 38%)));
+}
+.piece--span img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.scene + .scene .piece--span {
+  top: var(--blend);
+}
+/* On a phone a wider cut, so the fringe frames the top boldly; the side
+   curtains stay narrow strips below it. */
+@media (max-width: 640px) {
+  .piece--span {
+    --span-w: 170vw;
+    transform: translate(-50%, calc(-1 * var(--hide-phone, 22%)));
+  }
+}
+/* The words start below the valance's fringe. */
+.scene:has(.piece--span) .scene__content {
+  padding-top: 9vw;
+}
+@media (max-width: 640px) {
+  .scene:has(.piece--span) .scene__content {
+    padding-top: 16vw;
+  }
+}

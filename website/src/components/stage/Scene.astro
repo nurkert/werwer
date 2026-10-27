@@ -9,7 +9,7 @@ import { Picture } from 'astro:assets';
 export interface ScenePiece {
   src: ImageMetadata;
   /** Where it stands. */
-  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top' | 'hang-left' | 'hang-right';
+  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top' | 'span' | 'hang-left' | 'hang-right';
   /** Height in hundredths of the screen's height (top pieces: a CSS length). */
   h: string;
   /** How much of it hides beyond the edge (desktop / phone). */
@@ -87,8 +87,8 @@ const loading = first ? 'eager' : 'lazy';
             src={piece.src}
             alt=""
             formats={formats}
-            widths={piece.at === 'top' ? [700, 1400] : [240, 400, 640]}
-            sizes={piece.at === 'top' ? 'min(60vw, 900px)' : 'min(28vw, 360px)'}
+            widths={piece.at === 'top' || piece.at === 'span' ? [700, 1400] : [240, 400, 640]}
+            sizes={piece.at === 'span' ? '150vw' : piece.at === 'top' ? 'min(60vw, 900px)' : 'min(28vw, 360px)'}
             quality={62}
             loading={loading}
             decoding="async"

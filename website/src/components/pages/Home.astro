@@ -146,7 +146,7 @@ const download = latest ? path('download', lang) : repoUrl;
       labelledby="spiel-title"
       moon={{ kind: 'full', x: '50%', y: '3%', size: 'clamp(70px, 12vmin, 130px)' }}
       pieces={[
-        { src: valance, at: 'top', h: 'clamp(120px, 22vh, 250px)', hide: '22%', repeat: 4 },
+        { src: valance, at: 'span', h: '0', hide: '38%', hidePhone: '22%' },
         { src: curtain, at: 'hang-left', h: '100', hide: '42%', hidePhone: '62%' },
         { src: curtain, at: 'hang-right', h: '100', hide: '42%', hidePhone: '62%', mirror: true },
       ]}

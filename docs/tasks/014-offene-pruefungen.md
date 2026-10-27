@@ -12,3 +12,4 @@ Alle Wünsche aus dem Chat vom 27. Oktober sind in Task 013 umgesetzt (der Verla
 - [x] **Website: Vorhangbogen in der Theaterszene zu klein:** der Bogen oben läuft groß über die ganze Breite (wie in der App), Desktop und Handy fotografiert.
 - [x] **Website: Figuren und Handys im Startbild auf dem Desktop zu weit oben:** sie stehen jetzt auf den Bühnenbrettern; Desktop fotografiert.
 - [x] **Website: Girlanden zwischen den Szenen zu klein:** die Girlanden („Die Besetzung“, Finale) laufen groß über die ganze Breite wie der Vorhangbogen; Desktop und Handy fotografiert.
+- [x] **Website: ein großer Vorhangbogen statt vier kleiner:** ein Bogen von Seite zu Seite vor den Seitenvorhängen, der Inhalt beginnt unter den Fransen; auf dem Handy ein breiterer Ausschnitt, die Seitenvorhänge bleiben schmale Streifen darunter. Desktop und Handy fotografiert.
