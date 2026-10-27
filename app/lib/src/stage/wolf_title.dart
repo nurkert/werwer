@@ -49,6 +49,12 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
   static const _wolf = 'assets/figures/werwolf.webp';
   static const _paw = 'assets/figures/werwolf_paw.webp';
   static const double _aspect = 512 / 640;
+  static const double _wordAspect = 1336 / 530;
+
+  /// Where the paw grips the letters, on the werewolf's canvas (512 × 640):
+  /// werewolf and wordmark both turn around it, so the paw stays on its
+  /// letter however differently the two turn.
+  static const Offset _grip = Offset(440, 440);
 
   @override
   void initState() {
@@ -103,18 +109,31 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
     final wolfLeft = w * 0.5 - wolfWidth * 0.42;
     final height = wordTop + wordHeight;
 
+    // The grip on the screen, and as an alignment on either piece.
+    final grip = Offset(
+      wolfLeft + _grip.dx / 512 * wolfWidth,
+      _grip.dy / 640 * wolfHeight,
+    );
+    final wolfPivot = Alignment(
+      _grip.dx / 512 * 2 - 1,
+      _grip.dy / 640 * 2 - 1,
+    );
+    final wordWidth = wordHeight * _wordAspect;
+    final wordLeft = (w - wordWidth) / 2;
+    final wordPivot = Alignment(
+      (grip.dx - wordLeft) / wordWidth * 2 - 1,
+      (grip.dy - wordTop) / wordHeight * 2 - 1,
+    );
+
     Widget wolf(String asset, {bool printOnly = false}) => AnimatedBuilder(
       animation: _time,
-      builder: (context, child) {
-        final reach = _reach;
-        return Transform(
-          alignment: Alignment.bottomLeft,
-          transform: Matrix4.identity()
-            ..translateByDouble(0, wolfHeight * 0.05 * reach, 0, 1)
-            ..rotateZ(0.07 * reach),
-          child: child,
-        );
-      },
+      // Leaning over the letters: the body tips forward around the paw,
+      // which stays on its letter.
+      builder: (context, child) => Transform.rotate(
+        angle: 0.06 * _reach,
+        alignment: wolfPivot,
+        child: child,
+      ),
       child: SizedBox(
         width: wolfWidth,
         height: wolfHeight,
@@ -122,6 +141,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
           asset: asset,
           height: wolfHeight,
           angle: _wolfAngle,
+          pivot: wolfPivot,
           shadow: false,
           sway: false,
           printOnly: printOnly,
@@ -148,6 +168,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
                     top: wordTop,
                     height: wordHeight,
                     angle: _wordAngle,
+                    pivot: grip,
                   ),
                   child: Stack(
                     clipBehavior: Clip.none,
@@ -167,6 +188,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
                     asset: 'assets/brand/wordmark.png',
                     height: wordHeight,
                     angle: _wordAngle,
+                    pivot: wordPivot,
                     shadow: false,
                     sway: false,
                   ),
@@ -194,6 +216,7 @@ class _AboveLetters extends CustomClipper<Path> {
     required this.top,
     required this.height,
     required this.angle,
+    required this.pivot,
   }) : super(reclip: angle);
 
   final List<Offset> tops;
@@ -201,10 +224,13 @@ class _AboveLetters extends CustomClipper<Path> {
   final double height;
   final ValueListenable<double> angle;
 
+  /// The upright the wordmark turns around, on the screen.
+  final Offset pivot;
+
   @override
   Path getClip(Size size) {
     final depth = height * 0.22;
-    final centre = Offset(size.width / 2, top + height / 2);
+    final centre = pivot;
     // As TurningFigure turns the wordmark's print (see there).
     final turn = Matrix4.identity()
       ..setEntry(3, 2, 0.0011)
@@ -233,5 +259,6 @@ class _AboveLetters extends CustomClipper<Path> {
       old.top != top ||
       old.height != height ||
       old.tops != tops ||
-      old.angle != angle;
+      old.angle != angle ||
+      old.pivot != pivot;
 }

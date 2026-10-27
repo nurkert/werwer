@@ -231,8 +231,13 @@ class TurningFigure extends StatefulWidget {
     this.angle,
     this.shadow = true,
     this.printOnly = false,
+    this.pivot = Alignment.center,
     super.key,
   });
+
+  /// The upright it turns around: pieces that touch somewhere (a paw on
+  /// a letter) turn around that point, so it stays where it is.
+  final Alignment pivot;
 
   /// Only the print, without the board: a piece laid onto another figure
   /// of the same height, turning with it at the same angle, sits exactly
@@ -398,7 +403,7 @@ class _TurningFigureState extends State<TurningFigure>
     final layered = (_depth * sin(angle)).abs() >= 0.6;
     if (widget.printOnly) {
       return Transform(
-        alignment: Alignment.center,
+        alignment: widget.pivot,
         transform: Matrix4.identity()
           ..setEntry(3, 2, 0.0011)
           ..rotateY(angle)
@@ -410,7 +415,7 @@ class _TurningFigureState extends State<TurningFigure>
     // flat picture instead of a dozen layers.
     if (!layered) {
       return Transform(
-        alignment: Alignment.center,
+        alignment: widget.pivot,
         transform: Matrix4.identity()
           ..setEntry(3, 2, 0.0011)
           ..rotateY(angle),
@@ -447,7 +452,7 @@ class _TurningFigureState extends State<TurningFigure>
       children: [
         for (final layer in layers)
           Transform(
-            alignment: Alignment.center,
+            alignment: widget.pivot,
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.0011)
               ..rotateY(angle)
