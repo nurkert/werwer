@@ -307,6 +307,8 @@ class _StartScreenState extends State<StartScreen> {
     final resume = _resume;
     return StageScaffold(
       floatingAppBar: true,
+      // The pages keep their size; the name field slides above the keyboard.
+      resizeForKeyboard: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Palette.moon200,

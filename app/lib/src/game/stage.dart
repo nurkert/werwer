@@ -259,8 +259,13 @@ class StageScaffold extends StatelessWidget {
     this.floatingAppBar = false,
     this.scene,
     this.ghost = false,
+    this.resizeForKeyboard = true,
     super.key,
   });
+
+  /// Whether the body shrinks when the keyboard opens; pages that move
+  /// their focused field above it themselves (`StagePages`) say no.
+  final bool resizeForKeyboard;
 
   /// The stage set; the one around it if `null`.
   final Scene? scene;
@@ -282,6 +287,7 @@ class StageScaffold extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: floatingAppBar,
+        resizeToAvoidBottomInset: resizeForKeyboard,
         appBar: appBar,
         body: body,
       ),

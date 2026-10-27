@@ -52,6 +52,27 @@ class _StagePagesState extends State<StagePages> {
   /// The stage behind, which pans along with the pages.
   PanNotifier? _stage;
 
+  /// How far the pages slide up so the focused field clears the keyboard.
+  double _lift = 0;
+  double _inset = 0;
+
+  /// After the keyboard opened or closed: lift the pages just enough that
+  /// the field being typed in sits above it, with a little air.
+  void _clearKeyboard() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      var target = 0.0;
+      final focus = FocusManager.instance.primaryFocus?.context;
+      final box = focus?.findRenderObject();
+      if (_inset > 0 && box is RenderBox && box.attached) {
+        final bottom = box.localToGlobal(Offset(0, box.size.height)).dy + _lift;
+        final visible = MediaQuery.sizeOf(context).height - _inset;
+        target = (bottom + 18 - visible).clamp(0.0, _inset);
+      }
+      if ((target - _lift).abs() > 1) setState(() => _lift = target);
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -80,65 +101,75 @@ class _StagePagesState extends State<StagePages> {
   Widget build(BuildContext context) {
     final insets = MediaQuery.paddingOf(context);
     final still = MediaQuery.of(context).disableAnimations;
-    return Column(
-      children: [
-        Expanded(
-          child: PageView.builder(
-            controller: _controller,
-            // No bounce past the first or last page.
-            physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
-            itemCount: widget.pages.length,
-            itemBuilder: (context, i) => AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                // The page moves exactly with the finger; leaving, it fades
-                // and steps back a little (never into its neighbour).
-                final off = still ? 0.0 : (_page - i).abs().clamp(0.0, 1.0);
-                return Opacity(
-                  opacity: 1 - off * 0.55,
-                  child: Transform.scale(scale: 1 - off * 0.06, child: child),
-                );
-              },
-              child: RepaintBoundary(
-                child: widget.pages[i].child is ScrollingPage
-                    ? _ScrollPage(
-                        maxWidth: widget.maxWidth,
-                        top: insets.top + 8,
-                        child: widget.pages[i].child,
-                      )
-                    : _FitPage(
-                        maxWidth: widget.maxWidth,
-                        top: insets.top + 8,
-                        child: widget.pages[i].child,
-                      ),
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    if (keyboard != _inset) {
+      _inset = keyboard;
+      _clearKeyboard();
+    }
+    return AnimatedSlide(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      offset: Offset(0, -_lift / MediaQuery.sizeOf(context).height),
+      child: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _controller,
+              // No bounce past the first or last page.
+              physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
+              itemCount: widget.pages.length,
+              itemBuilder: (context, i) => AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  // The page moves exactly with the finger; leaving, it fades
+                  // and steps back a little (never into its neighbour).
+                  final off = still ? 0.0 : (_page - i).abs().clamp(0.0, 1.0);
+                  return Opacity(
+                    opacity: 1 - off * 0.55,
+                    child: Transform.scale(scale: 1 - off * 0.06, child: child),
+                  );
+                },
+                child: RepaintBoundary(
+                  child: widget.pages[i].child is ScrollingPage
+                      ? _ScrollPage(
+                          maxWidth: widget.maxWidth,
+                          top: insets.top + 8,
+                          child: widget.pages[i].child,
+                        )
+                      : _FitPage(
+                          maxWidth: widget.maxWidth,
+                          top: insets.top + 8,
+                          child: widget.pages[i].child,
+                        ),
+                ),
               ),
             ),
           ),
-        ),
-        if (widget.action case final action?)
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              20 + insets.left,
-              8,
-              20 + insets.right,
-              0,
+          if (widget.action case final action?)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                20 + insets.left,
+                8,
+                20 + insets.right,
+                0,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: widget.maxWidth),
+                child: action,
+              ),
             ),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: widget.maxWidth),
-              child: action,
+          _Dots(
+            controller: _controller,
+            labels: [for (final p in widget.pages) p.label],
+            onTap: (i) => _controller.animateToPage(
+              i,
+              duration: const Duration(milliseconds: 420),
+              curve: Curves.easeOutCubic,
             ),
           ),
-        _Dots(
-          controller: _controller,
-          labels: [for (final p in widget.pages) p.label],
-          onTap: (i) => _controller.animateToPage(
-            i,
-            duration: const Duration(milliseconds: 420),
-            curve: Curves.easeOutCubic,
-          ),
-        ),
-        SizedBox(height: insets.bottom + 10),
-      ],
+          SizedBox(height: insets.bottom + 10),
+        ],
+      ),
     );
   }
 }
