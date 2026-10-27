@@ -29,6 +29,7 @@ class Eyebrow extends StatelessWidget {
               fontWeight: FontWeight.w600,
               letterSpacing: 2.6,
               color: ink,
+              shadows: const [Shadow(color: Color(0xE6000000), blurRadius: 6)],
             ),
           ),
         ),

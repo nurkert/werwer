@@ -179,7 +179,7 @@ class _Group extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: Eyebrow(title)),
+        Center(child: StageBacking(child: Eyebrow(title))),
         const SizedBox(height: 8),
         Container(
           decoration: const PlaqueDecoration(),

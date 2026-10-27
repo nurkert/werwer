@@ -6,6 +6,19 @@ export 'package:whowolf/src/palette.g.dart';
 const displayFont = 'AncizarSerif';
 const textFont = 'Manrope';
 
+final MenuStyle _menuStyle = MenuStyle(
+  backgroundColor: const WidgetStatePropertyAll(Palette.stagePlaque),
+  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+  elevation: const WidgetStatePropertyAll(14),
+  shadowColor: const WidgetStatePropertyAll(Colors.black),
+  shape: WidgetStatePropertyAll(
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(Radii.m),
+      side: const BorderSide(color: Palette.stageBrass, width: 1.5),
+    ),
+  ),
+);
+
 /// The app's theme: night stage, Manrope text, Ancizar Serif titles. Screens
 /// sit on a transparent scaffold over the shared stage background.
 ThemeData buildTheme() {
@@ -70,6 +83,51 @@ ThemeData buildTheme() {
         fontSize: 16,
         height: 1.45,
         color: Palette.moon200,
+      ),
+    ),
+    // Menus (the language flag, any pick-one list) are small plaques:
+    // warm dark, brass edge, the book serif, a lantern glow on the chosen.
+    popupMenuTheme: PopupMenuThemeData(
+      color: Palette.stagePlaque,
+      surfaceTintColor: Colors.transparent,
+      elevation: 14,
+      shadowColor: Colors.black,
+      menuPadding: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Radii.m),
+        side: const BorderSide(color: Palette.stageBrass, width: 1.5),
+      ),
+      labelTextStyle: const WidgetStatePropertyAll(
+        TextStyle(
+          fontFamily: displayFont,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Palette.stageIvory,
+        ),
+      ),
+    ),
+    menuTheme: MenuThemeData(style: _menuStyle),
+    dropdownMenuTheme: DropdownMenuThemeData(menuStyle: _menuStyle),
+    // Choices side by side (night, ghosts): brass outline, the chosen one
+    // lit like a lantern.
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        side: const WidgetStatePropertyAll(
+          BorderSide(color: Palette.stageBrass, width: 1.5),
+        ),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Palette.stageLantern
+              : Palette.stagePlaque.withValues(alpha: 0.6),
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Palette.stageLanternInk
+              : Palette.stageIvory,
+        ),
+        textStyle: const WidgetStatePropertyAll(
+          TextStyle(fontFamily: displayFont, fontWeight: FontWeight.w700),
+        ),
       ),
     ),
     snackBarTheme: const SnackBarThemeData(

@@ -541,7 +541,7 @@ class _FigureStageState extends State<_FigureStage>
     final allTaken = taken.length >= Persona.values.length;
     final shown = _shown;
     final screen = MediaQuery.sizeOf(context);
-    final figureHeight = (screen.height * 0.26).clamp(150.0, 240.0);
+    final figureHeight = (screen.height * 0.36).clamp(180.0, 340.0);
     return Column(
       children: [
         Headline(l10n.figureTitle, eyebrow: l10n.eyebrowEvening),
@@ -558,17 +558,25 @@ class _FigureStageState extends State<_FigureStage>
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          l10n.persona(mine),
-          style: const TextStyle(
-            fontFamily: displayFont,
-            fontWeight: FontWeight.w700,
-            fontSize: 28,
-            color: Palette.stageIvory,
-            shadows: [Shadow(blurRadius: 10)],
+        // The name and what the figure means, readable on any set.
+        StageBacking(
+          child: Column(
+            children: [
+              Text(
+                l10n.persona(mine),
+                style: const TextStyle(
+                  fontFamily: displayFont,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 30,
+                  color: Palette.stageLanternTop,
+                  shadows: [Shadow(blurRadius: 10)],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Body(l10n.personaHint),
+            ],
           ),
         ),
-        Body(l10n.personaHint, muted: true),
         const SizedBox(height: 16),
         // Every figure as a card big enough for a thumb: three in a row on
         // a phone, more as the window grows.

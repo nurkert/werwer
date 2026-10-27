@@ -81,6 +81,47 @@ class Surface extends InheritedWidget {
   bool updateShouldNotify(Surface old) => old.onPaper != onPaper;
 }
 
+/// Text standing straight on a painted set (not on a card) gets a soft
+/// patch of night behind it, so it reads on every scene, the bright
+/// morning and the busy village included. Inside a card, or inside another
+/// backing, it adds nothing.
+class StageBacking extends StatelessWidget {
+  const StageBacking({required this.child, super.key});
+
+  final Widget child;
+
+  static const _night = Color(0x52060B14);
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.getInheritedWidgetOfExactType<Surface>() != null ||
+        context.getInheritedWidgetOfExactType<_Backed>() != null) {
+      return child;
+    }
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: _night,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        // The same colour spread out softly: an edge you do not see.
+        boxShadow: [BoxShadow(color: _night, blurRadius: 24, spreadRadius: 10)],
+      ),
+      child: _Backed(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _Backed extends InheritedWidget {
+  const _Backed({required super.child});
+
+  @override
+  bool updateShouldNotify(_Backed old) => false;
+}
+
 /// A big title in the book serif, warm on the night, with a soft glow;
 /// [eyebrow] sets the small line above it ("— SPIELABEND —").
 class Headline extends StatelessWidget {
@@ -143,14 +184,16 @@ class Headline extends StatelessWidget {
       },
     );
     final line = eyebrow;
-    if (line == null) return title;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Eyebrow(line, color: paper ? Palette.inkSoft : null),
-        const SizedBox(height: 8),
-        title,
-      ],
+    if (line == null) return StageBacking(child: title);
+    return StageBacking(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Eyebrow(line, color: paper ? Palette.inkSoft : null),
+          const SizedBox(height: 8),
+          title,
+        ],
+      ),
     );
   }
 }
@@ -166,20 +209,22 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final paper = Surface.paper(context);
     final color = paper ? Palette.inkSoft : Palette.stageIvorySoft;
-    return Text(
-      text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 16,
-        height: 1.45,
-        color: muted ? color.withValues(alpha: paper ? 0.8 : 0.85) : color,
-        // Readable on any painted scene, also the bright morning.
-        shadows: paper
-            ? null
-            : const [
-                Shadow(color: Color(0xE6000000), blurRadius: 6),
-                Shadow(color: Color(0x99000000), blurRadius: 14),
-              ],
+    return StageBacking(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          height: 1.45,
+          color: muted ? color.withValues(alpha: paper ? 0.8 : 0.92) : color,
+          // Readable on any painted scene, also the bright morning.
+          shadows: paper
+              ? null
+              : const [
+                  Shadow(color: Color(0xE6000000), blurRadius: 6),
+                  Shadow(color: Color(0x99000000), blurRadius: 14),
+                ],
+        ),
       ),
     );
   }
