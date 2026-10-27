@@ -5,7 +5,7 @@
 | Datei | Text | Regie |
 |---|---|---|
 | `intro_1_en.mp3` | Good evening, and welcome to the table. You are in a small village on a meadow, with a church, a few houses and far too many secrets. By day you talk to each other. By night it gets dangerous. Sit back, we are about to begin. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
-| `intro_2_en.mp3` | Welcome, all of you. Tonight I will tell you a story, and you are part of it. It is about a peaceful village that is not so peaceful after all. Because among you hides something that goes hunting at night. Listen closely. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
+| `intro_2_en.mp3` | Welcome, all of you. Tonight I will tell you a story, and you are part of it. It is about a peaceful village that is not so peaceful after all. Because something that goes hunting at night is hiding among you. Listen closely. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
 | `intro_3_en.mp3` | Good to have you here. Put your phones down in front of you and look around. Every face at this table belongs to someone from the village. But not every face tells the truth. When I say so, you close your eyes, and when I say so, you open them again. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
 | `intro_4_en.mp3` | Welcome to the village. Everyone here knows everyone, or so they think. For a few nights now something has been howling outside, and in the morning someone is sometimes missing. From tonight on, it is up to you to find out who is behind it. I will guide you through the night. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
 | `intro_5_en.mp3` | An evening like any other, you think. You sit together, the light is warm, somewhere a dog barks. But tonight something wakes in the village that none of you sees coming. Welcome to the table. I am your voice through the night. | A storyteller by the fire: warm, unhurried, welcoming, with a glint of mischief and a shadow at the end. |
@@ -111,7 +111,7 @@
 | `role_werewolf_2_en.mp3` | That was a werewolf! The village breathes again. | A small triumph. |
 | `role_werewolf_3_en.mp3` | The mask has fallen. Underneath was a werewolf. | A small triumph. |
 | `role_werewolf_4_en.mp3` | A hit! At this seat there really was a werewolf. | A small triumph. |
-| `role_werewolf_5_en.mp3` | Behind that friendly face hid a werewolf. | A small triumph. |
+| `role_werewolf_5_en.mp3` | Behind that friendly face was a werewolf all along. | A small triumph. |
 | `role_seer_1_en.mp3` | At this seat sat the seer. | Regretful. |
 | `role_seer_2_en.mp3` | That was the seer. What might she have seen? | Regretful. |
 | `role_seer_3_en.mp3` | With that, the village has lost its seer. | Regretful. |

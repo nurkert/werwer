@@ -1,1 +1,1816 @@
-{}
+{
+ "de": {
+  "intro": [
+   {
+    "file": "de/intro_1_de.mp3",
+    "ms": 20703
+   },
+   {
+    "file": "de/intro_2_de.mp3",
+    "ms": 21138
+   },
+   {
+    "file": "de/intro_3_de.mp3",
+    "ms": 19396
+   },
+   {
+    "file": "de/intro_4_de.mp3",
+    "ms": 21019
+   },
+   {
+    "file": "de/intro_5_de.mp3",
+    "ms": 21821
+   },
+   {
+    "file": "de/intro_6_de.mp3",
+    "ms": 21330
+   },
+   {
+    "file": "de/intro_7_de.mp3",
+    "ms": 17120
+   },
+   {
+    "file": "de/intro_8_de.mp3",
+    "ms": 19180
+   }
+  ],
+  "reveal": [
+   {
+    "file": "de/reveal_1_de.mp3",
+    "ms": 5575
+   },
+   {
+    "file": "de/reveal_2_de.mp3",
+    "ms": 5360
+   },
+   {
+    "file": "de/reveal_3_de.mp3",
+    "ms": 7438
+   },
+   {
+    "file": "de/reveal_4_de.mp3",
+    "ms": 6682
+   },
+   {
+    "file": "de/reveal_5_de.mp3",
+    "ms": 6521
+   }
+  ],
+  "night_first_called": [
+   {
+    "file": "de/night_first_called_1_de.mp3",
+    "ms": 5531
+   },
+   {
+    "file": "de/night_first_called_2_de.mp3",
+    "ms": 7105
+   },
+   {
+    "file": "de/night_first_called_3_de.mp3",
+    "ms": 9334,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/night_first_called_4_de.mp3",
+    "ms": 8707,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/night_first_called_5_de.mp3",
+    "ms": 7925
+   },
+   {
+    "file": "de/night_first_called_6_de.mp3",
+    "ms": 6376
+   }
+  ],
+  "night_called": [
+   {
+    "file": "de/night_called_1_de.mp3",
+    "ms": 4168
+   },
+   {
+    "file": "de/night_called_2_de.mp3",
+    "ms": 3797
+   },
+   {
+    "file": "de/night_called_3_de.mp3",
+    "ms": 6287
+   },
+   {
+    "file": "de/night_called_4_de.mp3",
+    "ms": 7615
+   },
+   {
+    "file": "de/night_called_5_de.mp3",
+    "ms": 5923
+   },
+   {
+    "file": "de/night_called_6_de.mp3",
+    "ms": 5660,
+    "if": [
+     "deaths"
+    ]
+   },
+   {
+    "file": "de/night_called_7_de.mp3",
+    "ms": 7495,
+    "if": [
+     "no_deaths"
+    ]
+   }
+  ],
+  "night_late": [
+   {
+    "file": "de/night_late_1_de.mp3",
+    "ms": 7026
+   },
+   {
+    "file": "de/night_late_2_de.mp3",
+    "ms": 6641
+   },
+   {
+    "file": "de/night_late_3_de.mp3",
+    "ms": 6630
+   },
+   {
+    "file": "de/night_late_4_de.mp3",
+    "ms": 7430
+   },
+   {
+    "file": "de/night_late_5_de.mp3",
+    "ms": 5879
+   }
+  ],
+  "night_together": [
+   {
+    "file": "de/night_together_1_de.mp3",
+    "ms": 5887
+   },
+   {
+    "file": "de/night_together_2_de.mp3",
+    "ms": 3855
+   },
+   {
+    "file": "de/night_together_3_de.mp3",
+    "ms": 7423
+   },
+   {
+    "file": "de/night_together_4_de.mp3",
+    "ms": 6367
+   },
+   {
+    "file": "de/night_together_5_de.mp3",
+    "ms": 6375
+   }
+  ],
+  "wake_cupid": [
+   {
+    "file": "de/wake_cupid_1_de.mp3",
+    "ms": 3518
+   },
+   {
+    "file": "de/wake_cupid_2_de.mp3",
+    "ms": 5940
+   },
+   {
+    "file": "de/wake_cupid_3_de.mp3",
+    "ms": 5755
+   },
+   {
+    "file": "de/wake_cupid_4_de.mp3",
+    "ms": 4289
+   },
+   {
+    "file": "de/wake_cupid_5_de.mp3",
+    "ms": 3845
+   }
+  ],
+  "wake_wolves": [
+   {
+    "file": "de/wake_wolves_1_de.mp3",
+    "ms": 3526,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_2_de.mp3",
+    "ms": 3743,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_3_de.mp3",
+    "ms": 5066,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_4_de.mp3",
+    "ms": 4881,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_5_de.mp3",
+    "ms": 6055,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_6_de.mp3",
+    "ms": 3223,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_7_de.mp3",
+    "ms": 3398,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_8_de.mp3",
+    "ms": 3369,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_9_de.mp3",
+    "ms": 3664,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/wake_wolves_10_de.mp3",
+    "ms": 4292,
+    "if": [
+     "wolf"
+    ]
+   }
+  ],
+  "wake_seer": [
+   {
+    "file": "de/wake_seer_1_de.mp3",
+    "ms": 3574
+   },
+   {
+    "file": "de/wake_seer_2_de.mp3",
+    "ms": 6034
+   },
+   {
+    "file": "de/wake_seer_3_de.mp3",
+    "ms": 6659
+   },
+   {
+    "file": "de/wake_seer_4_de.mp3",
+    "ms": 5023
+   },
+   {
+    "file": "de/wake_seer_5_de.mp3",
+    "ms": 4283
+   }
+  ],
+  "wake_witch": [
+   {
+    "file": "de/wake_witch_1_de.mp3",
+    "ms": 3446
+   },
+   {
+    "file": "de/wake_witch_2_de.mp3",
+    "ms": 6916
+   },
+   {
+    "file": "de/wake_witch_3_de.mp3",
+    "ms": 5944
+   },
+   {
+    "file": "de/wake_witch_4_de.mp3",
+    "ms": 5809
+   },
+   {
+    "file": "de/wake_witch_5_de.mp3",
+    "ms": 3294
+   }
+  ],
+  "sleep": [
+   {
+    "file": "de/sleep_1_de.mp3",
+    "ms": 1641
+   },
+   {
+    "file": "de/sleep_2_de.mp3",
+    "ms": 2195
+   },
+   {
+    "file": "de/sleep_3_de.mp3",
+    "ms": 2363
+   },
+   {
+    "file": "de/sleep_4_de.mp3",
+    "ms": 1966
+   },
+   {
+    "file": "de/sleep_5_de.mp3",
+    "ms": 2522
+   },
+   {
+    "file": "de/sleep_6_de.mp3",
+    "ms": 2628
+   }
+  ],
+  "morning_first": [
+   {
+    "file": "de/morning_first_1_de.mp3",
+    "ms": 4136
+   },
+   {
+    "file": "de/morning_first_2_de.mp3",
+    "ms": 5103
+   },
+   {
+    "file": "de/morning_first_3_de.mp3",
+    "ms": 5123
+   },
+   {
+    "file": "de/morning_first_4_de.mp3",
+    "ms": 5044
+   },
+   {
+    "file": "de/morning_first_5_de.mp3",
+    "ms": 5562
+   }
+  ],
+  "morning": [
+   {
+    "file": "de/morning_1_de.mp3",
+    "ms": 4563
+   },
+   {
+    "file": "de/morning_2_de.mp3",
+    "ms": 4395
+   },
+   {
+    "file": "de/morning_3_de.mp3",
+    "ms": 2719
+   },
+   {
+    "file": "de/morning_4_de.mp3",
+    "ms": 3574
+   },
+   {
+    "file": "de/morning_5_de.mp3",
+    "ms": 5530
+   }
+  ],
+  "morning_late": [
+   {
+    "file": "de/morning_late_1_de.mp3",
+    "ms": 4246
+   },
+   {
+    "file": "de/morning_late_2_de.mp3",
+    "ms": 5193
+   },
+   {
+    "file": "de/morning_late_3_de.mp3",
+    "ms": 4947
+   },
+   {
+    "file": "de/morning_late_4_de.mp3",
+    "ms": 4228
+   },
+   {
+    "file": "de/morning_late_5_de.mp3",
+    "ms": 5464
+   }
+  ],
+  "died_one": [
+   {
+    "file": "de/died_one_1_de.mp3",
+    "ms": 2489
+   },
+   {
+    "file": "de/died_one_2_de.mp3",
+    "ms": 2162
+   },
+   {
+    "file": "de/died_one_3_de.mp3",
+    "ms": 3080
+   },
+   {
+    "file": "de/died_one_4_de.mp3",
+    "ms": 2726
+   },
+   {
+    "file": "de/died_one_5_de.mp3",
+    "ms": 2103
+   }
+  ],
+  "died_two": [
+   {
+    "file": "de/died_two_1_de.mp3",
+    "ms": 2671
+   },
+   {
+    "file": "de/died_two_2_de.mp3",
+    "ms": 5636
+   },
+   {
+    "file": "de/died_two_3_de.mp3",
+    "ms": 2480
+   },
+   {
+    "file": "de/died_two_4_de.mp3",
+    "ms": 3446
+   },
+   {
+    "file": "de/died_two_5_de.mp3",
+    "ms": 5443
+   }
+  ],
+  "died_none": [
+   {
+    "file": "de/died_none_1_de.mp3",
+    "ms": 2967
+   },
+   {
+    "file": "de/died_none_2_de.mp3",
+    "ms": 3916
+   },
+   {
+    "file": "de/died_none_3_de.mp3",
+    "ms": 3635,
+    "if": [
+     "witch"
+    ]
+   },
+   {
+    "file": "de/died_none_4_de.mp3",
+    "ms": 3753
+   },
+   {
+    "file": "de/died_none_5_de.mp3",
+    "ms": 3751
+   },
+   {
+    "file": "de/died_none_6_de.mp3",
+    "ms": 4762
+   }
+  ],
+  "role_villager": [
+   {
+    "file": "de/role_villager_1_de.mp3",
+    "ms": 3916
+   },
+   {
+    "file": "de/role_villager_2_de.mp3",
+    "ms": 3507
+   },
+   {
+    "file": "de/role_villager_3_de.mp3",
+    "ms": 4974
+   },
+   {
+    "file": "de/role_villager_4_de.mp3",
+    "ms": 3861
+   },
+   {
+    "file": "de/role_villager_5_de.mp3",
+    "ms": 3482
+   }
+  ],
+  "role_werewolf": [
+   {
+    "file": "de/role_werewolf_1_de.mp3",
+    "ms": 2449
+   },
+   {
+    "file": "de/role_werewolf_2_de.mp3",
+    "ms": 3295
+   },
+   {
+    "file": "de/role_werewolf_3_de.mp3",
+    "ms": 4035
+   },
+   {
+    "file": "de/role_werewolf_4_de.mp3",
+    "ms": 3587
+   },
+   {
+    "file": "de/role_werewolf_5_de.mp3",
+    "ms": 3620
+   }
+  ],
+  "role_seer": [
+   {
+    "file": "de/role_seer_1_de.mp3",
+    "ms": 2731
+   },
+   {
+    "file": "de/role_seer_2_de.mp3",
+    "ms": 3893
+   },
+   {
+    "file": "de/role_seer_3_de.mp3",
+    "ms": 2875
+   },
+   {
+    "file": "de/role_seer_4_de.mp3",
+    "ms": 3900
+   },
+   {
+    "file": "de/role_seer_5_de.mp3",
+    "ms": 4082
+   }
+  ],
+  "role_witch": [
+   {
+    "file": "de/role_witch_1_de.mp3",
+    "ms": 2914
+   },
+   {
+    "file": "de/role_witch_2_de.mp3",
+    "ms": 3555
+   },
+   {
+    "file": "de/role_witch_3_de.mp3",
+    "ms": 3745
+   },
+   {
+    "file": "de/role_witch_4_de.mp3",
+    "ms": 4397
+   },
+   {
+    "file": "de/role_witch_5_de.mp3",
+    "ms": 3678
+   }
+  ],
+  "role_hunter": [
+   {
+    "file": "de/role_hunter_1_de.mp3",
+    "ms": 2260
+   },
+   {
+    "file": "de/role_hunter_2_de.mp3",
+    "ms": 4295
+   },
+   {
+    "file": "de/role_hunter_3_de.mp3",
+    "ms": 2742
+   },
+   {
+    "file": "de/role_hunter_4_de.mp3",
+    "ms": 3718
+   },
+   {
+    "file": "de/role_hunter_5_de.mp3",
+    "ms": 5168
+   }
+  ],
+  "role_cupid": [
+   {
+    "file": "de/role_cupid_1_de.mp3",
+    "ms": 1841
+   },
+   {
+    "file": "de/role_cupid_2_de.mp3",
+    "ms": 4144
+   },
+   {
+    "file": "de/role_cupid_3_de.mp3",
+    "ms": 3473
+   },
+   {
+    "file": "de/role_cupid_4_de.mp3",
+    "ms": 5265
+   },
+   {
+    "file": "de/role_cupid_5_de.mp3",
+    "ms": 2826
+   }
+  ],
+  "discuss": [
+   {
+    "file": "de/discuss_1_de.mp3",
+    "ms": 4174,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/discuss_2_de.mp3",
+    "ms": 3045,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/discuss_3_de.mp3",
+    "ms": 3599
+   },
+   {
+    "file": "de/discuss_4_de.mp3",
+    "ms": 3486
+   },
+   {
+    "file": "de/discuss_5_de.mp3",
+    "ms": 5334,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/discuss_6_de.mp3",
+    "ms": 5601,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/discuss_7_de.mp3",
+    "ms": 5786
+   }
+  ],
+  "discuss_late": [
+   {
+    "file": "de/discuss_late_1_de.mp3",
+    "ms": 5496
+   },
+   {
+    "file": "de/discuss_late_2_de.mp3",
+    "ms": 4516
+   },
+   {
+    "file": "de/discuss_late_3_de.mp3",
+    "ms": 5069
+   },
+   {
+    "file": "de/discuss_late_4_de.mp3",
+    "ms": 4158
+   },
+   {
+    "file": "de/discuss_late_5_de.mp3",
+    "ms": 4894
+   }
+  ],
+  "vote": [
+   {
+    "file": "de/vote_1_de.mp3",
+    "ms": 3250
+   },
+   {
+    "file": "de/vote_2_de.mp3",
+    "ms": 2733
+   },
+   {
+    "file": "de/vote_3_de.mp3",
+    "ms": 3065
+   },
+   {
+    "file": "de/vote_4_de.mp3",
+    "ms": 3812
+   },
+   {
+    "file": "de/vote_5_de.mp3",
+    "ms": 3475
+   }
+  ],
+  "vote_late": [
+   {
+    "file": "de/vote_late_1_de.mp3",
+    "ms": 2859
+   },
+   {
+    "file": "de/vote_late_2_de.mp3",
+    "ms": 4319
+   },
+   {
+    "file": "de/vote_late_3_de.mp3",
+    "ms": 3266
+   },
+   {
+    "file": "de/vote_late_4_de.mp3",
+    "ms": 2001
+   },
+   {
+    "file": "de/vote_late_5_de.mp3",
+    "ms": 4344
+   }
+  ],
+  "voted_out": [
+   {
+    "file": "de/voted_out_1_de.mp3",
+    "ms": 1837
+   },
+   {
+    "file": "de/voted_out_2_de.mp3",
+    "ms": 3417
+   },
+   {
+    "file": "de/voted_out_3_de.mp3",
+    "ms": 2723
+   },
+   {
+    "file": "de/voted_out_4_de.mp3",
+    "ms": 1684
+   },
+   {
+    "file": "de/voted_out_5_de.mp3",
+    "ms": 4338
+   }
+  ],
+  "vote_tie": [
+   {
+    "file": "de/vote_tie_1_de.mp3",
+    "ms": 1217
+   },
+   {
+    "file": "de/vote_tie_2_de.mp3",
+    "ms": 4264
+   },
+   {
+    "file": "de/vote_tie_3_de.mp3",
+    "ms": 3843
+   },
+   {
+    "file": "de/vote_tie_4_de.mp3",
+    "ms": 4461
+   },
+   {
+    "file": "de/vote_tie_5_de.mp3",
+    "ms": 3785
+   }
+  ],
+  "hunter": [
+   {
+    "file": "de/hunter_1_de.mp3",
+    "ms": 4274
+   },
+   {
+    "file": "de/hunter_2_de.mp3",
+    "ms": 2747
+   },
+   {
+    "file": "de/hunter_3_de.mp3",
+    "ms": 5181
+   },
+   {
+    "file": "de/hunter_4_de.mp3",
+    "ms": 5910
+   },
+   {
+    "file": "de/hunter_5_de.mp3",
+    "ms": 3138
+   }
+  ],
+  "grief": [
+   {
+    "file": "de/grief_1_de.mp3",
+    "ms": 2378
+   },
+   {
+    "file": "de/grief_2_de.mp3",
+    "ms": 2479
+   },
+   {
+    "file": "de/grief_3_de.mp3",
+    "ms": 3177
+   },
+   {
+    "file": "de/grief_4_de.mp3",
+    "ms": 5189
+   },
+   {
+    "file": "de/grief_5_de.mp3",
+    "ms": 3946
+   }
+  ],
+  "win_village": [
+   {
+    "file": "de/win_village_1_de.mp3",
+    "ms": 3012
+   },
+   {
+    "file": "de/win_village_2_de.mp3",
+    "ms": 4907
+   },
+   {
+    "file": "de/win_village_3_de.mp3",
+    "ms": 3780,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/win_village_4_de.mp3",
+    "ms": 4000,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/win_village_5_de.mp3",
+    "ms": 4538
+   },
+   {
+    "file": "de/win_village_6_de.mp3",
+    "ms": 3636
+   }
+  ],
+  "win_wolves": [
+   {
+    "file": "de/win_wolves_1_de.mp3",
+    "ms": 4736,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/win_wolves_2_de.mp3",
+    "ms": 4141,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/win_wolves_3_de.mp3",
+    "ms": 3085,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "de/win_wolves_4_de.mp3",
+    "ms": 4707,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/win_wolves_5_de.mp3",
+    "ms": 2276,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/win_wolves_6_de.mp3",
+    "ms": 2870,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "de/win_wolves_7_de.mp3",
+    "ms": 2979
+   },
+   {
+    "file": "de/win_wolves_8_de.mp3",
+    "ms": 5062
+   }
+  ],
+  "win_lovers": [
+   {
+    "file": "de/win_lovers_1_de.mp3",
+    "ms": 3906
+   },
+   {
+    "file": "de/win_lovers_2_de.mp3",
+    "ms": 3093
+   },
+   {
+    "file": "de/win_lovers_3_de.mp3",
+    "ms": 4356
+   },
+   {
+    "file": "de/win_lovers_4_de.mp3",
+    "ms": 4896
+   },
+   {
+    "file": "de/win_lovers_5_de.mp3",
+    "ms": 3505
+   }
+  ]
+ },
+ "en": {
+  "intro": [
+   {
+    "file": "en/intro_1_en.mp3",
+    "ms": 17853
+   },
+   {
+    "file": "en/intro_2_en.mp3",
+    "ms": 17112
+   },
+   {
+    "file": "en/intro_3_en.mp3",
+    "ms": 18104
+   },
+   {
+    "file": "en/intro_4_en.mp3",
+    "ms": 18917
+   },
+   {
+    "file": "en/intro_5_en.mp3",
+    "ms": 16040
+   },
+   {
+    "file": "en/intro_6_en.mp3",
+    "ms": 19199
+   },
+   {
+    "file": "en/intro_7_en.mp3",
+    "ms": 12624
+   },
+   {
+    "file": "en/intro_8_en.mp3",
+    "ms": 19678
+   }
+  ],
+  "reveal": [
+   {
+    "file": "en/reveal_1_en.mp3",
+    "ms": 5154
+   },
+   {
+    "file": "en/reveal_2_en.mp3",
+    "ms": 4817
+   },
+   {
+    "file": "en/reveal_3_en.mp3",
+    "ms": 4233
+   },
+   {
+    "file": "en/reveal_4_en.mp3",
+    "ms": 3975
+   },
+   {
+    "file": "en/reveal_5_en.mp3",
+    "ms": 5629
+   }
+  ],
+  "night_first_called": [
+   {
+    "file": "en/night_first_called_1_en.mp3",
+    "ms": 4164
+   },
+   {
+    "file": "en/night_first_called_2_en.mp3",
+    "ms": 5499
+   },
+   {
+    "file": "en/night_first_called_3_en.mp3",
+    "ms": 6388,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/night_first_called_4_en.mp3",
+    "ms": 7043,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/night_first_called_5_en.mp3",
+    "ms": 5538
+   },
+   {
+    "file": "en/night_first_called_6_en.mp3",
+    "ms": 5048
+   }
+  ],
+  "night_called": [
+   {
+    "file": "en/night_called_1_en.mp3",
+    "ms": 3118
+   },
+   {
+    "file": "en/night_called_2_en.mp3",
+    "ms": 3701
+   },
+   {
+    "file": "en/night_called_3_en.mp3",
+    "ms": 6187
+   },
+   {
+    "file": "en/night_called_4_en.mp3",
+    "ms": 4762
+   },
+   {
+    "file": "en/night_called_5_en.mp3",
+    "ms": 6332
+   },
+   {
+    "file": "en/night_called_6_en.mp3",
+    "ms": 5173,
+    "if": [
+     "deaths"
+    ]
+   },
+   {
+    "file": "en/night_called_7_en.mp3",
+    "ms": 6318,
+    "if": [
+     "no_deaths"
+    ]
+   }
+  ],
+  "night_late": [
+   {
+    "file": "en/night_late_1_en.mp3",
+    "ms": 5885
+   },
+   {
+    "file": "en/night_late_2_en.mp3",
+    "ms": 5593
+   },
+   {
+    "file": "en/night_late_3_en.mp3",
+    "ms": 5826
+   },
+   {
+    "file": "en/night_late_4_en.mp3",
+    "ms": 5187
+   },
+   {
+    "file": "en/night_late_5_en.mp3",
+    "ms": 4847
+   }
+  ],
+  "night_together": [
+   {
+    "file": "en/night_together_1_en.mp3",
+    "ms": 4025
+   },
+   {
+    "file": "en/night_together_2_en.mp3",
+    "ms": 4507
+   },
+   {
+    "file": "en/night_together_3_en.mp3",
+    "ms": 5980
+   },
+   {
+    "file": "en/night_together_4_en.mp3",
+    "ms": 4201
+   },
+   {
+    "file": "en/night_together_5_en.mp3",
+    "ms": 5330
+   }
+  ],
+  "wake_cupid": [
+   {
+    "file": "en/wake_cupid_1_en.mp3",
+    "ms": 2274
+   },
+   {
+    "file": "en/wake_cupid_2_en.mp3",
+    "ms": 5689
+   },
+   {
+    "file": "en/wake_cupid_3_en.mp3",
+    "ms": 4632
+   },
+   {
+    "file": "en/wake_cupid_4_en.mp3",
+    "ms": 3228
+   },
+   {
+    "file": "en/wake_cupid_5_en.mp3",
+    "ms": 3179
+   }
+  ],
+  "wake_wolves": [
+   {
+    "file": "en/wake_wolves_1_en.mp3",
+    "ms": 2218,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_2_en.mp3",
+    "ms": 3128,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_3_en.mp3",
+    "ms": 4621,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_4_en.mp3",
+    "ms": 2824,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_5_en.mp3",
+    "ms": 5208,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_6_en.mp3",
+    "ms": 2422,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_7_en.mp3",
+    "ms": 2560,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_8_en.mp3",
+    "ms": 3792,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_9_en.mp3",
+    "ms": 2857,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/wake_wolves_10_en.mp3",
+    "ms": 4406,
+    "if": [
+     "wolf"
+    ]
+   }
+  ],
+  "wake_seer": [
+   {
+    "file": "en/wake_seer_1_en.mp3",
+    "ms": 2270
+   },
+   {
+    "file": "en/wake_seer_2_en.mp3",
+    "ms": 3632
+   },
+   {
+    "file": "en/wake_seer_3_en.mp3",
+    "ms": 4953
+   },
+   {
+    "file": "en/wake_seer_4_en.mp3",
+    "ms": 3164
+   },
+   {
+    "file": "en/wake_seer_5_en.mp3",
+    "ms": 3623
+   }
+  ],
+  "wake_witch": [
+   {
+    "file": "en/wake_witch_1_en.mp3",
+    "ms": 2542
+   },
+   {
+    "file": "en/wake_witch_2_en.mp3",
+    "ms": 5608
+   },
+   {
+    "file": "en/wake_witch_3_en.mp3",
+    "ms": 4883
+   },
+   {
+    "file": "en/wake_witch_4_en.mp3",
+    "ms": 4096
+   },
+   {
+    "file": "en/wake_witch_5_en.mp3",
+    "ms": 2077
+   }
+  ],
+  "sleep": [
+   {
+    "file": "en/sleep_1_en.mp3",
+    "ms": 1083
+   },
+   {
+    "file": "en/sleep_2_en.mp3",
+    "ms": 1761
+   },
+   {
+    "file": "en/sleep_3_en.mp3",
+    "ms": 2405
+   },
+   {
+    "file": "en/sleep_4_en.mp3",
+    "ms": 1018
+   },
+   {
+    "file": "en/sleep_5_en.mp3",
+    "ms": 2493
+   },
+   {
+    "file": "en/sleep_6_en.mp3",
+    "ms": 1884
+   }
+  ],
+  "morning_first": [
+   {
+    "file": "en/morning_first_1_en.mp3",
+    "ms": 3337
+   },
+   {
+    "file": "en/morning_first_2_en.mp3",
+    "ms": 3879
+   },
+   {
+    "file": "en/morning_first_3_en.mp3",
+    "ms": 3995
+   },
+   {
+    "file": "en/morning_first_4_en.mp3",
+    "ms": 3933
+   },
+   {
+    "file": "en/morning_first_5_en.mp3",
+    "ms": 4721
+   }
+  ],
+  "morning": [
+   {
+    "file": "en/morning_1_en.mp3",
+    "ms": 3603
+   },
+   {
+    "file": "en/morning_2_en.mp3",
+    "ms": 3237
+   },
+   {
+    "file": "en/morning_3_en.mp3",
+    "ms": 2475
+   },
+   {
+    "file": "en/morning_4_en.mp3",
+    "ms": 2641
+   },
+   {
+    "file": "en/morning_5_en.mp3",
+    "ms": 3886
+   }
+  ],
+  "morning_late": [
+   {
+    "file": "en/morning_late_1_en.mp3",
+    "ms": 3769
+   },
+   {
+    "file": "en/morning_late_2_en.mp3",
+    "ms": 3796
+   },
+   {
+    "file": "en/morning_late_3_en.mp3",
+    "ms": 3403
+   },
+   {
+    "file": "en/morning_late_4_en.mp3",
+    "ms": 3967
+   },
+   {
+    "file": "en/morning_late_5_en.mp3",
+    "ms": 4617
+   }
+  ],
+  "died_one": [
+   {
+    "file": "en/died_one_1_en.mp3",
+    "ms": 1577
+   },
+   {
+    "file": "en/died_one_2_en.mp3",
+    "ms": 1346
+   },
+   {
+    "file": "en/died_one_3_en.mp3",
+    "ms": 1846
+   },
+   {
+    "file": "en/died_one_4_en.mp3",
+    "ms": 1987
+   },
+   {
+    "file": "en/died_one_5_en.mp3",
+    "ms": 1565
+   }
+  ],
+  "died_two": [
+   {
+    "file": "en/died_two_1_en.mp3",
+    "ms": 2028
+   },
+   {
+    "file": "en/died_two_2_en.mp3",
+    "ms": 2363
+   },
+   {
+    "file": "en/died_two_3_en.mp3",
+    "ms": 1972
+   },
+   {
+    "file": "en/died_two_4_en.mp3",
+    "ms": 2059
+   },
+   {
+    "file": "en/died_two_5_en.mp3",
+    "ms": 3680
+   }
+  ],
+  "died_none": [
+   {
+    "file": "en/died_none_1_en.mp3",
+    "ms": 2722
+   },
+   {
+    "file": "en/died_none_2_en.mp3",
+    "ms": 3024
+   },
+   {
+    "file": "en/died_none_3_en.mp3",
+    "ms": 2783,
+    "if": [
+     "witch"
+    ]
+   },
+   {
+    "file": "en/died_none_4_en.mp3",
+    "ms": 3084
+   },
+   {
+    "file": "en/died_none_5_en.mp3",
+    "ms": 3476
+   },
+   {
+    "file": "en/died_none_6_en.mp3",
+    "ms": 3671
+   }
+  ],
+  "role_villager": [
+   {
+    "file": "en/role_villager_1_en.mp3",
+    "ms": 2172
+   },
+   {
+    "file": "en/role_villager_2_en.mp3",
+    "ms": 3151
+   },
+   {
+    "file": "en/role_villager_3_en.mp3",
+    "ms": 2416
+   },
+   {
+    "file": "en/role_villager_4_en.mp3",
+    "ms": 3982
+   },
+   {
+    "file": "en/role_villager_5_en.mp3",
+    "ms": 1988
+   }
+  ],
+  "role_werewolf": [
+   {
+    "file": "en/role_werewolf_1_en.mp3",
+    "ms": 1714
+   },
+   {
+    "file": "en/role_werewolf_2_en.mp3",
+    "ms": 3376
+   },
+   {
+    "file": "en/role_werewolf_3_en.mp3",
+    "ms": 3251
+   },
+   {
+    "file": "en/role_werewolf_4_en.mp3",
+    "ms": 4238
+   },
+   {
+    "file": "en/role_werewolf_5_en.mp3",
+    "ms": 3078
+   }
+  ],
+  "role_seer": [
+   {
+    "file": "en/role_seer_1_en.mp3",
+    "ms": 1609
+   },
+   {
+    "file": "en/role_seer_2_en.mp3",
+    "ms": 3315
+   },
+   {
+    "file": "en/role_seer_3_en.mp3",
+    "ms": 2631
+   },
+   {
+    "file": "en/role_seer_4_en.mp3",
+    "ms": 3570
+   },
+   {
+    "file": "en/role_seer_5_en.mp3",
+    "ms": 4059
+   }
+  ],
+  "role_witch": [
+   {
+    "file": "en/role_witch_1_en.mp3",
+    "ms": 1743
+   },
+   {
+    "file": "en/role_witch_2_en.mp3",
+    "ms": 3280
+   },
+   {
+    "file": "en/role_witch_3_en.mp3",
+    "ms": 3067
+   },
+   {
+    "file": "en/role_witch_4_en.mp3",
+    "ms": 3886
+   },
+   {
+    "file": "en/role_witch_5_en.mp3",
+    "ms": 2847
+   }
+  ],
+  "role_hunter": [
+   {
+    "file": "en/role_hunter_1_en.mp3",
+    "ms": 1744
+   },
+   {
+    "file": "en/role_hunter_2_en.mp3",
+    "ms": 3451
+   },
+   {
+    "file": "en/role_hunter_3_en.mp3",
+    "ms": 2539
+   },
+   {
+    "file": "en/role_hunter_4_en.mp3",
+    "ms": 3069
+   },
+   {
+    "file": "en/role_hunter_5_en.mp3",
+    "ms": 3589
+   }
+  ],
+  "role_cupid": [
+   {
+    "file": "en/role_cupid_1_en.mp3",
+    "ms": 1434
+   },
+   {
+    "file": "en/role_cupid_2_en.mp3",
+    "ms": 2804
+   },
+   {
+    "file": "en/role_cupid_3_en.mp3",
+    "ms": 2577
+   },
+   {
+    "file": "en/role_cupid_4_en.mp3",
+    "ms": 3606
+   },
+   {
+    "file": "en/role_cupid_5_en.mp3",
+    "ms": 1694
+   }
+  ],
+  "discuss": [
+   {
+    "file": "en/discuss_1_en.mp3",
+    "ms": 3473,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/discuss_2_en.mp3",
+    "ms": 2518,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/discuss_3_en.mp3",
+    "ms": 1630
+   },
+   {
+    "file": "en/discuss_4_en.mp3",
+    "ms": 3643
+   },
+   {
+    "file": "en/discuss_5_en.mp3",
+    "ms": 3811,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/discuss_6_en.mp3",
+    "ms": 3963,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/discuss_7_en.mp3",
+    "ms": 4359
+   }
+  ],
+  "discuss_late": [
+   {
+    "file": "en/discuss_late_1_en.mp3",
+    "ms": 4111
+   },
+   {
+    "file": "en/discuss_late_2_en.mp3",
+    "ms": 3238
+   },
+   {
+    "file": "en/discuss_late_3_en.mp3",
+    "ms": 3541
+   },
+   {
+    "file": "en/discuss_late_4_en.mp3",
+    "ms": 3350
+   },
+   {
+    "file": "en/discuss_late_5_en.mp3",
+    "ms": 4247
+   }
+  ],
+  "vote": [
+   {
+    "file": "en/vote_1_en.mp3",
+    "ms": 1445
+   },
+   {
+    "file": "en/vote_2_en.mp3",
+    "ms": 1843
+   },
+   {
+    "file": "en/vote_3_en.mp3",
+    "ms": 2153
+   },
+   {
+    "file": "en/vote_4_en.mp3",
+    "ms": 2549
+   },
+   {
+    "file": "en/vote_5_en.mp3",
+    "ms": 2797
+   }
+  ],
+  "vote_late": [
+   {
+    "file": "en/vote_late_1_en.mp3",
+    "ms": 2235
+   },
+   {
+    "file": "en/vote_late_2_en.mp3",
+    "ms": 3466
+   },
+   {
+    "file": "en/vote_late_3_en.mp3",
+    "ms": 3099
+   },
+   {
+    "file": "en/vote_late_4_en.mp3",
+    "ms": 2329
+   },
+   {
+    "file": "en/vote_late_5_en.mp3",
+    "ms": 3168
+   }
+  ],
+  "voted_out": [
+   {
+    "file": "en/voted_out_1_en.mp3",
+    "ms": 1379
+   },
+   {
+    "file": "en/voted_out_2_en.mp3",
+    "ms": 2738
+   },
+   {
+    "file": "en/voted_out_3_en.mp3",
+    "ms": 2076
+   },
+   {
+    "file": "en/voted_out_4_en.mp3",
+    "ms": 1085
+   },
+   {
+    "file": "en/voted_out_5_en.mp3",
+    "ms": 4302
+   }
+  ],
+  "vote_tie": [
+   {
+    "file": "en/vote_tie_1_en.mp3",
+    "ms": 1219
+   },
+   {
+    "file": "en/vote_tie_2_en.mp3",
+    "ms": 2596
+   },
+   {
+    "file": "en/vote_tie_3_en.mp3",
+    "ms": 3375
+   },
+   {
+    "file": "en/vote_tie_4_en.mp3",
+    "ms": 3089
+   },
+   {
+    "file": "en/vote_tie_5_en.mp3",
+    "ms": 3230
+   }
+  ],
+  "hunter": [
+   {
+    "file": "en/hunter_1_en.mp3",
+    "ms": 3239
+   },
+   {
+    "file": "en/hunter_2_en.mp3",
+    "ms": 2294
+   },
+   {
+    "file": "en/hunter_3_en.mp3",
+    "ms": 5252
+   },
+   {
+    "file": "en/hunter_4_en.mp3",
+    "ms": 3312
+   },
+   {
+    "file": "en/hunter_5_en.mp3",
+    "ms": 3063
+   }
+  ],
+  "grief": [
+   {
+    "file": "en/grief_1_en.mp3",
+    "ms": 3319
+   },
+   {
+    "file": "en/grief_2_en.mp3",
+    "ms": 2207
+   },
+   {
+    "file": "en/grief_3_en.mp3",
+    "ms": 2135
+   },
+   {
+    "file": "en/grief_4_en.mp3",
+    "ms": 4225
+   },
+   {
+    "file": "en/grief_5_en.mp3",
+    "ms": 3380
+   }
+  ],
+  "win_village": [
+   {
+    "file": "en/win_village_1_en.mp3",
+    "ms": 2606
+   },
+   {
+    "file": "en/win_village_2_en.mp3",
+    "ms": 4045
+   },
+   {
+    "file": "en/win_village_3_en.mp3",
+    "ms": 3207,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/win_village_4_en.mp3",
+    "ms": 3115,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/win_village_5_en.mp3",
+    "ms": 2886
+   },
+   {
+    "file": "en/win_village_6_en.mp3",
+    "ms": 3462
+   }
+  ],
+  "win_wolves": [
+   {
+    "file": "en/win_wolves_1_en.mp3",
+    "ms": 3421,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/win_wolves_2_en.mp3",
+    "ms": 3643,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/win_wolves_3_en.mp3",
+    "ms": 2490,
+    "if": [
+     "wolves"
+    ]
+   },
+   {
+    "file": "en/win_wolves_4_en.mp3",
+    "ms": 3196,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/win_wolves_5_en.mp3",
+    "ms": 2174,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/win_wolves_6_en.mp3",
+    "ms": 2537,
+    "if": [
+     "wolf"
+    ]
+   },
+   {
+    "file": "en/win_wolves_7_en.mp3",
+    "ms": 3022
+   },
+   {
+    "file": "en/win_wolves_8_en.mp3",
+    "ms": 3729
+   }
+  ],
+  "win_lovers": [
+   {
+    "file": "en/win_lovers_1_en.mp3",
+    "ms": 4575
+   },
+   {
+    "file": "en/win_lovers_2_en.mp3",
+    "ms": 3404
+   },
+   {
+    "file": "en/win_lovers_3_en.mp3",
+    "ms": 3795
+   },
+   {
+    "file": "en/win_lovers_4_en.mp3",
+    "ms": 2855
+   },
+   {
+    "file": "en/win_lovers_5_en.mp3",
+    "ms": 1970
+   }
+  ]
+ }
+}

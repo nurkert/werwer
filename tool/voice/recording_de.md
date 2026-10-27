@@ -18,23 +18,23 @@
 | `reveal_4_de.mp3` | Nehmt euer Handy und schaut nach, wer ihr in dieser Geschichte seid. Verratet es niemandem. | Warm, inviting, a little secretive. |
 | `reveal_5_de.mp3` | Jetzt wird es ernst. Schaut verdeckt auf euer Handy und merkt euch, wer ihr seid. | Warm, inviting, a little secretive. |
 | `night_first_called_1_de.mp3` | Die erste Nacht legt sich über das Dorf. Alle schließen jetzt die Augen. | Slow, hushed, the village goes to sleep. |
-| `night_first_called_2_de.mp3` | Es wird dunkel im Dorf. Die Lichter gehen aus, eins nach dem anderen. Schließt die Augen. | Slow, hushed, the village goes to sleep. |
-| `night_first_called_3_de.mp3` | Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit Werwölfen in seiner Mitte. Schließt die Augen. | Slow, hushed, the village goes to sleep. |
-| `night_first_called_4_de.mp3` | Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit einem Werwolf in seiner Mitte. Schließt die Augen. | Slow, hushed, the village goes to sleep. |
+| `night_first_called_2_de.mp3` | Es wird dunkel im Dorf. Die Lichter gehen aus, eins nach dem anderen. Schließt eure Augen. | Slow, hushed, the village goes to sleep. |
+| `night_first_called_3_de.mp3` | Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit Werwölfen in seiner Mitte. Schließt eure Augen. | Slow, hushed, the village goes to sleep. |
+| `night_first_called_4_de.mp3` | Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit einem Werwolf in seiner Mitte. Schließt eure Augen. | Slow, hushed, the village goes to sleep. |
 | `night_first_called_5_de.mp3` | Über der Kirche geht der Mond auf. Das Dorf legt sich schlafen, und ihr schließt jetzt die Augen. | Slow, hushed, the village goes to sleep. |
 | `night_first_called_6_de.mp3` | Die erste Nacht bricht an. Im Dorf wird es still, und alle schließen die Augen. | Slow, hushed, the village goes to sleep. |
 | `night_called_1_de.mp3` | Die Nacht kehrt zurück. Alle schließen jetzt die Augen. | Hushed; a little heavier each time. |
-| `night_called_2_de.mp3` | Wieder wird es dunkel über dem Dorf. Schließt die Augen. | Hushed; a little heavier each time. |
-| `night_called_3_de.mp3` | Noch eine Nacht beginnt. Ob ihr sie übersteht, erfahrt ihr am Morgen. Schließt die Augen. | Hushed; a little heavier each time. |
-| `night_called_4_de.mp3` | Die Nacht legt sich über das Dorf. Niemand traut mehr den Nachbarn. Schließt die Augen. | Hushed; a little heavier each time. |
+| `night_called_2_de.mp3` | Wieder wird es dunkel über dem Dorf. Schließt eure Augen. | Hushed; a little heavier each time. |
+| `night_called_3_de.mp3` | Noch eine Nacht beginnt. Ob ihr sie übersteht, erfahrt ihr am Morgen. Schließt eure Augen. | Hushed; a little heavier each time. |
+| `night_called_4_de.mp3` | Die Nacht legt sich über das Dorf. Niemand traut mehr den Nachbarn. Schließt eure Augen. | Hushed; a little heavier each time. |
 | `night_called_5_de.mp3` | Draußen heult der Wind um die Häuser. Alle schließen die Augen und halten still. | Hushed; a little heavier each time. |
-| `night_called_6_de.mp3` | Wieder wird es dunkel. Das Dorf ist kleiner geworden. Schließt die Augen. | Hushed; a little heavier each time. |
-| `night_called_7_de.mp3` | Die Nacht kommt zurück, und noch immer fehlt niemand. Wie lange noch? Schließt die Augen. | Hushed; a little heavier each time. |
-| `night_late_1_de.mp3` | Das Dorf ist klein geworden, und die Nacht ist lang. Schließt die Augen und hofft auf den Morgen. | Very quiet, tense, every word weighs. |
-| `night_late_2_de.mp3` | Nur noch wenige sitzen am Tisch. Diese Nacht könnte alles entscheiden. Schließt die Augen. | Very quiet, tense, every word weighs. |
+| `night_called_6_de.mp3` | Wieder wird es dunkel. Das Dorf ist kleiner geworden. Schließt eure Augen. | Hushed; a little heavier each time. |
+| `night_called_7_de.mp3` | Die Nacht kommt zurück, und noch immer fehlt niemand. Wie lange noch? Schließt eure Augen. | Hushed; a little heavier each time. |
+| `night_late_1_de.mp3` | Das Dorf ist klein geworden, und die Nacht ist lang. Schließt eure Augen und hofft auf den Morgen. | Very quiet, tense, every word weighs. |
+| `night_late_2_de.mp3` | Nur noch wenige sitzen am Tisch. Diese Nacht könnte alles entscheiden. Schließt eure Augen. | Very quiet, tense, every word weighs. |
 | `night_late_3_de.mp3` | Es ist still geworden im Dorf. Jedes Geräusch zählt jetzt. Alle schließen die Augen. | Very quiet, tense, every word weighs. |
-| `night_late_4_de.mp3` | Die Kerzen sind fast heruntergebrannt. Bald ist alles entschieden. Schließt die Augen. | Very quiet, tense, every word weighs. |
-| `night_late_5_de.mp3` | Die Nacht senkt sich ein weiteres Mal über das Dorf. Schließt die Augen und wartet. | Very quiet, tense, every word weighs. |
+| `night_late_4_de.mp3` | Die Kerzen sind fast heruntergebrannt. Bald ist alles entschieden. Schließt eure Augen. | Very quiet, tense, every word weighs. |
+| `night_late_5_de.mp3` | Die Nacht senkt sich ein weiteres Mal über das Dorf. Schließt eure Augen und wartet. | Very quiet, tense, every word weighs. |
 | `night_together_1_de.mp3` | Die Nacht legt sich über das Dorf. Jetzt schauen alle auf ihr Handy und tippen. | Hushed, with a wink. |
 | `night_together_2_de.mp3` | Es wird Nacht. Alle tippen jetzt, und niemand verrät sich. | Hushed, with a wink. |
 | `night_together_3_de.mp3` | Dunkelheit liegt über dem Dorf. Alle haben etwas zu tun, und von außen sieht es bei allen gleich aus. | Hushed, with a wink. |
@@ -65,12 +65,12 @@
 | `wake_witch_3_de.mp3` | Die Hexe ist wach. Sie weiß, was in dieser Nacht geschehen soll. Greift sie ein? | Crooked, knowing, a little amused. |
 | `wake_witch_4_de.mp3` | In ihrer Hütte erwacht die Hexe und überlegt, wem sie heute hilft oder schadet. | Crooked, knowing, a little amused. |
 | `wake_witch_5_de.mp3` | Die Hexe erwacht und rührt in ihrem Kessel. | Crooked, knowing, a little amused. |
-| `sleep_1_de.mp3` | Schließt die Augen wieder. | Short, quiet, matter-of-fact. |
+| `sleep_1_de.mp3` | Schließt eure Augen wieder. | Short, quiet, matter-of-fact. |
 | `sleep_2_de.mp3` | Und nun schlaft wieder ein. | Short, quiet, matter-of-fact. |
 | `sleep_3_de.mp3` | Wer wach war, schließt jetzt die Augen. | Short, quiet, matter-of-fact. |
 | `sleep_4_de.mp3` | Die Augen gehen wieder zu. | Short, quiet, matter-of-fact. |
 | `sleep_5_de.mp3` | Legt euch wieder schlafen, ganz leise. | Short, quiet, matter-of-fact. |
-| `sleep_6_de.mp3` | Das genügt. Schließt die Augen wieder. | Short, quiet, matter-of-fact. |
+| `sleep_6_de.mp3` | Das genügt. Schließt eure Augen wieder. | Short, quiet, matter-of-fact. |
 | `morning_first_1_de.mp3` | Die Sonne geht über dem Dorf auf. Die erste Nacht ist vorbei. | Brighter, but with a shadow over it. |
 | `morning_first_2_de.mp3` | Der Hahn kräht. Das Dorf erwacht nach seiner ersten Nacht. | Brighter, but with a shadow over it. |
 | `morning_first_3_de.mp3` | Es wird hell über der Wiese. Alle öffnen die Augen und schauen sich um. | Brighter, but with a shadow over it. |
@@ -167,7 +167,7 @@
 | `hunter_1_de.mp3` | Der Jäger ist gefallen und legt ein letztes Mal an. | Tense, slow. |
 | `hunter_2_de.mp3` | Der Jäger hebt ein letztes Mal seinen Bogen. | Tense, slow. |
 | `hunter_3_de.mp3` | Mit letzter Kraft spannt der Jäger den Bogen. Wen trifft der Pfeil? | Tense, slow. |
-| `hunter_4_de.mp3` | Der Jäger zielt. Jetzt zählt ein einziger Pfeil. | Tense, slow. |
+| `hunter_4_de.mp3` | Der Jäger nimmt sein Ziel ins Auge. Jetzt zählt ein einziger Pfeil. | Tense, slow. |
 | `hunter_5_de.mp3` | Bevor der Jäger geht, darf er noch einmal schießen. | Tense, slow. |
 | `grief_1_de.mp3` | Vor Kummer folgt die große Liebe in den Tod. | Very soft, sad. |
 | `grief_2_de.mp3` | Allein will dieses Herz nicht weiterschlagen. | Very soft, sad. |

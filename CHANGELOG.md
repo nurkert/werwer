@@ -3,10 +3,12 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
-## Unreleased
+## 0.1.2 – 2026-10-27
 
 ### Added
-- The recorded narrator: a story with an arc from the first night to the
+- Every morning another rooster greets the village (five recordings, CC0),
+  the same on every phone.
+- The recorded narrator, in German and English: a story with an arc from the first night to the
   endgame, at least five variants of every line, and lines that name a
   detail only when it is true at this table. It opens the game with a short
   welcome, which the game leader can skip; sounds and voice follow each

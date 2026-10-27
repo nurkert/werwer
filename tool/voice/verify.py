@@ -38,6 +38,10 @@ SOUNDS_ALIKE = {
     "wehrwolfs": "werwolfs",
     "säherin": "seherin",
     "seeherin": "seherin",
+    "knight": "night",
+    "knights": "nights",
+    "neighbors": "neighbours",
+    "neighbor": "neighbour",
 }
 
 

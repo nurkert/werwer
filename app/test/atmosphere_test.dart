@@ -45,6 +45,17 @@ void main() {
     expect(cues.every((c) => c.at < const Duration(seconds: 90)), isTrue);
   });
 
+  test('every morning another rooster, the same on every phone', () {
+    expect(morningRooster('1234', 2), morningRooster('1234', 2));
+    for (var round = 1; round < 9; round++) {
+      expect(
+        morningRooster('1234', round),
+        isNot(morningRooster('1234', round + 1)),
+      );
+      expect(Sound.roosters, contains(morningRooster('1234', round)));
+    }
+  });
+
   group('the night and the morning', () {
     late _Ear ear;
     late List<void Function()> timers;
@@ -78,7 +89,7 @@ void main() {
         ..update(_view(Phase.night, 1))
         ..update(_view(Phase.day, 1));
       fireAll();
-      expect(ear.heard, [Sound.wake, Sound.yawn]);
+      expect(ear.heard, [morningRooster('1234', 1), Sound.yawn]);
     });
 
     test(
@@ -88,7 +99,7 @@ void main() {
           ..update(_view(Phase.night, 1, atmosphere: false))
           ..update(_view(Phase.day, 1, atmosphere: false));
         fireAll();
-        expect(ear.heard, [Sound.wake]);
+        expect(ear.heard, [morningRooster('1234', 1)]);
 
         atmosphere()
           ..muted = true

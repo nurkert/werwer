@@ -21,6 +21,10 @@ HQ MP3 preview.
 | `night.mp3` | [Gong Brilliant Paiste 32"](https://freesound.org/s/486629/) | JensZygar | CC0 1.0 | 0.15–3.15 s, low-pass 5 kHz, 1.6 s fade-out |
 | `yawn.mp3` | [long yawn.wav](https://freesound.org/s/252226/) | Reitanna | CC0 1.0 | 0–2.2 s, high-pass 80 Hz |
 | `wake.mp3` | [Rooster crows in a farm](https://freesound.org/s/623796/) | nomadas | CC0 1.0 | 0.25–2.55 s; made distant: band-pass 250 Hz–3.5 kHz, short echo |
+| `rooster1.mp3` | [Rooster Crowing](https://freesound.org/s/556913/) | pooky1 | CC0 1.0 | one crow, 2.0–4.6 s; high-pass 120 Hz, low-pass 9 kHz, 0.35 s fade-out |
+| `rooster2.mp3` | [Morning rooster crow](https://freesound.org/s/719773/) | JoMungus | CC0 1.0 | whole crow (2.3 s); high-pass 120 Hz, low-pass 9 kHz, 0.35 s fade-out |
+| `rooster3.mp3` | [Eleven Rooster Crows (2-3 Birds)](https://freesound.org/s/868040/) | lonemonk | CC0 1.0 | one crow, 10.6–13.2 s; high-pass 120 Hz, low-pass 9 kHz, 0.35 s fade-out |
+| `rooster4.mp3` | [Eleven Rooster Crows (2-3 Birds)](https://freesound.org/s/868040/) | lonemonk | CC0 1.0 | two birds overlapping, 23.7–26.9 s; high-pass 120 Hz, low-pass 9 kHz, 0.35 s fade-out |
 | `wind.mp3` | [Halloween - Graveyard At Night Howling Wind](https://freesound.org/s/159509/) | mistersherlock | CC0 1.0 | 20–28 s, high-pass 60 Hz, 1.5 s / 2 s fades |
 | `crickets.mp3` | [Crickets at night (1)](https://freesound.org/s/561326/) | cyberthilop | CC0 1.0 | 2–8 s, high-pass 1 kHz (removes rumble), 1 s fades |
 | `owl.mp3` | [owl_hooting_000102_0145S3 …](https://freesound.org/s/558396/) | Gerent | CC0 1.0 | 0.6–3.1 s; made distant: band-pass 150 Hz–2.5 kHz, short echo |
@@ -35,4 +39,4 @@ HQ MP3 preview.
 | `bowstring.mp3` | [Bow Release (Bow and Arrow) 3](https://freesound.org/s/384918/) | Ali_6868 | CC0 1.0 | 0–0.6 s |
 
 Kenney packs were downloaded as the official zips from kenney.nl; each contains a `License.txt`
-stating CC0 1.0. The CC0 licence of every Freesound item was checked on its page (2026-10-26).
+stating CC0 1.0. The CC0 licence of every Freesound item was checked on its page (2026-10-26; the roosters 2026-10-27).

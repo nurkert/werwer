@@ -18,7 +18,7 @@
    ],
    "en": [
     "Good evening, and welcome to the table. You are in a small village on a meadow, with a church, a few houses and far too many secrets. By day you talk to each other. By night it gets dangerous. Sit back, we are about to begin.",
-    "Welcome, all of you. Tonight I will tell you a story, and you are part of it. It is about a peaceful village that is not so peaceful after all. Because among you hides something that goes hunting at night. Listen closely.",
+    "Welcome, all of you. Tonight I will tell you a story, and you are part of it. It is about a peaceful village that is not so peaceful after all. Because something that goes hunting at night is hiding among you. Listen closely.",
     "Good to have you here. Put your phones down in front of you and look around. Every face at this table belongs to someone from the village. But not every face tells the truth. When I say so, you close your eyes, and when I say so, you open them again.",
     "Welcome to the village. Everyone here knows everyone, or so they think. For a few nights now something has been howling outside, and in the morning someone is sometimes missing. From tonight on, it is up to you to find out who is behind it. I will guide you through the night.",
     "An evening like any other, you think. You sit together, the light is warm, somewhere a dog barks. But tonight something wakes in the village that none of you sees coming. Welcome to the table. I am your voice through the night.",
@@ -52,15 +52,15 @@
    "direction": "Slow, hushed, the village goes to sleep.",
    "de": [
     "Die erste Nacht legt sich über das Dorf. Alle schließen jetzt die Augen.",
-    "Es wird dunkel im Dorf. Die Lichter gehen aus, eins nach dem anderen. Schließt die Augen.",
+    "Es wird dunkel im Dorf. Die Lichter gehen aus, eins nach dem anderen. Schließt eure Augen.",
     {
-     "text": "Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit Werwölfen in seiner Mitte. Schließt die Augen.",
+     "text": "Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit Werwölfen in seiner Mitte. Schließt eure Augen.",
      "if": [
       "wolves"
      ]
     },
     {
-     "text": "Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit einem Werwolf in seiner Mitte. Schließt die Augen.",
+     "text": "Die Sonne ist untergegangen. Zum ersten Mal schläft das Dorf mit einem Werwolf in seiner Mitte. Schließt eure Augen.",
      "if": [
       "wolf"
      ]
@@ -93,18 +93,18 @@
    "direction": "Hushed; a little heavier each time.",
    "de": [
     "Die Nacht kehrt zurück. Alle schließen jetzt die Augen.",
-    "Wieder wird es dunkel über dem Dorf. Schließt die Augen.",
-    "Noch eine Nacht beginnt. Ob ihr sie übersteht, erfahrt ihr am Morgen. Schließt die Augen.",
-    "Die Nacht legt sich über das Dorf. Niemand traut mehr den Nachbarn. Schließt die Augen.",
+    "Wieder wird es dunkel über dem Dorf. Schließt eure Augen.",
+    "Noch eine Nacht beginnt. Ob ihr sie übersteht, erfahrt ihr am Morgen. Schließt eure Augen.",
+    "Die Nacht legt sich über das Dorf. Niemand traut mehr den Nachbarn. Schließt eure Augen.",
     "Draußen heult der Wind um die Häuser. Alle schließen die Augen und halten still.",
     {
-     "text": "Wieder wird es dunkel. Das Dorf ist kleiner geworden. Schließt die Augen.",
+     "text": "Wieder wird es dunkel. Das Dorf ist kleiner geworden. Schließt eure Augen.",
      "if": [
       "deaths"
      ]
     },
     {
-     "text": "Die Nacht kommt zurück, und noch immer fehlt niemand. Wie lange noch? Schließt die Augen.",
+     "text": "Die Nacht kommt zurück, und noch immer fehlt niemand. Wie lange noch? Schließt eure Augen.",
      "if": [
       "no_deaths"
      ]
@@ -135,11 +135,11 @@
    "when": "A night in the endgame, classic night: half the village or more is gone.",
    "direction": "Very quiet, tense, every word weighs.",
    "de": [
-    "Das Dorf ist klein geworden, und die Nacht ist lang. Schließt die Augen und hofft auf den Morgen.",
-    "Nur noch wenige sitzen am Tisch. Diese Nacht könnte alles entscheiden. Schließt die Augen.",
+    "Das Dorf ist klein geworden, und die Nacht ist lang. Schließt eure Augen und hofft auf den Morgen.",
+    "Nur noch wenige sitzen am Tisch. Diese Nacht könnte alles entscheiden. Schließt eure Augen.",
     "Es ist still geworden im Dorf. Jedes Geräusch zählt jetzt. Alle schließen die Augen.",
-    "Die Kerzen sind fast heruntergebrannt. Bald ist alles entschieden. Schließt die Augen.",
-    "Die Nacht senkt sich ein weiteres Mal über das Dorf. Schließt die Augen und wartet."
+    "Die Kerzen sind fast heruntergebrannt. Bald ist alles entschieden. Schließt eure Augen.",
+    "Die Nacht senkt sich ein weiteres Mal über das Dorf. Schließt eure Augen und wartet."
    ],
    "en": [
     "The village has grown small, and the night is long. Close your eyes and hope for the morning.",
@@ -359,12 +359,12 @@
    "when": "Classic night: a role goes back to sleep (before the next is called).",
    "direction": "Short, quiet, matter-of-fact.",
    "de": [
-    "Schließt die Augen wieder.",
+    "Schließt eure Augen wieder.",
     "Und nun schlaft wieder ein.",
     "Wer wach war, schließt jetzt die Augen.",
     "Die Augen gehen wieder zu.",
     "Legt euch wieder schlafen, ganz leise.",
-    "Das genügt. Schließt die Augen wieder."
+    "Das genügt. Schließt eure Augen wieder."
    ],
    "en": [
     "Close your eyes again.",
@@ -536,7 +536,7 @@
     "That was a werewolf! The village breathes again.",
     "The mask has fallen. Underneath was a werewolf.",
     "A hit! At this seat there really was a werewolf.",
-    "Behind that friendly face hid a werewolf."
+    "Behind that friendly face was a werewolf all along."
    ]
   },
   {
@@ -781,7 +781,7 @@
     "Der Jäger ist gefallen und legt ein letztes Mal an.",
     "Der Jäger hebt ein letztes Mal seinen Bogen.",
     "Mit letzter Kraft spannt der Jäger den Bogen. Wen trifft der Pfeil?",
-    "Der Jäger zielt. Jetzt zählt ein einziger Pfeil.",
+    "Der Jäger nimmt sein Ziel ins Auge. Jetzt zählt ein einziger Pfeil.",
     "Bevor der Jäger geht, darf er noch einmal schießen."
    ],
    "en": [

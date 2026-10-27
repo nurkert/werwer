@@ -201,8 +201,8 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Hinweis zum Datenschutz beim ersten Start und beim Eintragen eines fremden Servers (ohne Zustimmungszwang, Art. 13 DSGVO), Datenschutzerklärung in den Einstellungen
 - [x] Uhrabgleich mit dem Host, gemeinsame Momente synchron (Grundlage für den Erzähler)
 - [x] Hybrid: Spieler im WLAN bleiben lokal, nur die anderen gehen über den Server
-- [x] **Wandernder Erzähler** (vorgezogen, Wunsch des Eigentümers; fehlt nur die Erzeugung der Aufnahmen mit ElevenLabs): synchrones Abspielen auf allen Handys und eine Stimme, die hörbar um den Tisch läuft; die Aufnahmen liefert der Eigentümer ([Task 010](tasks/010-wandernder-erzaehler.md))
-- [ ] **Eigene Stimmen** (zurückgestellt am 2026-10-26: erst die ElevenLabs-Aufnahmen und ein Test des wandernden Erzählers am Tisch): Jeder kann die Erzählersätze auf seinem Handy selbst einsprechen; hat jemand am Tisch eine eigene Stimme, kann der Spielleiter sie auswählen, und sie wird mit der Runde geteilt (nur Audiodaten, feste Größen- und Formatgrenzen, Zustimmung pro Gerät)
+- [x] **Wandernder Erzähler** (vorgezogen, Wunsch des Eigentümers; Aufnahmen mit ElevenLabs auf Deutsch und Englisch, jede per Transkription geprüft): synchrones Abspielen auf allen Handys und eine Stimme, die hörbar um den Tisch läuft; die Aufnahmen liefert der Eigentümer ([Task 010](tasks/010-wandernder-erzaehler.md))
+- [ ] **Eigene Stimmen** (zurückgestellt am 2026-10-26, kommt nach einem Test des wandernden Erzählers am Tisch, nicht Teil von 0.1.2): Jeder kann die Erzählersätze auf seinem Handy selbst einsprechen; hat jemand am Tisch eine eigene Stimme, kann der Spielleiter sie auswählen, und sie wird mit der Runde geteilt (nur Audiodaten, feste Größen- und Formatgrenzen, Zustimmung pro Gerät)
 - [x] Beitritt im Browser ohne Installation, im WLAN: Das Host-Handy liefert die Web-App selbst aus, der QR-Code öffnet sie mit der Handykamera (über mobile Daten: später, offen)
 
 ---

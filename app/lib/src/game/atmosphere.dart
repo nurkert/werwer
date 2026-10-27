@@ -19,6 +19,10 @@ enum Sound {
   turn('sounds/turn.mp3', 0.8),
   night('sounds/night.mp3', 0.6),
   wake('sounds/wake.mp3', 0.6),
+  rooster1('sounds/rooster1.mp3', 0.6),
+  rooster2('sounds/rooster2.mp3', 0.55),
+  rooster3('sounds/rooster3.mp3', 0.6),
+  rooster4('sounds/rooster4.mp3', 0.6),
   death('sounds/death.mp3', 0.8),
   vote('sounds/vote.mp3', 0.6),
   ballot('sounds/ballot.mp3', 0.9),
@@ -28,6 +32,15 @@ enum Sound {
   bowstring('sounds/bowstring.mp3', 0.8);
 
   const Sound(this.asset, this.volume);
+
+  /// The roosters that greet the morning, one per morning.
+  static const List<Sound> roosters = [
+    wake,
+    rooster1,
+    rooster2,
+    rooster3,
+    rooster4,
+  ];
 
   final String asset;
   final double volume;
@@ -65,6 +78,13 @@ List<Cue> nightCues(String room, int round, {Duration length = _night}) {
 }
 
 const _night = Duration(seconds: 90);
+
+/// The rooster of morning [round] in room [room]: the same on every phone,
+/// another one than the morning before.
+Sound morningRooster(String room, int round) {
+  const all = Sound.roosters;
+  return all[(stableHash('$room/rooster') + round) % all.length];
+}
 
 /// Plays sounds; the app uses [AudioSounds], tests a silent fake.
 abstract interface class Sounds {
@@ -161,7 +181,7 @@ class Atmosphere {
     } else if (!night && wasNight) {
       _stop();
       if (view.phase == Phase.day) {
-        _moment(Duration.zero, Sound.wake);
+        _moment(Duration.zero, morningRooster(room, view.round));
         // Everyone yawns as the sun comes up, all at once: a phone that
         // stays silent stands out.
         if (on) _shared(const Duration(milliseconds: 1900), Sound.yawn);
