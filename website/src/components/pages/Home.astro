@@ -146,7 +146,7 @@ const download = latest ? path('download', lang) : repoUrl;
       labelledby="spiel-title"
       moon={{ kind: 'full', x: '50%', y: '3%', size: 'clamp(70px, 12vmin, 130px)' }}
       pieces={[
-        { src: valance, at: 'top', h: 'clamp(70px, 14vh, 150px)', hide: '25%' },
+        { src: valance, at: 'top', h: 'clamp(120px, 22vh, 250px)', hide: '22%', repeat: 4 },
         { src: curtain, at: 'hang-left', h: '100', hide: '42%', hidePhone: '62%' },
         { src: curtain, at: 'hang-right', h: '100', hide: '42%', hidePhone: '62%', mirror: true },
       ]}
@@ -499,6 +499,12 @@ const download = latest ? path('download', lang) : repoUrl;
     top: 12%;
     transform: rotate(-7deg);
     filter: brightness(0.82);
+  }
+  /* On wide windows the cast stands on the stage boards, below the words. */
+  @media (min-width: 900px) {
+    .hero__stage {
+      transform: translateY(13vh);
+    }
   }
   .hero__wolf {
     position: absolute;

@@ -286,6 +286,12 @@ img.scene__set {
 }
 .piece--top img {
   height: var(--top-h, 18vh);
+  max-width: none;
+  flex: none;
+}
+/* Lengths side by side overlap a little at their seams. */
+.piece--top picture + picture img {
+  margin-left: -3%;
 }
 /* Wide windows only. */
 .piece--wide {

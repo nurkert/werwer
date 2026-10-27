@@ -20,6 +20,8 @@ export interface ScenePiece {
   mirror?: boolean;
   /** Only on wide windows. */
   wide?: boolean;
+  /** Top pieces: how many lengths side by side, so it spans the width. */
+  repeat?: number;
 }
 
 interface Props {
@@ -80,16 +82,18 @@ const loading = first ? 'eager' : 'lazy';
           .filter(Boolean)
           .join('; ')}
       >
-        <Picture
-          src={piece.src}
-          alt=""
-          formats={formats}
-          widths={piece.at === 'top' ? [700, 1400] : [240, 400, 640]}
-          sizes={piece.at === 'top' ? 'min(60vw, 900px)' : 'min(28vw, 360px)'}
-          quality={62}
-          loading={loading}
-          decoding="async"
-        />
+        {Array.from({ length: piece.at === 'top' ? (piece.repeat ?? 1) : 1 }, () => (
+          <Picture
+            src={piece.src}
+            alt=""
+            formats={formats}
+            widths={piece.at === 'top' ? [700, 1400] : [240, 400, 640]}
+            sizes={piece.at === 'top' ? 'min(60vw, 900px)' : 'min(28vw, 360px)'}
+            quality={62}
+            loading={loading}
+            decoding="async"
+          />
+        ))}
       </div>
     ))
   }
