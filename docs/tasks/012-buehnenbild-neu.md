@@ -260,6 +260,8 @@ Nach den Vorschlägen des Plans entschieden; der Eigentümer kann jede umwerfen.
 - **Einstellungen als Seite:** Sprache, Online-Server und „Über Whowolf“ liegen direkt auf der rechten Startseite, ohne Dialog. Die Server-Adresse wird wie vorher geprüft, bevor sie gespeichert wird.
 - **Sprache als Flagge** (Wunsch des Eigentümers): oben rechts auf dem Startbildschirm, nicht mehr in den Einstellungen.
 - **Figurenwahl auf dem Handy** (Wunsch des Eigentümers): Die Figurenseite der Lobby scrollt und zeigt große Karten mit der ganzen Figur, drei pro Reihe auf dem Handy, mehr bei breiteren Fenstern.
+- **Lobby-Seiten** (Wunsch des Eigentümers): Figur, Tisch (mit Einladung und Spielübersicht, scrollt) und nur für den Spielleiter die Spieleinstellungen als eigene Seite statt eines Fensters; jeder Abschnitt der Einstellungen liegt auf einer Plakette. Die Figur wechselt genau an ihrer Kante (90°), sodass keine Rückseite zu sehen ist.
+- **Website-Übergänge:** echte Überblendung, jedes Bühnenbild bleibt bis unten stehen und das nächste blendet darüber ein, ohne dunklen Streifen.
 - **Geschlossene Räume** verschwinden aus der Suche des eigenen Geräts sofort, auch wenn das System die Ankündigung noch kurz zwischenspeichert.
 - **Parallaxe gedämpft** (Wunsch des Eigentümers): ein Drittel des Ausschlags, langsamer nachgeführt.
 - **Website:** Die Abschnitte gehen weich ineinander über (Bild, Abdunkelung und Tönung blenden am Überlapp aus), Kulissen richten sich nach der Bildschirmhöhe, die Download-Seite zeigt die Download-Zahlen von GitHub groß im Bühnenstil, die Texte sind sprachlich überarbeitet.
