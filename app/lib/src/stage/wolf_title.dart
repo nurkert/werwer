@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:whowolf/src/game/figures.dart';
 
 /// The start screen's title (task 012): the werewolf stands big behind the
@@ -22,10 +23,11 @@ class WolfTitle extends StatefulWidget {
 }
 
 class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
-  /// The slow clock everything moves by.
-  late final AnimationController _time = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 60),
+  /// The slow clock everything moves by, in seconds; it never wraps, so
+  /// the turns never jump.
+  final ValueNotifier<double> _time = ValueNotifier(0);
+  late final Ticker _ticker = createTicker(
+    (elapsed) => _time.value = elapsed.inMicroseconds / 1e6,
   );
   final ValueNotifier<double> _wolfAngle = ValueNotifier(0);
   final ValueNotifier<double> _wordAngle = ValueNotifier(0);
@@ -62,41 +64,71 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
     _time.addListener(_move);
   }
 
-  /// Two slow swings of different length for each piece: the turn never
-  /// repeats quite the same, the board's edge shows now left, now right.
+  /// Three long swings of unrelated lengths for each piece, and their
+  /// strength swelling and ebbing itself: a slow, calm turn that never
+  /// repeats, sometimes almost still, sometimes showing the board's edge.
   void _move() {
-    final t = _time.value * 60;
-    _wolfAngle.value =
-        0.26 * sin(2 * pi * t / 7.3) + 0.1 * sin(2 * pi * t / 3.1);
-    _wordAngle.value =
-        0.2 * sin(2 * pi * t / 9.7 + 1.3) + 0.07 * sin(2 * pi * t / 4.3);
+    final t = _time.value;
+    double swing(List<(double, double, double)> waves, double ebb, double at) {
+      var a = 0.0;
+      for (final (amount, period, phase) in waves) {
+        a += amount * sin(2 * pi * t / period + phase);
+      }
+      return a * (0.45 + 0.55 * pow(0.5 + 0.5 * sin(2 * pi * t / ebb + at), 2));
+    }
+
+    _wolfAngle.value = swing(
+      const [
+        (0.13, 23.7, 0),
+        (0.06, 14.3, 1.1),
+        (0.03, 9.1, 2.6),
+      ],
+      47,
+      0.4,
+    );
+    _wordAngle.value = swing(
+      const [
+        (0.1, 29.3, 1.7),
+        (0.045, 17.9, 0.3),
+        (0.02, 11.3, 4.1),
+      ],
+      61,
+      2.2,
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (MediaQuery.of(context).disableAnimations) {
-      _time
-        ..stop()
-        ..value = 0.02;
+      _ticker.stop();
+      _time.value = 1.2;
       _move();
-    } else if (!_time.isAnimating) {
-      unawaited(_time.repeat());
+    } else if (!_ticker.isActive) {
+      unawaited(_ticker.start());
     }
   }
 
   @override
   void dispose() {
+    _ticker.dispose();
     _time.dispose();
     _wolfAngle.dispose();
     _wordAngle.dispose();
     super.dispose();
   }
 
-  /// Rests, leans forward and reaches over, settles back (every 8 s).
+  /// Rests long, then slowly leans over the letters and settles back;
+  /// the rests are of different lengths.
   double get _reach {
-    final t = (_time.value * 60 / 8) % 1;
-    return pow(sin(pi * (t * 2).clamp(0.0, 1.0)), 2).toDouble();
+    final t = _time.value;
+    final cycle = (t / 13).floor();
+    final into = t - cycle * 13;
+    // Every cycle leans at its own moment and not every cycle leans.
+    final start = 2 + 6 * ((sin(cycle * 12.9898) * 43758.5453) % 1).abs();
+    if ((cycle * 7) % 5 == 3) return 0;
+    final p = ((into - start) / 3.6).clamp(0.0, 1.0);
+    return pow(sin(pi * p), 2).toDouble();
   }
 
   @override
@@ -130,7 +162,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
       // Leaning over the letters: the body tips forward around the paw,
       // which stays on its letter.
       builder: (context, child) => Transform.rotate(
-        angle: 0.06 * _reach,
+        angle: 0.045 * _reach,
         alignment: wolfPivot,
         child: child,
       ),
