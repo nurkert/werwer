@@ -40,4 +40,4 @@ Rückmeldung des Eigentümers: App und Website wirken noch „recht tot“. Gew�
 - [x] App: reduzierte Bewegung zeigt ein ruhiges Standbild (Uhr steht bei einem leuchtenden Moment).
 - [x] Theater: Vollmond hoch am Himmel.
 - [x] Website: Leben in allen acht Szenen, fotografiert; Bildrate auf gedrosseltem Handy 60 fps, schlimmstes Bild 17 ms, keine Blockierzeit, JavaScript 22 KB.
-- [ ] check.sh grün, gepusht, auf dem iPhone installiert.
+- [x] check.sh grün, gepusht, auf dem iPhone installiert.
