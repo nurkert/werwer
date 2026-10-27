@@ -22,6 +22,7 @@ import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/stage/scene.dart';
+import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The game from this player's seat. If this device hosts, it also owns the
@@ -290,6 +291,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                     (view == null && session.status != SessionStatus.ended)
                 ? Scene.curtain
                 : sceneFor(view),
+            ghost:
+                view != null &&
+                !view.yourSeat.isAlive &&
+                view.phase != Phase.ended,
             floatingAppBar: true,
             appBar: AppBar(
               toolbarHeight: StageLayout.of(context).short
@@ -434,32 +439,27 @@ class _NarratorLine extends StatelessWidget {
             horizontal: 16,
             vertical: short ? 6 : 12,
           ),
-          decoration: BoxDecoration(
-            color: Palette.night800.withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(Radii.m),
-            border: Border.all(
-              color: Palette.gold500.withValues(alpha: 0.45),
-              width: 1.5,
-            ),
-          ),
+          // A plaque like every other (task 012); the story in the serif.
+          decoration: const PlaqueDecoration(),
           child: Row(
             children: [
               Icon(
                 Icons.nightlight_round,
-                color: Palette.lantern400,
-                size: short ? 18 : 24,
+                color: Palette.stageMoonlight,
+                size: short ? 18 : 22,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   text,
-                  maxLines: short ? 2 : null,
-                  overflow: short ? TextOverflow.ellipsis : null,
+                  maxLines: short ? 2 : 4,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Palette.moon100,
+                    fontFamily: displayFont,
+                    color: Palette.stageIvory,
                     fontStyle: FontStyle.italic,
-                    fontSize: short ? 13 : null,
-                    height: 1.35,
+                    fontSize: short ? 14 : 16,
+                    height: 1.3,
                   ),
                 ),
               ),

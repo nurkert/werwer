@@ -149,7 +149,14 @@ class Body extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         height: 1.45,
-        color: muted ? color.withValues(alpha: paper ? 0.8 : 0.72) : color,
+        color: muted ? color.withValues(alpha: paper ? 0.8 : 0.85) : color,
+        // Readable on any painted scene, also the bright morning.
+        shadows: paper
+            ? null
+            : const [
+                Shadow(color: Color(0xE6000000), blurRadius: 6),
+                Shadow(color: Color(0x99000000), blurRadius: 14),
+              ],
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/stage/moon.dart';
+import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The stage set behind a screen (task 012): every moment of the evening
@@ -117,7 +118,7 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.finale => (
     sky: const [Color(0xFF2B4772), Color(0xFF9A7A78), Color(0xFFF2C890)],
     moon: MoonPhase.sun,
-    moonAt: const Alignment(0, -0.6),
+    moonAt: const Alignment(-0.6, -0.3),
     stars: 0,
     horizon: const Color(0xFF2A3446),
     wings: const Color(0xFF151C2A),
@@ -125,7 +126,7 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.finaleWolves => (
     sky: const [Color(0xFF12070A), Color(0xFF2A0F14), Color(0xFF4A1A1E)],
     moon: MoonPhase.blood,
-    moonAt: const Alignment(0, -0.55),
+    moonAt: const Alignment(0.62, -0.32),
     stars: 0.3,
     horizon: const Color(0xFF14080A),
     wings: const Color(0xFF080305),
@@ -133,7 +134,7 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.finaleLovers => (
     sky: const [Color(0xFF1A1636), Color(0xFF4A2E5A), Color(0xFFB0707A)],
     moon: MoonPhase.full,
-    moonAt: const Alignment(0, -0.6),
+    moonAt: const Alignment(0.62, -0.32),
     stars: 0.6,
     horizon: const Color(0xFF221A30),
     wings: const Color(0xFF120E1E),
@@ -332,11 +333,74 @@ String? plateOf(Scene scene) => switch (scene) {
   Scene.theatre => 'assets/stage/theatre.webp',
   Scene.nightLake => 'assets/stage/nightlake.webp',
   Scene.morning => 'assets/stage/morning.webp',
+  Scene.dusk => 'assets/stage/dusk.webp',
+  Scene.hunt => 'assets/stage/hunt.webp',
+  Scene.finale => 'assets/stage/finale.webp',
+  // The wolves win at dusk turned red, the lovers by the lake in rose.
+  Scene.finaleWolves => 'assets/stage/dusk.webp',
+  Scene.finaleLovers => 'assets/stage/nightlake.webp',
+  Scene.backstage => 'assets/stage/backstage.webp',
+  Scene.curtain => 'assets/stage/curtain.webp',
+};
+
+/// A colour laid over a borrowed plate (multiplied in).
+Color? tintOf(Scene scene) => switch (scene) {
+  Scene.finaleWolves => const Color(0xFFB0393A),
+  Scene.finaleLovers => const Color(0xFFE8A0B4),
   _ => null,
 };
 
-/// Paints what goes over a plate: the moon in its sky and the dark at the
-/// top and the foot that keeps titles and buttons readable.
+/// The wings at both sides of a scene (task 012): tall cut-outs that
+/// frame the screen and shift most when the phone tilts.
+(String, String)? wingsOf(Scene scene) => switch (scene) {
+  Scene.village || Scene.dusk || Scene.morning || Scene.finale => (
+    'assets/stage/wings/oak.webp',
+    'assets/stage/wings/house.webp',
+  ),
+  Scene.nightLake || Scene.hunt || Scene.finaleLovers => (
+    'assets/stage/wings/pines_l.webp',
+    'assets/stage/wings/pines_owl.webp',
+  ),
+  Scene.theatre || Scene.finaleWolves => (
+    'assets/stage/wings/curtain_l.webp',
+    'assets/stage/wings/curtain_r.webp',
+  ),
+  Scene.backstage || Scene.curtain => null,
+};
+
+/// The moon in a plate's sky.
+class _MoonLayer extends CustomPainter {
+  const _MoonLayer(this.scene);
+
+  final Scene scene;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final look = lookOf(scene);
+    final moon = look.moon;
+    if (moon == null) return;
+    final wide = size.width > size.height;
+    // Wide windows hold content in both columns: a smaller moon rises
+    // high in the middle, above the gap between them.
+    final d =
+        size.shortestSide *
+        (moon == MoonPhase.crescent ? 0.3 : 0.4) *
+        (wide ? 0.7 : 1);
+    final at = wide ? const Alignment(-0.1, -0.92) : look.moonAt;
+    final center = at.withinRect(Offset.zero & size);
+    canvas
+      ..save()
+      ..translate(center.dx - d / 2, center.dy - d / 2);
+    MoonPainter(phase: moon).paint(canvas, Size.square(d));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_MoonLayer old) => old.scene != scene;
+}
+
+/// The dark at the top and the foot that keeps titles and buttons
+/// readable over a plate.
 class _PlateLight extends CustomPainter {
   const _PlateLight(this.scene);
 
@@ -346,16 +410,6 @@ class _PlateLight extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final look = lookOf(scene);
     final area = Offset.zero & size;
-    final moon = look.moon;
-    if (moon != null) {
-      final d = size.shortestSide * (moon == MoonPhase.crescent ? 0.3 : 0.4);
-      final center = look.moonAt.withinRect(area);
-      canvas
-        ..save()
-        ..translate(center.dx - d / 2, center.dy - d / 2);
-      MoonPainter(phase: moon).paint(canvas, Size.square(d));
-      canvas.restore();
-    }
     canvas.drawRect(
       area,
       Paint()
@@ -377,7 +431,9 @@ class _PlateLight extends CustomPainter {
   bool shouldRepaint(_PlateLight old) => old.scene != scene;
 }
 
-/// The scene, filling its area, crossfading when it changes.
+/// The scene, filling its area, crossfading when it changes. Its layers
+/// lie at different depths: when the phone tilts ([StageTilt]) the wings
+/// in front move most, the moon a little, the painted set behind hardly.
 class StageSet extends StatelessWidget {
   const StageSet({required this.scene, super.key});
 
@@ -386,28 +442,114 @@ class StageSet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plate = plateOf(scene);
+    final tilt = StageTilt.of(context);
+    Widget shift(double depth, Widget child) =>
+        Transform.translate(offset: tilt * -depth, child: child);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 600),
-      child: RepaintBoundary(
+      child: KeyedSubtree(
         key: ValueKey(scene),
         child: plate == null
-            ? CustomPaint(painter: ScenePainter(scene), size: Size.infinite)
+            ? RepaintBoundary(
+                child: CustomPaint(
+                  painter: ScenePainter(scene),
+                  size: Size.infinite,
+                ),
+              )
             : Stack(
                 fit: StackFit.expand,
                 children: [
                   // Behind the plate, in case it is not decoded yet.
-                  CustomPaint(painter: ScenePainter(scene)),
-                  Image.asset(
-                    plate,
-                    fit: BoxFit.cover,
-                    // The ground the puppets stand on stays in view.
-                    alignment: const Alignment(0, 0.6),
-                    gaplessPlayback: true,
+                  RepaintBoundary(
+                    child: CustomPaint(painter: ScenePainter(scene)),
                   ),
-                  CustomPaint(painter: _PlateLight(scene)),
+                  // A little larger than the screen, so tilting never
+                  // shows its edge.
+                  shift(
+                    4,
+                    Transform.scale(
+                      scale: 1.04,
+                      child: RepaintBoundary(child: _Plate(scene, plate)),
+                    ),
+                  ),
+                  shift(
+                    8,
+                    RepaintBoundary(
+                      child: CustomPaint(painter: _MoonLayer(scene)),
+                    ),
+                  ),
+                  if (wingsOf(scene) case (final left, final right))
+                    shift(18, _Wings(left: left, right: right)),
+                  RepaintBoundary(
+                    child: CustomPaint(painter: _PlateLight(scene)),
+                  ),
                 ],
               ),
       ),
     );
   }
+}
+
+class _Plate extends StatelessWidget {
+  const _Plate(this.scene, this.asset);
+
+  final Scene scene;
+  final String asset;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = Image.asset(
+      asset,
+      fit: BoxFit.cover,
+      // The ground the puppets stand on stays in view.
+      alignment: const Alignment(0, 0.6),
+      gaplessPlayback: true,
+    );
+    final tint = tintOf(scene);
+    return tint == null
+        ? image
+        : ColorFiltered(
+            colorFilter: ColorFilter.mode(tint, BlendMode.multiply),
+            child: image,
+          );
+  }
+}
+
+/// Two tall cut-outs, each showing only its inner part at the screen's
+/// edge, like wings at the side of a stage.
+class _Wings extends StatelessWidget {
+  const _Wings({required this.left, required this.right});
+
+  final String left;
+  final String right;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final height = (box.maxHeight * 0.78).clamp(0.0, box.maxWidth * 2.2);
+      // How much of each wing reaches into the screen: a frame, never
+      // more than a narrow strip, so content on wide windows stays clear.
+      final reach = (box.maxWidth * 0.2).clamp(60.0, 150.0);
+      Widget wing(String asset, {required bool isLeft}) => Positioned(
+        bottom: -box.maxHeight * 0.02,
+        height: height,
+        left: isLeft ? 0 : box.maxWidth - reach,
+        width: reach,
+        child: OverflowBox(
+          alignment: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+          maxWidth: double.infinity,
+          child: Image.asset(asset, height: height, fit: BoxFit.fitHeight),
+        ),
+      );
+      return RepaintBoundary(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            wing(left, isLeft: true),
+            wing(right, isLeft: false),
+          ],
+        ),
+      );
+    },
+  );
 }

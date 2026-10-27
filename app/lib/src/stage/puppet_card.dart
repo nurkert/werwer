@@ -150,7 +150,8 @@ class PuppetCard extends StatelessWidget {
                           if (subtitle.isNotEmpty)
                             Text(
                               subtitle,
-                              maxLines: 2,
+                              maxLines: width < 110 ? 1 : 2,
+                              overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 11,

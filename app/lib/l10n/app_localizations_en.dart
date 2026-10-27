@@ -1217,4 +1217,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eyesClosedTitle => 'Eyes closed';
+
+  @override
+  String get comeJoinTitle => 'Come and join';
 }

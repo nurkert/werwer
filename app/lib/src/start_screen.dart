@@ -296,12 +296,18 @@ class _StartScreenState extends State<StartScreen> {
               height: layout.twoColumns ? null : 150,
             ),
             const SizedBox(height: 12),
-            _Cast(height: layout.twoColumns ? 200 : (layout.short ? 90 : 120)),
-            const SizedBox(height: 16),
+            _Cast(height: layout.twoColumns ? 240 : (layout.short ? 100 : 170)),
+            const SizedBox(height: 14),
             Text(
               l10n.tagline,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: const TextStyle(
+                fontFamily: displayFont,
+                fontSize: 19,
+                fontStyle: FontStyle.italic,
+                color: Palette.stageIvory,
+                shadows: [Shadow(blurRadius: 8)],
+              ),
             ),
           ];
           final form = [

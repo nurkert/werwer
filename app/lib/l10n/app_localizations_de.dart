@@ -1229,4 +1229,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get eyesClosedTitle => 'Augen zu';
+
+  @override
+  String get comeJoinTitle => 'Komm dazu';
 }

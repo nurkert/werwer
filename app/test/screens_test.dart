@@ -151,7 +151,14 @@ class _Shooter {
 Future<void> _precache(WidgetTester tester) async {
   final context = tester.element(find.byType(Scaffold).first);
   await tester.runAsync(() async {
-    for (final dir in ['brand', 'figures', 'figures/roles', 'sheep', 'stage']) {
+    for (final dir in [
+      'brand',
+      'figures',
+      'figures/roles',
+      'sheep',
+      'stage',
+      'stage/wings',
+    ]) {
       for (final file in Directory('assets/$dir').listSync()) {
         if (file is! File) continue;
         await precacheImage(AssetImage(file.path), context);
@@ -273,7 +280,6 @@ void main() {
     if (_out == null) return;
     // Real time, before any widget asks for it inside the fake clock.
     await Grain.load();
-    await _loadFont('LilitaOne', ['assets/fonts/LilitaOne-Regular.ttf']);
     await _loadFont('AncizarSerif', [
       'assets/fonts/AncizarSerif-Variable.ttf',
       'assets/fonts/AncizarSerif-Italic-Variable.ttf',
@@ -319,7 +325,12 @@ void main() {
             );
             await tester.pump();
             final first = seed == 1;
-            if (first) await shot.shoot('02-lobby');
+            if (first) {
+              await tester.runAsync(
+                () => Future<void>.delayed(const Duration(seconds: 2)),
+              );
+              await shot.shoot('02-lobby');
+            }
             table.ownerSends(const StartGameIntent());
             await tester.pump();
             final role = table.you.view!.yourRole!;

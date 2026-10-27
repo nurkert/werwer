@@ -2149,6 +2149,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Eyes closed'**
   String get eyesClosedTitle;
+
+  /// No description provided for @comeJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Come and join'**
+  String get comeJoinTitle;
 }
 
 class _AppLocalizationsDelegate

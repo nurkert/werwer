@@ -16,6 +16,7 @@ import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// Shared scaffold of every phase. On a phone it is one column; a wide
@@ -1014,8 +1015,9 @@ class EndedPhase extends StatelessWidget {
         if (_bestDreamer(view) case (final name, final points))
           Panel(paper: true, child: Body(l10n.bestDreamer(name, points))),
         Aside(child: Body(l10n.everyRole)),
+        // The curtain call (task 012): everyone in their role's costume.
         Aside(
-          child: SeatGrid(
+          child: _CurtainCall(
             view: view,
             badges: {
               for (final MapEntry(:key, :value) in view.dreams.entries)
@@ -1024,6 +1026,86 @@ class EndedPhase extends StatelessWidget {
           ),
         ),
         TextButton(onPressed: onLeave, child: Text(l10n.leave)),
+      ],
+    );
+  }
+}
+
+/// Everyone takes a bow in the costume of the role they played, the name
+/// and the role on a small plaque at their feet.
+class _CurtainCall extends StatelessWidget {
+  const _CurtainCall({required this.view, this.badges = const {}});
+
+  final PlayerView view;
+  final Map<PlayerId, String> badges;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final height = StageLayout.of(context).roomy ? 170.0 : 128.0;
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 4,
+      runSpacing: 14,
+      children: [
+        for (final seat in view.seats)
+          SizedBox(
+            width: height * 0.72,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: height,
+                  child: Image.asset(
+                    seat.role == null
+                        ? personaAsset(seat.persona)
+                        : personaRoleAsset(seat.persona, seat.role!),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.bottomCenter,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                DecoratedBox(
+                  decoration: const PlaqueDecoration(radius: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          seat.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: seat.id == view.you
+                                ? Palette.stageLanternTop
+                                : Palette.stageIvory,
+                          ),
+                        ),
+                        Text(
+                          [
+                            if (seat.role case final role?) l10n.role(role),
+                            ?badges[seat.id],
+                          ].join(' · '),
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            height: 1.2,
+                            color: Palette.stageIvorySoft,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// What the app does with data, in the app itself (Art. 13 GDPR): readable
@@ -35,6 +36,7 @@ class PrivacyScreen extends StatelessWidget {
       ),
     );
     return StageScaffold(
+      scene: Scene.backstage,
       floatingAppBar: true,
       appBar: AppBar(title: Text(l10n.privacyTitle)),
       body: StageScroll(

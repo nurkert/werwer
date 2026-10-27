@@ -241,11 +241,17 @@ class _JoinScreenState extends State<JoinScreen> {
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 children: [
+                  Headline(l10n.comeJoinTitle, eyebrow: l10n.eyebrowEvening),
+                  const SizedBox(height: 20),
                   _Nearby(finder: _finder, onJoin: _joinNearby),
                   const HelpLink(),
                   const SizedBox(height: 12),
                   if (canScan) ...[
-                    PrimaryButton(label: l10n.scanQr, onPressed: _scan),
+                    PrimaryButton(
+                      label: l10n.scanQr,
+                      icon: Icons.qr_code_scanner_rounded,
+                      onPressed: _scan,
+                    ),
                     const SizedBox(height: 12),
                   ],
                   // Typing addresses is the fallback, tucked away.
@@ -325,10 +331,7 @@ class _JoinScreenState extends State<JoinScreen> {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        OutlinedButton(
-                          onPressed: _join,
-                          child: Text(l10n.connect),
-                        ),
+                        SecondaryButton(label: l10n.connect, onPressed: _join),
                         const SizedBox(height: 12),
                       ],
                     ),

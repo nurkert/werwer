@@ -32,6 +32,7 @@ dependencies:
   # 1.8.1+ needs dbus 0.8, which bonsoir_linux does not support yet.
   secure_channel:
     path: ../packages/secure_channel
+  sensors_plus: ^7.1.1
   wakelock_plus: ">=1.3.0 <1.8.1"
   # Browser APIs for joining in the browser (Dart team, BSD-3).
   web: ^1.1.1
@@ -51,6 +52,7 @@ flutter:
     - assets/brand/
     - assets/figures/
     - assets/stage/
+    - assets/stage/wings/
     - assets/figures/roles/
     - assets/sheep/
     - assets/licenses/
@@ -61,9 +63,6 @@ flutter:
     - assets/voice/de/
     - assets/voice/en/
   fonts:
-    - family: LilitaOne
-      fonts:
-        - asset: assets/fonts/LilitaOne-Regular.ttf
     # Variable font: weights 400–700 via the weight axis.
     - family: AncizarSerif
       fonts:

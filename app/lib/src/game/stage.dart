@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:whowolf/src/game/cardboard.dart';
 import 'package:whowolf/src/stage/scene.dart';
+import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The stock everything is printed on: a small tile of noise, made once and
@@ -99,9 +100,13 @@ class GrainPainter extends CustomPainter {
 /// The stage every screen plays on: night cardstock with moonlight from
 /// above, a little grain, and the curtain's valance along the top edge.
 class StageBackground extends StatefulWidget {
-  const StageBackground({required this.child, super.key});
+  const StageBackground({required this.child, this.ghost = false, super.key});
 
   final Widget child;
+
+  /// The viewer is dead: a cool, ghostly veil over the scene (public, as
+  /// every death is).
+  final bool ghost;
 
   @override
   State<StageBackground> createState() => _StageBackgroundState();
@@ -128,7 +133,13 @@ class _StageBackgroundState extends State<StageBackground> {
       children: [
         // The scene of this moment (task 012), with the grain over it and
         // never over text.
-        IgnorePointer(child: StageSet(scene: SceneScope.of(context))),
+        IgnorePointer(
+          child: StageTilt(child: StageSet(scene: SceneScope.of(context))),
+        ),
+        if (widget.ghost)
+          const IgnorePointer(
+            child: ColoredBox(color: Color(0x553A6EA8)),
+          ),
         IgnorePointer(
           child: RepaintBoundary(
             child: CustomPaint(painter: GrainPainter(opacity: 0.05)),
@@ -234,11 +245,15 @@ class StageScaffold extends StatelessWidget {
     this.appBar,
     this.floatingAppBar = false,
     this.scene,
+    this.ghost = false,
     super.key,
   });
 
   /// The stage set; the one around it if `null`.
   final Scene? scene;
+
+  /// See [StageBackground.ghost].
+  final bool ghost;
 
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -250,6 +265,7 @@ class StageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final page = StageBackground(
+      ghost: ghost,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: floatingAppBar,

@@ -737,5 +737,6 @@
   "voteQuestion": "Whom do you suspect?",
   "hunterQuestion": "Whom do you take with you?",
   "introTitle": "Listen closely",
-  "eyesClosedTitle": "Eyes closed"
+  "eyesClosedTitle": "Eyes closed",
+  "comeJoinTitle": "Come and join"
 }

@@ -6,7 +6,7 @@ export 'package:whowolf/src/palette.g.dart';
 const displayFont = 'AncizarSerif';
 const textFont = 'Manrope';
 
-/// The app's theme: night stage, Manrope text, Lilita One titles. Screens
+/// The app's theme: night stage, Manrope text, Ancizar Serif titles. Screens
 /// sit on a transparent scaffold over the shared stage background.
 ThemeData buildTheme() {
   return ThemeData(
@@ -45,19 +45,20 @@ ThemeData buildTheme() {
         ),
       ),
     ),
+    // Sheets and dialogs are plaques too (task 012): warm dark, brass edge.
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Palette.night800,
-      dragHandleColor: Palette.card200,
+      backgroundColor: Palette.stagePlaque,
+      dragHandleColor: Palette.stageBrassLight,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.l)),
-        side: BorderSide(color: Palette.night500, width: 1.5),
+        side: BorderSide(color: Palette.stageBrass, width: 1.5),
       ),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: Palette.night800,
+      backgroundColor: Palette.stagePlaque,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.l),
-        side: const BorderSide(color: Palette.night500, width: 1.5),
+        side: const BorderSide(color: Palette.stageBrass, width: 1.5),
       ),
       titleTextStyle: const TextStyle(
         fontFamily: displayFont,
@@ -78,22 +79,26 @@ ThemeData buildTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Palette.night800,
-      labelStyle: const TextStyle(color: Palette.moon200),
+      // A field cut into a plaque (task 012): warm dark, brass edge.
+      fillColor: Palette.stagePlaque.withValues(alpha: 0.86),
+      labelStyle: const TextStyle(color: Palette.stageIvorySoft),
+      hintStyle: TextStyle(
+        color: Palette.stageIvorySoft.withValues(alpha: 0.6),
+      ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Radii.s + 4),
-        borderSide: BorderSide(color: Palette.card200.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(Radii.m),
+        borderSide: const BorderSide(color: Palette.stageBrass),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Radii.s + 4),
-        borderSide: BorderSide(
-          color: Palette.card200.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(Radii.m),
+        borderSide: const BorderSide(color: Palette.stageBrass, width: 1.5),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Radii.s + 4),
-        borderSide: const BorderSide(color: Palette.lantern400, width: 2),
+        borderRadius: BorderRadius.circular(Radii.m),
+        borderSide: const BorderSide(
+          color: Palette.stageLanternTop,
+          width: 2,
+        ),
       ),
     ),
     textTheme: const TextTheme(

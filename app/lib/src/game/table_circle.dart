@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
-import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
+import 'package:whowolf/src/stage/puppet_card.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The table seen from the viewer's own seat: you at the bottom, your
@@ -38,38 +38,38 @@ class TableCircle extends StatelessWidget {
         final space = ColumnSpace.heightOf(context);
         final most = space == null ? 460.0 : (space - 150).clamp(300.0, 640.0);
         final size = min(box.maxWidth, most);
-        final portrait = size < 360
-            ? 46.0
+        // Every seat a small puppet card around the table (task 012).
+        final card = size < 360
+            ? 66.0
             : size > 520
-            ? 68.0
-            : 56.0;
-        final label = size > 520 ? 108.0 : 92.0;
-        final radius = size / 2 - label / 2 - 4;
+            ? 96.0
+            : 80.0;
+        final radius = size / 2 - card / 2 - 2;
         return SizedBox.square(
           dimension: size,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Center(child: _Table(diameter: radius * 1.15)),
+              Center(child: _Table(diameter: radius * 1.05)),
               for (final (i, seat) in ordered.indexed)
                 () {
                   // Start at the bottom, go round clockwise on screen.
                   final angle = pi / 2 + i * 2 * pi / ordered.length;
-                  final x = size / 2 + radius * cos(angle) - label / 2;
-                  final y =
-                      size / 2 + radius * sin(angle) - (portrait + 34) / 2;
+                  final x = size / 2 + radius * cos(angle) - card / 2;
+                  final y = size / 2 + radius * sin(angle) - card * 1.12 / 2;
                   return Positioned(
                     left: x,
                     top: y,
-                    width: label,
-                    child: _Seat(
-                      seat: seat,
-                      isYou: seat.id == view.you,
+                    child: PuppetCard(
+                      persona: seat.persona,
+                      name: seat.name,
+                      width: card,
+                      you: seat.id == view.you,
+                      alive: seat.isAlive,
                       selected: seat.id == selected,
-                      portrait: portrait,
+                      deadLabel: l10n.dead,
                       subtitle: [
-                        if (seat.id == view.you) l10n.you,
                         ?openRole(view, seat, l10n),
-                        if (!seat.isAlive) l10n.dead,
                         ?badges[seat.id],
                       ].join(' · '),
                       onTap: onTap == null ? null : () => onTap!(seat),
@@ -82,91 +82,6 @@ class TableCircle extends StatelessWidget {
       },
     );
   }
-}
-
-class _Seat extends StatelessWidget {
-  const _Seat({
-    required this.seat,
-    required this.isYou,
-    required this.selected,
-    required this.portrait,
-    required this.subtitle,
-    this.onTap,
-  });
-
-  final SeatView seat;
-  final bool isYou;
-  final bool selected;
-  final double portrait;
-  final String subtitle;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Opacity(
-      opacity: seat.isAlive ? 1 : 0.45,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: selected || isYou
-                  ? Border.all(
-                      color: selected ? Palette.lantern400 : Palette.moon100,
-                      width: 3,
-                    )
-                  : null,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: Portrait(
-                persona: seat.persona,
-                size: portrait,
-                grey: !seat.isAlive,
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            seat.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Palette.moon100,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              decoration: seat.isAlive ? null : TextDecoration.lineThrough,
-            ),
-          ),
-          if (subtitle.isNotEmpty)
-            // A little tag, readable even where it overlaps the table.
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: Palette.night950.withValues(alpha: 0.75),
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
-                child: Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Palette.moon200,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    ),
-  );
 }
 
 /// The round wooden table in the middle, a gold inlay and the emblem burnt
