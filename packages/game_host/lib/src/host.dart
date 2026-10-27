@@ -261,6 +261,9 @@ class GameHost {
 
   /// When the current phase or night step began (host clock).
   int _phaseStartedAt = 0;
+
+  /// When the owner skipped the narrator's intro in this role reveal.
+  int? _introSkippedAt;
   bool _closed = false;
 
   /// Counts every broadcast state, so players drop states that arrive late.
@@ -793,6 +796,13 @@ class GameHost {
         case EndDiscussionIntent():
           _ownerOnly(session);
           _commit(apply(_state, const EndDiscussion()));
+        case SkipIntroIntent():
+          _ownerOnly(session);
+          if (_state.phase != Phase.roleReveal || _introSkippedAt != null) {
+            throw const RuleViolation(Violation.wrongPhase);
+          }
+          _introSkippedAt = _clock();
+          _broadcast();
         case KickIntent(:final player):
           _ownerOnly(session);
           if (player == me) throw const RuleViolation(Violation.invalidTarget);
@@ -855,6 +865,7 @@ class GameHost {
     if (before.phase != _state.phase ||
         before.round != _state.round ||
         before.nightStep != _state.nightStep) {
+      if (before.phase != _state.phase) _introSkippedAt = null;
       _schedulePhaseTimer();
     } else if (_state.phase == Phase.night &&
         timeLimit(before) != timeLimit(_state)) {
@@ -923,6 +934,9 @@ class GameHost {
             ? null
             : _phaseLeft(),
         phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
+        introSkippedAt: _state.phase == Phase.roleReveal
+            ? _introSkippedAt
+            : null,
         pending: session.owner
             ? [
                 for (final p in _pending.values)

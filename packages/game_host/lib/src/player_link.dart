@@ -214,6 +214,16 @@ class PlayerLink {
     return at == null ? null : clock.toLocal(at);
   }
 
+  /// When the room owner skipped the narrator's intro, on the host's clock.
+  int? introSkippedAtHostMs;
+
+  /// The same on this device's clock; `null` unless skipped (and while the
+  /// clocks are not in step).
+  int? get introSkippedAtMs {
+    final at = introSkippedAtHostMs;
+    return at == null ? null : clock.toLocal(at);
+  }
+
   /// For the successor: the sealed room, if the host chose this player.
   HeldCustody? custody;
 
@@ -404,6 +414,7 @@ class PlayerLink {
         isOwner = message.isOwner;
         pending = message.pending;
         phaseStartedAtHostMs = message.phaseAt;
+        introSkippedAtHostMs = message.introSkippedAt;
         final endsIn = message.phaseEndsInMs;
         phaseEndsAtMs = endsIn == null ? null : _clock() + endsIn;
       case Refused(:final reason):

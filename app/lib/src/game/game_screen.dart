@@ -67,6 +67,19 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   /// are loaded (none in this build: the system voice on the host).
   WalkingNarrator? _walker;
 
+  /// Until when the narrator's intro runs (this device's clock), if one
+  /// does; the roles wait for it.
+  int? _introUntil;
+  Timer? _introEnd;
+
+  /// The owner's skip this screen has followed already.
+  int? _skipSeen;
+
+  bool get _introRunning {
+    final until = _introUntil;
+    return until != null && DateTime.now().millisecondsSinceEpoch < until;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -115,6 +128,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       ..dispose();
     _voice?.stop();
     _walker?.stop();
+    _introEnd?.cancel();
     _atmosphere.dispose();
     unawaited(WakelockPlus.disable());
     super.dispose();
@@ -131,10 +145,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     }
     final view = session.view;
     if (view != null && !identical(view, _lastView) && mounted) {
-      _atmosphere.update(view, phaseStartedAt: session.phaseStartedAtMs);
       final l10n = AppLocalizations.of(context);
-      final line = narration(_lastView, view, l10n);
-      final spoken = spokenMoments(_lastView, view);
+      int? deathAt;
+      final before = _lastView;
+      final line = narration(before, view, l10n);
+      final spoken = spokenMoments(before, view);
       _lastView = view;
       if (line != null) _narration = line;
       // The table can switch the voice off in the settings; the line still
@@ -149,22 +164,74 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         // Recorded voice: it walks around the table, on every phone at
         // the same moment (just after the phase began, by the host's
         // clock).
-        walker.speak(
+        final planned = walker.speak(
           moments: spoken,
           language: settings.narratorLanguage,
           round: view.round,
           startMs:
               (session.phaseStartedAtMs ??
                   DateTime.now().millisecondsSinceEpoch) +
-              700,
+              narratorLeadIn(before, view),
           seats: [for (final s in view.seats) s.id],
           me: view.you,
+          facts: storyFacts(view),
         );
+        _followIntro(planned);
+        final named = planned
+            .where(
+              (p) => deathMoments.contains(p.key) || p.key.startsWith('role_'),
+            )
+            .firstOrNull;
+        if (named != null) deathAt = named.at - 500;
       } else if (line != null) {
         unawaited(_voice?.say(line, l10n.localeName));
       }
+      _atmosphere.update(
+        view,
+        phaseStartedAt: session.phaseStartedAtMs,
+        deathAt: deathAt,
+      );
+      if (view.phase != Phase.roleReveal) _followIntro(const []);
+      _followSkip(view);
     }
     setState(() {});
+  }
+
+  /// The roles wait while the intro is told (on every phone alike, from
+  /// the same plan), and show when it ends.
+  void _followIntro(List<Planned> planned) {
+    final intro = planned.where((p) => p.key == 'intro').firstOrNull;
+    _introEnd?.cancel();
+    _introUntil = intro == null ? null : intro.at + intro.clip.ms;
+    final left = (_introUntil ?? 0) - DateTime.now().millisecondsSinceEpoch;
+    if (left > 0) {
+      _introEnd = Timer(Duration(milliseconds: left), () {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  /// The owner skipped the intro: it stops on every phone at once and the
+  /// narrator goes on to the roles.
+  void _followSkip(PlayerView view) {
+    final skipped = session.introSkippedAtMs;
+    if (view.phase != Phase.roleReveal ||
+        skipped == null ||
+        skipped == _skipSeen) {
+      return;
+    }
+    _skipSeen = skipped;
+    if (!_introRunning) return;
+    _followIntro(const []);
+    _walker?.speak(
+      moments: const [(key: 'reveal', to: null)],
+      language: view.settings.narratorLanguage,
+      round: view.round,
+      startMs: skipped + 600,
+      seats: [for (final s in view.seats) s.id],
+      me: view.you,
+      facts: storyFacts(view),
+    );
   }
 
   Future<void> _leave() async {
@@ -316,7 +383,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       relayFailed: session.hosted?.relayFailed ?? false,
       keepAppOpen: _mustStayOpen,
     ),
-    Phase.roleReveal => RevealPhase(session: session),
+    Phase.roleReveal => RevealPhase(
+      session: session,
+      listening: _introRunning,
+      onSkip: session.isOwner
+          ? () => session.send(const SkipIntroIntent())
+          : null,
+    ),
     Phase.night => NightPhase(session: session),
     Phase.day => DayPhase(session: session),
     Phase.hunterShot => HunterPhase(session: session),

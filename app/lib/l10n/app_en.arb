@@ -79,6 +79,8 @@
   "factionWerewolves": "Werewolves",
   "revealTitle": "Your role",
   "revealTap": "Tap to see your role. Nobody may look.",
+  "introListening": "Listen: the narrator takes you into the village. Then you will see your roles.",
+  "introSkip": "Skip the intro",
   "pack": "Your pack: {names}",
   "@pack": {
     "placeholders": {

@@ -5,8 +5,11 @@ one file per variant, into design/source/voice/<lang>/ (not in git).
     python3 tool/voice/elevenlabs.py --voice <voice id> --lang de
 
 Only use a voice your ElevenLabs plan lets you use for a published,
-commercial project. Existing files are kept (rerun to fill gaps); pass
---only key ... to redo some. Uses only the standard library.
+commercial project. Each file keeps the text it was made from next to it
+(<name>.txt); a rerun makes only what is missing or whose text changed in
+the script. --only key_or_file ... redoes some (e.g. night_called or
+night_called_3). Check the result with verify.py. Uses only the standard
+library.
 """
 
 import argparse
@@ -20,6 +23,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tool/voice/script.json"
+def line(variant) -> str:
+    """A variant is its line, or {"text": line, "if": [facts]}."""
+    return variant if isinstance(variant, str) else variant["text"]
+
+
 API = "https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=mp3_44100_128"
 
 
@@ -32,7 +40,7 @@ def main() -> None:
     parser.add_argument("--similarity", type=float, default=0.46)
     parser.add_argument("--style", type=float, default=0.2)
     parser.add_argument("--speed", type=float, default=1.0)
-    parser.add_argument("--only", nargs="*")
+    parser.add_argument("--only", nargs="*", help="moment keys or file names (key_n)")
     args = parser.parse_args()
 
     key = os.environ.get("ELEVENLABS_API_KEY")
@@ -44,11 +52,15 @@ def main() -> None:
     moments = json.loads(SCRIPT.read_text(encoding="utf-8"))["moments"]
     done = 0
     for moment in moments:
-        if args.only and moment["key"] not in args.only:
-            continue
-        for n, text in enumerate(moment[args.lang], start=1):
-            target = out / f"{moment['key']}_{n}_{args.lang}.mp3"
-            if target.exists() and not args.only:
+        for n, variant in enumerate(moment[args.lang], start=1):
+            text = line(variant)
+            name = f"{moment['key']}_{n}"
+            if args.only and moment["key"] not in args.only and name not in args.only:
+                continue
+            target = out / f"{name}_{args.lang}.mp3"
+            said = target.with_suffix(".txt")
+            current = target.exists() and said.exists() and said.read_text(encoding="utf-8") == text
+            if current and not args.only:
                 continue
             body = json.dumps({
                 "text": text,
@@ -72,6 +84,7 @@ def main() -> None:
                 try:
                     with urllib.request.urlopen(request, timeout=120) as response:
                         target.write_bytes(response.read())
+                    said.write_text(text, encoding="utf-8")
                     break
                 except urllib.error.HTTPError as error:
                     detail = error.read().decode(errors="replace")[:300]

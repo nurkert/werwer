@@ -183,6 +183,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get revealTap => 'Tap to see your role. Nobody may look.';
 
   @override
+  String get introListening =>
+      'Listen: the narrator takes you into the village. Then you will see your roles.';
+
+  @override
+  String get introSkip => 'Skip the intro';
+
+  @override
   String pack(String names) {
     return 'Your pack: $names';
   }

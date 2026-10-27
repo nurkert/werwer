@@ -404,6 +404,18 @@ abstract class AppLocalizations {
   /// **'Tap to see your role. Nobody may look.'**
   String get revealTap;
 
+  /// No description provided for @introListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen: the narrator takes you into the village. Then you will see your roles.'**
+  String get introListening;
+
+  /// No description provided for @introSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip the intro'**
+  String get introSkip;
+
   /// No description provided for @pack.
   ///
   /// In en, this message translates to:

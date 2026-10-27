@@ -229,6 +229,10 @@ class GameSession extends ChangeNotifier {
   /// the host's), or `null` until the clocks are in step.
   int? get phaseStartedAtMs => _link.phaseStartedAtMs;
 
+  /// When the room owner skipped the narrator's intro (this device's
+  /// clock), if they did in this role reveal.
+  int? get introSkippedAtMs => _link.introSkippedAtMs;
+
   /// When the phase timer runs out, on this device's clock.
   DateTime? get phaseEndsAt {
     final ms = _link.phaseEndsAtMs;

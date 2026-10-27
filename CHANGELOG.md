@@ -5,6 +5,13 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Added
+- The recorded narrator: a story with an arc from the first night to the
+  endgame, at least five variants of every line, and lines that name a
+  detail only when it is true at this table. It opens the game with a short
+  welcome, which the game leader can skip; sounds and voice follow each
+  other like one scene, with natural pauses between sentences.
+
 ### Fixed
 - In the classic night the werewolves' turn waits until they agree.
 - The classic night no longer gives away, through counts or timing, how

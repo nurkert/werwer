@@ -576,9 +576,20 @@ class _SmallLabel extends StatelessWidget {
 }
 
 class RevealPhase extends StatefulWidget {
-  const RevealPhase({required this.session, super.key});
+  const RevealPhase({
+    required this.session,
+    this.listening = false,
+    this.onSkip,
+    super.key,
+  });
 
   final GameSession session;
+
+  /// The narrator is telling the intro: the roles wait until it ends.
+  final bool listening;
+
+  /// For the room owner: cut the intro short.
+  final VoidCallback? onSkip;
 
   @override
   State<RevealPhase> createState() => _RevealPhaseState();
@@ -592,6 +603,8 @@ class _RevealPhaseState extends State<RevealPhase> {
     final l10n = AppLocalizations.of(context);
     final view = widget.session.view!;
     final role = view.yourRole!;
+    final listening = widget.listening;
+    if (listening) _shown = false;
     final wolf = role.faction == Faction.werewolves;
     final mates = [
       for (final s in view.seats)
@@ -612,7 +625,13 @@ class _RevealPhaseState extends State<RevealPhase> {
     );
     final text = AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
-      child: _shown
+      child: listening
+          ? Padding(
+              key: const ValueKey('intro'),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Body(l10n.introListening),
+            )
+          : _shown
           ? Column(
               key: const ValueKey('shown'),
               children: [
@@ -636,15 +655,17 @@ class _RevealPhaseState extends State<RevealPhase> {
     // Your persona stands with its back to the table (grey board, so
     // onlookers learn nothing); a tap turns it around in your role's
     // costume. Wide windows give the figure a column of its own.
-    Widget tappable(Widget child) => Semantics(
-      button: true,
-      label: _shown ? l10n.role(role) : l10n.revealTap,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: turn,
-        child: child,
-      ),
-    );
+    Widget tappable(Widget child) => listening
+        ? child
+        : Semantics(
+            button: true,
+            label: _shown ? l10n.role(role) : l10n.revealTap,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: turn,
+              child: child,
+            ),
+          );
     return PhaseBody(
       children: [
         Headline(l10n.revealTitle),
@@ -673,7 +694,10 @@ class _RevealPhaseState extends State<RevealPhase> {
               ),
             ),
           ),
-        if (!view.youConfirmed)
+        if (listening) ...[
+          if (widget.onSkip != null)
+            SecondaryButton(label: l10n.introSkip, onPressed: widget.onSkip),
+        ] else if (!view.youConfirmed)
           PrimaryButton(
             label: l10n.confirmRole,
             onPressed: _shown

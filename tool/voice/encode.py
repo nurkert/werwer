@@ -1,7 +1,8 @@
 """Turns the raw narrator files (design/source/voice/<lang>/*) into the
 app's: silence trimmed, loudness-normalised, mono MP3 in
 app/assets/voice/<lang>/, plus a manifest with every file's length, which
-the walking narrator plans with.
+the walking narrator plans with. Takes only files that verify.py checked
+against their current line.
 
     python3 tool/voice/encode.py de [en]
 """
@@ -15,6 +16,11 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "design/source/voice"
 APP = ROOT / "app/assets/voice"
 SCRIPT = ROOT / "tool/voice/script.json"
+
+
+def text(variant) -> str:
+    """A variant is its line, or {"text": line, "if": [facts]}."""
+    return variant if isinstance(variant, str) else variant["text"]
 
 
 def duration_ms(path: Path) -> int:
@@ -46,6 +52,11 @@ def main() -> None:
                 )
                 if raw is None:
                     continue
+                # Only what verify.py heard say exactly this line.
+                ok = SOURCE / lang / f"{name}.ok"
+                if not ok.exists() or ok.read_text(encoding="utf-8") != text(moment[lang][n - 1]):
+                    print(f"skipped {name}: not verified against the script (verify.py)")
+                    continue
                 target = APP / lang / f"{name}.mp3"
                 # Trim silence at both ends (keep 80 ms), even loudness,
                 # a soft fade, mono, small.
@@ -59,7 +70,11 @@ def main() -> None:
                      "-map_metadata", "-1", str(target)],
                     check=True,
                 )
-                variants.append({"file": f"{lang}/{name}.mp3", "ms": duration_ms(target)})
+                clip = {"file": f"{lang}/{name}.mp3", "ms": duration_ms(target)}
+                variant = moment[lang][n - 1]
+                if isinstance(variant, dict) and variant.get("if"):
+                    clip["if"] = variant["if"]
+                variants.append(clip)
             if variants:
                 lines[moment["key"]] = variants
         manifest[lang] = lines

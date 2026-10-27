@@ -7,8 +7,9 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/narrator_walk.dart';
 
-/// One recorded variant of a moment.
-typedef Clip = ({String file, int ms});
+/// One recorded variant of a moment, and the facts it needs to be true
+/// (see `storyFacts`); none for a line that always fits.
+typedef Clip = ({String file, int ms, Set<String> only});
 
 /// The narrator's recordings in this build (`tool/voice/encode.py` writes
 /// them with a manifest); empty where there are none, and then the screen
@@ -23,7 +24,13 @@ class VoiceBank {
       final json = jsonDecode(raw) as Map<String, Object?>;
       Clip clip(Object? v) {
         final m = v! as Map<String, Object?>;
-        return (file: m['file']! as String, ms: m['ms']! as int);
+        return (
+          file: m['file']! as String,
+          ms: m['ms']! as int,
+          only: {
+            for (final f in (m['if'] as List<Object?>?) ?? []) f! as String,
+          },
+        );
       }
 
       return VoiceBank({
@@ -41,9 +48,15 @@ class VoiceBank {
 
   final Map<String, Map<String, List<Clip>>> _clips;
 
-  /// The variants of [key] in [language], or none.
-  List<Clip> variants(NarratorLanguage language, String key) =>
-      _clips[language.name]?[key] ?? const [];
+  /// The variants of [key] in [language] that fit [facts], or none.
+  List<Clip> variants(
+    NarratorLanguage language,
+    String key, {
+    Set<String>? facts,
+  }) => [
+    for (final clip in _clips[language.name]?[key] ?? const <Clip>[])
+      if (facts == null || facts.containsAll(clip.only)) clip,
+  ];
 
   /// Whether there are recordings in [language] at all.
   bool speaks(NarratorLanguage language) =>
@@ -81,6 +94,10 @@ class _AudioClipPlayer implements ClipPlayer {
   );
 }
 
+/// One moment as the narrator will say it: which recording, when (this
+/// device's clock) and how the voice walks meanwhile.
+typedef Planned = ({String key, Clip clip, int at, NarratorWalk walk});
+
 /// The narrator walking around the table: every phone plays its part of
 /// the same walk at the same time (the clocks are in step with the host's),
 /// louder while the voice is at its seat, quiet otherwise.
@@ -108,8 +125,19 @@ class WalkingNarrator {
   final _cancels = <void Function()>[];
   final _playing = <ClipPlayer>{};
 
-  /// A pause between two moments.
-  static const gap = 450;
+  /// The pause between two moments, as one speaker would leave it: short
+  /// within one thought (who died, then what they were), longer when the
+  /// story moves on, and time to close and open eyes between two roles.
+  static int gap(String before, String after) {
+    if (before == 'intro') return 1400;
+    if (before == 'sleep') return 1600;
+    if (after.startsWith('role_') || after == 'grief') return 650;
+    return 900;
+  }
+
+  /// A clip that should have begun this long ago stays silent: joining
+  /// in mid-sentence would be out of step.
+  static const _late = 250;
 
   /// How often the volume follows the walk.
   static const _step = Duration(milliseconds: 40);
@@ -119,23 +147,53 @@ class WalkingNarrator {
 
   /// Says [moments], starting at [startMs] (this device's clock), as heard
   /// from [me]'s seat at a table of [seats] in their order (the same list
-  /// on every phone). Stops whatever was still being said.
-  void speak({
+  /// on every phone). Stops whatever was still being said. Returns the
+  /// plan, also when this phone is muted, so the screen can follow it.
+  List<Planned> speak({
     required List<Spoken> moments,
     required NarratorLanguage language,
     required int round,
     required int startMs,
     required List<PlayerId> seats,
     required PlayerId me,
+    Set<String> facts = const {},
   }) {
     stop();
+    final planned = plan(
+      moments: moments,
+      language: language,
+      round: round,
+      startMs: startMs,
+      seats: seats,
+      facts: facts,
+    );
     final mine = seats.indexOf(me);
-    if (muted || mine < 0 || seats.isEmpty) return;
+    if (muted || mine < 0) return planned;
+    for (final p in planned) {
+      if (p.walk.activeFor(mine, p.clip.ms).isNotEmpty) {
+        _schedule(p.clip, p.walk, mine, p.at);
+      }
+    }
+    return planned;
+  }
+
+  /// When each of [moments] is said and how the voice walks: the same on
+  /// every phone.
+  List<Planned> plan({
+    required List<Spoken> moments,
+    required NarratorLanguage language,
+    required int round,
+    required int startMs,
+    required List<PlayerId> seats,
+    Set<String> facts = const {},
+  }) {
+    final planned = <Planned>[];
+    if (seats.isEmpty) return planned;
     var at = startMs;
     double? position;
     final said = <String, int>{};
     for (final moment in moments) {
-      final variants = bank.variants(language, moment.key);
+      final variants = bank.variants(language, moment.key, facts: facts);
       if (variants.isEmpty) continue;
       final occurrence = said[moment.key] = (said[moment.key] ?? -1) + 1;
       final clip =
@@ -160,15 +218,16 @@ class WalkingNarrator {
               start: position.round() % seats.length,
               to: target < 0 ? null : target,
             );
-      if (walk.activeFor(mine, clip.ms).isNotEmpty) {
-        _schedule(clip, walk, mine, at);
-      }
+      if (planned.isNotEmpty) at += gap(planned.last.key, moment.key);
+      planned.add((key: moment.key, clip: clip, at: at, walk: walk));
       position = walk.positionAt(clip.ms);
-      at += clip.ms + gap;
+      at += clip.ms;
     }
+    return planned;
   }
 
   void _schedule(Clip clip, NarratorWalk walk, int seat, int startMs) {
+    if (startMs < _clock() - _late) return;
     final player = _player();
     var prepared = false;
     _playing.add(player);

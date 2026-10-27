@@ -20,8 +20,20 @@ twice in a row) and lets the voice walk around the table
      `~/.venvs/chatterbox/bin/python tool/voice/generate.py --reference me.wav`.
 
    Raw files go to `design/source/voice/<lang>/` (not in git).
-3. **Encode:** `python3 tool/voice/encode.py de` trims, normalises and writes
-   `app/assets/voice/<lang>/` plus `manifest.json` (lengths for the walk).
+3. **Verify:** `python3 tool/voice/verify.py de` transcribes every file
+   offline (whisper.cpp) and compares it word by word with the script.
+   `--remove` deletes the ones that say something else; run step 2 again to
+   make them anew. Changed lines in the script are made anew on the next
+   run of step 2 by themselves (each file keeps its text next to it).
+4. **Encode:** `python3 tool/voice/encode.py de` trims, normalises and writes
+   `app/assets/voice/<lang>/` plus `manifest.json` (lengths for the walk and
+   the facts a line needs). It takes only verified files.
+
+**Writing lines:** every variant is a short, complete sentence that is
+true whenever it is said, players are spoken of gender-neutrally, and at
+least five variants fit every table (a test checks it). A line that names a
+detail carries the facts it needs: `{"text": "...", "if": ["deaths"]}` with
+`deaths`/`no_deaths`, `wolves`/`wolf`, `witch` (see `storyFacts`).
 
 Without recordings the app shows the lines and, if switched on, the host
 speaks them with the system voice.

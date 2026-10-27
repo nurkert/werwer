@@ -92,6 +92,12 @@
 - Die Wölfe müssen sich einig sein, bevor ihr Schritt enden kann; bis zum Ablauf der Zeit dürfen sie umentscheiden.
 - **Tests:** `packages/game_core/test/called_night_test.dart`, `packages/game_host/test/called_night_host_test.dart`.
 
+### Der Erzähler (A1)
+
+- Was gesagt wird, wann und wo, ist eine reine Funktion öffentlicher Werte: Übergang der Sicht, Raum, Runde, Sitzordnung, Phasenbeginn in Host-Zeit und öffentliche Fakten (`storyFacts`: ob schon jemand gestorben ist, Werwolf-Anzahl und Rollen aus den Einstellungen). Keine Fassung hängt von einer lebenden Rolle oder einer Nachtwahl ab, auf allen Handys läuft dasselbe.
+- **Intro überspringen:** `SkipIntroIntent` darf nur der Spielleiter senden, nur in der Rollenvergabe und nur einmal (sonst `Refused`). Der Host setzt den Zeitpunkt selbst (seine Uhr), der Spieler liefert keinen Wert. Er steht nur während der Rollenvergabe im Spielstand.
+- **Tests:** `app/test/narration_script_test.dart`, `app/test/walking_narrator_test.dart`, `packages/game_host/test/host_test.dart` („only the owner skips the intro …“).
+
 ### Host-Übernahme (A1, A2)
 
 - **Kein Gerät allein liest den Raum:**

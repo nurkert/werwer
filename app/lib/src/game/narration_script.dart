@@ -47,38 +47,53 @@ List<Spoken> spokenMoments(PlayerView? before, PlayerView after) {
     ];
   }
 
+  // The story tightens towards the end: once half the village is gone
+  // (or only three are left) the narrator speaks of the last nights.
+  final alive = after.seats.where((s) => s.isAlive).length;
+  final late = alive * 2 <= after.seats.length || alive <= 3;
+  String morning() => after.round == 1
+      ? 'morning_first'
+      : late
+      ? 'morning_late'
+      : 'morning';
+
   final fromVote =
       before?.phase == Phase.vote || before?.phase == Phase.hunterShot;
   final voted = deaths.where((d) => d.cause == DeathCause.vote).firstOrNull;
 
   return switch (after.phase) {
     Phase.lobby => const [],
-    Phase.roleReveal => [say('reveal')],
+    // The narrator sets the scene first (the owner may skip it).
+    Phase.roleReveal => [say('intro'), say('reveal')],
     Phase.night => [
       if (fromVote) ...[
         if (voted == null) say('vote_tie') else say('voted_out', voted.player),
         ...news(),
       ],
       if (called) ...[
-        say(after.round == 1 ? 'night_first_called' : 'night_called'),
+        say(switch (after.round) {
+          1 => 'night_first_called',
+          _ when late => 'night_late',
+          _ => 'night_called',
+        }),
         say(_wake(after.nightStep)),
       ] else
         say('night_together'),
     ],
     Phase.day => [
-      say(after.round == 1 ? 'morning_first' : 'morning'),
+      say(morning()),
       ...news(morning: true),
-      say('discuss'),
+      say(late ? 'discuss_late' : 'discuss'),
     ],
     Phase.hunterShot => [
       if (before?.phase == Phase.night) ...[
-        say(after.round == 1 ? 'morning_first' : 'morning'),
+        say(morning()),
         ...news(morning: true),
       ] else
         ...news(),
       say('hunter', after.shooter),
     ],
-    Phase.vote => [say('vote')],
+    Phase.vote => [say(late ? 'vote_late' : 'vote')],
     Phase.ended => [
       ...news(morning: before?.phase == Phase.night),
       say(switch (after.winner) {
@@ -89,6 +104,48 @@ List<Spoken> spokenMoments(PlayerView? before, PlayerView after) {
     ],
   };
 }
+
+/// How long after the phase began the narrator starts speaking: after the
+/// shared sounds that open it (the gong and the yawn at nightfall, the
+/// rooster and the yawn in the morning, the bowl at the start, the bell
+/// at the vote), so voice and sounds follow each other like one scene.
+int narratorLeadIn(PlayerView? before, PlayerView after) {
+  final samePhase =
+      before != null &&
+      before.phase == after.phase &&
+      before.round == after.round;
+  if (samePhase) return 700;
+  return switch (after.phase) {
+    Phase.night => 3800,
+    Phase.day => 4300,
+    Phase.hunterShot when before?.phase == Phase.night => 4300,
+    Phase.roleReveal => 1600,
+    Phase.vote => 1500,
+    Phase.ended => 3400,
+    _ => 700,
+  };
+}
+
+/// The moments a death sound belongs before: the drum falls into the
+/// pause just before the narrator says who is gone.
+const deathMoments = {'died_one', 'died_two', 'voted_out', 'grief'};
+
+/// What the story may mention about this game, so that a line that names
+/// a detail ("the village has grown smaller", "the werewolves wake") is
+/// only said when it is true. Only public facts: the same on every phone,
+/// and nothing a role or a night action could change unseen.
+Set<String> storyFacts(PlayerView view) {
+  final wolves =
+      view.settings.werewolves ?? suggestedWerewolves(view.seats.length);
+  return {
+    if (view.deaths.isEmpty) 'no_deaths' else 'deaths',
+    if (wolves > 1) 'wolves' else 'wolf',
+    if (view.settings.roles.contains(Role.witch)) 'witch',
+  };
+}
+
+/// Every fact a script line may depend on (`if` in tool/voice/script.json).
+const knownFacts = {'deaths', 'no_deaths', 'wolves', 'wolf', 'witch'};
 
 String _wake(NightStep step) => switch (step) {
   NightStep.link => 'wake_cupid',

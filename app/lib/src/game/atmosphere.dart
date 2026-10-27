@@ -142,7 +142,10 @@ class Atmosphere {
   /// time the phase began, from the synced clock) the shared moments sound
   /// at the same instant on every phone, not just whenever each phone
   /// heard of the new phase.
-  void update(PlayerView view, {int? phaseStartedAt}) {
+  ///
+  /// With [deathAt] (this device's clock) a death sounds then, in the
+  /// narrator's pause before naming it, instead of at its usual moment.
+  void update(PlayerView view, {int? phaseStartedAt, int? deathAt}) {
     final before = _last;
     _last = view;
     _phaseStart = phaseStartedAt;
@@ -153,7 +156,7 @@ class Atmosphere {
       _stop();
       // Night falls: the gong, and everyone goes to sleep with a yawn.
       _moment(Duration.zero, Sound.night);
-      _moment(const Duration(milliseconds: 2000), Sound.yawn);
+      _moment(const Duration(milliseconds: 1400), Sound.yawn);
       if (on) _planNight(view, after: const Duration(seconds: 3));
     } else if (!night && wasNight) {
       _stop();
@@ -161,7 +164,7 @@ class Atmosphere {
         _moment(Duration.zero, Sound.wake);
         // Everyone yawns as the sun comes up, all at once: a phone that
         // stays silent stands out.
-        if (on) _shared(const Duration(milliseconds: 2600), Sound.yawn);
+        if (on) _shared(const Duration(milliseconds: 1900), Sound.yawn);
       }
     }
     if (before == null || _muted) return;
@@ -176,7 +179,12 @@ class Atmosphere {
       _sounds.play(Sound.bowstring);
     }
     final died = _alive(before) > _alive(view);
-    if (died) {
+    if (died && deathAt != null) {
+      final wait = deathAt - _clock();
+      if (wait > -1000) {
+        _later(Duration(milliseconds: wait < 0 ? 0 : wait), Sound.death);
+      }
+    } else if (died) {
       _moment(
         Duration(milliseconds: phase == Phase.day ? 2600 : 400),
         Sound.death,

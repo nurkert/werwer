@@ -1,6 +1,6 @@
 # Task 010 – Der wandernde Erzähler
 
-**Status:** umgesetzt bis auf die Aufnahmen (2026-10-26). Die Aufnahmen entstehen mit ElevenLabs aus `tool/voice/script.json` (Ablauf in `tool/voice/README.md`).
+**Status:** umgesetzt bis auf die Aufnahmen (2026-10-26); Drehbuch mit Bogen, Bedingungen und überspringbarem Intro (2026-10-27). Die Aufnahmen entstehen mit ElevenLabs aus `tool/voice/script.json` (Ablauf in `tool/voice/README.md`).
 **Roadmap:** 0.1.2 (vorgezogen)
 
 ## Ziel

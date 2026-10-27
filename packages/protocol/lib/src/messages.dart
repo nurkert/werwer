@@ -14,7 +14,8 @@ import 'package:protocol/src/view_codec.dart';
 /// welcome, custody for the successor and the key for the witness).
 /// 5: the called night (night mode setting, a step per role), clock
 /// sync (times in ping and pong, the phase's start in the state).
-const protocolVersion = 5;
+/// 6: the narrator's intro (the owner may skip it; when, in the state).
+const protocolVersion = 6;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -162,6 +163,7 @@ sealed class ClientMessage {
             : _readPlayerId(json, 'target'),
       ),
       'endDiscussion' => const EndDiscussionIntent(),
+      'skipIntro' => const SkipIntroIntent(),
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
@@ -382,6 +384,15 @@ final class EndDiscussionIntent extends ClientMessage {
   String get _type => 'endDiscussion';
 }
 
+/// Room owner: cut the narrator's intro short and go on to the roles.
+final class SkipIntroIntent extends ClientMessage {
+  /// Creates the message.
+  const SkipIntroIntent();
+
+  @override
+  String get _type => 'skipIntro';
+}
+
 /// Room owner: remove a player from the lobby.
 final class KickIntent extends ClientMessage {
   /// Creates the message.
@@ -570,6 +581,7 @@ sealed class HostMessage {
         isOwner: json.boolean('owner'),
         phaseEndsInMs: json.maybeInteger('endsIn'),
         phaseAt: json.maybeInteger('phaseAt', max: maxClock),
+        introSkippedAt: json.maybeInteger('skippedAt', max: maxClock),
         pending: [
           for (final p in json.objects('pending', max: 40))
             PendingJoin(
@@ -829,8 +841,13 @@ final class StateMessage extends HostMessage {
     this.version = 0,
     this.phaseEndsInMs,
     this.phaseAt,
+    this.introSkippedAt,
     this.pending = const [],
   });
+
+  /// When the room owner skipped the narrator's intro, on the host's
+  /// clock (milliseconds); only during the role reveal.
+  final int? introSkippedAt;
 
   /// When the current phase (or night step) began, on the host's clock
   /// (milliseconds): every phone plans shared moments from it, e.g. the
@@ -862,6 +879,7 @@ final class StateMessage extends HostMessage {
     'version': version,
     'endsIn': ?phaseEndsInMs,
     'phaseAt': ?phaseAt,
+    'skippedAt': ?introSkippedAt,
     'pending': [
       for (final p in pending)
         {

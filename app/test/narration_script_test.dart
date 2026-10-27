@@ -20,9 +20,11 @@ void main() {
     you: ada,
     phase: phase,
     round: round,
-    seats: const [
-      SeatView(id: ada, name: 'Ada', isAlive: true),
-      SeatView(id: bo, name: 'Bo', isAlive: true),
+    seats: [
+      const SeatView(id: ada, name: 'Ada', isAlive: true),
+      const SeatView(id: bo, name: 'Bo', isAlive: true),
+      for (var i = 3; i < 7; i++)
+        SeatView(id: PlayerId('p$i'), name: 'P$i', isAlive: true),
     ],
     deaths: deaths,
     waitingFor: 0,
@@ -90,6 +92,66 @@ void main() {
     expect(spoken.last.key, 'night_together');
   });
 
+  test('the game opens with the intro, then the roles', () {
+    expect(
+      keys(spokenMoments(view(Phase.lobby, 0), view(Phase.roleReveal, 0))),
+      ['intro', 'reveal'],
+    );
+  });
+
+  test('towards the end the story speaks of the last nights', () {
+    PlayerView few(Phase phase, int round) => PlayerView(
+      you: ada,
+      phase: phase,
+      round: round,
+      seats: [
+        const SeatView(id: ada, name: 'Ada', isAlive: true),
+        const SeatView(id: bo, name: 'Bo', isAlive: true),
+        for (var i = 3; i < 7; i++)
+          SeatView(id: PlayerId('p$i'), name: 'P$i', isAlive: false),
+      ],
+      deaths: const [],
+      waitingFor: 0,
+      settings: classic,
+    );
+    expect(
+      keys(spokenMoments(few(Phase.night, 3), few(Phase.day, 3))),
+      ['morning_late', 'died_none', 'discuss_late'],
+    );
+    expect(
+      keys(spokenMoments(few(Phase.day, 3), few(Phase.vote, 3))),
+      ['vote_late'],
+    );
+    expect(
+      keys(spokenMoments(few(Phase.vote, 3), few(Phase.night, 4))).take(2),
+      ['vote_tie', 'night_late'],
+    );
+  });
+
+  test('the voice waits for the sounds that open a phase', () {
+    expect(narratorLeadIn(view(Phase.vote, 1), view(Phase.night, 2)), 3800);
+    expect(narratorLeadIn(view(Phase.night, 1), view(Phase.day, 1)), 4300);
+    expect(
+      narratorLeadIn(
+        view(Phase.night, 1, settings: classic),
+        view(Phase.night, 1, settings: classic, step: NightStep.inspect),
+      ),
+      700,
+    );
+  });
+
+  test('story facts are public and name only what is true', () {
+    expect(storyFacts(view(Phase.night, 1)), {'no_deaths', 'wolf'});
+    const death = DeathView(player: bo, round: 1, cause: DeathCause.night);
+    final later = view(
+      Phase.day,
+      2,
+      deaths: const [death],
+      settings: const GameSettings(werewolves: 2, roles: {Role.witch}),
+    );
+    expect(storyFacts(later), {'deaths', 'wolves', 'witch'});
+  });
+
   test('the end names the winner', () {
     final end = spokenMoments(
       view(Phase.vote, 3),
@@ -108,7 +170,12 @@ void main() {
             m as Map<String, Object?>,
     };
     final needed = {
+      'intro',
       'reveal',
+      'night_late',
+      'morning_late',
+      'discuss_late',
+      'vote_late',
       'night_first_called',
       'night_called',
       'night_together',
@@ -136,14 +203,35 @@ void main() {
         ).lastOrNull,
       for (final role in Role.values) 'role_${role.name}',
     }.nonNulls;
+    Set<String> only(Object? variant) => switch (variant) {
+      final Map<String, Object?> v => {
+        for (final f in v['if']! as List<Object?>) f! as String,
+      },
+      _ => const {},
+    };
+    // Every table these facts can describe.
+    final tables = [
+      for (final dead in ['deaths', 'no_deaths'])
+        for (final wolves in ['wolves', 'wolf'])
+          for (final witch in [true, false]) {dead, wolves, if (witch) 'witch'},
+    ];
     for (final key in needed) {
       expect(moments, contains(key), reason: key);
       final m = moments[key]!;
-      expect(
-        (m['de']! as List).length,
-        (m['en']! as List).length,
-        reason: '$key: as many variants in both languages',
-      );
+      final de = m['de']! as List<Object?>;
+      final en = m['en']! as List<Object?>;
+      expect(de.length, en.length, reason: '$key: as many in both languages');
+      for (var i = 0; i < de.length; i++) {
+        expect(only(de[i]), only(en[i]), reason: '$key ${i + 1}: same facts');
+        expect(knownFacts.containsAll(only(de[i])), isTrue, reason: key);
+      }
+      for (final facts in tables) {
+        expect(
+          de.where((v) => facts.containsAll(only(v))).length,
+          greaterThanOrEqualTo(5),
+          reason: '$key: at least five lines fit a table with $facts',
+        );
+      }
     }
   });
 

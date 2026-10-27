@@ -49,7 +49,8 @@ def main() -> None:
         if args.only and moment["key"] not in args.only:
             continue
         for lang in args.lang:
-            for n, text in enumerate(moment[lang], start=1):
+            for n, variant in enumerate(moment[lang], start=1):
+                text = variant if isinstance(variant, str) else variant["text"]
                 take = n
                 target = OUT / lang / f"{moment['key']}_{n}_{lang}.wav"
                 target.parent.mkdir(parents=True, exist_ok=True)

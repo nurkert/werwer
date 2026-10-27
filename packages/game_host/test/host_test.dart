@@ -174,6 +174,34 @@ void main() {
     expect(timers.pending.single.$1, const GameSettings().nightTime);
   });
 
+  test('only the owner skips the intro, once, only during the roles', () async {
+    final players = await table(5);
+    players.first.send(const SkipIntroIntent());
+    await settle();
+    expect(players.first.refused, [Violation.wrongPhase]);
+    players.first.send(const StartGameIntent());
+    await settle();
+    expect(players.first.last!.introSkippedAt, isNull);
+    players[1].send(const SkipIntroIntent());
+    await settle();
+    expect(players[1].refused, [Violation.notYourAction]);
+    timers.now = 4200;
+    players.first.send(const SkipIntroIntent());
+    await settle();
+    for (final p in players) {
+      expect(p.last!.introSkippedAt, 4200);
+    }
+    players.first.send(const SkipIntroIntent());
+    await settle();
+    expect(players.first.refused, [Violation.wrongPhase, Violation.wrongPhase]);
+    for (final p in players) {
+      p.send(const ConfirmRoleIntent());
+    }
+    await settle();
+    expect(players.first.view.phase, Phase.night);
+    expect(players.first.last!.introSkippedAt, isNull);
+  });
+
   test('a whole game over the protocol, and nobody learns too much', () async {
     final players = await table(5);
     await start(players);

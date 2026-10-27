@@ -99,6 +99,29 @@ void main() {
       },
     );
 
+    test('a death the narrator names sounds in the pause before it', () {
+      final waits = <(Duration, Sound)>[];
+      final ear = _Ear();
+      final a = Atmosphere(
+        room: '1234',
+        sounds: ear,
+        clock: () => 10000,
+        startTimer: (after, callback) {
+          callback();
+          waits.add((after, ear.heard.last));
+          return () {};
+        },
+      )..update(_view(Phase.night, 1, seats: 4), phaseStartedAt: 10000);
+      waits.clear();
+      a.update(
+        _view(Phase.day, 1, seats: 4, dead: 1),
+        phaseStartedAt: 10000,
+        deathAt: 16000,
+      );
+      expect(waits, contains((const Duration(seconds: 6), Sound.death)));
+      expect(waits.where((w) => w.$2 == Sound.death), hasLength(1));
+    });
+
     test('the night plays its cues, and they stop at dawn', () {
       final a = atmosphere()..update(_view(Phase.night, 1));
       expect(timers, hasLength(nightCues('1234', 1).length + 2));

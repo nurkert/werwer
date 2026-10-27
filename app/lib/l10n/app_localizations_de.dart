@@ -187,6 +187,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Tippe, um deine Rolle zu sehen. Niemand darf mitschauen.';
 
   @override
+  String get introListening =>
+      'Hört zu: Der Erzähler führt euch ins Dorf. Danach seht ihr eure Rollen.';
+
+  @override
+  String get introSkip => 'Intro überspringen';
+
+  @override
   String pack(String names) {
     return 'Dein Rudel: $names';
   }

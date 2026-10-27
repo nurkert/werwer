@@ -51,6 +51,8 @@
   "factionWerewolves": "Werwölfe",
   "revealTitle": "Deine Rolle",
   "revealTap": "Tippe, um deine Rolle zu sehen. Niemand darf mitschauen.",
+  "introListening": "Hört zu: Der Erzähler führt euch ins Dorf. Danach seht ihr eure Rollen.",
+  "introSkip": "Intro überspringen",
   "pack": "Dein Rudel: {names}",
   "confirmRole": "Verstanden",
   "waitingFor": "{count, plural, =0{Alle sind bereit.} =1{Warte auf 1 Spieler …} other{Warte auf {count} Spieler …}}",

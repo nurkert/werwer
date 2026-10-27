@@ -34,10 +34,10 @@ void main() {
   const seats = [PlayerId('a'), PlayerId('b'), PlayerId('c'), PlayerId('d')];
   const bank = VoiceBank({
     'de': {
-      'discuss': [(file: 'de/discuss_1_de.mp3', ms: 4000)],
+      'discuss': [(file: 'de/discuss_1_de.mp3', ms: 4000, only: <String>{})],
       'vote': [
-        (file: 'de/vote_1_de.mp3', ms: 2000),
-        (file: 'de/vote_2_de.mp3', ms: 2000),
+        (file: 'de/vote_1_de.mp3', ms: 2000, only: <String>{}),
+        (file: 'de/vote_2_de.mp3', ms: 2000, only: <String>{}),
       ],
     },
   });
@@ -125,6 +125,83 @@ void main() {
       me: seats[(start + 2) % 4],
     );
     t.run(5000);
+    expect(t.players, isEmpty);
+  });
+
+  test('pauses like one speaker: short within a thought, long between '
+      'roles', () {
+    const many = VoiceBank({
+      'de': {
+        'died_one': [
+          (file: 'de/died_one_1_de.mp3', ms: 1000, only: <String>{}),
+        ],
+        'role_seer': [
+          (file: 'de/role_seer_1_de.mp3', ms: 1000, only: <String>{}),
+        ],
+        'discuss': [(file: 'de/discuss_1_de.mp3', ms: 1000, only: <String>{})],
+        'sleep': [(file: 'de/sleep_1_de.mp3', ms: 1000, only: <String>{})],
+        'wake_seer': [
+          (file: 'de/wake_seer_1_de.mp3', ms: 1000, only: <String>{}),
+        ],
+      },
+    });
+    final narrator = WalkingNarrator(bank: many, room: '1');
+    List<int> starts(List<String> keys) => [
+      for (final p in narrator.plan(
+        moments: [for (final k in keys) (key: k, to: null)],
+        language: NarratorLanguage.de,
+        round: 1,
+        startMs: 0,
+        seats: seats,
+      ))
+        p.at,
+    ];
+    expect(starts(['died_one', 'role_seer', 'discuss']), [0, 1650, 3550]);
+    expect(starts(['sleep', 'wake_seer']), [0, 2600]);
+  });
+
+  test('a line that names a detail plays only when it is true', () {
+    const bank = VoiceBank({
+      'de': {
+        'night_called': [
+          (file: 'de/a.mp3', ms: 1000, only: <String>{}),
+          (file: 'de/b.mp3', ms: 1000, only: {'deaths'}),
+          (file: 'de/c.mp3', ms: 1000, only: {'deaths', 'wolves'}),
+        ],
+      },
+    });
+    List<String> files(Set<String> facts) => [
+      for (final c in bank.variants(
+        NarratorLanguage.de,
+        'night_called',
+        facts: facts,
+      ))
+        c.file,
+    ];
+    expect(files({'no_deaths', 'wolves'}), ['de/a.mp3']);
+    expect(files({'deaths', 'wolf'}), ['de/a.mp3', 'de/b.mp3']);
+    expect(files({'deaths', 'wolves'}), ['de/a.mp3', 'de/b.mp3', 'de/c.mp3']);
+  });
+
+  test('a moment that should have begun already stays silent', () {
+    final start = NarratorWalk.forMoment(
+      seats: 4,
+      room: '4711',
+      round: 1,
+      line: 'discuss',
+    ).start;
+    final t = table();
+    t.run(5000);
+    final planned = t.narrator.speak(
+      moments: const [(key: 'discuss', to: null)],
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 4000,
+      seats: seats,
+      me: seats[start],
+    );
+    expect(planned.single.at, 4000);
+    t.run(9000);
     expect(t.players, isEmpty);
   });
 
