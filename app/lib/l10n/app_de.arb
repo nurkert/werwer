@@ -386,5 +386,8 @@
   "figureTitle": "Wer bist du heute?",
   "figureTaken": "vergeben",
   "quickJoin": "Tisch von {name} beitreten",
-  "quickJoinLast": "Dein letzter Tisch"
+  "quickJoinLast": "Dein letzter Tisch",
+  "settingsOnline": "Online-Spiel",
+  "settingsAbout": "Über Whowolf",
+  "settingsSaved": "Gespeichert"
 }

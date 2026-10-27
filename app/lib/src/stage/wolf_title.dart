@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:whowolf/src/game/figures.dart';
 
@@ -102,7 +103,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
     final wolfLeft = w * 0.5 - wolfWidth * 0.42;
     final height = wordTop + wordHeight;
 
-    Widget wolf(String asset) => AnimatedBuilder(
+    Widget wolf(String asset, {bool printOnly = false}) => AnimatedBuilder(
       animation: _time,
       builder: (context, child) {
         final reach = _reach;
@@ -123,6 +124,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
           angle: _wolfAngle,
           shadow: false,
           sway: false,
+          printOnly: printOnly,
         ),
       ),
     );
@@ -145,6 +147,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
                     tops: _letterTops,
                     top: wordTop,
                     height: wordHeight,
+                    angle: _wordAngle,
                   ),
                   child: Stack(
                     clipBehavior: Clip.none,
@@ -169,7 +172,11 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              Positioned(left: wolfLeft, top: 0, child: wolf(_paw)),
+              Positioned(
+                left: wolfLeft,
+                top: 0,
+                child: wolf(_paw, printOnly: true),
+              ),
             ],
           ),
         ),
@@ -179,34 +186,52 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
 }
 
 /// Everything above the wordmark's letters, reaching a little way down
-/// into them (they hide what is below).
+/// into them (they hide what is below). The line turns with the wordmark,
+/// in the same perspective, so it stays on the letters as they turn.
 class _AboveLetters extends CustomClipper<Path> {
-  const _AboveLetters({
+  _AboveLetters({
     required this.tops,
     required this.top,
     required this.height,
-  });
+    required this.angle,
+  }) : super(reclip: angle);
 
   final List<Offset> tops;
   final double top;
   final double height;
+  final ValueListenable<double> angle;
 
   @override
   Path getClip(Size size) {
     final depth = height * 0.22;
+    final centre = Offset(size.width / 2, top + height / 2);
+    // As TurningFigure turns the wordmark's print (see there).
+    final turn = Matrix4.identity()
+      ..setEntry(3, 2, 0.0011)
+      ..rotateY(angle.value)
+      ..translateByDouble(0, 0, height * 0.034 / 2 + 0.2, 1);
+    Offset at(double x, double y) =>
+        MatrixUtils.transformPoint(turn, Offset(x, y) - centre) + centre;
+    final first = at(0, top + tops.first.dy * height + depth);
+    final last = at(size.width, top + tops.last.dy * height + depth);
     final path = Path()
       ..moveTo(-size.width, -size.height)
       ..lineTo(size.width * 2, -size.height)
-      ..lineTo(size.width * 2, top + tops.last.dy * height + depth);
+      ..lineTo(size.width * 2, last.dy);
     for (final p in tops.reversed) {
-      path.lineTo(p.dx * size.width, top + p.dy * height + depth);
+      final q = at(p.dx * size.width, top + p.dy * height + depth);
+      path.lineTo(q.dx, q.dy);
     }
     return path
-      ..lineTo(-size.width, top + tops.first.dy * height + depth)
+      ..lineTo(first.dx, first.dy)
+      ..lineTo(-size.width, first.dy)
       ..close();
   }
 
   @override
   bool shouldReclip(_AboveLetters old) =>
-      old.top != top || old.height != height || old.tops != tops;
+      old.top != top ||
+      old.height != height ||
+      old.tops != tops ||
+      old.angle != angle;
 }

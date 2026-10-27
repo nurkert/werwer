@@ -474,9 +474,10 @@ class StageSet extends StatelessWidget {
   }
 }
 
-/// The scenery in three sets side by side (the outer two mirrored, for
-/// another look): swiping a page in front walks one set out at one edge
-/// while the next comes in at the other.
+/// The scenery as one panorama three pages wide: swiping a page in front
+/// walks the set along, the pieces at the middle page's edges pass over
+/// into the next page whole, and each outer page has other pieces at its
+/// far edge.
 class _PanningScenery extends StatelessWidget {
   const _PanningScenery({required this.scene});
 
@@ -485,22 +486,21 @@ class _PanningScenery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pan = StagePan.of(context);
-    final scenery = Scenery(scene: scene, tint: tintOf(scene));
-    if (pan == null) return scenery;
+    final tint = tintOf(scene);
+    if (pan == null) return Scenery(scene: scene, tint: tint);
     return LayoutBuilder(
       builder: (context, box) {
         final w = box.maxWidth;
-        Widget at(double x, {bool mirror = false}) => Positioned(
+        Widget at(double x, ScenerySide side) => Positioned(
           left: x,
           top: 0,
           width: w,
           height: box.maxHeight,
-          // Each set kept to its own width: its pieces half behind the
-          // edge never reach into the neighbour's.
-          child: ClipRect(
-            child: mirror
-                ? Transform.flip(flipX: true, child: scenery)
-                : scenery,
+          child: Scenery(
+            scene: scene,
+            tint: tint,
+            side: side,
+            span: side == ScenerySide.whole ? 3 : 1,
           ),
         );
         return ClipRect(
@@ -509,9 +509,9 @@ class _PanningScenery extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                at(-w, mirror: true),
-                at(0),
-                at(w, mirror: true),
+                at(-w, ScenerySide.before),
+                at(w, ScenerySide.after),
+                at(0, ScenerySide.whole),
               ],
             ),
             builder: (context, value, child) => value == 0

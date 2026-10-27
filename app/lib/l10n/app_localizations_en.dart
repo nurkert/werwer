@@ -1317,4 +1317,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickJoinLast => 'Your last table';
+
+  @override
+  String get settingsOnline => 'Online play';
+
+  @override
+  String get settingsAbout => 'About Whowolf';
+
+  @override
+  String get settingsSaved => 'Saved';
 }

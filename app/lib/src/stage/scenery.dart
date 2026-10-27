@@ -220,13 +220,54 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
   Scene.backstage || Scene.curtain => const [],
 };
 
+/// Which part of a panorama a [Scenery] stands in (see [Scenery.side]).
+enum ScenerySide {
+  /// The whole set, in the middle.
+  whole,
+
+  /// The page left of the middle one.
+  before,
+
+  /// The page right of the middle one.
+  after,
+}
+
 /// The scenery standing in a scene, as many pieces as the window's width
 /// has room for, each a cardboard cut-out shifting at its own depth when
 /// the phone tilts.
 class Scenery extends StatelessWidget {
-  const Scenery({required this.scene, super.key, this.tint});
+  const Scenery({
+    required this.scene,
+    super.key,
+    this.tint,
+    this.side = ScenerySide.whole,
+    this.span = 1,
+  });
 
   final Scene scene;
+
+  /// The pages beside the middle one, when swiping pans across the set:
+  /// the middle set's pieces reach over into them, so they only get the
+  /// pieces of their far edge, other pieces than the middle set has on
+  /// that side (the ones of its other side).
+  final ScenerySide side;
+
+  /// How many window widths the pieces along the top run across, centred
+  /// on this one (the middle set of a panorama hangs them for all pages).
+  final int span;
+
+  static bool _isLeft(Edge e) =>
+      e == Edge.left || e == Edge.topLeft || e == Edge.hangLeft;
+
+  static Edge _across(Edge e) => switch (e) {
+    Edge.left => Edge.right,
+    Edge.right => Edge.left,
+    Edge.topLeft => Edge.topRight,
+    Edge.topRight => Edge.topLeft,
+    Edge.hangLeft => Edge.hangRight,
+    Edge.hangRight => Edge.hangLeft,
+    Edge.top => Edge.top,
+  };
 
   /// A colour multiplied into every piece (a finale borrowing a set).
   final Color? tint;
@@ -241,11 +282,22 @@ class Scenery extends StatelessWidget {
         for (final piece in sceneryOf(scene)) {
           final aspect = sceneryAspects[piece.name];
           if (aspect == null || w < piece.from) continue;
-          if (piece.edge == Edge.top) {
+          var edge = piece.edge;
+          var mirror = piece.mirror;
+          if (side != ScenerySide.whole) {
+            if (edge == Edge.top) continue;
+            // The middle set's pieces of the side facing this page, moved
+            // to its far edge and turned to face in.
+            if (_isLeft(edge) != (side == ScenerySide.after)) continue;
+            edge = _across(edge);
+            mirror = !mirror;
+          }
+          if (edge == Edge.top) {
             // Along the top in as many lengths as the width needs, each no
             // taller than a fifth of the window: wide screens get more.
             final segment = min(w * piece.size, h * 0.2 * aspect);
-            final count = (w / segment).ceil();
+            final run = w * span;
+            final count = (run / segment).ceil();
             final height = segment / aspect;
             final start = (w - count * segment) / 2;
             for (var i = 0; i < count; i++) {
@@ -272,25 +324,30 @@ class Scenery extends StatelessWidget {
           late final double height;
           late final double left;
           late final double top;
-          switch (piece.edge) {
+          switch (edge) {
             case Edge.top:
               continue;
             case Edge.topLeft || Edge.topRight:
               width = min(w * piece.size, h * 0.42 * aspect);
               height = width / aspect;
               final inside = width * piece.reach;
-              left = piece.edge == Edge.topLeft ? inside - width : w - inside;
+              left = edge == Edge.topLeft ? inside - width : w - inside;
               top = -height * 0.04;
             case Edge.hangLeft || Edge.hangRight:
               height = h * piece.size;
               width = height * aspect;
               final inside = min(width * piece.reach, w * 0.22);
-              left = piece.edge == Edge.hangLeft ? inside - width : w - inside;
+              left = edge == Edge.hangLeft ? inside - width : w - inside;
               top = -h * 0.02;
             case Edge.left || Edge.right:
               // Never taller than the window allows for its width: on a
               // phone the pieces stay a frame, never a wall.
-              height = min(h * piece.size, w * 1.7);
+              // Never wider than most of a phone either: what reaches
+              // past the edge passes over into the next page when swiping.
+              height = min(
+                min(h * piece.size, w * 1.7),
+                w < 600 ? w * 0.8 / aspect : double.infinity,
+              );
               width = height * aspect;
               // On a phone a narrower strip, so text stays clear.
               final inside = min(
@@ -298,7 +355,7 @@ class Scenery extends StatelessWidget {
                 w * (w < 600 ? 0.24 : 0.34),
               );
               final inset = w * piece.inset;
-              left = piece.edge == Edge.left
+              left = edge == Edge.left
                   ? inside - width + inset
                   : w - inside - inset;
               top = h - height - h * piece.lift + h * 0.015;
@@ -313,7 +370,7 @@ class Scenery extends StatelessWidget {
                 depth: piece.depth,
                 child: CardboardPiece(
                   asset: 'assets/stage/scenery/${piece.name}.webp',
-                  mirror: piece.mirror,
+                  mirror: mirror,
                   tint: tint,
                 ),
               ),

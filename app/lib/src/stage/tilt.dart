@@ -39,6 +39,8 @@ class _StageTiltState extends State<StageTilt>
   Offset _target = Offset.zero;
   Duration _last = Duration.zero;
 
+  static const double _amount = 0.35;
+
   /// Where "level" is: the first readings, slowly following the hand.
   Offset? _rest;
 
@@ -72,11 +74,13 @@ class _StageTiltState extends State<StageTilt>
   void _read(AccelerometerEvent event) {
     // Gravity along the screen's axes, in g.
     final now = Offset(event.x / 9.81, event.y / 9.81);
-    final rest = _rest = _rest == null ? now : Offset.lerp(_rest, now, 0.005)!;
+    final rest = _rest = _rest == null ? now : Offset.lerp(_rest, now, 0.01)!;
     final raw = now - rest;
+    // Only a hint of depth: a third of the way at most, so the set never
+    // swims about in the hand.
     _target = Offset(
-      raw.dx.clamp(-0.35, 0.35) / 0.35,
-      raw.dy.clamp(-0.35, 0.35) / 0.35,
+      raw.dx.clamp(-0.35, 0.35) / 0.35 * _amount,
+      raw.dy.clamp(-0.35, 0.35) / 0.35 * _amount,
     );
     if (!_ticker.isActive) {
       _last = Duration.zero;
@@ -89,8 +93,9 @@ class _StageTiltState extends State<StageTilt>
         ? 1 / 60
         : (elapsed - _last).inMicroseconds / 1e6;
     _last = elapsed;
-    // A critically damped follow: smooth at any frame rate.
-    final t = 1 - math.pow(0.0005, dt).toDouble();
+    // A slow damped follow, smooth at any frame rate: hand tremor is
+    // smoothed away, only the lean of the phone comes through.
+    final t = 1 - math.pow(0.02, dt).toDouble();
     final next = Offset.lerp(_tilt.value, _target, t)!;
     if ((next - _target).distance < 0.001) {
       _tilt.value = _target;

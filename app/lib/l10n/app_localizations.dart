@@ -2335,6 +2335,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your last table'**
   String get quickJoinLast;
+
+  /// Settings page: Online play.
+  ///
+  /// In en, this message translates to:
+  /// **'Online play'**
+  String get settingsOnline;
+
+  /// Settings page: About Whowolf.
+  ///
+  /// In en, this message translates to:
+  /// **'About Whowolf'**
+  String get settingsAbout;
+
+  /// Settings page: Saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get settingsSaved;
 }
 
 class _AppLocalizationsDelegate

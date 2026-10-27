@@ -775,5 +775,11 @@
       }
     }
   },
-  "quickJoinLast": "Your last table"
+  "quickJoinLast": "Your last table",
+  "settingsOnline": "Online play",
+  "@settingsOnline": {"description": "Settings page: Online play."},
+  "settingsAbout": "About Whowolf",
+  "@settingsAbout": {"description": "Settings page: About Whowolf."},
+  "settingsSaved": "Saved",
+  "@settingsSaved": {"description": "Settings page: Saved."}
 }

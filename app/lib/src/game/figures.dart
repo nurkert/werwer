@@ -230,8 +230,14 @@ class TurningFigure extends StatefulWidget {
     this.sway = true,
     this.angle,
     this.shadow = true,
+    this.printOnly = false,
     super.key,
   });
+
+  /// Only the print, without the board: a piece laid onto another figure
+  /// of the same height, turning with it at the same angle, sits exactly
+  /// on that figure's print and shows no edge of its own.
+  final bool printOnly;
 
   /// Turns the figure from outside (radians), instead of its own rocking:
   /// pieces that must move as one share the same angle.
@@ -389,9 +395,20 @@ class _TurningFigureState extends State<TurningFigure>
   Widget _turned(double angle) {
     final facing = cos(angle) >= 0;
     final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
+    final layered = (_depth * sin(angle)).abs() >= 0.6;
+    if (widget.printOnly) {
+      return Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.0011)
+          ..rotateY(angle)
+          ..translateByDouble(0, 0, layered ? _depth / 2 + 0.2 : 0, 1),
+        child: _image(widget.asset),
+      );
+    }
     // Facing (nearly) straight on, the edge is under a pixel wide: one
     // flat picture instead of a dozen layers.
-    if ((_depth * sin(angle)).abs() < 0.6) {
+    if (!layered) {
       return Transform(
         alignment: Alignment.center,
         transform: Matrix4.identity()

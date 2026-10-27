@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart' show NarratorLanguage;
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
+import 'package:whowolf/src/app_settings.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -312,12 +313,14 @@ class _StartScreenState extends State<StartScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Palette.moon200,
+        // On a phone the settings are the page to the right.
         actions: [
-          IconButton(
-            tooltip: l10n.settings,
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: _settings,
-          ),
+          if (StageLayout.of(context).twoColumns)
+            IconButton(
+              tooltip: l10n.settings,
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: _settings,
+            ),
         ],
       ),
       body: Builder(
@@ -403,27 +406,7 @@ class _StartScreenState extends State<StartScreen> {
           final about = [
             Headline(l10n.pageSettings, eyebrow: 'Whowolf'),
             const SizedBox(height: 18),
-            SecondaryButton(
-              label: l10n.settings,
-              icon: Icons.settings_outlined,
-              onPressed: _settings,
-            ),
-            const SizedBox(height: 12),
-            SecondaryButton(
-              label: l10n.privacyRead,
-              icon: Icons.shield_outlined,
-              onPressed: () => showPrivacy(context),
-            ),
-            const SizedBox(height: 18),
-            Panel(
-              child: Column(
-                children: [
-                  Stamp(l10n.devStamp(widget.version), size: 18),
-                  const SizedBox(height: 12),
-                  Body(l10n.testNote),
-                ],
-              ),
-            ),
+            AppSettings(version: widget.version),
           ];
           final form = [
             ...play,
@@ -462,7 +445,10 @@ class _StartScreenState extends State<StartScreen> {
                     children: [...stage, const SizedBox(height: 22), ...play],
                   ),
                 ),
-                (label: l10n.pageSettings, child: Column(children: about)),
+                (
+                  label: l10n.pageSettings,
+                  child: ScrollingPage(child: Column(children: about)),
+                ),
               ],
             );
           }

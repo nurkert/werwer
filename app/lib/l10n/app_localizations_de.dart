@@ -1329,4 +1329,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get quickJoinLast => 'Dein letzter Tisch';
+
+  @override
+  String get settingsOnline => 'Online-Spiel';
+
+  @override
+  String get settingsAbout => 'Über Whowolf';
+
+  @override
+  String get settingsSaved => 'Gespeichert';
 }
