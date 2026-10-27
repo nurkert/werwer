@@ -8,6 +8,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/downloads/nurkert/whowolf/total?label=downloads" alt="Downloads"></a>
+  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/v/release/nurkert/whowolf?include_prereleases&amp;label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/nurkert/whowolf" alt="License: Apache 2.0"></a>
+</p>
+
+<p align="center">
   <a href="https://whowolf.de"><img src=".github/assets/website.jpg" alt="The whowolf.de landing page: a moonlit cardboard stage with a village, a castle, cardboard puppets and two phones" width="100%"></a>
 </p>
 
