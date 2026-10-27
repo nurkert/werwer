@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -118,12 +119,15 @@ class _Shooter {
   final String folder;
   final GlobalKey _boundary = GlobalKey();
 
+  /// Animations on (`FLIGHT=1` turns them on for the figure's flight).
+  bool animate = false;
+
   Widget frame(Widget child) => RepaintBoundary(
     key: _boundary,
     child: MediaQuery(
       data: MediaQueryData(
         size: size,
-        disableAnimations: true,
+        disableAnimations: !animate,
         // `TEXT_SCALE=2` checks the screens with the system's largest text.
         textScaler: TextScaler.linear(
           double.tryParse(Platform.environment['TEXT_SCALE'] ?? '') ?? 1,
@@ -147,6 +151,11 @@ class _Shooter {
     );
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(seconds: 1));
+    await capture(name);
+  }
+
+  /// The screen as it is this frame, without letting anything settle.
+  Future<void> capture(String name) async {
     final boundary =
         _boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     await tester.runAsync(() async {
@@ -366,6 +375,46 @@ void main() {
                   await tester.pumpAndSettle();
                   await shot.shoot('02-lobby-$page');
                 }
+              }
+              // `FLIGHT=1`: the figure's flight from its card to the stage,
+              // frame by frame (animations on, no tilt sensor in a test).
+              if (Platform.environment['FLIGHT'] != null &&
+                  find.byType(PageView).evaluate().isNotEmpty) {
+                for (var i = 0; i < 2; i++) {
+                  await tester.drag(
+                    find.byType(PageView),
+                    const Offset(500, 0),
+                  );
+                  await tester.pumpAndSettle();
+                }
+                debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+                Widget screen() => shot.frame(
+                  GameScreen(
+                    session: table.you,
+                    sounds: _silence,
+                    clips: _SilentClip.new,
+                  ),
+                );
+                shot.animate = true;
+                await tester.pumpWidget(screen());
+                await tester.pump();
+                final l10n = await AppLocalizations.delegate.load(
+                  Locale(locale),
+                );
+                final card = find.text(l10n.persona_innkeeper);
+                await tester.ensureVisible(card);
+                await tester.pump(const Duration(milliseconds: 500));
+                await tester.tap(card);
+                for (var i = 0; i < 10; i++) {
+                  await tester.pump(const Duration(milliseconds: 80));
+                  await shot.capture('02-lobby-flight-$i');
+                }
+                await tester.pump(const Duration(seconds: 1));
+                await shot.capture('02-lobby-flight-end');
+                shot.animate = false;
+                await tester.pumpWidget(screen());
+                await tester.pump();
+                debugDefaultTargetPlatformOverride = null;
               }
             }
             table.ownerSends(const StartGameIntent());
