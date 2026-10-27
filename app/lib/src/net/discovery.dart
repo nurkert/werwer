@@ -134,9 +134,18 @@ class RoomFinder extends ChangeNotifier {
   /// Whether the search could not start (no mDNS on this device).
   bool unavailable = false;
 
-  /// Rooms to join (without successors' entrances).
-  List<NearbyRoom> get rooms =>
-      _rooms.values.where((r) => !r.candidate).toList();
+  /// Rooms this device hosted and closed, by key fingerprint: the system
+  /// may keep their announcement cached for a while after it was
+  /// withdrawn, but a closed room is gone for good.
+  static final Set<String> _closed = {};
+
+  /// Marks a room this device closed, so no search shows it again.
+  static void closed(List<int> hostKey) => _closed.add(keyPrint(hostKey));
+
+  /// Rooms to join (without successors' entrances and rooms closed here).
+  List<NearbyRoom> get rooms => _rooms.values
+      .where((r) => !r.candidate && !_closed.contains(r.keyPrint))
+      .toList();
 
   /// Everything announced, entrances included.
   Iterable<NearbyRoom> get all => _rooms.values;

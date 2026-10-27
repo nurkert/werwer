@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -361,7 +363,10 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         pages: [
           (
             label: l10n.pageFigure,
-            child: page([...pending, _FigureStage(session: session)]),
+            // The figures need room to be tapped: this page scrolls.
+            child: ScrollingPage(
+              child: page([...pending, _FigureStage(session: session)]),
+            ),
           ),
           (label: l10n.pageTable, child: page([title, ...pending, ...table])),
           (
@@ -488,19 +493,21 @@ class _FigureStageState extends State<_FigureStage> {
     };
     final allTaken = taken.length >= Persona.values.length;
     final shown = _shown ?? mine;
+    final screen = MediaQuery.sizeOf(context);
+    final figureHeight = (screen.height * 0.26).clamp(150.0, 240.0);
     return Column(
       children: [
         Headline(l10n.figureTitle, eyebrow: l10n.eyebrowEvening),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         SizedBox(
-          height: 230,
+          height: figureHeight + 10,
           child: Center(
             child: TurningFigure(
               key: const ValueKey('my-figure'),
               asset: personaAsset(shown),
               backAsset: personaAsset(shown),
               showBack: _turning,
-              height: 220,
+              height: figureHeight,
             ),
           ),
         ),
@@ -510,90 +517,127 @@ class _FigureStageState extends State<_FigureStage> {
           style: const TextStyle(
             fontFamily: displayFont,
             fontWeight: FontWeight.w700,
-            fontSize: 26,
+            fontSize: 28,
             color: Palette.stageIvory,
             shadows: [Shadow(blurRadius: 10)],
           ),
         ),
         Body(l10n.personaHint, muted: true),
-        const SizedBox(height: 14),
-        Panel(
-          padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 4,
-            runSpacing: 8,
+        const SizedBox(height: 16),
+        // Every figure as a card big enough for a thumb: three in a row on
+        // a phone, more as the window grows.
+        LayoutBuilder(
+          builder: (context, box) {
+            const gap = 10.0;
+            final columns = max(3, (box.maxWidth / 120).floor());
+            final width = (box.maxWidth - gap * (columns - 1)) / columns;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                for (final p in Persona.values)
+                  _FigureCard(
+                    persona: p,
+                    width: width,
+                    selected: p == mine,
+                    takenBy: allTaken ? null : taken[p],
+                    onTap: () => _pick(p),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// One figure to pick in the lobby: the whole cut-out on a plaque, its
+/// name below; lit when it is yours, in shadow with its player's name when
+/// someone else has it.
+class _FigureCard extends StatelessWidget {
+  const _FigureCard({
+    required this.persona,
+    required this.width,
+    required this.selected,
+    required this.onTap,
+    this.takenBy,
+  });
+
+  final Persona persona;
+  final double width;
+  final bool selected;
+  final String? takenBy;
+  final VoidCallback onTap;
+
+  static const _shadow = ColorFilter.matrix([
+    0.18, 0, 0, 0, 8, //
+    0, 0.18, 0, 0, 12, //
+    0, 0, 0.22, 0, 24, //
+    0, 0, 0, 1, 0,
+  ]);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final free = takenBy == null;
+    Widget figure = Image.asset(
+      personaAsset(persona),
+      height: width * 1.05,
+      fit: BoxFit.contain,
+    );
+    if (!free) figure = ColorFiltered(colorFilter: _shadow, child: figure);
+    return Semantics(
+      button: free,
+      selected: selected,
+      label: [l10n.persona(persona), ?takenBy].join(', '),
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: free
+            ? () {
+                unawaited(HapticFeedback.selectionClick());
+                onTap();
+              }
+            : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: width,
+          padding: const EdgeInsets.fromLTRB(6, 8, 6, 8),
+          decoration: PlaqueDecoration(lit: selected),
+          child: Column(
             children: [
-              for (final p in Persona.values)
-                () {
-                  final owner = allTaken ? null : taken[p];
-                  final selected = p == mine;
-                  return Semantics(
-                    button: owner == null,
-                    selected: selected,
-                    label: [l10n.persona(p), ?owner].join(', '),
-                    excludeSemantics: true,
-                    child: GestureDetector(
-                      onTap: owner == null ? () => _pick(p) : null,
-                      child: SizedBox(
-                        width: 62,
-                        child: Column(
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.all(2.5),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: selected
-                                      ? Palette.stageLanternTop
-                                      : Colors.transparent,
-                                  width: 2.5,
-                                ),
-                                boxShadow: selected
-                                    ? [
-                                        BoxShadow(
-                                          color: Palette.stageLanternTop
-                                              .withValues(alpha: 0.45),
-                                          blurRadius: 10,
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Opacity(
-                                opacity: owner == null ? 1 : 0.4,
-                                child: Portrait(
-                                  persona: p,
-                                  size: 46,
-                                  grey: owner != null,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              owner ?? l10n.persona(p),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: owner != null
-                                    ? Palette.stageBrassLight
-                                    : selected
-                                    ? Palette.stageLanternTop
-                                    : Palette.stageIvorySoft,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }(),
+              figure,
+              const SizedBox(height: 6),
+              Text(
+                l10n.persona(persona),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: displayFont,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: selected
+                      ? Palette.stageLanternTop
+                      : free
+                      ? Palette.stageIvory
+                      : Palette.stageIvorySoft.withValues(alpha: 0.6),
+                ),
+              ),
+              if (!free)
+                Text(
+                  takenBy!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: Palette.stageBrassLight,
+                  ),
+                ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

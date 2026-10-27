@@ -13,6 +13,8 @@ import 'package:whowolf/src/theme.dart';
 /// The app's own settings, laid out on the start screen's right page
 /// (task 012): every choice takes effect at once, no dialog to open and
 /// save. Only the server address waits until it is complete and valid.
+/// The language is the flag at the top of the start screen
+/// ([LanguageFlag]).
 class AppSettings extends StatefulWidget {
   const AppSettings({required this.version, super.key});
 
@@ -54,13 +56,6 @@ class _AppSettingsState extends State<AppSettings> {
     super.dispose();
   }
 
-  void _language(String code) {
-    final picked = code.isEmpty ? null : code;
-    appLanguage.value = picked == null ? null : Locale(picked);
-    unawaited(_store.setLanguage(picked));
-    setState(() {});
-  }
-
   Future<void> _setRelayOff(bool off) async {
     setState(() => _relayOff = off);
     await _store.setRelayOff(off: off);
@@ -86,28 +81,10 @@ class _AppSettingsState extends State<AppSettings> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final language = appLanguage.value?.languageCode ?? '';
     final changed = _server.text.trim() != _savedServer;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Group(
-          title: l10n.language,
-          child: SegmentedButton<String>(
-            showSelectedIcon: false,
-            segments: [
-              ButtonSegment(
-                value: '',
-                label: const Text('System'),
-                tooltip: l10n.languageSystem,
-              ),
-              const ButtonSegment(value: 'de', label: Text('Deutsch')),
-              const ButtonSegment(value: 'en', label: Text('English')),
-            ],
-            selected: {language},
-            onSelectionChanged: (v) => _language(v.first),
-          ),
-        ),
         _Group(
           title: l10n.settingsOnline,
           child: !_loaded
@@ -212,4 +189,153 @@ class _Group extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// The app's language as a small flag in the corner of the start screen:
+/// tap it to pick German, English or the system's language.
+class LanguageFlag extends StatelessWidget {
+  const LanguageFlag({super.key});
+
+  static const _store = Store();
+
+  void _pick(String code) {
+    final picked = code.isEmpty ? null : code;
+    appLanguage.value = picked == null ? null : Locale(picked);
+    unawaited(_store.setLanguage(picked));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final shown = Localizations.localeOf(context).languageCode;
+    final chosen = appLanguage.value?.languageCode ?? '';
+    PopupMenuItem<String> item(String code, String label, String? flag) =>
+        PopupMenuItem(
+          value: code,
+          child: Row(
+            children: [
+              if (flag == null)
+                const Icon(Icons.phone_iphone_rounded, size: 22)
+              else
+                _Flag(flag, size: 22),
+              const SizedBox(width: 12),
+              Expanded(child: Text(label)),
+              if (chosen == code)
+                const Icon(
+                  Icons.check_rounded,
+                  size: 20,
+                  color: Palette.lantern400,
+                ),
+            ],
+          ),
+        );
+    return PopupMenuButton<String>(
+      tooltip: l10n.language,
+      onSelected: _pick,
+      position: PopupMenuPosition.under,
+      itemBuilder: (_) => [
+        item('de', 'Deutsch', 'de'),
+        item('en', 'English', 'en'),
+        item('', l10n.languageSystem, null),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: _Flag(shown == 'de' ? 'de' : 'en', size: 28),
+      ),
+    );
+  }
+}
+
+/// A round flag, painted (no emoji: they look different everywhere).
+class _Flag extends StatelessWidget {
+  const _Flag(this.language, {required this.size});
+
+  final String language;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(color: Palette.lantern300, width: 1.5),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x66000000),
+          blurRadius: 6,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: ClipOval(
+      child: CustomPaint(painter: _FlagPainter(language)),
+    ),
+  );
+}
+
+class _FlagPainter extends CustomPainter {
+  const _FlagPainter(this.language);
+
+  final String language;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final paint = Paint();
+    if (language == 'de') {
+      for (final (i, color) in const [
+        Color(0xFF000000),
+        Color(0xFFDD0000),
+        Color(0xFFFFCE00),
+      ].indexed) {
+        canvas.drawRect(
+          Rect.fromLTWH(0, h * i / 3, w, h / 3 + 0.5),
+          paint..color = color,
+        );
+      }
+      return;
+    }
+    // The Union flag, simplified to what reads at this size.
+    canvas.drawRect(Offset.zero & size, paint..color = const Color(0xFF012169));
+    final diagonal = Paint()..strokeWidth = h * 0.2;
+    for (final (color, width) in const [
+      (Color(0xFFFFFFFF), 0.2),
+      (Color(0xFFC8102E), 0.08),
+    ]) {
+      diagonal
+        ..color = color
+        ..strokeWidth = h * width;
+      canvas
+        ..drawLine(Offset.zero, Offset(w, h), diagonal)
+        ..drawLine(Offset(w, 0), Offset(0, h), diagonal);
+    }
+    for (final (color, width) in const [
+      (Color(0xFFFFFFFF), 0.34),
+      (Color(0xFFC8102E), 0.2),
+    ]) {
+      paint.color = color;
+      canvas
+        ..drawRect(
+          Rect.fromCenter(
+            center: size.center(Offset.zero),
+            width: w,
+            height: h * width,
+          ),
+          paint,
+        )
+        ..drawRect(
+          Rect.fromCenter(
+            center: size.center(Offset.zero),
+            width: h * width,
+            height: h,
+          ),
+          paint,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_FlagPainter old) => old.language != language;
 }

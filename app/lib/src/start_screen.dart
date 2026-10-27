@@ -315,6 +315,7 @@ class _StartScreenState extends State<StartScreen> {
         foregroundColor: Palette.moon200,
         // On a phone the settings are the page to the right.
         actions: [
+          const LanguageFlag(),
           if (StageLayout.of(context).twoColumns)
             IconButton(
               tooltip: l10n.settings,
