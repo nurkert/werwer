@@ -4,8 +4,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:whowolf/src/stage/lights.g.dart';
+import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/stage/scene.dart';
 
 /// The time the stage's life runs on (task 015), in seconds: one ticker for
@@ -433,8 +435,12 @@ class LifePainter extends CustomPainter {
     required this.time,
     this.pan,
     this.sky = false,
+    this.moon,
     this.debug = false,
   }) : super(repaint: Listenable.merge([time, ?pan]));
+
+  /// Where the moon stands on this canvas: no star in front of it.
+  final Rect? moon;
 
   /// The sky's layer (stars, shooting stars), which lies above the dark
   /// that keeps titles readable; otherwise everything else.
@@ -639,33 +645,28 @@ class LifePainter extends CustomPainter {
       }
     }
 
-    // Faint stars of our own where the sky is clear.
-    final clear = sky ? life.sky : null;
-    if (clear != null) {
-      // Stars of our own: many far, faint points, fewer bright sparkles,
-      // each its own size and brightness; neighbours share a slow swell.
-      for (var i = 0; i < 110; i++) {
-        final x = clear.left + clear.width * _hash(i, 21);
-        final y = clear.top + clear.height * pow(_hash(i, 22), 1.4);
-        final size = pow(_hash(i, 24), 3).toDouble();
-        final swell = 0.65 + 0.35 * sin(t * 0.3 + x * 6 + y * 4);
-        if (size > 0.3) {
-          _star(
-            at(x, y),
-            i + 500,
-            12 + 16 * size,
-            (0.75 + 0.25 * _hash(i, 25)) * swell,
-            t,
-          );
+    // Stars of our own, placed by the tool on clear sky only (evenly
+    // spread, thinning towards the horizon); none over the moon.
+    if (sky && data != null) {
+      final moon = this.moon;
+      for (final (i, l) in data.sky.indexed) {
+        final (x, y, m, seed) = l;
+        final p = at(x, y);
+        if (moon != null && (p - moon.center).distance < moon.width * 0.62) {
+          continue;
+        }
+        final swell = 0.7 + 0.3 * sin(t * 0.3 + x * 6 + y * 4);
+        final id = i + (seed * 1000).round();
+        if (m > 0.42) {
+          _star(p, id, 11 + 22 * m, (0.6 + 0.4 * m) * swell, t);
         } else {
-          final tw = 0.5 + 0.5 * sin(t * (0.5 + 1.6 * _hash(i, 23)) + i);
+          final tw = 0.5 + 0.5 * sin(t * (0.5 + 1.6 * seed) + i);
           _stamp(
             _Sprite.glow,
-            at(x, y),
-            4 + 10 * size + 2 * tw,
-            _starColour(i).withValues(
-              alpha: ((0.32 + 0.6 * _hash(i, 25)) * (0.5 + 0.5 * tw) * swell)
-                  .clamp(0, 1),
+            p,
+            4 + 12 * m + 2 * tw,
+            _starColour(id).withValues(
+              alpha: ((0.3 + 1.2 * m) * (0.55 + 0.45 * tw) * swell).clamp(0, 1),
             ),
           );
         }
@@ -737,6 +738,7 @@ class LifePainter extends CustomPainter {
       );
     }
 
+    if (sky && life.sky != null) _clouds(canvas, r, t, life.sky!);
     if (sky && life.shooting) _shootingStar(canvas, size, r, t);
 
     if ((debug || showMarks) && data != null && !sky) {
@@ -765,6 +767,46 @@ class LifePainter extends CustomPainter {
         );
       }
     }
+  }
+
+  /// Thin veils of cloud drifting slowly across the sky, now hiding a few
+  /// stars, now letting them through; moonlit at their upper edge.
+  void _clouds(Canvas canvas, Rect r, double t, Rect sky) {
+    final xf = <RSTransform>[];
+    final src = <Rect>[];
+    final col = <Color>[];
+    for (var i = 0; i < 4; i++) {
+      final speed = 0.004 + 0.003 * _hash(i, 81);
+      final x = ((_hash(i, 82) + t * speed) % 1.5) - 0.25;
+      final y = sky.top + sky.height * (0.25 + 0.6 * _hash(i, 83));
+      final width = r.width * (0.35 + 0.3 * _hash(i, 84));
+      for (final (dy, colour) in [
+        (0.0, const Color(0x5A1C2748)),
+        (-0.012, const Color(0x1E9FB4D8)),
+      ]) {
+        xf.add(
+          RSTransform.fromComponents(
+            rotation: 0,
+            scale: width / _Sprite.mist.width,
+            anchorX: _Sprite.mist.width / 2,
+            anchorY: _Sprite.mist.height / 2,
+            translateX: r.left + x * r.width,
+            translateY: r.top + (y + dy) * r.height,
+          ),
+        );
+        src.add(_Sprite.mist);
+        col.add(colour);
+      }
+    }
+    canvas.drawAtlas(
+      _sprites,
+      xf,
+      src,
+      col,
+      BlendMode.modulate,
+      null,
+      Paint(),
+    );
   }
 
   /// Now and then a shooting star crosses the clear sky.
@@ -901,4 +943,133 @@ class _PiecePainter extends CustomPainter {
   @override
   bool shouldRepaint(_PiecePainter old) =>
       old.lights != lights || old.mirror != mirror || old.time != time;
+}
+
+/// Where the water lies in a stage set, as fractions of its picture.
+Rect? waterOf(String plate) => switch (plate) {
+  'village' => const Rect.fromLTRB(0.2, 0.622, 0.97, 0.705),
+  'nightlake' => const Rect.fromLTRB(0, 0.598, 1, 0.75),
+  _ => null,
+};
+
+/// Waves on a stage set's painted water (task 015), on the plate's own
+/// frame: a shader shifts the set's pixels row by row (shaders/water.frag).
+class PlateWater extends StatefulWidget {
+  const PlateWater({required this.plate, required this.asset, super.key});
+
+  /// The set's name (`village`) and its picture.
+  final String plate;
+  final String asset;
+
+  @override
+  State<PlateWater> createState() => _PlateWaterState();
+}
+
+class _PlateWaterState extends State<PlateWater> {
+  static Future<ui.FragmentProgram>? _program;
+  static final Map<String, Future<ui.Image>> _images = {};
+
+  ui.FragmentShader? _shader;
+  ui.Image? _image;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    try {
+      final program = await (_program ??= ui.FragmentProgram.fromAsset(
+        'shaders/water.frag',
+      ));
+      final image = await (_images[widget.asset] ??= _decode(widget.asset));
+      if (!mounted) return;
+      setState(() {
+        _shader = program.fragmentShader();
+        _image = image;
+      });
+    } on Object catch (error) {
+      // No shader on this device: the water stays as painted.
+      debugPrint('Water shader unavailable: $error');
+    }
+  }
+
+  static Future<ui.Image> _decode(String asset) async {
+    final data = await rootBundle.load(asset);
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    return (await codec.getNextFrame()).image;
+  }
+
+  @override
+  void dispose() {
+    _shader?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final shader = _shader;
+    final image = _image;
+    final water = waterOf(widget.plate);
+    if (shader == null || image == null || water == null) {
+      return const SizedBox.shrink();
+    }
+    return IgnorePointer(
+      child: CustomPaint(
+        painter: _WaterPainter(
+          shader: shader,
+          image: image,
+          water: water,
+          time: StageClock.of(context),
+          pan: StagePan.of(context),
+        ),
+      ),
+    );
+  }
+}
+
+class _WaterPainter extends CustomPainter {
+  _WaterPainter({
+    required this.shader,
+    required this.image,
+    required this.water,
+    required this.time,
+    this.pan,
+  }) : super(repaint: Listenable.merge([time, ?pan]));
+
+  final ui.FragmentShader shader;
+  final ui.Image image;
+  final Rect water;
+  final ValueListenable<double> time;
+  final ValueListenable<double>? pan;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = plateRect(size, pan?.value ?? 0, side: image.width.toDouble());
+    shader
+      ..setFloat(0, r.left)
+      ..setFloat(1, r.top)
+      ..setFloat(2, r.width)
+      ..setFloat(3, r.height)
+      ..setFloat(4, water.left)
+      ..setFloat(5, water.top)
+      ..setFloat(6, water.right)
+      ..setFloat(7, water.bottom)
+      ..setFloat(8, time.value)
+      ..setImageSampler(0, image);
+    canvas.drawRect(
+      Rect.fromLTRB(
+        r.left + water.left * r.width,
+        r.top + water.top * r.height,
+        r.left + water.right * r.width,
+        r.top + water.bottom * r.height,
+      ),
+      Paint()..shader = shader,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_WaterPainter old) =>
+      old.shader != shader || old.image != image || old.water != water;
 }

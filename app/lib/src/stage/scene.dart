@@ -354,6 +354,26 @@ Color? tintOf(Scene scene) => switch (scene) {
   _ => null,
 };
 
+/// Where the moon of a plate's sky stands in [size].
+Rect? moonRect(Scene scene, Size size) {
+  final look = lookOf(scene);
+  final moon = look.moon;
+  if (moon == null) return null;
+  final wide = size.width > size.height;
+  // Wide windows hold content in both columns: a smaller moon rises
+  // high in the middle, above the gap between them.
+  final d =
+      size.shortestSide *
+      (moon == MoonPhase.crescent ? 0.3 : 0.4) *
+      (wide ? 0.7 : 1);
+  final at = wide ? const Alignment(-0.1, -0.92) : look.moonAt;
+  return Rect.fromCenter(
+    center: at.withinRect(Offset.zero & size),
+    width: d,
+    height: d,
+  );
+}
+
 /// The moon in a plate's sky.
 class _MoonLayer extends CustomPainter {
   const _MoonLayer(this.scene);
@@ -362,22 +382,13 @@ class _MoonLayer extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final look = lookOf(scene);
-    final moon = look.moon;
-    if (moon == null) return;
-    final wide = size.width > size.height;
-    // Wide windows hold content in both columns: a smaller moon rises
-    // high in the middle, above the gap between them.
-    final d =
-        size.shortestSide *
-        (moon == MoonPhase.crescent ? 0.3 : 0.4) *
-        (wide ? 0.7 : 1);
-    final at = wide ? const Alignment(-0.1, -0.92) : look.moonAt;
-    final center = at.withinRect(Offset.zero & size);
+    final moon = lookOf(scene).moon;
+    final rect = moonRect(scene, size);
+    if (moon == null || rect == null) return;
     canvas
       ..save()
-      ..translate(center.dx - d / 2, center.dy - d / 2);
-    MoonPainter(phase: moon).paint(canvas, Size.square(d));
+      ..translate(rect.left, rect.top);
+    MoonPainter(phase: moon).paint(canvas, rect.size);
     canvas.restore();
   }
 
@@ -461,6 +472,13 @@ class StageSet extends StatelessWidget {
                           fit: StackFit.expand,
                           children: [
                             RepaintBoundary(child: _Plate(scene, plate)),
+                            if (lifeOf(scene).plate case final name?)
+                              RepaintBoundary(
+                                child: _tinted(
+                                  scene,
+                                  PlateWater(plate: name, asset: plate),
+                                ),
+                              ),
                             RepaintBoundary(child: _Life(scene)),
                           ],
                         ),
@@ -495,6 +513,17 @@ class StageSet extends StatelessWidget {
   }
 }
 
+/// [child] coloured like the scene's plate (a borrowed, tinted set).
+Widget _tinted(Scene scene, Widget child) {
+  final tint = tintOf(scene);
+  return tint == null
+      ? child
+      : ColorFiltered(
+          colorFilter: ColorFilter.mode(tint, BlendMode.modulate),
+          child: child,
+        );
+}
+
 /// The life of a stage set, on the plate's own frame.
 class _Life extends StatelessWidget {
   const _Life(this.scene, {this.sky = false});
@@ -504,13 +533,28 @@ class _Life extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
-    child: CustomPaint(
-      painter: LifePainter(
-        scene: scene,
-        time: StageClock.of(context),
-        pan: StagePan.of(context),
-        sky: sky,
-      ),
+    child: LayoutBuilder(
+      builder: (context, box) {
+        // The moon on this canvas, which is scaled up around its centre.
+        final size = box.biggest;
+        final moon = moonRect(scene, size);
+        final c = size.center(Offset.zero);
+        return CustomPaint(
+          painter: LifePainter(
+            scene: scene,
+            time: StageClock.of(context),
+            pan: StagePan.of(context),
+            sky: sky,
+            moon: moon == null
+                ? null
+                : Rect.fromCenter(
+                    center: (moon.center - c) / 1.04 + c,
+                    width: moon.width / 1.04,
+                    height: moon.height / 1.04,
+                  ),
+          ),
+        );
+      },
     ),
   );
 }

@@ -31,10 +31,10 @@ JSON = Path("website/src/data/lights.json")
 SETS_CONFIG = {
     "village": {"bands": [(0, 0.36, 1, 0.62)], "sky": 0.36, "water": (0.35, 0.62, 0.97, 0.697)},
     "nightlake": {"bands": [(0, 0.5, 1, 0.6)], "extra": [(0.185, 0.775, 0.03, 1)], "sky": 0.42, "water": (0, 0.6, 1, 0.67)},
-    "hunt": {"bands": [], "extra": [(0.86, 0.86, 0.012, 0.7)]},
-    "dusk": {"bands": [(0.05, 0.55, 0.95, 0.8)]},
+    "hunt": {"bands": [], "extra": [(0.86, 0.86, 0.012, 0.7)], "skyStars": 0.4},
+    "dusk": {"bands": [(0.05, 0.55, 0.95, 0.8)], "skyStars": 0.22},
     "finale": {"bands": [(0, 0.55, 1, 0.8)]},
-    "theatre": {"bands": [(0, 0.85, 1, 0.98), (0, 0.48, 1, 0.62)]},
+    "theatre": {"bands": [(0, 0.85, 1, 0.98), (0, 0.48, 1, 0.62)], "skyStars": 0.5},
     "curtain": {"bands": [], "extra": [(0.217, 0.15, 0.03, 1), (0.777, 0.15, 0.03, 1)]},
     "backstage": {"bands": [(0.78, 0.36, 0.99, 0.62)], "extra": [(0.068, 0.205, 0.03, 1)]},
     "morning": {"bands": []},
@@ -95,6 +95,52 @@ def merge_close(points, dist):
     return kept
 
 
+def sky_stars(v, rows, cols, line: float, rng, avoid):
+    """Stars of our own where the sky is clear: on dark, smooth sky only
+    (no clouds, hills, trees), evenly spread without clumps (a minimum
+    distance between any two), thinning towards the horizon, a few bright
+    ones among many faint. Returns (x, y, magnitude 0..1, phase seed)."""
+    mean = ndimage.uniform_filter(v, 9)
+    var = ndimage.uniform_filter(v * v, 9) - mean * mean
+    clear = (v < 0.34) & (var < 0.0012) & (rows < line)
+    # Keep away from the edge of clouds and hills a little.
+    clear = ndimage.binary_erosion(clear, iterations=4)
+    h, w = v.shape
+    ys, xs = np.nonzero(clear)
+    if len(xs) == 0:
+        return []
+    order = rng.permutation(len(xs))
+    chosen = []
+    grid = {}
+    cell = 0.024
+    for k in order:
+        x, y = xs[k] / w, ys[k] / h
+        # Dense high up, sparse near the horizon.
+        if rng.random() > (1 - y / line) ** 1.3 * 0.9 + 0.1:
+            continue
+        if any((x - ax) ** 2 + (y - ay) ** 2 < 0.03 ** 2 for ax, ay in avoid):
+            continue
+        gx, gy = int(x / cell), int(y / cell)
+        near = False
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for px, py in grid.get((gx + dx, gy + dy), []):
+                    if (x - px) ** 2 + (y - py) ** 2 < cell * cell:
+                        near = True
+        if near:
+            continue
+        grid.setdefault((gx, gy), []).append((x, y))
+        chosen.append((x, y))
+        if len(chosen) >= 170:
+            break
+    out = []
+    for x, y in chosen:
+        # Magnitudes as in a real sky: many faint, few bright.
+        m = float(rng.random() ** 3.2)
+        out.append((round(x, 4), round(y, 4), round(m, 3), round(float(rng.random()), 3)))
+    return out
+
+
 def analyse(path: Path, config: dict):
     sky = config.get("sky", 0)
     water = config.get("water")
@@ -127,11 +173,13 @@ def analyse(path: Path, config: dict):
     if sky > 0:
         pale = (v > 0.7) & (glow > 0.25) & (s < 0.5) & (rows < sky) & (alpha > 0.5)
         stars = blobs(pale, v, 1, 60 * scale, MAX_STARS)
+    line = config.get("skyStars", sky)
+    own = sky_stars(v, rows, cols, line, np.random.default_rng(7), [(x, y) for x, y, _, _ in stars]) if line else []
     ripples = []
     if water:
         shine = (v > 0.55) & (glow > 0.12) & (s > 0.3) & (h > 18) & (h < 62) & in_water
         ripples = blobs(shine, v, max(2, 3 * scale), 3000 * scale, MAX_RIPPLES)
-    return {"lights": lights, "stars": stars, "ripples": ripples}
+    return {"lights": lights, "stars": stars, "ripples": ripples, "sky": own}
 
 
 def dart_list(name, items):
@@ -145,7 +193,7 @@ def main():
         name = path.stem
         result[name] = analyse(path, SETS_CONFIG.get(name, {"bands": []}))
     for name, lights in PIECE_LIGHTS.items():
-        result[f"scenery/{name}"] = {"lights": lights, "stars": [], "ripples": []}
+        result[f"scenery/{name}"] = {"lights": lights, "stars": [], "ripples": [], "sky": []}
     JSON.parent.mkdir(parents=True, exist_ok=True)
     JSON.write_text(json.dumps(result, separators=(",", ":")) + "\n")
 
@@ -161,6 +209,9 @@ def main():
         "  List<PaintedLight> lights,",
         "  List<PaintedLight> stars,",
         "  List<PaintedLight> ripples,",
+        "  // Stars of our own on clear sky: x, y, magnitude (0 faint to 1",
+        "  // bright), a seed for their own pace.",
+        "  List<PaintedLight> sky,",
         "});",
         "",
         "/// Per stage set (`village`) and scenery piece (`scenery/lamppost`).",
@@ -170,7 +221,7 @@ def main():
         if not any(data.values()):
             continue
         out.append(f"  '{name}': (")
-        for key in ("lights", "stars", "ripples"):
+        for key in ("lights", "stars", "ripples", "sky"):
             items = data[key]
             if not items:
                 out.append(f"    {key}: [],")
@@ -197,9 +248,9 @@ def preview(out_dir: Path):
         bg.alpha_composite(img)
         draw = ImageDraw.Draw(bg)
         w, h = img.size
-        for key, colour in (("lights", (255, 0, 255)), ("stars", (0, 255, 255)), ("ripples", (0, 255, 0))):
+        for key, colour in (("lights", (255, 0, 255)), ("stars", (0, 255, 255)), ("ripples", (0, 255, 0)), ("sky", (255, 255, 0))):
             for x, y, r, _ in d[key]:
-                rr = max(3, r * w * 1.6)
+                rr = (2 + 6 * r) if key == "sky" else max(3, r * w * 1.6)
                 draw.ellipse((x * w - rr, y * h - rr, x * w + rr, y * h + rr), outline=colour, width=2)
         bg.convert("RGB").save(out_dir / f"{name.replace('/', '_')}.png")
 

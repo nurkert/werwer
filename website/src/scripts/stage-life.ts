@@ -6,7 +6,7 @@
 import data from '../data/lights.json';
 
 type Light = [number, number, number, number];
-type Lights = { lights: Light[]; stars: Light[]; ripples: Light[] };
+type Lights = { lights: Light[]; stars: Light[]; ripples: Light[]; sky?: Light[] };
 type Rect = [number, number, number, number]; // x0, y0, x1, y1
 type Drift = { count: number; area: Rect; color: string; size: number; vx: number; vy: number; sway: number };
 type Life = {
@@ -25,14 +25,14 @@ type Life = {
 
 const warm = '#ffb45a';
 const lives: Record<string, Life> = {
-  village: { sky: [0.04, 0.02, 0.96, 0.3], water: [0.2, 0.625, 0.96, 0.7], shooting: true, fireflies: 14, fireflyArea: [0.02, 0.6, 0.98, 0.76] },
+  village: { sky: [0.04, 0.02, 0.96, 0.3], water: [0.2, 0.622, 0.97, 0.705], shooting: true, fireflies: 14, fireflyArea: [0.02, 0.6, 0.98, 0.76] },
   theatre: {
     flames: true,
     drift: { count: 26, area: [0.08, 0.5, 0.92, 0.84], color: '#ffe2a8', size: 3, vx: 0.002, vy: -0.006, sway: 0.02 },
   },
   nightlake: {
     flames: true,
-    water: [0, 0.6, 1, 0.74],
+    water: [0, 0.598, 1, 0.75],
     sky: [0.02, 0.02, 0.98, 0.3],
     shooting: true,
     fireflies: 16,
@@ -139,6 +139,9 @@ class SceneLife {
   private readonly lights: Lights;
   private w = 0;
   private h = 0;
+  // The set's picture at its real pixel size (an <img> with srcset reports
+  // a size scaled to the layout, but drawImage reads the file's pixels).
+  private picture: HTMLImageElement | null = null;
   visible = false;
 
   constructor(
@@ -147,6 +150,16 @@ class SceneLife {
   ) {
     this.life = lives[name] ?? {};
     this.lights = ((data as Record<string, Lights>)[name] ?? { lights: [], stars: [], ripples: [] }) as Lights;
+    const shown = section.querySelector<HTMLImageElement>('img.scene__set');
+    if (shown && this.life.water) {
+      const load = () => {
+        const raw = new Image();
+        raw.onload = () => (this.picture = raw);
+        raw.src = shown.currentSrc || shown.src;
+      };
+      if (shown.complete) load();
+      else shown.addEventListener('load', load, { once: true });
+    }
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'scene__life';
     this.canvas.setAttribute('aria-hidden', 'true');
@@ -182,6 +195,30 @@ class SceneLife {
       ctx.globalAlpha = Math.min(1, alpha);
       ctx.drawImage(img, x - width / 2, y - height / 2, width, height);
     };
+
+    // Waves on the painted water: its rows, shifted a little sideways, so
+    // the reflections of the lights sway; the shift fades out at the edges.
+    const img = this.picture;
+    if (life.water && img?.complete && img.naturalWidth) {
+      const [wx0, wy0, wx1, wy1] = life.water;
+      const scale = img.naturalWidth / pw;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      const top0 = top + wy0 * pw;
+      const rows = (wy1 - wy0) * pw;
+      for (let y = 0; y < rows; y += 2) {
+        const band = y / rows;
+        const edge = Math.sin(Math.PI * band) ** 2;
+        const v = wy0 + (y / pw);
+        const k = 330 - 150 * band;
+        const dx =
+          (0.6 * Math.sin(v * k + t * 1.6) + 0.4 * Math.sin(v * k * 2.17 - t * 2.4)) * 0.0048 * (0.45 + band) * edge * pw;
+        const sx = wx0 * img.naturalWidth;
+        const sw = (wx1 - wx0) * img.naturalWidth;
+        ctx.drawImage(img, sx, (top0 + y - top) * scale, sw, 2 * scale, left + wx0 * pw + dx, top0 + y, sw / scale, 2);
+      }
+      ctx.globalCompositeOperation = 'lighter';
+    }
 
     for (const [b, band] of (life.mist ?? []).entries()) {
       const mist = sprite('mist', life.mistColor ?? '#9fb4d8');
@@ -267,24 +304,27 @@ class SceneLife {
       stamp(moth, px + Math.cos(ang) * rr, py + Math.sin(ang * 1.3) * rr * 0.6, 7, 0.8);
     }
 
-    if (life.sky) {
-      // Stars of our own: many far, faint points, fewer bright sparkles,
-      // each its own size and brightness; neighbours share a slow swell.
-      const [x0, y0, x1, y1] = life.sky;
-      for (let i = 0; i < 110; i++) {
-        const x = x0 + (x1 - x0) * hash(i, 21);
-        const y = y0 + (y1 - y0) * Math.pow(hash(i, 22), 1.4);
-        const size = Math.pow(hash(i, 24), 3);
-        const swell = 0.65 + 0.35 * Math.sin(t * 0.3 + x * 6 + y * 4);
-        const [px, py] = at(x, y);
-        if (size > 0.3) {
-          sparkle(px, py, i + 500, 12 + 16 * size, (0.75 + 0.25 * hash(i, 25)) * swell);
-        } else {
-          const tw = 0.5 + 0.5 * Math.sin(t * (0.5 + 1.6 * hash(i, 23)) + i);
-          stamp(sprite('glow', starColour(i)), px, py, 4 + 10 * size + 2 * tw, (0.32 + 0.6 * hash(i, 25)) * (0.5 + 0.5 * tw) * swell);
-        }
-      }
+    // Stars of our own, placed by the tool on clear sky only (evenly
+    // spread, thinning towards the horizon); none over the moon.
+    const moonEl = this.section.querySelector<HTMLElement>('.scene__moon');
+    let moon: [number, number, number] | null = null;
+    if (moonEl) {
+      const m = moonEl.getBoundingClientRect();
+      const sec = this.section.getBoundingClientRect();
+      moon = [m.left - sec.left + m.width / 2, m.top - sec.top + m.height / 2, m.width * 0.75];
     }
+    (lights.sky ?? []).forEach(([x, y, m, seed], i) => {
+      const [px, py] = at(x, y);
+      if (moon && Math.hypot(px - moon[0], py - moon[1]) < moon[2]) return;
+      const swell = 0.7 + 0.3 * Math.sin(t * 0.3 + x * 6 + y * 4);
+      const id = i + Math.round(seed * 1000);
+      if (m > 0.42) {
+        sparkle(px, py, id, 11 + 22 * m, (0.6 + 0.4 * m) * swell);
+      } else {
+        const tw = 0.5 + 0.5 * Math.sin(t * (0.5 + 1.6 * seed) + i);
+        stamp(sprite('glow', starColour(id)), px, py, 4 + 12 * m + 2 * tw, (0.3 + 1.2 * m) * (0.55 + 0.45 * tw) * swell);
+      }
+    });
 
     if (life.fireflies && life.fireflyArea) {
       const [x0, y0, x1, y1] = life.fireflyArea;
@@ -316,6 +356,21 @@ class SceneLife {
       }
     }
 
+    if (life.sky) {
+      // Thin veils of cloud drifting slowly across the sky.
+      ctx.globalCompositeOperation = 'source-over';
+      const [, y0, , y1] = life.sky;
+      for (let i = 0; i < 4; i++) {
+        const speed = 0.004 + 0.003 * hash(i, 81);
+        const x = ((hash(i, 82) + t * speed) % 1.5) - 0.25;
+        const y = y0 + (y1 - y0) * (0.25 + 0.6 * hash(i, 83));
+        const width = pw * (0.35 + 0.3 * hash(i, 84));
+        const [px, py] = at(x, y);
+        stamp(sprite('mist', '#1c2748'), px, py, width, 0.35);
+        stamp(sprite('mist', '#9fb4d8'), px, py - 0.012 * pw, width, 0.12);
+      }
+      ctx.globalCompositeOperation = 'lighter';
+    }
     if (life.shooting) this.shootingStar(t, at, pw);
     ctx.globalAlpha = 1;
   }

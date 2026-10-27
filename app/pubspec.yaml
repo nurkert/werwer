@@ -48,6 +48,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  shaders:
+    - shaders/water.frag
   assets:
     - assets/brand/
     - assets/figures/

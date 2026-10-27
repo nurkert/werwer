@@ -589,7 +589,9 @@ body.has-backdrop .site-footer {
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  /* Above the set and its moon, below the dark that keeps text readable
+     and below the scenery. */
+  z-index: -2;
   pointer-events: none;
 }
 .scene + .scene .scene__life {
