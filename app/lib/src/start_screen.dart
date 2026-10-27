@@ -7,6 +7,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
+import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
@@ -342,6 +343,12 @@ class _StartScreenState extends State<StartScreen> {
             ),
             const SizedBox(height: 12),
             SecondaryButton(label: l10n.joinRoom, onPressed: _join),
+            const SizedBox(height: 6),
+            TextButton.icon(
+              onPressed: () => showHowItWorks(context),
+              icon: const Icon(Icons.menu_book_rounded, size: 18),
+              label: Text(l10n.howLink),
+            ),
             const SizedBox(height: 28),
             Stamp(l10n.devStamp(widget.version), size: 18),
             const SizedBox(height: 12),

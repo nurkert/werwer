@@ -356,5 +356,19 @@
   "hunterQuestion": "Wen nimmst du mit?",
   "introTitle": "Hört gut zu",
   "eyesClosedTitle": "Augen zu",
-  "comeJoinTitle": "Komm dazu"
+  "comeJoinTitle": "Komm dazu",
+  "howTitle": "So geht's",
+  "howEyebrow": "Vorhang auf",
+  "howLink": "So geht's",
+  "how1Title": "Beitreten",
+  "how1Text": "Alle scannen den Raumcode und sind dabei. Jeder wählt sich eine Figur.",
+  "how2Title": "Rolle ansehen",
+  "how2Text": "Jeder bekommt eine geheime Rolle. Werwölfe kennen sich, alle anderen wissen nichts.",
+  "how3Title": "Augen schließen",
+  "how3Text": "Nachts schließen alle die Augen. Der Erzähler weckt die Rollen nacheinander.",
+  "how4Title": "Gemeinsam reden",
+  "how4Text": "Am Morgen erfahrt ihr, wer fehlt. Dann wird diskutiert: Wer könnte der Werwolf sein?",
+  "how5Title": "Abstimmen",
+  "how5Text": "Alle stimmen geheim auf dem Handy ab. Wer die meisten Stimmen hat, verlässt das Dorf.",
+  "howDone": "Verstanden"
 }

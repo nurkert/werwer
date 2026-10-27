@@ -51,6 +51,7 @@ flutter:
   assets:
     - assets/brand/
     - assets/figures/
+    - assets/figures/poses/
     - assets/stage/
     - assets/stage/wings/
     - assets/figures/roles/

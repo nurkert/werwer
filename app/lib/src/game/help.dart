@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -26,7 +28,6 @@ Future<void> showNetworkHelp(BuildContext context) {
   ];
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: Palette.night800,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (context) => SafeArea(
@@ -81,5 +82,138 @@ class HelpLink extends StatelessWidget {
     icon: const Icon(Icons.help_outline, size: 18),
     label: Text(AppLocalizations.of(context).helpLink),
     style: TextButton.styleFrom(foregroundColor: Palette.moon200),
+  );
+}
+
+/// The game in five steps, with the figures (task 012): for whoever
+/// plays for the first time.
+Future<void> showHowItWorks(BuildContext context) {
+  final l10n = AppLocalizations.of(context);
+  final steps = [
+    (
+      Icons.qr_code_2_rounded,
+      figureAsset(Role.villager),
+      l10n.how1Title,
+      l10n.how1Text,
+    ),
+    (
+      Icons.style_rounded,
+      figureAsset(Role.werewolf),
+      l10n.how2Title,
+      l10n.how2Text,
+    ),
+    (
+      Icons.bedtime_rounded,
+      figureAsset(Role.seer),
+      l10n.how3Title,
+      l10n.how3Text,
+    ),
+    (
+      Icons.forum_rounded,
+      figureAsset(Role.hunter),
+      l10n.how4Title,
+      l10n.how4Text,
+    ),
+    (
+      Icons.how_to_vote_rounded,
+      figureAsset(Role.witch),
+      l10n.how5Title,
+      l10n.how5Text,
+    ),
+  ];
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Column(
+          children: [
+            Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
+            const SizedBox(height: 16),
+            for (final (i, (icon, figure, title, text)) in steps.indexed) ...[
+              Panel(
+                padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(
+                          BorderSide(
+                            color: Palette.stageBrassLight,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        '${i + 1}',
+                        style: const TextStyle(
+                          fontFamily: displayFont,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          color: Palette.stageIvory,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                icon,
+                                size: 18,
+                                color: Palette.stageLanternTop,
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontFamily: displayFont,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 18,
+                                    color: Palette.stageIvory,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            text,
+                            style: const TextStyle(
+                              color: Palette.stageIvorySoft,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ExcludeSemantics(
+                      child: Image.asset(figure, height: 76),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            const SizedBox(height: 6),
+            PrimaryButton(
+              label: l10n.howDone,
+              icon: Icons.check_rounded,
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }

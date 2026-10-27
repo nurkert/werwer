@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:game_core/game_core.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/stage/scene.dart';
 
@@ -57,6 +58,17 @@ void main() {
       for (final file in files) {
         expect(File(file).existsSync(), isTrue, reason: '$scene: $file');
       }
+    }
+  });
+
+  test('every figure has three villager poses, picked from public values', () {
+    for (final persona in Persona.values) {
+      expect(poseCount(persona), 3, reason: '$persona');
+      for (var pose = 0; pose <= 3; pose++) {
+        final (asset, _) = posed(persona, pose);
+        expect(File(asset).existsSync(), isTrue, reason: asset);
+      }
+      expect(poseFor(persona, '2/day/p3'), poseFor(persona, '2/day/p3'));
     }
   });
 }

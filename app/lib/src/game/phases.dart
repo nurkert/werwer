@@ -166,6 +166,26 @@ class _LobbyPhaseState extends State<LobbyPhase> {
   /// The player whose seat is being swapped, waiting for the second tap.
   PlayerId? _swapFrom;
 
+  /// Now and then everyone at the table strikes a new pose (task 012).
+  int _poseTick = 0;
+  Timer? _poses;
+
+  @override
+  void initState() {
+    super.initState();
+    _poses = Timer.periodic(const Duration(seconds: 25), (_) {
+      if (mounted && !MediaQuery.of(context).disableAnimations) {
+        setState(() => _poseTick++);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _poses?.cancel();
+    super.dispose();
+  }
+
   GameSession get session => widget.session;
 
   Future<void> _tapSeat(SeatView seat) async {
@@ -276,6 +296,7 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         Aside(
           child: TableCircle(
             view: view,
+            poseTick: _poseTick,
             selected: swapFrom,
             onTap: session.isOwner ? _tapSeat : null,
           ),

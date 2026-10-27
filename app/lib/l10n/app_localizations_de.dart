@@ -1232,4 +1232,51 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get comeJoinTitle => 'Komm dazu';
+
+  @override
+  String get howTitle => 'So geht\'s';
+
+  @override
+  String get howEyebrow => 'Vorhang auf';
+
+  @override
+  String get howLink => 'So geht\'s';
+
+  @override
+  String get how1Title => 'Beitreten';
+
+  @override
+  String get how1Text =>
+      'Alle scannen den Raumcode und sind dabei. Jeder wählt sich eine Figur.';
+
+  @override
+  String get how2Title => 'Rolle ansehen';
+
+  @override
+  String get how2Text =>
+      'Jeder bekommt eine geheime Rolle. Werwölfe kennen sich, alle anderen wissen nichts.';
+
+  @override
+  String get how3Title => 'Augen schließen';
+
+  @override
+  String get how3Text =>
+      'Nachts schließen alle die Augen. Der Erzähler weckt die Rollen nacheinander.';
+
+  @override
+  String get how4Title => 'Gemeinsam reden';
+
+  @override
+  String get how4Text =>
+      'Am Morgen erfahrt ihr, wer fehlt. Dann wird diskutiert: Wer könnte der Werwolf sein?';
+
+  @override
+  String get how5Title => 'Abstimmen';
+
+  @override
+  String get how5Text =>
+      'Alle stimmen geheim auf dem Handy ab. Wer die meisten Stimmen hat, verlässt das Dorf.';
+
+  @override
+  String get howDone => 'Verstanden';
 }

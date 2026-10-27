@@ -21,7 +21,11 @@ class PuppetCard extends StatelessWidget {
     this.onTap,
     this.deadLabel,
     this.trailing,
+    this.pose = 0,
   });
+
+  /// Which villager pose (see `poseFor`); 0 is the figure itself.
+  final int pose;
 
   final Persona persona;
   final String name;
@@ -50,7 +54,7 @@ class PuppetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = width * 1.12;
-    final (fx, fy, aspect) = faceOf(persona);
+    final (asset, (fx, fy, aspect)) = posed(persona, pose);
     // The figure big enough that the head and shoulders fill the card,
     // the face a little above the middle.
     final figureHeight = height * 2.05;
@@ -69,7 +73,7 @@ class PuppetCard extends StatelessWidget {
         align(fx, figureWidth, width, 0.5),
         align(fy, figureHeight, height, 0.36),
       ),
-      child: Image.asset(personaAsset(persona), fit: BoxFit.fill),
+      child: Image.asset(asset, fit: BoxFit.fill, gaplessPlayback: true),
     );
     if (!alive) {
       picture = Opacity(

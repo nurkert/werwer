@@ -738,5 +738,19 @@
   "hunterQuestion": "Whom do you take with you?",
   "introTitle": "Listen closely",
   "eyesClosedTitle": "Eyes closed",
-  "comeJoinTitle": "Come and join"
+  "comeJoinTitle": "Come and join",
+  "howTitle": "How it works",
+  "howEyebrow": "Curtain up",
+  "howLink": "How it works",
+  "how1Title": "Join",
+  "how1Text": "Everyone scans the room code and is in. Each of you picks a figure.",
+  "how2Title": "Look at your role",
+  "how2Text": "Each of you gets a secret role. Werewolves know each other, nobody else knows anything.",
+  "how3Title": "Close your eyes",
+  "how3Text": "At night everyone closes their eyes. The narrator wakes the roles one after another.",
+  "how4Title": "Talk",
+  "how4Text": "In the morning you find out who is gone. Then you argue: who could the werewolf be?",
+  "how5Title": "Vote",
+  "how5Text": "Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.",
+  "howDone": "Got it"
 }

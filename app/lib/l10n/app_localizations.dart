@@ -2155,6 +2155,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Come and join'**
   String get comeJoinTitle;
+
+  /// No description provided for @howTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howTitle;
+
+  /// No description provided for @howEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Curtain up'**
+  String get howEyebrow;
+
+  /// No description provided for @howLink.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howLink;
+
+  /// No description provided for @how1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get how1Title;
+
+  /// No description provided for @how1Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone scans the room code and is in. Each of you picks a figure.'**
+  String get how1Text;
+
+  /// No description provided for @how2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Look at your role'**
+  String get how2Title;
+
+  /// No description provided for @how2Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Each of you gets a secret role. Werewolves know each other, nobody else knows anything.'**
+  String get how2Text;
+
+  /// No description provided for @how3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your eyes'**
+  String get how3Title;
+
+  /// No description provided for @how3Text.
+  ///
+  /// In en, this message translates to:
+  /// **'At night everyone closes their eyes. The narrator wakes the roles one after another.'**
+  String get how3Text;
+
+  /// No description provided for @how4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk'**
+  String get how4Title;
+
+  /// No description provided for @how4Text.
+  ///
+  /// In en, this message translates to:
+  /// **'In the morning you find out who is gone. Then you argue: who could the werewolf be?'**
+  String get how4Text;
+
+  /// No description provided for @how5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote'**
+  String get how5Title;
+
+  /// No description provided for @how5Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.'**
+  String get how5Text;
+
+  /// No description provided for @howDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get howDone;
 }
 
 class _AppLocalizationsDelegate

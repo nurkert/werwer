@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
+import 'package:whowolf/src/game/poses.g.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/theme.dart';
@@ -41,6 +42,27 @@ const _personaFiles = <Persona, String>{
   Persona.grandmother: 'grossmutter',
   Persona.grandfather: 'grossvater',
 };
+
+/// A persona's villager poses at work (task 012), besides its figure:
+/// how many there are.
+int poseCount(Persona persona) => [
+  for (var n = 1; n <= 3; n++)
+    if (poseFaces.containsKey('${_personaFiles[persona]}_$n')) n,
+].length;
+
+/// Which pose (0 = the figure itself, 1.. a pose at work) a persona strikes
+/// for [salt]: the same on every phone for the same public values.
+int poseFor(Persona persona, String salt) =>
+    stableHash('$salt/${persona.name}') % (poseCount(persona) + 1);
+
+/// The image and the face of [persona] in [pose] (see [poseFor]).
+(String, (double, double, double)) posed(Persona persona, int pose) {
+  final name = '${_personaFiles[persona]}_$pose';
+  final face = poseFaces[name];
+  return pose == 0 || face == null
+      ? (personaAsset(persona), faceOf(persona))
+      : ('assets/figures/poses/$name.webp', face);
+}
 
 /// The cardboard figure of a persona, as the villager they look like.
 String personaAsset(Persona persona) =>

@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/news.dart';
+import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// A short full-screen card when the phase changes, like a scene change on
-/// the puppet stage: the moon rises for the night, the sun for the day.
-/// Skipped when the system asks for less motion.
+/// The curtain between two phases (task 012): the painted curtain closes
+/// from both sides, the new scene's name shows with its moon, the curtain
+/// opens again. A tap skips it; skipped altogether when the system asks
+/// for less motion. The night's roles change without it, so nothing shows
+/// when someone is called.
 class StageMoment extends StatefulWidget {
   const StageMoment({required this.view, required this.child, super.key});
 
@@ -18,10 +22,19 @@ class StageMoment extends StatefulWidget {
   State<StageMoment> createState() => _StageMomentState();
 }
 
-class _StageMomentState extends State<StageMoment> {
+class _StageMomentState extends State<StageMoment>
+    with SingleTickerProviderStateMixin {
   (Phase, int)? _shown;
   (Phase, int)? _card;
-  Timer? _hide;
+  late final AnimationController _curtain =
+      AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 2100),
+      )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _card = null);
+        }
+      });
 
   @override
   void didUpdateWidget(StageMoment oldWidget) {
@@ -35,75 +48,149 @@ class _StageMomentState extends State<StageMoment> {
     if (first || view.phase == Phase.lobby) return;
     if (MediaQuery.of(context).disableAnimations) return;
     setState(() => _card = key);
-    _hide?.cancel();
-    _hide = Timer(const Duration(milliseconds: 1700), () {
-      if (mounted) setState(() => _card = null);
-    });
+    unawaited(_curtain.forward(from: 0));
   }
 
   @override
   void dispose() {
-    _hide?.cancel();
+    _curtain.dispose();
     super.dispose();
+  }
+
+  void _skip() {
+    // Straight to the opening.
+    if (_curtain.value < 0.7) unawaited(_curtain.forward(from: 0.7));
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final card = _card;
-    final (icon, title) = switch (card?.$1) {
-      Phase.roleReveal => (Icons.style_rounded, l10n.revealTitle),
-      Phase.night => (Icons.nightlight_round, l10n.nightTitle(card!.$2)),
-      Phase.day => (Icons.wb_sunny_rounded, l10n.dayTitle(card!.$2)),
-      Phase.vote => (Icons.how_to_vote_rounded, l10n.voteTitle),
+    final (moon, title) = switch (card?.$1) {
+      Phase.roleReveal => (MoonPhase.full, l10n.revealTitle),
+      Phase.night => (MoonPhase.full, l10n.nightTitle(card!.$2)),
+      Phase.day => (MoonPhase.sun, l10n.dayTitle(card!.$2)),
+      Phase.vote => (MoonPhase.half, l10n.voteTitle),
+      Phase.hunterShot => (MoonPhase.full, l10n.roleHunter),
       Phase.ended => (
-        Icons.emoji_events_rounded,
-        widget.view?.winner == Faction.village
-            ? l10n.villageWins
-            : l10n.werewolvesWin,
+        widget.view?.winner == Faction.werewolves
+            ? MoonPhase.blood
+            : MoonPhase.sun,
+        l10n.winner(widget.view?.winner),
       ),
-      _ => (Icons.circle, ''),
+      _ => (MoonPhase.full, ''),
     };
     return Stack(
       children: [
         widget.child,
-        IgnorePointer(
-          ignoring: card == null,
-          child: GestureDetector(
-            onTap: () => setState(() => _card = null),
-            child: AnimatedOpacity(
-              opacity: card == null ? 0 : 1,
-              duration: const Duration(milliseconds: 350),
-              child: ColoredBox(
-                color: Palette.night950.withValues(alpha: 0.94),
-                child: Center(
-                  child: AnimatedScale(
-                    scale: card == null ? 0.9 : 1,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOutBack,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(icon, size: 96, color: Palette.lantern400),
-                        const SizedBox(height: 16),
-                        Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontFamily: displayFont,
-                            fontSize: 44,
-                            color: Palette.moon100,
+        if (card != null)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _skip,
+              child: AnimatedBuilder(
+                animation: _curtain,
+                builder: (context, _) {
+                  final t = _curtain.value;
+                  // Closed from 0.25 to 0.7 of the way.
+                  final closed = t < 0.25
+                      ? Curves.easeInOutCubic.transform(t / 0.25)
+                      : t < 0.7
+                      ? 1.0
+                      : 1 - Curves.easeInOutCubic.transform((t - 0.7) / 0.3);
+                  final label = t < 0.3
+                      ? 0.0
+                      : t < 0.4
+                      ? (t - 0.3) / 0.1
+                      : t < 0.62
+                      ? 1.0
+                      : t < 0.7
+                      ? 1 - (t - 0.62) / 0.08
+                      : 0.0;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      _Half(left: true, closed: closed),
+                      _Half(left: false, closed: closed),
+                      Opacity(
+                        opacity: label,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Moon(size: 120, phase: moon),
+                              const SizedBox(height: 12),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                ),
+                                child: Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontFamily: displayFont,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 42,
+                                    color: Palette.stageIvory,
+                                    shadows: [
+                                      Shadow(blurRadius: 16),
+                                      Shadow(blurRadius: 4),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// One half of the painted curtain, sliding in from its side.
+class _Half extends StatelessWidget {
+  const _Half({required this.left, required this.closed});
+
+  final bool left;
+
+  /// 0 open, 1 closed.
+  final double closed;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final half = box.maxWidth / 2;
+      final shift = (1 - closed) * (half + 24);
+      return Stack(
+        children: [
+          Positioned(
+            top: 0,
+            bottom: 0,
+            width: half + 2,
+            left: left ? -shift : half - 2 + shift,
+            child: ClipRect(
+              child: OverflowBox(
+                alignment: left ? Alignment.centerLeft : Alignment.centerRight,
+                maxWidth: box.maxWidth,
+                minWidth: box.maxWidth,
+                child: Image.asset(
+                  'assets/stage/curtain.webp',
+                  fit: BoxFit.cover,
+                  width: box.maxWidth,
+                  height: box.maxHeight,
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
+    },
+  );
 }

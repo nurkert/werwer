@@ -6,6 +6,7 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/cardboard.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/stage/puppet_card.dart';
@@ -369,6 +370,13 @@ class SeatGrid extends StatelessWidget {
                     (enabled?.call(seat) ??
                         (seat.isAlive && seat.id != view.you));
                 final card = PuppetCard(
+                  // A villager pose at work, but plain figures at night.
+                  pose: view.phase == Phase.night
+                      ? 0
+                      : poseFor(
+                          seat.persona,
+                          '${view.round}/${view.phase.name}/${seat.id.value}',
+                        ),
                   persona: seat.persona,
                   name: seat.name,
                   width: width,

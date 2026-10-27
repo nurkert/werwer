@@ -1,7 +1,7 @@
 # Design – „Mondbühne“
 
 > Der Stil für **alles**: App, Website, Store-Bilder, Social Media. Referenz: [`design/reference/mondbuehne.jpg`](../design/reference/mondbuehne.jpg).
-> Stand: 2026-10-26, beschreibt die gebaute Website und App.
+> Stand: 2026-10-27. Die App folgt dem Bühnenbild aus Task 012, die Website noch dem Programmheft (Angleichung in Phase 7).
 
 ![Mondbühne](../design/reference/mondbuehne.jpg)
 
@@ -45,48 +45,79 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 - **Bühnenmoment (App):** Bei jedem Phasenwechsel erscheint kurz eine Bühnenkarte: Mond bei Nacht, Sonne am Tag, Waage zur Abstimmung, Pokal am Ende. Ein Tipp schließt sie; bei reduzierter Bewegung entfällt sie.
 - **Schäfchen:** hüpfen über die Wiese und springen über den Zaun.
 
+## Die App: das Bühnenbild (seit 2026-10-27, Task 012)
+
+![Konzept](../design/reference/ui_concept_v1.png)
+
+Die App folgt dem freigegebenen Codex-Konzept und den Konzepttafeln in `design/reference/boards/`. Jeder Moment des Abends ist **ein beleuchtetes Bühnenbild bei Mondlicht**. Die Bedienung liegt ruhig davor.
+
+- **Szenen** (`app/lib/src/stage/scene.dart`): Die Szene folgt der Phase, also nur öffentlichen Werten.
+  - Dorf am Abend: Start, Beitreten, Lobby.
+  - Theater: Rolle.
+  - Nachtsee: Nacht.
+  - Morgen: Tag.
+  - Dämmerung: Abstimmung.
+  - Waldrand: Jäger.
+  - Finale: Dorf; Werwölfe in der rot eingefärbten Dämmerung; Liebe am rosa See.
+  - Hinter der Bühne: Datenschutz.
+  - Vorhang: Warten, Verbindung.
+- **Ebenen**, jede in eigener Tiefe:
+  - das gemalte Bühnenbild (`app/assets/stage/*.webp`, ohne Mond);
+  - der Mond als eigenes Widget;
+  - die Seitenkulissen links und rechts (`app/assets/stage/wings/`);
+  - eine Abdunkelung oben und unten für Titel und Knöpfe.
+  - Auf Handys und Tablets verschieben sich die Ebenen beim Neigen (`StageTilt`, `sensors_plus`): die Kulissen am stärksten, das Bild kaum. Bei reduzierter Bewegung steht alles still.
+- **Responsiv:**
+  - Handys spielen nur hochkant.
+  - Bühnenbilder sind quadratisch und füllen jedes Format, der Boden bleibt im Bild.
+  - Kulissen zeigen höchstens einen schmalen Streifen (20 % der Breite, höchstens 150 px).
+  - Auf breiten Fenstern steht der Mond kleiner und hoch zwischen den Spalten.
+- **Der Mond** (`Moon`) ist das Leitmotiv und hat eine Aufgabe:
+  - Er zeigt die Tageszeit: Sichel, halb, voll, Blutmond, Sonne.
+  - Als **Mond-Uhr** zeigt er die Zeit am Tag, bei der Abstimmung und für Aufgerufene.
+  - Nachts läuft sein Ring für alle gleich aus Schrittbeginn und Nachtlänge, nie als Restzeit (Anti-Tell, siehe SECURITY_DESIGN).
+- **Aufbau jedes Bildschirms:**
+  - oben eine Dachzeile in Kapitälchen zwischen Strichen („— SPIELABEND —“) und darunter der Titel;
+  - in der Mitte Szene, Figuren und Plaketten;
+  - unten genau eine Hauptaktion, die beim Scrollen stehen bleibt (`PhaseBody.action`).
+
 ## Farben
 
-**Eine Quelle:** [`design/tokens.json`](../design/tokens.json). `dart run tool/tokens.dart` erzeugt daraus die CSS-Variablen der Website (`website/src/styles/tokens.css`) und die Flutter-Palette (`app/lib/src/palette.g.dart`); `tool/check.sh` schlägt fehl, wenn eins davon veraltet ist.
+**Eine Quelle:** [`design/tokens.json`](../design/tokens.json). `dart run tool/tokens.dart` erzeugt daraus die CSS-Variablen der Website (`website/src/styles/tokens.css`) und die Flutter-Palette (`app/lib/src/palette.g.dart`). `tool/check.sh` schlägt fehl, wenn eins davon veraltet ist.
+
+Die App nutzt die **`stage-*`-Farben**, gemessen am Konzept. Die Website übernimmt sie in Phase 7.
 
 | Token | Verwendung |
 |---|---|
-| `night-950` … `night-500` | Hintergründe und Flächen der Nacht, App-Hintergrund |
-| `moon-100`, `moon-200` | heller Text auf Nacht, Mondlicht |
-| `paper`, `paper-deep`, `ink`, `ink-soft` | Papierflächen (Website-Tafeln, Karten) und ihr Text |
-| `lantern-400` | **Akzent:** was man antippen soll, Auswahl, Laternenschein |
-| `curtain-400`, `curtain-600` | Gefahr, Werwölfe, „tot“ |
-| `gold-500`, `card-200`, `wood-700`, `forest-700` | Borten, Kartonrand, Holz, Wald |
+| `stage-night` … `stage-night-4`, `stage-ink` | Nachtgrund, Flächen |
+| `stage-plaque`, `stage-brass`, `stage-brass-light`, `stage-brass-dark` | Plaketten: warmschwarz, doppelte Messingkante |
+| `stage-ivory`, `stage-ivory-soft`, `stage-moonlight` | Titel, Text, Mondlicht |
+| `stage-lantern-top`, `stage-lantern`, `stage-lantern-bottom`, `stage-lantern-ink` | Hauptknopf im Laternenverlauf und seine Schrift |
+| `stage-curtain`, `stage-blood`, `curtain-400` | Vorhang, Blutmond, Tod und Gefahr |
+| `stage-dusk`, `stage-dawn` | Dämmerung |
 
-**Regeln:** Nachts dominiert `night`. Der Akzent wird sparsam eingesetzt. `curtain` ist für Tod und Gefahr reserviert. Kontraste nach WCAG AA.
+Die älteren Tokens (`night-*`, `moon-*`, `paper`, `ink`, `lantern-*`, `gold-500` …) tragen die Website und die Papierkarte am Morgen.
 
 ## Logo und Schrift
 
 - **Logo:** handgeletterter Schriftzug „Whowolf“ als Pappfigur (Wolfsohren am „W“, Mondsichel im „o“, „wolf“ in Vorhangrot) plus rundes **Emblem** (Werwolfkopf vor dem Vollmond) für App-Icon, Favicon und kleine Flächen. Dateien: `design/source/brand/`.
-- **Überschriften App:** **Lilita One**. **Überschriften Website:** **Ancizar Serif**. **Text:** **Manrope** (App: statische Schnitte 400/600/800). Alle SIL OFL, mitgeliefert, nichts von fremden Servern.
-
-## Website
-
-- **Startbild:** die Pappbühne oben als Puppenspiel in fünf Szenen mit zwei Papp-Handys, die echte App-Bildschirme zeigen (Daten aus `website/src/lib/phone-screens.ts`, später austauschbar gegen echte Screenshots).
-- **Darunter:** Papiertafeln mit goldener Doppelborte auf Nachtblau (Programmheft, Besetzung, Wolfsspur, Hausregeln, Fortschritt), dazu das spielbare Schäfchenzählen.
-- **Download-Seite:** erkennt das Betriebssystem und stellt dessen Download groß nach vorn.
-- **Anleitung (`/docs/`):** Regelbuch-Seiten auf Papier mit Seitenleiste, Figuren neben den Titeln; die Planungsdokumente getrennt unter „Für Entwickler“.
+- **Schrift:** **Ancizar Serif** in App und Website (variabel, 400–700) für Titel, Dachzeilen, Knöpfe, Namen, Erzählerzeile und Zahlen. **Manrope** für längeren Text. Beide SIL OFL, mitgeliefert, nichts von fremden Servern.
 
 ## App: Kernkomponenten
 
-- **Bühne:** jeder Bildschirm über `StageScaffold`: Nachtkarton mit Mondlicht von oben, feine Körnung (unter dem Inhalt) und ein Vorhang-Volant mit Goldborte am oberen Rand.
-- **Pappkarte (`Panel`):** dunkler Karton mit heller Schnittkante und sichtbarer Dicke; als **Papier** (`paper: true`) cremefarben mit goldener Doppellinie für Nachrichten am Morgen, Einladung und große Momente, nachts nie. Text darauf wird automatisch zu Tinte (`Surface`).
-- **Stempel:** schräger Stempel in Lilita One (Status, Lager, „tot“, Testversion).
-- **Knöpfe:** Hauptaktion laternenorange mit Holzrand, Nebenaktion als Umriss; beide geben beim Drücken leicht nach.
-
-- **Persona-Porträt:** rundes Porträt, auf das Gesicht der Pappfigur zugeschnitten (Brennpunkt pro Figur). Steht für den Spieler, verrät nie die Rolle.
-- **Tischkreis:** der Tisch aus der eigenen Perspektive, man selbst unten, die Nachbarn links und rechts. In der Lobby (der Gastgeber tauscht Plätze) und am Tag (mit Schäfchen-Zahlen).
-- **Rollenkarte:** verdeckt mit dem Emblem; ein Tipp zeigt die Rollenfigur, Name und Erklärung.
-- **Schäfchenwiese:** Tarnaufgabe in der Nacht, Herdengröße vom Spiel.
-- **Bühnenmoment:** siehe Bewegung.
-- **Prüfzeichen:** drei große Symbole (aus 16) zum Vergleichen am Tisch, wenn jemand ohne QR-Code beitritt.
-- **Erzählerzeile:** kursive Zeile mit Mond-Symbol über dem Inhalt, auf dem Host-Gerät zusätzlich gesprochen.
-- **Nacht:** dunkel und für alle gleich aufgebaut, damit niemand am Bildschirm auffällt (Anti-Tell).
+- **`Headline`**: Titel in der Serife mit weichem Schatten, optional mit Dachzeile (`eyebrow`).
+- **`Panel`**: dunkle Plakette (`PlaqueDecoration`), halbtransparent, doppelte Messingkante, Schatten. `highlight` lässt die Kante laternenorange leuchten. Mit `paper` wird sie zur cremefarbenen Papierkarte mit goldener Doppellinie, für Nachrichten am Morgen.
+- **`PrimaryButton`**: Laternenverlauf mit dunkler Kante und Glanzlinie, Beschriftung in der Serife, Symbol rechts. Gibt beim Drücken nach.
+- **`SecondaryButton`**: Plakette mit Messingrand, Symbol links.
+- **`PuppetCard`**: Spieler als Karte, das Brustbild der Figur auf dunklem Karton, darunter ein Namensschild, Messinghäkchen bei Auswahl. Tote sind grau und tragen den Stempel „tot“. Eingesetzt in allen Wahlen (`SeatGrid`) und am Tisch (`TableCircle`).
+- **Dorf-Posen**: Jede der 20 Figuren hat drei Posen in ihrem Beruf (`app/assets/figures/poses/`, Gesichtslage in `poses.g.dart`). Die Karten wählen die Pose aus Runde, Phase und Platz (`poseFor`). In der Lobby wechselt sie alle 25 Sekunden, nachts steht die Grundfigur.
+- **`Countdown`**: die Mond-Uhr.
+- **Erzählerzeile**: Plakette mit Mond und kursiver Serife.
+- **`GhostPanel`**: Geisterblick zum Gedrückthalten. Die Bühne Toter trägt einen kühlen blauen Schleier.
+- **Ende**: Verbeugung aller Figuren in ihren Rollenkostümen.
+- **Sheets und Dialoge**: warmschwarz mit Messingkante. Dazu gibt es „So geht's“ in fünf Schritten.
+- **`TurningFigure`**: die Pappfigur in echtem 3D (siehe Bewegung), Referenz `design/reference/boards/board_f.png`.
+- **Prüfzeichen, Schäfchenwiese, Türzeichen**: wie bisher, im neuen Stil.
 
 ## Figuren-Regeln
 
@@ -99,11 +130,10 @@ Bei `prefers-reduced-motion` bewegt sich nichts.
 ## Asset-Pipeline
 
 - **Erzeugung** mit der Codex-Bildgenerierung, immer mit Referenzbildern aus dem Projekt als Stilvorlage.
-- **Sammelbögen:** mehrere Elemente pro Bild auf transparentem Hintergrund (spart Kontingent und hält den Stil einheitlich), dann mit `tool/assets/slice_sheet.py` ausschneiden und mit `clean_alpha.py` säubern.
+- **Sammelbögen:** mehrere Elemente pro Bild auf transparentem Hintergrund (spart Kontingent und hält den Stil einheitlich), dann mit `tool/assets/slice_sheet.py` ausschneiden und mit `clean_alpha.py` säubern. Malt Codex einen Hintergrund statt Transparenz, stellt `tool/assets/cutout.py` die Stücke frei. Die Dorf-Posen schneidet `tool/assets/poses.py` und schreibt die Gesichtslage.
 - **Prompts versioniert** in `design/prompts/`, Herkunft in `design/CREDITS.md`, in die Bilder eingebettet.
 - **Ordner:** `design/reference/` (Stilreferenzen), `design/source/` (Originale), `design/sheets/` (Sammelbögen); optimiert (AVIF/WebP) in Website und App (`app/assets/figures`, `app/assets/sheep`).
 
 ## Offene Punkte
 
-- Tag-Variante der Bühne (Morgenlicht).
-- Echte App-Screenshots statt nachgebauter Screens im Startbild.
+- Website an das Bühnenbild angleichen, mit echten App-Screenshots (Task 012, Phase 7).

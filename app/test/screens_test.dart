@@ -155,6 +155,7 @@ Future<void> _precache(WidgetTester tester) async {
       'brand',
       'figures',
       'figures/roles',
+      'figures/poses',
       'sheep',
       'stage',
       'stage/wings',

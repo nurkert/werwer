@@ -1220,4 +1220,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comeJoinTitle => 'Come and join';
+
+  @override
+  String get howTitle => 'How it works';
+
+  @override
+  String get howEyebrow => 'Curtain up';
+
+  @override
+  String get howLink => 'How it works';
+
+  @override
+  String get how1Title => 'Join';
+
+  @override
+  String get how1Text =>
+      'Everyone scans the room code and is in. Each of you picks a figure.';
+
+  @override
+  String get how2Title => 'Look at your role';
+
+  @override
+  String get how2Text =>
+      'Each of you gets a secret role. Werewolves know each other, nobody else knows anything.';
+
+  @override
+  String get how3Title => 'Close your eyes';
+
+  @override
+  String get how3Text =>
+      'At night everyone closes their eyes. The narrator wakes the roles one after another.';
+
+  @override
+  String get how4Title => 'Talk';
+
+  @override
+  String get how4Text =>
+      'In the morning you find out who is gone. Then you argue: who could the werewolf be?';
+
+  @override
+  String get how5Title => 'Vote';
+
+  @override
+  String get how5Text =>
+      'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.';
+
+  @override
+  String get howDone => 'Got it';
 }

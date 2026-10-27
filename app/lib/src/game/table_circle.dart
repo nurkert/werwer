@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/stage/puppet_card.dart';
@@ -18,7 +19,11 @@ class TableCircle extends StatelessWidget {
     this.selected,
     this.onTap,
     this.badges = const {},
+    this.poseTick = 0,
   });
+
+  /// Counts up to give everyone a new pose (the lobby, now and then).
+  final int poseTick;
 
   final PlayerView view;
   final PlayerId? selected;
@@ -61,6 +66,13 @@ class TableCircle extends StatelessWidget {
                     left: x,
                     top: y,
                     child: PuppetCard(
+                      pose: view.phase == Phase.night
+                          ? 0
+                          : poseFor(
+                              seat.persona,
+                              '${view.round}/${view.phase.name}/$poseTick/'
+                              '${seat.id.value}',
+                            ),
                       persona: seat.persona,
                       name: seat.name,
                       width: card,
