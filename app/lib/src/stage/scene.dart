@@ -472,12 +472,21 @@ class StageSet extends StatelessWidget {
                         child: CustomPaint(painter: _MoonLayer(scene)),
                       ),
                     ),
-                    // The scenery (cut-outs at the sides and from the
-                    // top), each piece at its own depth.
-                    _PanningScenery(scene: scene),
+                    // The dark that keeps titles readable, then the sky's
+                    // stars above it (on the plate's frame), then the
+                    // scenery (cut-outs at the sides and from the top),
+                    // each piece at its own depth.
                     RepaintBoundary(
                       child: CustomPaint(painter: _PlateLight(scene)),
                     ),
+                    shift(
+                      4,
+                      Transform.scale(
+                        scale: 1.04,
+                        child: RepaintBoundary(child: _Life(scene, sky: true)),
+                      ),
+                    ),
+                    _PanningScenery(scene: scene),
                   ],
                 ),
         ),
@@ -488,9 +497,10 @@ class StageSet extends StatelessWidget {
 
 /// The life of a stage set, on the plate's own frame.
 class _Life extends StatelessWidget {
-  const _Life(this.scene);
+  const _Life(this.scene, {this.sky = false});
 
   final Scene scene;
+  final bool sky;
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
@@ -499,6 +509,7 @@ class _Life extends StatelessWidget {
         scene: scene,
         time: StageClock.of(context),
         pan: StagePan.of(context),
+        sky: sky,
       ),
     ),
   );

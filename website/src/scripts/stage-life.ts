@@ -25,7 +25,7 @@ type Life = {
 
 const warm = '#ffb45a';
 const lives: Record<string, Life> = {
-  village: { sky: [0.04, 0.02, 0.96, 0.27], water: [0.2, 0.625, 0.96, 0.7], shooting: true, fireflies: 14, fireflyArea: [0.02, 0.6, 0.98, 0.76] },
+  village: { sky: [0.04, 0.02, 0.96, 0.3], water: [0.2, 0.625, 0.96, 0.7], shooting: true, fireflies: 14, fireflyArea: [0.02, 0.6, 0.98, 0.76] },
   theatre: {
     flames: true,
     drift: { count: 26, area: [0.08, 0.5, 0.92, 0.84], color: '#ffe2a8', size: 3, vx: 0.002, vy: -0.006, sway: 0.02 },
@@ -94,20 +94,34 @@ function sprite(kind: 'glow' | 'star' | 'streak' | 'mist', color: string): HTMLC
   const grad = g.createRadialGradient(0, 0, 0, 0, 0, r);
   const rgb = color;
   const stops: [number, number][] =
-    kind === 'glow' ? [[0, 1], [0.12, 0.75], [0.4, 0.22], [1, 0]] : kind === 'star' ? [[0, 1], [0.1, 0.6], [0.3, 0.08], [1, 0]] : [[0, 0.9], [0.4, 0.35], [1, 0]];
+    kind === 'glow' ? [[0, 1], [0.12, 0.75], [0.4, 0.22], [1, 0]] : kind === 'star' ? [[0, 0.9], [0.12, 0.55], [0.35, 0.1], [1, 0]] : [[0, 0.9], [0.4, 0.35], [1, 0]];
   for (const [at, a] of stops) grad.addColorStop(at, withAlpha(rgb, a));
   g.fillStyle = grad;
   g.fillRect(-r, -r, 2 * r, 2 * r);
   g.restore();
   if (kind === 'star') {
-    g.strokeStyle = withAlpha(rgb, 0.7);
-    g.lineWidth = 1.4;
-    g.beginPath();
-    g.moveTo(4, 32);
-    g.lineTo(60, 32);
-    g.moveTo(32, 4);
-    g.lineTo(32, 60);
-    g.stroke();
+    // Four tapering rays as the sets paint them, the upright one longest.
+    const ray = g.createRadialGradient(32, 32, 0, 32, 32, 30);
+    ray.addColorStop(0, withAlpha(rgb, 1));
+    ray.addColorStop(0.35, withAlpha(rgb, 0.6));
+    ray.addColorStop(1, withAlpha(rgb, 0));
+    g.fillStyle = ray;
+    const diamond = (dx: number, dy: number, w: number) => {
+      const len = Math.hypot(dx, dy);
+      const nx = (-dy / len) * w;
+      const ny = (dx / len) * w;
+      g.beginPath();
+      g.moveTo(32 + dx, 32 + dy);
+      g.lineTo(32 + nx, 32 + ny);
+      g.lineTo(32 - dx, 32 - dy);
+      g.lineTo(32 - nx, 32 - ny);
+      g.closePath();
+      g.fill();
+    };
+    diamond(0, 31, 3.2);
+    diamond(23, 0, 2.8);
+    diamond(8, 8, 1.1);
+    diamond(8, -8, 1.1);
   }
   sprites.set(key, c);
   return c;
@@ -204,12 +218,26 @@ class SceneLife {
       }
     }
 
-    const star = sprite('star', '#fff4d6');
+    // Stars in the sets' cream to gold; each breathes at its own pace and
+    // now and then flares, its rays stretching and turning a little.
+    const starColour = (i: number) => (hash(i, 75) < 0.5 ? '#fff1cf' : '#ffc870');
+    const sparkle = (px: number, py: number, i: number, size: number, brightness: number) => {
+      const img = sprite('star', starColour(i));
+      const breathe = 0.55 + 0.45 * Math.sin(t * (0.4 + 1.1 * hash(i, 71)) + i * 1.3);
+      const period = 5 + 7 * hash(i, 72);
+      const f = ((t + period * hash(i, 73)) % period) / 0.9;
+      const flare = f < 1 ? Math.sin(Math.PI * f) : 0;
+      const width = size * (0.85 + 0.15 * breathe + 0.5 * flare);
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(0.25 * flare * (hash(i, 74) < 0.5 ? -1 : 1));
+      ctx.globalAlpha = Math.min(1, brightness * (0.55 + 0.35 * breathe) + 0.4 * flare);
+      ctx.drawImage(img, -width / 2, -width / 2, width, width);
+      ctx.restore();
+    };
     lights.stars.forEach(([x, y, r, s], i) => {
-      const pace = 0.7 + 2 * hash(i, 3);
-      const tw = Math.pow(0.5 + 0.5 * Math.sin(t * pace + i * 2.4), 3);
       const [px, py] = at(x, y);
-      stamp(star, px, py, Math.max(20, r * pw * 14) * (0.7 + 0.5 * tw), 0.25 + 0.6 * tw * s);
+      sparkle(px, py, i, Math.max(18, r * pw * 13), 0.5 + 0.5 * s);
     });
 
     const glow = sprite('glow', warm);
@@ -240,17 +268,21 @@ class SceneLife {
     }
 
     if (life.sky) {
+      // Stars of our own: many far, faint points, fewer bright sparkles,
+      // each its own size and brightness; neighbours share a slow swell.
       const [x0, y0, x1, y1] = life.sky;
-      // Many stars of our own: most faint and small, a few bright ones;
-      // neighbours share a slow swell, so the sky twinkles together.
-      for (let i = 0; i < 90; i++) {
+      for (let i = 0; i < 110; i++) {
         const x = x0 + (x1 - x0) * hash(i, 21);
         const y = y0 + (y1 - y0) * Math.pow(hash(i, 22), 1.4);
-        const big = hash(i, 24) > 0.88;
-        const swell = 0.6 + 0.4 * Math.sin(t * 0.35 + x * 6 + y * 4);
-        const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (0.6 + 1.8 * hash(i, 23)) + i), 3) * swell;
+        const size = Math.pow(hash(i, 24), 3);
+        const swell = 0.65 + 0.35 * Math.sin(t * 0.3 + x * 6 + y * 4);
         const [px, py] = at(x, y);
-        stamp(star, px, py, (big ? 28 : 14) + (big ? 20 : 8) * tw, (big ? 0.3 : 0.15) + 0.6 * tw);
+        if (size > 0.3) {
+          sparkle(px, py, i + 500, 12 + 16 * size, (0.75 + 0.25 * hash(i, 25)) * swell);
+        } else {
+          const tw = 0.5 + 0.5 * Math.sin(t * (0.5 + 1.6 * hash(i, 23)) + i);
+          stamp(sprite('glow', starColour(i)), px, py, 4 + 10 * size + 2 * tw, (0.32 + 0.6 * hash(i, 25)) * (0.5 + 0.5 * tw) * swell);
+        }
       }
     }
 

@@ -110,18 +110,36 @@ ui.Image _drawSheet() {
 
   // A light: a bright core fading softly (most of the glow is the fall-off).
   soft(_Sprite.glow, const [0, 0.12, 0.4, 1], const [1, 0.75, 0.22, 0]);
-  // A star: a small core with four thin rays.
-  soft(_Sprite.star, const [0, 0.1, 0.3, 1], const [1, 0.6, 0.08, 0]);
+  // A star as the sets paint them: four tapering rays, the upright one
+  // longest, fine diagonal glints and a soft core.
+  soft(_Sprite.star, const [0, 0.12, 0.35, 1], const [0.9, 0.55, 0.1, 0]);
   final c = _Sprite.star.center;
   final ray = Paint()
-    ..shader = ui.Gradient.radial(c, 30, const [
-      Color(0xCCFFFFFF),
-      Color(0x00FFFFFF),
-    ])
-    ..strokeWidth = 1.6;
+    ..shader = ui.Gradient.radial(
+      c,
+      30,
+      const [
+        Color(0xFFFFFFFF),
+        Color(0x99FFFFFF),
+        Color(0x00FFFFFF),
+      ],
+      const [0, 0.35, 1],
+    );
+  Path diamond(double dx, double dy, double width) {
+    final n = Offset(-dy, dx) / sqrt(dx * dx + dy * dy) * width;
+    return Path()
+      ..moveTo(c.dx + dx, c.dy + dy)
+      ..lineTo(c.dx + n.dx, c.dy + n.dy)
+      ..lineTo(c.dx - dx, c.dy - dy)
+      ..lineTo(c.dx - n.dx, c.dy - n.dy)
+      ..close();
+  }
+
   canvas
-    ..drawLine(c.translate(-30, 0), c.translate(30, 0), ray)
-    ..drawLine(c.translate(0, -30), c.translate(0, 30), ray);
+    ..drawPath(diamond(0, 31, 3.2), ray)
+    ..drawPath(diamond(23, 0, 2.8), ray)
+    ..drawPath(diamond(8, 8, 1.1), ray)
+    ..drawPath(diamond(8, -8, 1.1), ray);
   // A glint on water: a flat ellipse.
   soft(_Sprite.streak, const [0, 0.35, 1], const [0.9, 0.35, 0]);
   // Mist: a very soft, wide cloud.
@@ -172,7 +190,7 @@ SceneLife lifeOf(Scene scene) => switch (scene) {
   Scene.village => (
     plate: 'village',
     flames: false,
-    sky: const Rect.fromLTRB(0.04, 0.02, 0.96, 0.27),
+    sky: const Rect.fromLTRB(0.04, 0.02, 0.96, 0.3),
     shooting: true,
     fireflies: 14,
     fireflyArea: const Rect.fromLTRB(0.02, 0.6, 0.98, 0.76),
@@ -414,8 +432,13 @@ class LifePainter extends CustomPainter {
     required this.scene,
     required this.time,
     this.pan,
+    this.sky = false,
     this.debug = false,
   }) : super(repaint: Listenable.merge([time, ?pan]));
+
+  /// The sky's layer (stars, shooting stars), which lies above the dark
+  /// that keeps titles readable; otherwise everything else.
+  final bool sky;
 
   final Scene scene;
   final ValueListenable<double> time;
@@ -447,6 +470,40 @@ class LifePainter extends CustomPainter {
     _col.add(color);
   }
 
+  /// A sparkling star: it breathes at its own pace and now and then
+  /// flares, its rays stretching and turning a little.
+  void _star(Offset p, int i, double size, double brightness, double t) {
+    final breathe = 0.55 + 0.45 * sin(t * (0.4 + 1.1 * _hash(i, 71)) + i * 1.3);
+    // A flare: a short bright moment every few seconds, at its own time.
+    final period = 5 + 7 * _hash(i, 72);
+    final f = ((t + period * _hash(i, 73)) % period) / 0.9;
+    final flare = f < 1 ? sin(pi * f) : 0.0;
+    final scale = size * (0.85 + 0.15 * breathe + 0.5 * flare);
+    _xf.add(
+      RSTransform.fromComponents(
+        rotation: 0.25 * flare * (_hash(i, 74) < 0.5 ? -1 : 1),
+        scale: scale / _Sprite.star.width,
+        anchorX: _Sprite.star.width / 2,
+        anchorY: _Sprite.star.height / 2,
+        translateX: p.dx,
+        translateY: p.dy,
+      ),
+    );
+    _src.add(_Sprite.star);
+    _col.add(
+      _starColour(i).withValues(
+        alpha: (brightness * (0.55 + 0.35 * breathe) + 0.4 * flare).clamp(0, 1),
+      ),
+    );
+  }
+
+  /// The stars' colours, from cream to the sets' gold.
+  static Color _starColour(int i) => Color.lerp(
+    const Color(0xFFFFF1CF),
+    const Color(0xFFFFC870),
+    _hash(i, 75),
+  )!;
+
   @override
   void paint(Canvas canvas, Size size) {
     final life = lifeOf(scene);
@@ -463,7 +520,7 @@ class LifePainter extends CustomPainter {
     _col.clear();
 
     // Mist first, far behind everything else.
-    for (final (b, band) in life.mist.indexed) {
+    for (final (b, band) in sky ? const <Rect>[].indexed : life.mist.indexed) {
       for (var i = 0; i < 3; i++) {
         final speed = 0.008 + 0.004 * _hash(i, b + 40);
         final x = ((t * speed + i / 3 + _hash(i, b)) % 1.6) - 0.3;
@@ -478,7 +535,7 @@ class LifePainter extends CustomPainter {
       }
     }
 
-    if (data != null) {
+    if (data != null && !sky) {
       // Water: the reflections of the lights break into swaying strips.
       for (final (i, l) in data.ripples.indexed) {
         final (x, y, rad, s) = l;
@@ -494,19 +551,6 @@ class LifePainter extends CustomPainter {
           );
         }
       }
-      // Painted stars twinkle, each at its own pace.
-      for (final (i, l) in data.stars.indexed) {
-        final (x, y, rad, s) = l;
-        final pace = 0.7 + 2 * _hash(i, 3);
-        final tw = pow(0.5 + 0.5 * sin(t * pace + i * 2.4), 3).toDouble();
-        _stamp(
-          _Sprite.star,
-          at(x, y),
-          max(20, rad * w * 14) * (0.7 + 0.5 * tw),
-          const Color(0xFFFFF4D6).withValues(alpha: 0.25 + 0.6 * tw * s),
-        );
-      }
-
       // The painted lights: windows breathe slowly, flames flicker.
       final lights = data.lights;
       final blink = life.bulbs
@@ -568,8 +612,16 @@ class LifePainter extends CustomPainter {
       }
     }
 
+    // Painted stars twinkle, each at its own pace.
+    if (data != null && sky) {
+      for (final (i, l) in data.stars.indexed) {
+        final (x, y, rad, s) = l;
+        _star(at(x, y), i, max(18, rad * w * 13), 0.5 + 0.5 * s, t);
+      }
+    }
+
     // Moonlight glints come and go on the waves, drifting with them.
-    final water = life.water;
+    final water = sky ? null : life.water;
     if (water != null) {
       for (var i = 0; i < 46; i++) {
         final depth = pow(_hash(i, 61), 0.8).toDouble();
@@ -588,30 +640,40 @@ class LifePainter extends CustomPainter {
     }
 
     // Faint stars of our own where the sky is clear.
-    final sky = life.sky;
-    if (sky != null) {
-      // Many stars of our own: most faint and small, a few bright ones;
-      // neighbours share a slow swell, so the sky twinkles together.
-      for (var i = 0; i < 90; i++) {
-        final x = sky.left + sky.width * _hash(i, 21);
-        final y = sky.top + sky.height * pow(_hash(i, 22), 1.4);
-        final big = _hash(i, 24) > 0.88;
-        final swell = 0.6 + 0.4 * sin(t * 0.35 + x * 6 + y * 4);
-        final tw =
-            pow(0.5 + 0.5 * sin(t * (0.6 + 1.8 * _hash(i, 23)) + i), 3) * swell;
-        _stamp(
-          _Sprite.star,
-          at(x, y),
-          (big ? 28 : 14) + (big ? 20 : 8) * tw,
-          const Color(0xFFFFF4D6).withValues(
-            alpha: ((big ? 0.3 : 0.15) + 0.6 * tw).clamp(0, 1),
-          ),
-        );
+    final clear = sky ? life.sky : null;
+    if (clear != null) {
+      // Stars of our own: many far, faint points, fewer bright sparkles,
+      // each its own size and brightness; neighbours share a slow swell.
+      for (var i = 0; i < 110; i++) {
+        final x = clear.left + clear.width * _hash(i, 21);
+        final y = clear.top + clear.height * pow(_hash(i, 22), 1.4);
+        final size = pow(_hash(i, 24), 3).toDouble();
+        final swell = 0.65 + 0.35 * sin(t * 0.3 + x * 6 + y * 4);
+        if (size > 0.3) {
+          _star(
+            at(x, y),
+            i + 500,
+            12 + 16 * size,
+            (0.75 + 0.25 * _hash(i, 25)) * swell,
+            t,
+          );
+        } else {
+          final tw = 0.5 + 0.5 * sin(t * (0.5 + 1.6 * _hash(i, 23)) + i);
+          _stamp(
+            _Sprite.glow,
+            at(x, y),
+            4 + 10 * size + 2 * tw,
+            _starColour(i).withValues(
+              alpha: ((0.32 + 0.6 * _hash(i, 25)) * (0.5 + 0.5 * tw) * swell)
+                  .clamp(0, 1),
+            ),
+          );
+        }
       }
     }
 
     // Fireflies wander and blink.
-    for (var i = 0; i < life.fireflies; i++) {
+    for (var i = 0; i < (sky ? 0 : life.fireflies); i++) {
       final a0 = life.fireflyArea;
       final sp = 0.6 + 0.8 * _hash(i, 31);
       final ph = _hash(i, 32) * 6.28;
@@ -640,7 +702,7 @@ class LifePainter extends CustomPainter {
     }
 
     // Dust, pollen, embers or petals drifting through the light.
-    final drift = life.drift;
+    final drift = sky ? null : life.drift;
     if (drift != null) {
       final area = drift.area;
       for (var i = 0; i < drift.count; i++) {
@@ -675,9 +737,9 @@ class LifePainter extends CustomPainter {
       );
     }
 
-    if (life.shooting) _shootingStar(canvas, size, r, t);
+    if (sky && life.shooting) _shootingStar(canvas, size, r, t);
 
-    if ((debug || showMarks) && data != null) {
+    if ((debug || showMarks) && data != null && !sky) {
       final mark = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
@@ -744,7 +806,10 @@ class LifePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(LifePainter old) =>
-      old.scene != scene || old.time != time || old.pan != pan;
+      old.scene != scene ||
+      old.time != time ||
+      old.pan != pan ||
+      old.sky != sky;
 }
 
 /// The lanterns of a scenery piece, glowing on the same clock.
