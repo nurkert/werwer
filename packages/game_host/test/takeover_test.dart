@@ -265,6 +265,8 @@ class Bots {
           send('shot', const ShootIntent(null));
         case Phase.day when link.isOwner:
           send('end', const EndDiscussionIntent());
+        case Phase.vote when v.yourSeat.isAlive && v.runoff.isNotEmpty:
+          send('runoff', VoteIntent(v.runoff.firstWhere((p) => p != v.you)));
         case Phase.vote when v.yourSeat.isAlive:
           send('vote', VoteIntent(pick()));
         case Phase.lobby ||

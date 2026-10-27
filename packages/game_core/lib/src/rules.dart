@@ -96,6 +96,8 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
     NightStep.brew || NightStep.link || NightStep.inspect => brewTime,
   },
   Phase.day => state.settings.dayTime,
+  // A runoff is between few, and everyone has heard the arguments.
+  Phase.vote when state.runoff.isNotEmpty => state.settings.voteTime ~/ 2,
   Phase.vote => state.settings.voteTime,
   Phase.hunterShot => shotTime,
   Phase.lobby || Phase.roleReveal || Phase.ended => null,
@@ -563,6 +565,21 @@ PlayerId? _majority(Iterable<PlayerId> votes) {
   return leaders.length == 1 ? leaders.single.key : null;
 }
 
+/// The players with the most votes, in seating order of [state]: one for
+/// a clear result, several for a tie, none without votes.
+List<PlayerId> _leaders(GameState state, Iterable<PlayerId> votes) {
+  final tally = <PlayerId, int>{};
+  for (final v in votes) {
+    tally[v] = (tally[v] ?? 0) + 1;
+  }
+  if (tally.isEmpty) return const [];
+  final top = tally.values.reduce((a, b) => a > b ? a : b);
+  return [
+    for (final p in state.players)
+      if (tally[p.id] == top) p.id,
+  ];
+}
+
 /// Bytes of [GameState.secret].
 const secretLength = 32;
 
@@ -835,7 +852,9 @@ GameUpdate _castVote(GameState state, CastVote action) {
   final targetId = action.target;
   if (targetId != null) {
     final target = state.player(targetId) ?? _refuse(Violation.unknownPlayer);
-    if (!target.isAlive || target.id == voter.id) {
+    if (!target.isAlive ||
+        target.id == voter.id ||
+        (state.runoff.isNotEmpty && !state.runoff.contains(target.id))) {
       _refuse(Violation.invalidTarget);
     }
   }
@@ -848,8 +867,17 @@ GameUpdate _castVote(GameState state, CastVote action) {
 
 GameUpdate _resolveVote(GameState state) {
   final cast = state.votes.values.whereType<PlayerId>().toList();
-  final out = _majority(cast);
-  final cleared = state.copyWith(votes: const {});
+  final leaders = _leaders(state, cast);
+  final cleared = state.copyWith(votes: const {}, runoff: const []);
+  if (leaders.length > 1 &&
+      state.runoff.isEmpty &&
+      state.settings.tieRule == TieRule.runoff) {
+    // One more vote, between the tied only; a second tie spares them all.
+    return GameUpdate(cleared.copyWith(runoff: leaders), [
+      RunoffStarted(leaders),
+    ]);
+  }
+  final out = leaders.length == 1 ? leaders.single : null;
   if (out == null) {
     final round = state.round + 1;
     return GameUpdate(

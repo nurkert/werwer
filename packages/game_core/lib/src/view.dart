@@ -54,6 +54,39 @@ class DeathView {
   final Role? role;
 }
 
+/// What a ghost sees with [GhostSight.everything]: what happens right now,
+/// as it happens.
+class GhostView {
+  /// Creates a ghost view.
+  const GhostView({
+    this.night = const {},
+    this.victim,
+    this.packMark,
+    this.potionsUsed = const {},
+    this.seen = const [],
+    this.votes = const {},
+  });
+
+  /// Tonight's real picks so far (no cover taps): whom each player with a
+  /// night ability chose in the current step.
+  final Map<PlayerId, List<PlayerId>> night;
+
+  /// Tonight's victim of the werewolves, once their step is over.
+  final PlayerId? victim;
+
+  /// Tonight's door sign attempt of the pack, if any.
+  final DoorMark? packMark;
+
+  /// The witch's potions used so far.
+  final Set<Potion> potionsUsed;
+
+  /// Everything the seer has seen so far.
+  final List<SeerResult> seen;
+
+  /// The votes cast so far in the current vote (`null` abstains).
+  final Map<PlayerId, PlayerId?> votes;
+}
+
 /// Everything one player may know about the game, and nothing more. This is
 /// all a client ever receives.
 class PlayerView {
@@ -86,6 +119,9 @@ class PlayerView {
     this.potions = const {},
     this.shooter,
     this.winner,
+    this.runoff = const [],
+    this.yourGhostSight = GhostSight.off,
+    this.ghost,
   });
 
   /// The viewer.
@@ -179,6 +215,16 @@ class PlayerView {
   /// The winning faction once the game is over.
   final Faction? winner;
 
+  /// In a runoff: the tied players, the only ones to vote for (public).
+  final List<PlayerId> runoff;
+
+  /// What the viewer sees as a ghost: [GhostSight.off] while alive, while
+  /// the dead hunter still aims, and when the table switched ghosts off.
+  final GhostSight yourGhostSight;
+
+  /// With [GhostSight.everything]: what happens right now.
+  final GhostView? ghost;
+
   /// The viewer's lover, if they are in love.
   PlayerId? get partner =>
       couple.contains(you) ? couple.where((p) => p != you).firstOrNull : null;
@@ -195,17 +241,28 @@ class PlayerView {
 /// to themselves and cupid, tonight's victim only to the werewolves (by
 /// their picks) and the witch in her step. Each player sees only their own
 /// door sign, the pack's door sign attempt only the living werewolves.
+///
+/// The dead see more with [GameSettings.ghosts], but only once they have
+/// nothing left to do: the dead hunter who still aims sees no more than
+/// before he died.
 PlayerView viewFor(GameState state, PlayerId viewer) {
   final me = state.player(viewer);
   if (me == null) throw ArgumentError.value(viewer, 'viewer', 'not in game');
   final isWolf = me.role?.faction == Faction.werewolves;
   final over = state.phase == Phase.ended;
   final isWitch = me.role == Role.witch && me.isAlive;
+  final sight = me.isAlive || state.shooter == viewer || over
+      ? GhostSight.off
+      : state.settings.ghosts;
+  final ghostKnows = sight != GhostSight.off;
   final knowsCouple =
-      over || me.role == Role.cupid || state.lovers.contains(viewer);
+      over ||
+      ghostKnows ||
+      me.role == Role.cupid ||
+      state.lovers.contains(viewer);
 
   Role? known(Player p) {
-    if (p.id == viewer || over) return p.role;
+    if (p.id == viewer || over || ghostKnows) return p.role;
     if (isWolf && p.role?.faction == Faction.werewolves) return p.role;
     if (!p.isAlive && state.settings.revealRoleOnDeath) return p.role;
     return null;
@@ -266,8 +323,25 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
         : const {},
     shooter: state.shooter,
     winner: state.winner,
+    runoff: state.runoff,
+    yourGhostSight: sight,
+    ghost: sight == GhostSight.everything ? _ghostView(state) : null,
   );
 }
+
+GhostView _ghostView(GameState state) => GhostView(
+  night: {
+    for (final MapEntry(:key, :value) in state.nightChoices.entries)
+      if (nightTask(state, key) case final task?
+          when task != NightAbility.decoy)
+        key: value,
+  },
+  victim: state.nightVictim,
+  packMark: state.packMark,
+  potionsUsed: state.potionsUsed,
+  seen: [for (final results in state.seerResults.values) ...results],
+  votes: state.votes,
+);
 
 /// What anyone at the table may know, e.g. for a shared screen.
 PlayerView publicView(GameState state) => PlayerView(
@@ -297,6 +371,7 @@ PlayerView publicView(GameState state) => PlayerView(
   couple: state.phase == Phase.ended ? state.lovers : const [],
   shooter: state.shooter,
   winner: state.winner,
+  runoff: state.runoff,
 );
 
 List<DeathView> _deaths(GameState state) => [

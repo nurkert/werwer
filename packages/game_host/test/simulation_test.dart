@@ -147,7 +147,9 @@ void expectOwnSecretsOnly(PlayerView view, String reason) {
   if (view.phase == Phase.ended) return;
   if (view.couple.isNotEmpty) {
     expect(
-      view.yourRole == Role.cupid || view.couple.contains(view.you),
+      view.yourRole == Role.cupid ||
+          view.couple.contains(view.you) ||
+          view.yourGhostSight != GhostSight.off,
       isTrue,
       reason: '$reason sees the lovers',
     );
@@ -676,6 +678,11 @@ Future<void> _simulate(int seed) async {
       if (p.last == null) continue;
       final view = p.view;
       if (view.phase == Phase.ended) continue;
+      // Ghosts see all roles, but only the dead are ghosts.
+      if (view.yourGhostSight != GhostSight.off) {
+        expect(view.yourSeat.isAlive, isFalse, reason: '$where ghost');
+        continue;
+      }
       for (final seatView in view.seats) {
         if (seatView.id == r.ids[seat] ||
             !seatView.isAlive ||

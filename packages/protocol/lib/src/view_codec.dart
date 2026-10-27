@@ -56,15 +56,7 @@ Map<String, Object?> encodeView(PlayerView view) => {
     for (final MapEntry(:key, :value) in view.packChoices.entries)
       {'wolf': key.value, 'target': value.value},
   ],
-  'seen': [
-    for (final r in view.seerResults)
-      {
-        'target': r.target.value,
-        'round': r.round,
-        'faction': r.faction.name,
-        'role': ?r.role?.name,
-      },
-  ],
+  'seen': [for (final r in view.seerResults) _encodeSeen(r)],
   'sheepLast': [
     for (final MapEntry(:key, :value) in view.lastNightSheep.entries)
       {'player': key.value, 'n': value},
@@ -81,7 +73,69 @@ Map<String, Object?> encodeView(PlayerView view) => {
   'potions': [for (final p in view.potions) p.name],
   'shooter': ?view.shooter?.value,
   'winner': ?view.winner?.name,
+  'runoff': [for (final p in view.runoff) p.value],
+  'ghostSight': view.yourGhostSight.name,
+  'ghost': ?_encodeGhost(view.ghost),
 };
+
+Map<String, Object?>? _encodeGhost(GhostView? ghost) => ghost == null
+    ? null
+    : {
+        'night': [
+          for (final MapEntry(:key, :value) in ghost.night.entries)
+            {
+              'player': key.value,
+              'targets': [for (final t in value) t.value],
+            },
+        ],
+        'victim': ?ghost.victim?.value,
+        'packMark': ?_encodeMark(ghost.packMark),
+        'potionsUsed': [for (final p in ghost.potionsUsed) p.name],
+        'seen': [for (final r in ghost.seen) _encodeSeen(r)],
+        'votes': [
+          for (final MapEntry(:key, :value) in ghost.votes.entries)
+            {'player': key.value, 'target': ?value?.value},
+        ],
+      };
+
+Map<String, Object?> _encodeSeen(SeerResult r) => {
+  'target': r.target.value,
+  'round': r.round,
+  'faction': r.faction.name,
+  'role': ?r.role?.name,
+};
+
+SeerResult _decodeSeen(JsonReader r) => SeerResult(
+  target: _pid(r, 'target'),
+  round: r.integer('round', max: 1000),
+  faction: r.enumValue('faction', Faction.values),
+  role: r.maybeEnum('role', Role.values),
+);
+
+Set<Potion> _potions(JsonReader json, String key) => {
+  for (final p in json.strings(key, max: Potion.values.length))
+    Potion.values.where((v) => v.name == p).firstOrNull ??
+        (throw const ProtocolError('bad potion')),
+};
+
+GhostView? _decodeGhost(JsonReader json) {
+  if (!json.has('ghost')) return null;
+  final ghost = json.object('ghost');
+  return GhostView(
+    night: {
+      for (final c in ghost.objects('night', max: maxPlayers))
+        _pid(c, 'player'): _ids(c, 'targets', max: 2),
+    },
+    victim: _maybePid(ghost, 'victim'),
+    packMark: _decodeMark(ghost, 'packMark'),
+    potionsUsed: _potions(ghost, 'potionsUsed'),
+    seen: [for (final r in ghost.objects('seen', max: 1000)) _decodeSeen(r)],
+    votes: {
+      for (final v in ghost.objects('votes', max: maxPlayers))
+        _pid(v, 'player'): _maybePid(v, 'target'),
+    },
+  );
+}
 
 Map<String, Object?>? _encodeMark(DoorMark? mark) => mark == null
     ? null
@@ -137,13 +191,7 @@ PlayerView decodeView(JsonReader json) => PlayerView(
       _pid(p, 'wolf'): _pid(p, 'target'),
   },
   seerResults: [
-    for (final r in json.objects('seen', max: 1000))
-      SeerResult(
-        target: _pid(r, 'target'),
-        round: r.integer('round', max: 1000),
-        faction: r.enumValue('faction', Faction.values),
-        role: r.maybeEnum('role', Role.values),
-      ),
+    for (final r in json.objects('seen', max: 1000)) _decodeSeen(r),
   ],
   lastNightSheep: _counts(json, 'sheepLast'),
   dreams: _counts(json, 'dreams'),
@@ -158,13 +206,13 @@ PlayerView decodeView(JsonReader json) => PlayerView(
   packMark: _decodeMark(json, 'packMark'),
   couple: _couple(_ids(json, 'couple', max: 2)),
   victim: _maybePid(json, 'victim'),
-  potions: {
-    for (final p in json.strings('potions', max: Potion.values.length))
-      Potion.values.where((v) => v.name == p).firstOrNull ??
-          (throw const ProtocolError('bad potion')),
-  },
+  potions: _potions(json, 'potions'),
   shooter: _maybePid(json, 'shooter'),
   winner: json.maybeEnum('winner', Faction.values),
+  runoff: json.has('runoff') ? _ids(json, 'runoff') : const [],
+  yourGhostSight:
+      json.maybeEnum('ghostSight', GhostSight.values) ?? GhostSight.off,
+  ghost: _decodeGhost(json),
 );
 
 List<PlayerId> _couple(List<PlayerId> ids) => ids.isEmpty || ids.length == 2

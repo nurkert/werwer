@@ -72,6 +72,7 @@ Map<String, Object?> encodeState(GameState state) => {
     for (final MapEntry(:key, :value) in state.votes.entries)
       {'player': key.value, 'target': ?value?.value},
   ],
+  'runoff': [for (final p in state.runoff) p.value],
   'seerResults': [
     for (final MapEntry(:key, :value) in state.seerResults.entries)
       for (final r in value)
@@ -155,6 +156,7 @@ GameState decodeState(JsonReader json) {
             ? null
             : _pid(v, 'target'),
     },
+    runoff: json.has('runoff') ? _ids(json, 'runoff') : const [],
     seerResults: seer,
     deaths: [
       for (final d in json.objects('deaths', max: maxPlayers))

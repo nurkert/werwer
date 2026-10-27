@@ -473,6 +473,11 @@ Future<void> playChaos(int seed) async {
     // No view ever showed a living player's hidden role.
     for (final v in bot.seen) {
       if (v.phase == Phase.ended) continue;
+      // Ghosts see all roles, but only the dead are ghosts.
+      if (v.yourGhostSight != GhostSight.off) {
+        expect(v.yourSeat.isAlive, isFalse, reason: 'seed $seed ghost');
+        continue;
+      }
       for (final seat in v.seats) {
         if (seat.id == v.you || !seat.isAlive || seat.role == null) continue;
         expect(

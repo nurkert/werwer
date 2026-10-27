@@ -235,6 +235,11 @@ void main() {
       for (final message in p.received.whereType<StateMessage>()) {
         final view = message.view;
         if (view.phase == Phase.ended) continue;
+        // Ghosts see all roles, but only the dead are ghosts.
+        if (view.yourGhostSight != GhostSight.off) {
+          expect(view.yourSeat.isAlive, isFalse);
+          continue;
+        }
         for (final seat in view.seats) {
           if (seat.id == p.id || !seat.isAlive) continue;
           final bothWolves =
@@ -590,6 +595,7 @@ void main() {
             ..fire(const GameSettings().nightTime)
             ..fire(const GameSettings().dayTime)
             ..fire(const GameSettings().voteTime)
+            ..fire(const GameSettings().voteTime ~/ 2) // a runoff
             ..fire(brewTime)
             ..fire(shotTime)
             ..now += 2000; // keep the rate limit happy
@@ -602,6 +608,11 @@ void main() {
       for (final p in players.where((p) => p.last != null)) {
         final view = p.view;
         if (view.phase == Phase.ended) continue;
+        // Ghosts see all roles, but only the dead are ghosts.
+        if (view.yourGhostSight != GhostSight.off) {
+          expect(view.yourSeat.isAlive, isFalse, reason: 'seed $seed ghost');
+          continue;
+        }
         for (final seat in view.seats) {
           if (seat.id == p.id || !seat.isAlive || seat.role == null) continue;
           expect(

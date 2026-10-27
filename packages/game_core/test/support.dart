@@ -126,6 +126,19 @@ void expectNoLeaks(GameState state) {
   for (final viewer in state.players) {
     final view = viewFor(state, viewer.id);
     final isWolf = viewer.role == Role.werewolf;
+    // A ghost: dead, done (not the hunter still aiming), ghosts switched on.
+    final ghost =
+        !viewer.isAlive &&
+        state.shooter != viewer.id &&
+        state.settings.ghosts != GhostSight.off;
+    final sight = ghost && !over ? state.settings.ghosts : GhostSight.off;
+    expect(view.yourGhostSight, sight, reason: '${viewer.id} ghost sight');
+    expect(
+      view.ghost != null,
+      sight == GhostSight.everything,
+      reason: '${viewer.id} ghost view',
+    );
+    if (ghost) continue; // sees everything there is to see, by the rules
     for (final seat in view.seats) {
       final p = state.player(seat.id)!;
       final allowed =

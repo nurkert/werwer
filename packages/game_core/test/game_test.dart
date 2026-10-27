@@ -407,7 +407,10 @@ void main() {
     ];
 
     test('a tie eliminates nobody, abstentions do not count', () {
-      final day = playNight(night(roles), {0: 4, 1: 0}).state;
+      final day = playNight(
+        night(roles, settings: const GameSettings(tieRule: TieRule.nobody)),
+        {0: 4, 1: 0},
+      ).state;
       final update = playVote(day, {0: 2, 1: 0, 2: null, 3: 2});
       // 0 and 3 vote 2, 1 votes 0 → 2 is out.
       expect(update.state.player(id(2))!.isAlive, isFalse);

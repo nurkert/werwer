@@ -25,6 +25,8 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'doorSigns': settings.doorSigns,
   'nights': settings.nightMode.name,
   'voiceLang': settings.narratorLanguage.name,
+  'ghosts': settings.ghosts.name,
+  'ties': settings.tieRule.name,
 };
 
 /// Decodes [GameSettings]; throws a [ProtocolError] for invalid input. Only
@@ -55,5 +57,11 @@ GameSettings decodeSettings(JsonReader json) {
     doorSigns: json.boolean('doorSigns'),
     nightMode: json.enumValue('nights', NightMode.values),
     narratorLanguage: json.enumValue('voiceLang', NarratorLanguage.values),
+    // Missing in a game saved before ghosts and runoffs: the defaults.
+    ghosts:
+        json.maybeEnum('ghosts', GhostSight.values) ??
+        const GameSettings().ghosts,
+    tieRule:
+        json.maybeEnum('ties', TieRule.values) ?? const GameSettings().tieRule,
   );
 }

@@ -1,5 +1,6 @@
 import 'package:game_core/src/model.dart';
 import 'package:game_core/src/role.dart';
+import 'package:game_core/src/settings.dart';
 
 /// Who may learn about an event.
 sealed class Audience {
@@ -124,6 +125,16 @@ final class NobodyEliminated extends GameEvent {
 
   /// `true` for a tie, `false` when nobody voted.
   final bool tie;
+}
+
+/// The vote was tied: a runoff between [candidates] follows
+/// ([TieRule.runoff]).
+final class RunoffStarted extends GameEvent {
+  /// Creates the event.
+  const RunoffStarted(this.candidates);
+
+  /// The tied players, in seating order.
+  final List<PlayerId> candidates;
 }
 
 /// What the seer saw. Only the seer learns about it.

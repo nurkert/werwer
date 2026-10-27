@@ -862,9 +862,11 @@ class GameHost {
   void _commit(GameUpdate update) {
     final before = _state;
     _state = update.state;
+    // A runoff is a vote of its own: its own time, its own shared start.
     if (before.phase != _state.phase ||
         before.round != _state.round ||
-        before.nightStep != _state.nightStep) {
+        before.nightStep != _state.nightStep ||
+        before.runoff.isEmpty != _state.runoff.isEmpty) {
       if (before.phase != _state.phase) _introSkippedAt = null;
       _schedulePhaseTimer();
     } else if (_state.phase == Phase.night &&

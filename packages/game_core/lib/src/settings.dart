@@ -34,6 +34,29 @@ enum NightMode {
   called,
 }
 
+/// What the dead see of the game.
+enum GhostSight {
+  /// No more than the living.
+  off,
+
+  /// Every role and the lovers.
+  roles,
+
+  /// Also, as it happens, what the night brings (the pack's pick, the
+  /// seer's look, the witch's potions, the pack's door sign attempt) and
+  /// who votes for whom: like keeping your eyes open at the card table.
+  everything,
+}
+
+/// How a tied vote ends.
+enum TieRule {
+  /// Nobody is eliminated; night falls.
+  nobody,
+
+  /// A second vote among the tied only; another tie eliminates nobody.
+  runoff,
+}
+
 /// The language the narrator speaks at the table: one for everyone, so the
 /// voice does not change language as it walks from phone to phone.
 enum NarratorLanguage {
@@ -71,6 +94,8 @@ class GameSettings {
     this.doorSigns = false,
     this.nightMode = NightMode.together,
     this.narratorLanguage = NarratorLanguage.de,
+    this.ghosts = GhostSight.everything,
+    this.tieRule = TieRule.runoff,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -126,6 +151,12 @@ class GameSettings {
 
   /// The language of the narrator's voice (the host's app language).
   final NarratorLanguage narratorLanguage;
+
+  /// What the dead see (only once they have nothing left to do).
+  final GhostSight ghosts;
+
+  /// How a tied vote ends.
+  final TieRule tieRule;
 
   /// Whether sheep are counted: they need the phones in hand at night, so
   /// not when the narrator calls the roles.
@@ -195,6 +226,8 @@ class GameSettings {
     bool? doorSigns,
     NightMode? nightMode,
     NarratorLanguage? narratorLanguage,
+    GhostSight? ghosts,
+    TieRule? tieRule,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -211,6 +244,8 @@ class GameSettings {
     doorSigns: doorSigns ?? this.doorSigns,
     nightMode: nightMode ?? this.nightMode,
     narratorLanguage: narratorLanguage ?? this.narratorLanguage,
+    ghosts: ghosts ?? this.ghosts,
+    tieRule: tieRule ?? this.tieRule,
   );
 
   @override
@@ -231,7 +266,9 @@ class GameSettings {
       other.narratorVoice == narratorVoice &&
       other.doorSigns == doorSigns &&
       other.nightMode == nightMode &&
-      other.narratorLanguage == narratorLanguage;
+      other.narratorLanguage == narratorLanguage &&
+      other.ghosts == ghosts &&
+      other.tieRule == tieRule;
 
   @override
   int get hashCode => Object.hash(
@@ -250,6 +287,8 @@ class GameSettings {
     doorSigns,
     nightMode,
     narratorLanguage,
+    ghosts,
+    tieRule,
   );
 }
 

@@ -174,6 +174,7 @@ class GameState {
     this.shooter,
     this.afterShot,
     Map<PlayerId, PlayerId?> votes = const {},
+    List<PlayerId> runoff = const [],
     Map<PlayerId, List<SeerResult>> seerResults = const {},
     List<Death> deaths = const [],
     Map<PlayerId, int> sheep = const {},
@@ -194,6 +195,7 @@ class GameState {
        lovers = List.unmodifiable(lovers),
        potionsUsed = Set.unmodifiable(potionsUsed),
        votes = Map.unmodifiable(votes),
+       runoff = List.unmodifiable(runoff),
        seerResults = Map.unmodifiable(seerResults),
        deaths = List.unmodifiable(deaths);
 
@@ -250,6 +252,10 @@ class GameState {
 
   /// Votes in the current vote; `null` is an abstention.
   final Map<PlayerId, PlayerId?> votes;
+
+  /// In a runoff ([TieRule.runoff]): the tied players, the only ones who
+  /// may be voted for; empty in a first vote.
+  final List<PlayerId> runoff;
 
   /// Everything each seer has learnt so far.
   final Map<PlayerId, List<SeerResult>> seerResults;
@@ -315,6 +321,7 @@ class GameState {
     Object? shooter = _keep,
     Object? afterShot = _keep,
     Map<PlayerId, PlayerId?>? votes,
+    List<PlayerId>? runoff,
     Map<PlayerId, List<SeerResult>>? seerResults,
     List<Death>? deaths,
     Map<PlayerId, int>? sheep,
@@ -343,6 +350,7 @@ class GameState {
         ? this.afterShot
         : afterShot as Phase?,
     votes: votes ?? this.votes,
+    runoff: runoff ?? this.runoff,
     seerResults: seerResults ?? this.seerResults,
     deaths: deaths ?? this.deaths,
     sheep: sheep ?? this.sheep,

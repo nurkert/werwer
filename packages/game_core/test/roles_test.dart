@@ -480,10 +480,15 @@ GameState _randomMove(GameState state, Random random) {
       return apply(state, const EndDiscussion()).state;
     case Phase.vote:
       final voter = pick(alive);
-      final others = alive.where((o) => o.id != voter.id).toList();
+      final others = [
+        for (final o in alive)
+          if (o.id != voter.id &&
+              (state.runoff.isEmpty || state.runoff.contains(o.id)))
+            o.id,
+      ];
       return apply(
         state,
-        CastVote(voter.id, random.nextInt(5) == 0 ? null : pick(others).id),
+        CastVote(voter.id, random.nextInt(5) == 0 ? null : pick(others)),
       ).state;
     case Phase.hunterShot:
       return apply(

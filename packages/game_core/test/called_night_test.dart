@@ -193,7 +193,12 @@ void main() {
             final voter = alive.firstWhere(
               (p) => !state.votes.containsKey(p.id),
             );
-            action = CastVote(voter.id, other(voter.id));
+            action = CastVote(
+              voter.id,
+              state.runoff.isEmpty
+                  ? other(voter.id)
+                  : state.runoff.firstWhere((p) => p != voter.id),
+            );
           case Phase.hunterShot:
             action = HunterShoot(state.shooter!, null);
           case Phase.lobby || Phase.roleReveal || Phase.ended:
