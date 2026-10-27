@@ -121,7 +121,14 @@ class _Shooter {
   Widget frame(Widget child) => RepaintBoundary(
     key: _boundary,
     child: MediaQuery(
-      data: MediaQueryData(size: size, disableAnimations: true),
+      data: MediaQueryData(
+        size: size,
+        disableAnimations: true,
+        // `TEXT_SCALE=2` checks the screens with the system's largest text.
+        textScaler: TextScaler.linear(
+          double.tryParse(Platform.environment['TEXT_SCALE'] ?? '') ?? 1,
+        ),
+      ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),

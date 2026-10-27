@@ -100,25 +100,47 @@ class Headline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paper = Surface.paper(context);
-    final title = Text(
-      text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontFamily: displayFont,
-        fontSize: size,
-        fontWeight: FontWeight.w700,
-        height: 1.08,
-        color: color ?? (paper ? Palette.ink : Palette.stageIvory),
-        shadows: paper
-            ? null
-            : const [
-                Shadow(
-                  color: Color(0xCC000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
-      ),
+    final style = TextStyle(
+      fontFamily: displayFont,
+      fontSize: size,
+      fontWeight: FontWeight.w700,
+      height: 1.08,
+      color: color ?? (paper ? Palette.ink : Palette.stageIvory),
+      shadows: paper
+          ? null
+          : const [
+              Shadow(
+                color: Color(0xCC000000),
+                blurRadius: 10,
+                offset: Offset(0, 2),
+              ),
+            ],
+    );
+    // Never break inside a word ("Dorfbewohner" at the largest text):
+    // the title shrinks until its longest word fits on one line.
+    final title = LayoutBuilder(
+      builder: (context, box) {
+        final scaler = MediaQuery.textScalerOf(context);
+        var longest = 0.0;
+        for (final word in text.split(RegExp(r'\s+'))) {
+          final painter = TextPainter(
+            text: TextSpan(text: word, style: style),
+            textScaler: scaler,
+            textDirection: TextDirection.ltr,
+            maxLines: 1,
+          )..layout();
+          longest = max(longest, painter.width);
+          painter.dispose();
+        }
+        final fit = box.maxWidth.isFinite && longest > box.maxWidth
+            ? box.maxWidth / longest
+            : 1.0;
+        return Text(
+          text,
+          textAlign: TextAlign.center,
+          style: fit < 1 ? style.copyWith(fontSize: size * fit * 0.98) : style,
+        );
+      },
     );
     final line = eyebrow;
     if (line == null) return title;

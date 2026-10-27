@@ -406,14 +406,14 @@ class _PersonaPicker extends StatelessWidget {
   Future<void> _pick(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
+    // Who stands as which figure already.
     final taken = {
       for (final s in view.seats)
-        if (s.id != view.you) s.persona,
+        if (s.id != view.you) s.persona: s.name,
     };
     final allTaken = taken.length >= Persona.values.length;
     final picked = await showModalBottomSheet<Persona>(
       context: context,
-      backgroundColor: Palette.night800,
       showDragHandle: true,
       isScrollControlled: true,
       builder: (context) => SafeArea(
@@ -421,20 +421,21 @@ class _PersonaPicker extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: Column(
             children: [
-              Headline(l10n.changePersona),
+              Headline(l10n.changePersona, eyebrow: l10n.eyebrowEvening),
               const SizedBox(height: 6),
               Body(l10n.personaHint, muted: true),
               const SizedBox(height: 16),
+              // The shelf of figures (task 012).
               Wrap(
-                spacing: 12,
-                runSpacing: 12,
+                spacing: 6,
+                runSpacing: 18,
                 alignment: WrapAlignment.center,
                 children: [
                   for (final p in Persona.values)
                     _PersonaChoice(
                       persona: p,
                       selected: p == view.yourSeat.persona,
-                      enabled: allTaken || !taken.contains(p),
+                      takenBy: allTaken ? null : taken[p],
                       onTap: () => Navigator.pop(context, p),
                     ),
                 ],
@@ -487,56 +488,128 @@ class _PersonaPicker extends StatelessWidget {
   }
 }
 
+/// One figure on the shelf, standing on its little wooden stand: lit when
+/// it is yours, in shadow with its player's name when someone else has it.
 class _PersonaChoice extends StatelessWidget {
   const _PersonaChoice({
     required this.persona,
     required this.selected,
-    required this.enabled,
     required this.onTap,
+    this.takenBy,
   });
 
   final Persona persona;
   final bool selected;
-  final bool enabled;
+  final String? takenBy;
   final VoidCallback onTap;
+
+  static const _shadow = ColorFilter.matrix([
+    0.18, 0, 0, 0, 8, //
+    0, 0.18, 0, 0, 12, //
+    0, 0, 0.22, 0, 24, //
+    0, 0, 0, 1, 0,
+  ]);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Opacity(
-      opacity: enabled ? 1 : 0.35,
-      child: Material(
-        color: selected ? Palette.night700 : Palette.night900,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: selected ? Palette.lantern400 : Palette.night700,
-            width: selected ? 2.5 : 1,
-          ),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: enabled ? onTap : null,
-          child: SizedBox(
-            width: 104,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
+    final free = takenBy == null;
+    Widget figure = Figure(asset: personaAsset(persona), height: 104);
+    if (!free) figure = ColorFiltered(colorFilter: _shadow, child: figure);
+    return Semantics(
+      button: free,
+      selected: selected,
+      label: [l10n.persona(persona), ?takenBy].join(', '),
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: free ? onTap : null,
+        child: SizedBox(
+          width: 100,
+          child: Column(
+            children: [
+              Stack(
+                alignment: Alignment.bottomCenter,
+                clipBehavior: Clip.none,
                 children: [
-                  Figure(asset: personaAsset(persona), height: 90),
-                  const SizedBox(height: 6),
-                  Text(
-                    l10n.persona(persona),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Palette.moon100,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                  if (selected)
+                    // The spotlight on your own figure.
+                    Positioned(
+                      bottom: -6,
+                      child: Container(
+                        width: 120,
+                        height: 130,
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            center: const Alignment(0, 0.4),
+                            colors: [
+                              Palette.stageLanternTop.withValues(alpha: 0.5),
+                              Palette.stageLanternTop.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: figure,
+                  ),
+                  // The wooden stand.
+                  Container(
+                    width: 70,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(
+                        Radius.elliptical(35, 6),
+                      ),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFF8A5A34), Color(0xFF4A2E18)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                   ),
+                  if (selected)
+                    const Positioned(
+                      right: 6,
+                      top: 0,
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        color: Palette.stageLanternTop,
+                        size: 24,
+                      ),
+                    ),
                 ],
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.persona(persona),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: TextStyle(
+                  fontFamily: displayFont,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: free ? Palette.stageIvory : Palette.stageIvorySoft,
+                ),
+              ),
+              if (takenBy case final name?)
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    color: Palette.stageBrassLight,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

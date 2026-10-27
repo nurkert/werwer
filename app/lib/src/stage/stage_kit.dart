@@ -202,3 +202,45 @@ class _LanternPainter extends BoxPainter {
     }
   }
 }
+
+/// Only the brass edge of a plaque, laid over a picture (the meadow).
+class PlaqueFrame extends Decoration {
+  const PlaqueFrame({this.radius = Radii.m});
+
+  final double radius;
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) =>
+      _FramePainter(radius);
+}
+
+class _FramePainter extends BoxPainter {
+  _FramePainter(this.radius);
+
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final rect = offset & configuration.size!;
+    final shape = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    canvas
+      ..drawRRect(
+        shape.deflate(0.8),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..shader = const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Palette.stageBrassLight, Palette.stageBrassDark],
+          ).createShader(rect),
+      )
+      ..drawRRect(
+        shape.deflate(5),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.8
+          ..color = Palette.stageBrass.withValues(alpha: 0.45),
+      );
+  }
+}

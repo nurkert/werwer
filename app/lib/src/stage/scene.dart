@@ -77,7 +77,7 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.theatre => (
     sky: const [Color(0xFF070F1E), Color(0xFF13243F), Color(0xFF243552)],
     moon: MoonPhase.full,
-    moonAt: const Alignment(0, -0.2),
+    moonAt: const Alignment(0, 0.02),
     stars: 0.6,
     horizon: const Color(0xFF0B1424),
     wings: const Color(0xFF4A1210),

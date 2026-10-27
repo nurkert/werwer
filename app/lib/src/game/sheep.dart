@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
 enum _Kind { white, lamb, black }
@@ -125,60 +126,67 @@ class _SheepMeadowState extends State<SheepMeadow>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final h = widget.height;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: SizedBox(
-        height: h,
-        child: LayoutBuilder(
-          builder: (context, box) {
-            final w = box.maxWidth;
-            final size = h * 0.34;
-            return Stack(
-              children: [
-                const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF1A2347), Color(0xFF2B3A6E)],
+    // A window onto the night meadow, framed like a plaque (task 012).
+    return DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: const PlaqueFrame(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: SizedBox(
+          height: h,
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final w = box.maxWidth;
+              final size = h * 0.34;
+              return Stack(
+                children: [
+                  const Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFF060D18), Color(0xFF13233A)],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: h * 0.45,
-                  child: Image.asset(
-                    'assets/sheep/wiese.webp',
-                    repeat: ImageRepeat.repeatX,
-                    fit: BoxFit.fitHeight,
-                    alignment: Alignment.bottomLeft,
-                  ),
-                ),
-                Positioned(
-                  left: w / 2 - h * 0.17,
-                  bottom: h * 0.12,
-                  height: h * 0.3,
-                  child: Image.asset('assets/sheep/zaun.webp'),
-                ),
-                for (final s in _sheep) _sprite(s, w, h, size),
-                Positioned(
-                  left: 12,
-                  top: 10,
-                  child: Text(
-                    l10n.dreamPoints(widget.score),
-                    style: const TextStyle(
-                      color: Palette.moon100,
-                      fontWeight: FontWeight.w800,
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: h * 0.45,
+                    child: Image.asset(
+                      'assets/sheep/wiese.webp',
+                      repeat: ImageRepeat.repeatX,
+                      fit: BoxFit.fitHeight,
+                      alignment: Alignment.bottomLeft,
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                  Positioned(
+                    left: w / 2 - h * 0.17,
+                    bottom: h * 0.12,
+                    height: h * 0.3,
+                    child: Image.asset('assets/sheep/zaun.webp'),
+                  ),
+                  for (final s in _sheep) _sprite(s, w, h, size),
+                  Positioned(
+                    left: 12,
+                    top: 10,
+                    child: Text(
+                      l10n.dreamPoints(widget.score),
+                      style: const TextStyle(
+                        fontFamily: displayFont,
+                        color: Palette.stageIvory,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

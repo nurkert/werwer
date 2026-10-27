@@ -26,15 +26,22 @@ class _StageMomentState extends State<StageMoment>
     with SingleTickerProviderStateMixin {
   (Phase, int)? _shown;
   (Phase, int)? _card;
-  late final AnimationController _curtain =
-      AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 2100),
-      )..addStatusListener((status) {
-        if (status == AnimationStatus.completed && mounted) {
-          setState(() => _card = null);
-        }
-      });
+  late final AnimationController _curtain;
+
+  @override
+  void initState() {
+    super.initState();
+    _curtain = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2100),
+    )..addStatusListener(_done);
+  }
+
+  void _done(AnimationStatus status) {
+    if (status == AnimationStatus.completed && mounted) {
+      setState(() => _card = null);
+    }
+  }
 
   @override
   void didUpdateWidget(StageMoment oldWidget) {

@@ -330,60 +330,98 @@ class _TurningFigureState extends State<TurningFigure>
           ? pow(sin(v * pi), 2) * _amount
           : sin(v * 2 * pi) * sin(v * pi) * _amount;
       final angle = _turn.value * pi + rock;
-      final facing = cos(angle) >= 0;
-      final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
-      // Facing (nearly) straight on, the edge is under a pixel wide: one
-      // flat picture instead of a dozen layers.
-      if ((_depth * sin(angle)).abs() < 0.6) {
-        return Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.0011)
-            ..rotateY(angle),
-          child: facing || widget.back == CardBack.print
+      // A soft shadow on the stage floor, narrower as the figure turns
+      // its edge to us (task 012).
+      final spread = 0.3 + 0.7 * cos(angle).abs();
+      return Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            bottom: -widget.height * 0.025,
+            child: IgnorePointer(
+              child: Container(
+                width: widget.height * 0.42 * spread,
+                height: widget.height * 0.07,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.elliptical(
+                      widget.height * 0.21 * spread,
+                      widget.height * 0.035,
+                    ),
+                  ),
+                  color: Colors.black.withValues(alpha: 0.38),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.32),
+                      blurRadius: widget.height * 0.04,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          _turned(angle),
+        ],
+      );
+    },
+  );
+
+  /// The figure turned by [angle], board and all.
+  Widget _turned(double angle) {
+    final facing = cos(angle) >= 0;
+    final asset = facing ? widget.asset : (widget.backAsset ?? widget.asset);
+    // Facing (nearly) straight on, the edge is under a pixel wide: one
+    // flat picture instead of a dozen layers.
+    if ((_depth * sin(angle)).abs() < 0.6) {
+      return Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.0011)
+          ..rotateY(angle),
+        child: facing || widget.back == CardBack.print
+            ? _image(asset)
+            : _Board(
+                asset: asset,
+                height: widget.height,
+                stamp: widget.stamp,
+              ),
+      );
+    }
+    // Every layer stands at its own depth and turns with the figure, so
+    // the board is real 3D: drawn from the farthest layer to the nearest.
+    final layers = [
+      ..._board(asset),
+      if (facing)
+        (z: _depth / 2 + 0.2, child: _image(asset))
+      else
+        (
+          z: -_depth / 2 - 0.2,
+          child: widget.back == CardBack.print
               ? _image(asset)
               : _Board(
                   asset: asset,
                   height: widget.height,
                   stamp: widget.stamp,
                 ),
-        );
-      }
-      // Every layer stands at its own depth and turns with the figure, so
-      // the board is real 3D: drawn from the farthest layer to the nearest.
-      final layers = [
-        ..._board(asset),
-        if (facing)
-          (z: _depth / 2 + 0.2, child: _image(asset))
-        else
-          (
-            z: -_depth / 2 - 0.2,
-            child: widget.back == CardBack.print
-                ? _image(asset)
-                : _Board(
-                    asset: asset,
-                    height: widget.height,
-                    stamp: widget.stamp,
-                  ),
+        ),
+    ]..sort((a, b) => (a.z * cos(angle)).compareTo(b.z * cos(angle)));
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        for (final layer in layers)
+          Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.0011)
+              ..rotateY(angle)
+              ..translateByDouble(0, 0, layer.z, 1),
+            child: layer.child,
           ),
-      ]..sort((a, b) => (a.z * cos(angle)).compareTo(b.z * cos(angle)));
-      return Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
-        children: [
-          for (final layer in layers)
-            Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.0011)
-                ..rotateY(angle)
-                ..translateByDouble(0, 0, layer.z, 1),
-              child: layer.child,
-            ),
-        ],
-      );
-    },
-  );
+      ],
+    );
+  }
 
   static const _liner = Color(0xFFC9A26B);
   static const _flute = Color(0xFFB0844E);
