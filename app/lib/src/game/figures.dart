@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/poses.g.dart';
@@ -227,8 +228,17 @@ class TurningFigure extends StatefulWidget {
     this.back = CardBack.board,
     this.stamp = 'Whowolf',
     this.sway = true,
+    this.angle,
+    this.shadow = true,
     super.key,
   });
+
+  /// Turns the figure from outside (radians), instead of its own rocking:
+  /// pieces that must move as one share the same angle.
+  final ValueListenable<double>? angle;
+
+  /// A soft shadow on the stage floor below it.
+  final bool shadow;
 
   final String asset;
   final String? backAsset;
@@ -269,7 +279,11 @@ class _TurningFigureState extends State<TurningFigure>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final calm = MediaQuery.of(context).disableAnimations;
-    if (widget.sway && !calm && _nextRock == null && !_sway.isAnimating) {
+    if (widget.sway &&
+        widget.angle == null &&
+        !calm &&
+        _nextRock == null &&
+        !_sway.isAnimating) {
       _scheduleRock(first: true);
     } else if (calm) {
       _nextRock?.cancel();
@@ -321,12 +335,15 @@ class _TurningFigureState extends State<TurningFigure>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: Listenable.merge([_turn, _sway]),
+    animation: Listenable.merge([_turn, _sway, ?widget.angle]),
     builder: (context, _) {
       // A rock (about ±15°) or a half lean to one side (25–40°), both
       // easing in and out of the upright.
       final v = _sway.value;
-      final rock = _lean
+      final outside = widget.angle;
+      final rock = outside != null
+          ? outside.value
+          : _lean
           ? pow(sin(v * pi), 2) * _amount
           : sin(v * 2 * pi) * sin(v * pi) * _amount;
       final angle = _turn.value * pi + rock;
@@ -337,30 +354,31 @@ class _TurningFigureState extends State<TurningFigure>
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
         children: [
-          Positioned(
-            bottom: -widget.height * 0.025,
-            child: IgnorePointer(
-              child: Container(
-                width: widget.height * 0.42 * spread,
-                height: widget.height * 0.07,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.elliptical(
-                      widget.height * 0.21 * spread,
-                      widget.height * 0.035,
+          if (widget.shadow)
+            Positioned(
+              bottom: -widget.height * 0.025,
+              child: IgnorePointer(
+                child: Container(
+                  width: widget.height * 0.42 * spread,
+                  height: widget.height * 0.07,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.elliptical(
+                        widget.height * 0.21 * spread,
+                        widget.height * 0.035,
+                      ),
                     ),
+                    color: Colors.black.withValues(alpha: 0.38),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.32),
+                        blurRadius: widget.height * 0.04,
+                      ),
+                    ],
                   ),
-                  color: Colors.black.withValues(alpha: 0.38),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.32),
-                      blurRadius: widget.height * 0.04,
-                    ),
-                  ],
                 ),
               ),
             ),
-          ),
           _turned(angle),
         ],
       );
