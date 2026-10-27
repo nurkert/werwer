@@ -1,6 +1,6 @@
 # Task 012 – Das neue Bühnenbild der App
 
-**Status:** umgesetzt (2026-10-27). Die Bildrate ist auf iPhone 15 und macOS gemessen, Android und Chrome noch nicht (siehe Prüfliste).
+**Status:** umgesetzt (2026-10-27), Website angeglichen. Die Bildrate ist auf iPhone 15, macOS und in Chrome gemessen; ein echtes Android-Mittelklassegerät fehlt noch (siehe Prüfliste).
 **Roadmap:** 0.2.0 „Die Bühne“
 **Referenz:** [`design/reference/ui_concept_v1.png`](../../design/reference/ui_concept_v1.png) (Codex, 2026-10-27, Prompt in [`design/prompts/ui_concept.md`](../../design/prompts/ui_concept.md)), vom Eigentümer als Richtung bestätigt.
 
@@ -255,6 +255,11 @@ Nach den Vorschlägen des Plans entschieden; der Eigentümer kann jede umwerfen.
 - **Parallaxe beim Neigen** schon jetzt (Phase 5), neue Abhängigkeit `sensors_plus`.
 - **Seitenkulissen** malte Codex auf einen Hintergrund statt transparent; `tool/assets/cutout.py` stellt sie frei.
 - **Der Mond der Nachtszene** ist der Widget-Mond mit Ring, die Szene selbst malt keinen.
+- **Titel auf dem Startbildschirm** (Wunsch des Eigentümers): statt der Figurenreihe steht der Werwolf groß hinter dem Schriftzug. Wolf und Schriftzug sind Wellpappe und drehen sich jeder in eigenem Takt; die Pfote liegt als eigenes Bild vor den Buchstaben, der Körper wird entlang der Buchstabenkante abgeschnitten, die mit dem Schriftzug mitdreht (`WolfTitle`).
+- **Panorama beim Wischen** (Wunsch des Eigentümers): Das Bühnenbild schwenkt mit den Seiten, die Kulissen sind ein durchgehendes Panorama über drei Seiten. Was am Rand der mittleren Seite hereinragt, läuft auf die nächste weiter, die äußeren Seiten bekommen am fernen Rand andere Teile; nichts wird gespiegelt.
+- **Einstellungen als Seite:** Sprache, Online-Server und „Über Whowolf“ liegen direkt auf der rechten Startseite, ohne Dialog. Die Server-Adresse wird wie vorher geprüft, bevor sie gespeichert wird.
+- **Parallaxe gedämpft** (Wunsch des Eigentümers): ein Drittel des Ausschlags, langsamer nachgeführt.
+- **Website:** Die Abschnitte gehen weich ineinander über (Bild, Abdunkelung und Tönung blenden am Überlapp aus), Kulissen richten sich nach der Bildschirmhöhe, die Download-Seite zeigt die Download-Zahlen von GitHub groß im Bühnenstil, die Texte sind sprachlich überarbeitet.
 
 ## Sicherheit
 

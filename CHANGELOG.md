@@ -19,8 +19,12 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - The start screen remembers your name and offers the tables open nearby
   in one tap, the last one first; "Restore room" only shows when a game
   was really under way.
-- On the start screen the werewolf reaches over the title; swiping the
-  pages pans the stage set and walks the scenery along.
+- On the start screen the werewolf and the wordmark turn as corrugated
+  board, each in its own time, and the werewolf's paw reaches over the
+  letters. Swiping the pages pans the stage set; the scenery is one
+  panorama, so what reaches in at a page's edge passes over into the next.
+- The app's settings (language, online server, about) sit on the start
+  screen's right page, no dialog to open.
 - Ghosts: the dead can watch, holding a button to see every role and, if
   the table allows it, what happens at night and who votes for whom.
 - A tied vote leads to a runoff between the tied.
@@ -29,6 +33,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - In the lobby everyone picks their own figure among the free ones, at
   every level (Classic used to switch this off).
 - Phones play upright only.
+- Tilting the phone moves the stage set only a little, and smoothly.
+- Website: the scenes melt into each other instead of meeting at hard
+  edges, the download page shows how often Whowolf was downloaded, and the
+  texts read more plainly.
 
 ## 0.1.2 – 2026-10-27
 

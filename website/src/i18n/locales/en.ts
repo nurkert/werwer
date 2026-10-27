@@ -3,7 +3,7 @@ import type { Copy } from './de';
 
 const en: Copy = {
   meta: {
-    title: 'Whowolf – Werewolf at the table, everyone on their own phone',
+    title: 'Whowolf: Werewolf at the table, everyone on their own phone',
     description:
       'Whowolf is an open-source werewolf party game in the making: you sit together, everyone plays on their own phone, and the app is the narrator.',
   },
@@ -147,7 +147,7 @@ const en: Copy = {
       { state: 'done', title: 'Version 0.1', text: 'Out since 26 October 2026 as a developer beta: playable in your own Wi-Fi, end-to-end encrypted, downloads for Android, macOS, Windows and Linux.' },
       { state: 'done', title: '0.1.1: Every device', text: 'Same day: the app fits phones, tablets and desktops, has cardboard in its interface, new wordless sounds and a narrator voice you can turn off. If the host’s phone goes away, another one takes over within seconds. And the app knows the official relay server play.whowolf.de, which goes live soon.' },
       { state: 'done', title: '0.1.2: The classic night', text: 'Since 27 October: everyone closes their eyes and the narrator calls the roles one by one, with a recorded voice that walks around the table. Plus sounds in step on every phone, joining in the browser on the same Wi-Fi, and a privacy notice.' },
-      { state: 'now', title: '0.2: The stage', text: 'Every moment of the evening becomes a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff on a tie.' },
+      { state: 'now', title: '0.2: The stage', text: 'Every moment of the evening becomes a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff when the vote is tied.' },
       { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',
@@ -280,7 +280,7 @@ const en: Copy = {
       releases: 'releases',
       note: 'GitHub counts the downloads of every release. Whowolf itself counts nothing and sends nothing home.',
     },
-    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. Whowolf is a developer beta: playable in the Wi-Fi or through a relay server and end-to-end encrypted, but still full of building sites. All devices at the table need the same version.',
+    lede: 'Whowolf runs on iPhone, Mac, Android, Windows and Linux. It is still a developer beta: you play in your Wi-Fi or through a relay server, end-to-end encrypted, and plenty is still being built. All devices at the table need the same version.',
     prereleaseNote: 'Developer beta: for trying out with friends. Expect bugs, and please report them.',
     requirements: 'Requirements',
     recommended: 'For your device',

@@ -2,7 +2,7 @@
 
 const de = {
   meta: {
-    title: 'Whowolf – Werwolf am Tisch, jeder mit seinem Handy',
+    title: 'Whowolf: Werwolf am Tisch, jeder mit seinem Handy',
     description:
       'Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend, das gerade entsteht: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, die App ist der Erzähler.',
   },
@@ -146,7 +146,7 @@ const de = {
       { state: 'done', title: 'Version 0.1', text: 'Seit dem 26. Oktober 2026 als Entwickler-Beta: spielbar im eigenen WLAN, Ende-zu-Ende verschlüsselt, zum Download für Android, macOS, Windows und Linux.' },
       { state: 'done', title: '0.1.1: Jedes Gerät', text: 'Am selben Tag: Die App passt sich Handy, Tablet und Desktop an, hat Pappe in der Oberfläche, neue wortlose Klänge und eine abschaltbare Erzählstimme. Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Und die App kennt den offiziellen Relay-Server play.whowolf.de, der bald online geht.' },
       { state: 'done', title: '0.1.2: Die klassische Nacht', text: 'Seit dem 27. Oktober: Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, mit eingesprochener Stimme, die um den Tisch wandert. Dazu Klänge im Gleichtakt auf allen Handys, Mitspielen im Browser im selben WLAN und ein Datenschutzhinweis.' },
-      { state: 'now', title: '0.2: Die Bühne', text: 'Jeder Moment des Abends wird ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister, die den Toten zuschauen lassen, und eine Stichwahl bei Gleichstand.' },
+      { state: 'now', title: '0.2: Die Bühne', text: 'Jeder Moment des Abends wird ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister: Wer tot ist, darf zuschauen. Und bei Gleichstand gibt es eine Stichwahl.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',
@@ -279,7 +279,7 @@ const de = {
       releases: 'Versionen',
       note: 'GitHub zählt die Downloads jeder Version. Whowolf selbst zählt nichts und funkt nichts nach Hause.',
     },
-    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Whowolf ist eine Entwickler-Beta: spielbar im WLAN oder über einen Vermittlungsserver und Ende-zu-Ende-verschlüsselt, aber noch voller Baustellen. Alle Geräte am Tisch brauchen dieselbe Version.',
+    lede: 'Whowolf läuft auf iPhone, Mac, Android, Windows und Linux. Noch ist es eine Entwickler-Beta: Ihr spielt im WLAN oder über einen Vermittlungsserver, Ende-zu-Ende verschlüsselt, und an vielen Ecken wird noch gebaut. Alle Geräte am Tisch brauchen dieselbe Version.',
     prereleaseNote: 'Entwickler-Beta: zum Ausprobieren mit Freunden. Rechnet mit Fehlern und meldet sie gern.',
     requirements: 'Voraussetzungen',
     recommended: 'Für dein Gerät',
