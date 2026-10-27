@@ -1,6 +1,6 @@
 # Task 012 – Das neue Bühnenbild der App
 
-**Status:** umgesetzt (2026-10-27), Website angeglichen. Die Bildrate ist auf iPhone 15, macOS und in Chrome gemessen; ein echtes Android-Mittelklassegerät fehlt noch (siehe Prüfliste).
+**Status:** umgesetzt (2026-10-27), Website angeglichen. Die Bildrate ist auf iPhone 15, macOS und in Chrome gemessen; auf Android nur im Emulator, weil kein Gerät da ist (siehe Prüfliste).
 **Roadmap:** 0.2.0 „Die Bühne“
 **Referenz:** [`design/reference/ui_concept_v1.png`](../../design/reference/ui_concept_v1.png) (Codex, 2026-10-27, Prompt in [`design/prompts/ui_concept.md`](../../design/prompts/ui_concept.md)), vom Eigentümer als Richtung bestätigt.
 
@@ -233,7 +233,7 @@ Jede Phase endet mit einem Stand, den man am Handy ansehen kann. Neue Phasen beg
   - **iPhone 15:** 1980 Bilder, 3 zu spät (0,15 %, beim Szenenwechsel); Bauzeit Median 0,7 ms; Rendern Median 1,9 ms, 90 % unter 4,4 ms.
   - **macOS:** 1978 Bilder, keines zu spät; Rendern 90 % unter 3,1 ms.
   - **Chrome (Web-Build, macOS):** im Leerlauf 60 fps, kein Bild zu spät (90 % unter 16,7 ms); beim Ziehen der Fenstergröße, also Neuanordnung von Szene und Kulissen, 5 von 366 Bildern über 20 ms.
-  - **Android:** nur im Emulator (Medium Phone, API 37) gemessen. Ohne Grafikkarte rendert er in Software, Median 250 ms pro Bild. Das sagt nichts über ein echtes Gerät. Ein Android-Mittelklassegerät bleibt offen, bis eines zur Hand ist.
+  - **Android:** nur im Emulator (Medium Phone, API 37) gemessen. Ohne Grafikkarte rendert er in Software, Median 250 ms pro Bild. Das sagt nichts über ein echtes Gerät. Der Eigentümer hat kein Android-Gerät (2026-10-27); die Messung auf echter Android-Hardware folgt, sobald jemand mit einem Mittelklassegerät mittestet, und blockiert 0.2.0 nicht.
 - [x] Bilder-Budget: Bühnenbilder 1,7 MB, Kulissen 0,24 MB, Dorf-Posen 2,8 MB, also unter 12 MB beziehungsweise 4 MB.
 - [x] Alle Bausteine in `design/CREDITS.md`, Prompts in `design/prompts/`, keine fremden Marken oder Anlehnungen.
 - [x] App-Store-Bilder für das 6,7-Zoll-iPhone (1290 × 2796), je sechs auf Deutsch und Englisch in `design/store/`, gerendert aus der App. Hochladen kommt mit dem Apple-Developer-Account.
@@ -258,6 +258,9 @@ Nach den Vorschlägen des Plans entschieden; der Eigentümer kann jede umwerfen.
 - **Titel auf dem Startbildschirm** (Wunsch des Eigentümers): statt der Figurenreihe steht der Werwolf groß hinter dem Schriftzug. Wolf und Schriftzug sind Wellpappe und drehen sich jeder in eigenem Takt; die Pfote liegt als eigenes Bild vor den Buchstaben, der Körper wird entlang der Buchstabenkante abgeschnitten, die mit dem Schriftzug mitdreht (`WolfTitle`).
 - **Panorama beim Wischen** (Wunsch des Eigentümers): Das Bühnenbild schwenkt mit den Seiten, die Kulissen sind ein durchgehendes Panorama über drei Seiten. Was am Rand der mittleren Seite hereinragt, läuft auf die nächste weiter, die äußeren Seiten bekommen am fernen Rand andere Teile; nichts wird gespiegelt.
 - **Einstellungen als Seite:** Sprache, Online-Server und „Über Whowolf“ liegen direkt auf der rechten Startseite, ohne Dialog. Die Server-Adresse wird wie vorher geprüft, bevor sie gespeichert wird.
+- **Sprache als Flagge** (Wunsch des Eigentümers): oben rechts auf dem Startbildschirm, nicht mehr in den Einstellungen.
+- **Figurenwahl auf dem Handy** (Wunsch des Eigentümers): Die Figurenseite der Lobby scrollt und zeigt große Karten mit der ganzen Figur, drei pro Reihe auf dem Handy, mehr bei breiteren Fenstern.
+- **Geschlossene Räume** verschwinden aus der Suche des eigenen Geräts sofort, auch wenn das System die Ankündigung noch kurz zwischenspeichert.
 - **Parallaxe gedämpft** (Wunsch des Eigentümers): ein Drittel des Ausschlags, langsamer nachgeführt.
 - **Website:** Die Abschnitte gehen weich ineinander über (Bild, Abdunkelung und Tönung blenden am Überlapp aus), Kulissen richten sich nach der Bildschirmhöhe, die Download-Seite zeigt die Download-Zahlen von GitHub groß im Bühnenstil, die Texte sind sprachlich überarbeitet.
 
