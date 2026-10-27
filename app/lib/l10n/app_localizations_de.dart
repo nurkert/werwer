@@ -1312,4 +1312,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pageSettings => 'Einstellungen';
+
+  @override
+  String get pageFigure => 'Figur';
+
+  @override
+  String get figureTitle => 'Wer bist du heute?';
+
+  @override
+  String get figureTaken => 'vergeben';
+
+  @override
+  String quickJoin(String name) {
+    return 'Tisch von $name beitreten';
+  }
+
+  @override
+  String get quickJoinLast => 'Dein letzter Tisch';
 }

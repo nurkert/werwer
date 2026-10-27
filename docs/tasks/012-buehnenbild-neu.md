@@ -232,7 +232,8 @@ Jede Phase endet mit einem Stand, den man am Handy ansehen kann. Neue Phasen beg
 - [x] Bildrate gemessen mit `app/integration_test/stage_perf_test.dart` (Profil-Modus: alle Szenen mit Kulissen, wiegenden Figuren und Wischen):
   - **iPhone 15:** 1980 Bilder, 3 zu spät (0,15 %, beim Szenenwechsel); Bauzeit Median 0,7 ms; Rendern Median 1,9 ms, 90 % unter 4,4 ms.
   - **macOS:** 1978 Bilder, keines zu spät; Rendern 90 % unter 3,1 ms.
-  - Nicht gemessen sind ein Android-Mittelklassegerät und Chrome, weil hier kein Gerät dafür zur Hand ist. Bei diesem Abstand zum Budget von 16,7 ms ist dort kein Engpass zu erwarten.
+  - **Chrome (Web-Build, macOS):** im Leerlauf 60 fps, kein Bild zu spät (90 % unter 16,7 ms); beim Ziehen der Fenstergröße, also Neuanordnung von Szene und Kulissen, 5 von 366 Bildern über 20 ms.
+  - **Android:** nur im Emulator (Medium Phone, API 37) gemessen. Ohne Grafikkarte rendert er in Software, Median 250 ms pro Bild. Das sagt nichts über ein echtes Gerät. Ein Android-Mittelklassegerät bleibt offen, bis eines zur Hand ist.
 - [x] Bilder-Budget: Bühnenbilder 1,7 MB, Kulissen 0,24 MB, Dorf-Posen 2,8 MB, also unter 12 MB beziehungsweise 4 MB.
 - [x] Alle Bausteine in `design/CREDITS.md`, Prompts in `design/prompts/`, keine fremden Marken oder Anlehnungen.
 - [x] App-Store-Bilder für das 6,7-Zoll-iPhone (1290 × 2796), je sechs auf Deutsch und Englisch in `design/store/`, gerendert aus der App. Hochladen kommt mit dem Apple-Developer-Account.

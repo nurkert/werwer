@@ -381,5 +381,10 @@
   "act3": "Zweiter Akt",
   "act4": "Dritter Akt",
   "act5": "Finale",
-  "pageSettings": "Einstellungen"
+  "pageSettings": "Einstellungen",
+  "pageFigure": "Figur",
+  "figureTitle": "Wer bist du heute?",
+  "figureTaken": "vergeben",
+  "quickJoin": "Tisch von {name} beitreten",
+  "quickJoinLast": "Dein letzter Tisch"
 }

@@ -1300,4 +1300,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageSettings => 'Settings';
+
+  @override
+  String get pageFigure => 'Figure';
+
+  @override
+  String get figureTitle => 'Who are you tonight?';
+
+  @override
+  String get figureTaken => 'taken';
+
+  @override
+  String quickJoin(String name) {
+    return 'Join $name\'s table';
+  }
+
+  @override
+  String get quickJoinLast => 'Your last table';
 }

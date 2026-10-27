@@ -360,17 +360,14 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         action: action,
         pages: [
           (
-            label: l10n.pageTable,
-            child: page([
-              title,
-              ...pending,
-              _PersonaPicker(session: session),
-              ...table,
-            ]),
+            label: l10n.pageFigure,
+            child: page([...pending, _FigureStage(session: session)]),
           ),
-          if (invite.isNotEmpty)
-            (label: l10n.pageInvite, child: page([title, ...invite])),
-          (label: l10n.pageGame, child: page([title, ...game])),
+          (label: l10n.pageTable, child: page([title, ...pending, ...table])),
+          (
+            label: l10n.pageGame,
+            child: page([title, ...pending, ...invite, ...game]),
+          ),
         ],
       );
     }
@@ -434,6 +431,173 @@ class _PendingPanel extends StatelessWidget {
 }
 
 /// Your own figure in the lobby, and the sheet to pick another one.
+/// The lobby's first page on a phone (task 012): your figure big on the
+/// stage, and every figure as a portrait to tap. Taken ones are greyed out
+/// with their player's name; a tap picks at once and your figure turns
+/// round into the new one.
+class _FigureStage extends StatefulWidget {
+  const _FigureStage({required this.session});
+
+  final GameSession session;
+
+  @override
+  State<_FigureStage> createState() => _FigureStageState();
+}
+
+class _FigureStageState extends State<_FigureStage> {
+  /// The figure shown: turns its back while the new one comes in.
+  Persona? _shown;
+  bool _turning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _shown = widget.session.view!.yourSeat.persona;
+  }
+
+  @override
+  void didUpdateWidget(_FigureStage old) {
+    super.didUpdateWidget(old);
+    final mine = widget.session.view?.yourSeat.persona;
+    if (mine == null || mine == _shown || _turning) return;
+    // Turn away, swap at the edge-on moment, turn back.
+    _turning = true;
+    Future<void>.delayed(const Duration(milliseconds: 380), () {
+      if (!mounted) return;
+      setState(() {
+        _shown = widget.session.view?.yourSeat.persona ?? mine;
+        _turning = false;
+      });
+    });
+  }
+
+  void _pick(Persona persona) {
+    if (persona == widget.session.view!.yourSeat.persona) return;
+    SoundScope.play(context, Sound.turn);
+    widget.session.send(PersonaIntent(persona));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final view = widget.session.view!;
+    final mine = view.yourSeat.persona;
+    final taken = {
+      for (final s in view.seats)
+        if (s.id != view.you) s.persona: s.name,
+    };
+    final allTaken = taken.length >= Persona.values.length;
+    final shown = _shown ?? mine;
+    return Column(
+      children: [
+        Headline(l10n.figureTitle, eyebrow: l10n.eyebrowEvening),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 230,
+          child: Center(
+            child: TurningFigure(
+              key: const ValueKey('my-figure'),
+              asset: personaAsset(shown),
+              backAsset: personaAsset(shown),
+              showBack: _turning,
+              height: 220,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.persona(mine),
+          style: const TextStyle(
+            fontFamily: displayFont,
+            fontWeight: FontWeight.w700,
+            fontSize: 26,
+            color: Palette.stageIvory,
+            shadows: [Shadow(blurRadius: 10)],
+          ),
+        ),
+        Body(l10n.personaHint, muted: true),
+        const SizedBox(height: 14),
+        Panel(
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 4,
+            runSpacing: 8,
+            children: [
+              for (final p in Persona.values)
+                () {
+                  final owner = allTaken ? null : taken[p];
+                  final selected = p == mine;
+                  return Semantics(
+                    button: owner == null,
+                    selected: selected,
+                    label: [l10n.persona(p), ?owner].join(', '),
+                    excludeSemantics: true,
+                    child: GestureDetector(
+                      onTap: owner == null ? () => _pick(p) : null,
+                      child: SizedBox(
+                        width: 62,
+                        child: Column(
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(2.5),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: selected
+                                      ? Palette.stageLanternTop
+                                      : Colors.transparent,
+                                  width: 2.5,
+                                ),
+                                boxShadow: selected
+                                    ? [
+                                        BoxShadow(
+                                          color: Palette.stageLanternTop
+                                              .withValues(alpha: 0.45),
+                                          blurRadius: 10,
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Opacity(
+                                opacity: owner == null ? 1 : 0.4,
+                                child: Portrait(
+                                  persona: p,
+                                  size: 46,
+                                  grey: owner != null,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              owner ?? l10n.persona(p),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: owner != null
+                                    ? Palette.stageBrassLight
+                                    : selected
+                                    ? Palette.stageLanternTop
+                                    : Palette.stageIvorySoft,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _PersonaPicker extends StatelessWidget {
   const _PersonaPicker({required this.session});
 

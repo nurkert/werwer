@@ -85,135 +85,227 @@ class HelpLink extends StatelessWidget {
   );
 }
 
-/// The game in five acts, as a playbill (task 012): three villagers stand
-/// on the stage above a paper slip with the acts. On the start screen's
-/// left page and in [showHowItWorks].
+/// The game in five acts, as the rules on paper (task 012): every act
+/// with its own picture, a corner of a stage set with a villager in front.
+/// On the start screen's left page (it scrolls) and in [showHowItWorks].
 class HowSteps extends StatelessWidget {
-  const HowSteps({super.key, this.figure = 120});
-
-  /// How tall the villagers above the playbill stand.
-  final double figure;
+  const HowSteps({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final acts = [
-      (l10n.act1, l10n.how1Title, l10n.how1Text),
-      (l10n.act2, l10n.how2Title, l10n.how2Text),
-      (l10n.act3, l10n.how3Title, l10n.how3Text),
-      (l10n.act4, l10n.how4Title, l10n.how4Text),
-      (l10n.act5, l10n.how5Title, l10n.how5Text),
+      (
+        l10n.act1,
+        l10n.how1Title,
+        l10n.how1Text,
+        'village',
+        posed(Persona.baker, 3).$1,
+        const Alignment(0, 0.3),
+      ),
+      (
+        l10n.act2,
+        l10n.how2Title,
+        l10n.how2Text,
+        'theatre',
+        figureAsset(Role.werewolf),
+        const Alignment(0, 0.6),
+      ),
+      (
+        l10n.act3,
+        l10n.how3Title,
+        l10n.how3Text,
+        'nightlake',
+        figureAsset(Role.seer),
+        const Alignment(0, 0.2),
+      ),
+      (
+        l10n.act4,
+        l10n.how4Title,
+        l10n.how4Text,
+        'dusk',
+        posed(Persona.smith, 2).$1,
+        const Alignment(0, 0.6),
+      ),
+      (
+        l10n.act5,
+        l10n.how5Title,
+        l10n.how5Text,
+        'finale',
+        posed(Persona.mayor, 2).$1,
+        const Alignment(0, 0.6),
+      ),
     ];
-    final (baker, _) = posed(Persona.baker, 3);
-    final (smith, _) = posed(Persona.smith, 2);
-    final (maid, _) = posed(Persona.maid, 1);
-    return Column(
-      children: [
-        // The ensemble, the werewolf hiding in the middle.
-        ExcludeSemantics(
-          child: SizedBox(
-            height: figure,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
+    return Panel(
+      paper: true,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, (act, title, text, scene, figure, focus))
+              in acts.indexed) ...[
+            if (i > 0)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Palette.gold500.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Icon(
+                        Icons.nightlight_round,
+                        size: 14,
+                        color: Palette.gold500,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Palette.gold500.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            _ActPicture(
+              scene: scene,
+              figure: figure,
+              focus: focus,
+              number: i + 1,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              act.toUpperCase(),
+              style: const TextStyle(
+                fontFamily: displayFont,
+                fontSize: 12.5,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w700,
+                color: Palette.curtain600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: displayFont,
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                height: 1.15,
+                color: Palette.ink,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16.5,
+                height: 1.45,
+                color: Palette.inkSoft,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// An act's picture: a corner of a painted stage set, framed in brass,
+/// with a cardboard villager standing in it and the act's number.
+class _ActPicture extends StatelessWidget {
+  const _ActPicture({
+    required this.scene,
+    required this.figure,
+    required this.focus,
+    required this.number,
+  });
+
+  final String scene;
+  final String figure;
+  final Alignment focus;
+  final int number;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: AspectRatio(
+      aspectRatio: 16 / 9,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Palette.stageBrass, width: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x55000000),
+              blurRadius: 8,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: LayoutBuilder(
+            builder: (context, box) => Stack(
+              fit: StackFit.expand,
               children: [
-                Image.asset(baker, height: figure * 0.86),
-                Transform.translate(
-                  offset: Offset(-figure * 0.08, 0),
-                  child: Image.asset(
-                    figureAsset(Role.werewolf),
-                    height: figure,
+                Image.asset(
+                  'assets/stage/$scene.webp',
+                  fit: BoxFit.cover,
+                  alignment: focus,
+                  cacheWidth: (box.maxWidth * 2).round(),
+                ),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x00000000), Color(0x66000000)],
+                      stops: [0.5, 1],
+                    ),
                   ),
                 ),
-                Transform.translate(
-                  offset: Offset(-figure * 0.16, 0),
-                  child: Image.asset(smith, height: figure * 0.9),
+                Positioned(
+                  right: box.maxWidth * 0.08,
+                  bottom: box.maxHeight * 0.04,
+                  height: box.maxHeight * 0.86,
+                  child: Image.asset(figure, fit: BoxFit.contain),
                 ),
-                Transform.translate(
-                  offset: Offset(-figure * 0.24, 0),
-                  child: Image.asset(maid, height: figure * 0.82),
+                Positioned(
+                  left: 12,
+                  top: 10,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Palette.paper,
+                      border: Border.all(color: Palette.stageBrass, width: 2),
+                    ),
+                    child: Text(
+                      '$number',
+                      style: const TextStyle(
+                        fontFamily: displayFont,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                        height: 1,
+                        color: Palette.curtain600,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 4),
-        Panel(
-          paper: true,
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          child: Column(
-            children: [
-              for (final (i, (act, title, text)) in acts.indexed) ...[
-                if (i > 0)
-                  Container(
-                    height: 1,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    color: Palette.gold500.withValues(alpha: 0.45),
-                  ),
-                Semantics(
-                  container: true,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 34,
-                        child: Text(
-                          '${i + 1}',
-                          style: const TextStyle(
-                            fontFamily: displayFont,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 28,
-                            height: 1,
-                            color: Palette.curtain600,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              act.toUpperCase(),
-                              style: const TextStyle(
-                                fontFamily: displayFont,
-                                fontSize: 10.5,
-                                letterSpacing: 1.6,
-                                fontWeight: FontWeight.w700,
-                                color: Palette.inkSoft,
-                              ),
-                            ),
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontFamily: displayFont,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 17,
-                                height: 1.15,
-                                color: Palette.ink,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              text,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                height: 1.3,
-                                color: Palette.inkSoft,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ),
+  );
 }
 
 /// [HowSteps] in a sheet, for whoever plays for the first time.
@@ -230,7 +322,7 @@ Future<void> showHowItWorks(BuildContext context) {
           children: [
             Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
             const SizedBox(height: 16),
-            const HowSteps(figure: 100),
+            const HowSteps(),
             const SizedBox(height: 16),
             PrimaryButton(
               label: l10n.howDone,

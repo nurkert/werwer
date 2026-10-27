@@ -1,10 +1,22 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// One page of [StagePages]: its name for the dots and what it shows.
 typedef StagePage = ({String label, Widget child});
+
+/// A page that scrolls up and down instead of fitting (a long read, like
+/// the rules on paper).
+class ScrollingPage extends StatelessWidget {
+  const ScrollingPage({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => child;
+}
 
 /// Pages to swipe like a phone's home screen instead of one long scroll
 /// (task 012): the stage stays, only the front pans away, fading and
@@ -34,10 +46,27 @@ class StagePages extends StatefulWidget {
 }
 
 class _StagePagesState extends State<StagePages> {
-  late final _controller = PageController(initialPage: widget.initialPage);
+  late final _controller = PageController(initialPage: widget.initialPage)
+    ..addListener(_panStage);
+
+  /// The stage behind, which pans along with the pages.
+  PanNotifier? _stage;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _stage = StagePan.of(context);
+  }
+
+  void _panStage() => _stage?.set(_page - widget.initialPage);
 
   @override
   void dispose() {
+    final stage = _stage;
+    if (stage != null) {
+      // Back to the middle once these pages are gone (after this frame).
+      WidgetsBinding.instance.addPostFrameCallback((_) => stage.set(0));
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -71,11 +100,17 @@ class _StagePagesState extends State<StagePages> {
                 );
               },
               child: RepaintBoundary(
-                child: _FitPage(
-                  maxWidth: widget.maxWidth,
-                  top: insets.top + 8,
-                  child: widget.pages[i].child,
-                ),
+                child: widget.pages[i].child is ScrollingPage
+                    ? _ScrollPage(
+                        maxWidth: widget.maxWidth,
+                        top: insets.top + 8,
+                        child: widget.pages[i].child,
+                      )
+                    : _FitPage(
+                        maxWidth: widget.maxWidth,
+                        top: insets.top + 8,
+                        child: widget.pages[i].child,
+                      ),
               ),
             ),
           ),
@@ -142,6 +177,54 @@ class _FitPage extends StatelessWidget {
         ),
       );
     },
+  );
+}
+
+/// A page that scrolls, its content fading out under the edges.
+class _ScrollPage extends StatelessWidget {
+  const _ScrollPage({
+    required this.child,
+    required this.maxWidth,
+    required this.top,
+  });
+
+  final Widget child;
+  final double maxWidth;
+  final double top;
+
+  @override
+  Widget build(BuildContext context) => ShaderMask(
+    blendMode: BlendMode.dstIn,
+    shaderCallback: (rect) => LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      stops: [
+        0,
+        (top / rect.height).clamp(0, 1),
+        0.94,
+        1,
+      ],
+      colors: const [
+        Color(0x00000000),
+        Color(0xFF000000),
+        Color(0xFF000000),
+        Color(0x00000000),
+      ],
+    ).createShader(rect),
+    child: SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(20, top, 20, 24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth + 120),
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            removeBottom: true,
+            child: child,
+          ),
+        ),
+      ),
+    ),
   );
 }
 

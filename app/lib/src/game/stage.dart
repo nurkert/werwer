@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:whowolf/src/game/cardboard.dart';
+import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
@@ -113,6 +114,15 @@ class StageBackground extends StatefulWidget {
 }
 
 class _StageBackgroundState extends State<StageBackground> {
+  /// How far the pages in front are swiped (see [StagePan]).
+  final _pan = PanNotifier();
+
+  @override
+  void dispose() {
+    _pan.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -126,27 +136,30 @@ class _StageBackgroundState extends State<StageBackground> {
   }
 
   @override
-  Widget build(BuildContext context) => ColoredBox(
-    color: Palette.stageNight,
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        // The scene of this moment (task 012), with the grain over it and
-        // never over text.
-        IgnorePointer(
-          child: StageTilt(child: StageSet(scene: SceneScope.of(context))),
-        ),
-        if (widget.ghost)
-          const IgnorePointer(
-            child: ColoredBox(color: Color(0x553A6EA8)),
+  Widget build(BuildContext context) => StagePan(
+    pan: _pan,
+    child: ColoredBox(
+      color: Palette.stageNight,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // The scene of this moment (task 012), with the grain over it and
+          // never over text.
+          IgnorePointer(
+            child: StageTilt(child: StageSet(scene: SceneScope.of(context))),
           ),
-        IgnorePointer(
-          child: RepaintBoundary(
-            child: CustomPaint(painter: GrainPainter(opacity: 0.05)),
+          if (widget.ghost)
+            const IgnorePointer(
+              child: ColoredBox(color: Color(0x553A6EA8)),
+            ),
+          IgnorePointer(
+            child: RepaintBoundary(
+              child: CustomPaint(painter: GrainPainter(opacity: 0.05)),
+            ),
           ),
-        ),
-        widget.child,
-      ],
+          widget.child,
+        ],
+      ),
     ),
   );
 }

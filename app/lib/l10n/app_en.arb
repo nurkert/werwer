@@ -763,5 +763,17 @@
   "act3": "Act two",
   "act4": "Act three",
   "act5": "Finale",
-  "pageSettings": "Settings"
+  "pageSettings": "Settings",
+  "pageFigure": "Figure",
+  "figureTitle": "Who are you tonight?",
+  "figureTaken": "taken",
+  "quickJoin": "Join {name}'s table",
+  "@quickJoin": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "quickJoinLast": "Your last table"
 }

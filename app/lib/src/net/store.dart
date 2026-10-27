@@ -130,6 +130,43 @@ class Store {
 
   Future<void> setPrivacyNoticeSeen() => _setFlag(_noticeKey, on: true);
 
+  static const _nameKey = 'playerName';
+  static const _lastRoomKey = 'lastRoom';
+
+  /// The name last typed on the start screen, kept for next time.
+  Future<String?> name() async {
+    try {
+      return await _storage.read(key: _nameKey);
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<void> setName(String name) async {
+    try {
+      await _storage.write(key: _nameKey, value: name);
+    } on Object {
+      // Typed again next time.
+    }
+  }
+
+  /// The room code of the room last joined, to offer it first nearby.
+  Future<String?> lastRoom() async {
+    try {
+      return await _storage.read(key: _lastRoomKey);
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<void> setLastRoom(String room) async {
+    try {
+      await _storage.write(key: _lastRoomKey, value: room);
+    } on Object {
+      // Just not offered first.
+    }
+  }
+
   static const _languageKey = 'language';
 
   /// The language the player picked in the app (`de`, `en`), or `null`

@@ -19,7 +19,21 @@ class RoomStore {
   const RoomStore();
 
   /// Snapshots older than this are not offered any more.
-  static const maxAge = Duration(hours: 12);
+  static const maxAge = Duration(hours: 3);
+
+  /// Phases worth bringing back: a game under way. An empty lobby is
+  /// opened again in a tap, an ended game is over.
+  static const _running = {'roleReveal', 'night', 'day', 'hunterShot', 'vote'};
+
+  static bool _underway(String snapshot) {
+    try {
+      final json = jsonDecode(snapshot) as Map<String, Object?>;
+      final state = json['state']! as Map<String, Object?>;
+      return _running.contains(state['phase']);
+    } on Object {
+      return false;
+    }
+  }
 
   Future<File> _file() async =>
       File('${(await getApplicationSupportDirectory()).path}/room.json');
@@ -49,10 +63,9 @@ class RoomStore {
       }
       final json =
           jsonDecode(await file.readAsString()) as Map<String, Object?>;
-      return SavedRoom(
-        json['snapshot']! as String,
-        json['keys']! as Map<String, Object?>,
-      );
+      final snapshot = json['snapshot']! as String;
+      if (!_underway(snapshot)) return null;
+      return SavedRoom(snapshot, json['keys']! as Map<String, Object?>);
     } on Object {
       return null;
     }

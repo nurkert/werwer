@@ -9,6 +9,7 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 | `sheets/poses/<persona>.png` → `source/figures/poses/<persona>_<n>.png` → `app/assets/figures/poses/*.webp` (three villager poses per persona) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/poses.md`](prompts/poses.md) |
 | `store/{de,en}/*.jpg` (App Store screenshots, 6.7" iPhone, 1290 × 2796) | rendered from the app by `app/test/screens_test.dart` (`PIXEL_RATIO=3 SCREEN_SIZE=430x932`) | 2026-10-27 | none |
 | `sheets/scenery/*.png` → `source/scenery/*.png` → `app/assets/stage/scenery/*.webp` (sixteen cardboard scenery pieces: trees, house, stall, fences, curtains, hanging branches, garland, valance) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/scenery.md`](prompts/scenery.md) |
+| `app/assets/icon/*.png` (app icon: village set, moon, werewolf, seer and farmer, wordmark) | composed with ImageMagick from the project's own assets | 2026-10-27 | none |
 | `reference/ui_concept_v1.png` (UI concept board, direction for task 012) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/ui_concept.md`](prompts/ui_concept.md) |
 | `reference/mondbuehne.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/mondbuehne.md`](prompts/mondbuehne.md) |
 | `characters/werwolf.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/stage/moon.dart';
+import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/stage/scenery.dart';
 import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
@@ -462,13 +463,66 @@ class StageSet extends StatelessWidget {
                   ),
                   // The scenery (cut-outs at the sides and from the
                   // top), each piece at its own depth.
-                  Scenery(scene: scene, tint: tintOf(scene)),
+                  _PanningScenery(scene: scene),
                   RepaintBoundary(
                     child: CustomPaint(painter: _PlateLight(scene)),
                   ),
                 ],
               ),
       ),
+    );
+  }
+}
+
+/// The scenery in three sets side by side (the outer two mirrored, for
+/// another look): swiping a page in front walks one set out at one edge
+/// while the next comes in at the other.
+class _PanningScenery extends StatelessWidget {
+  const _PanningScenery({required this.scene});
+
+  final Scene scene;
+
+  @override
+  Widget build(BuildContext context) {
+    final pan = StagePan.of(context);
+    final scenery = Scenery(scene: scene, tint: tintOf(scene));
+    if (pan == null) return scenery;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = box.maxWidth;
+        Widget at(double x, {bool mirror = false}) => Positioned(
+          left: x,
+          top: 0,
+          width: w,
+          height: box.maxHeight,
+          // Each set kept to its own width: its pieces half behind the
+          // edge never reach into the neighbour's.
+          child: ClipRect(
+            child: mirror
+                ? Transform.flip(flipX: true, child: scenery)
+                : scenery,
+          ),
+        );
+        return ClipRect(
+          child: ValueListenableBuilder<double>(
+            valueListenable: pan,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                at(-w, mirror: true),
+                at(0),
+                at(w, mirror: true),
+              ],
+            ),
+            builder: (context, value, child) => value == 0
+                ? child!
+                : Transform.translate(
+                    offset: Offset(-value * w, 0),
+                    child: child,
+                  ),
+          ),
+        );
+      },
     );
   }
 }
@@ -481,13 +535,26 @@ class _Plate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final image = Image.asset(
+    final pan = StagePan.of(context);
+    // The painted set is wider than a phone held upright: swiping pans
+    // across it, a page from one side to the middle.
+    Widget image(double x) => Image.asset(
       asset,
       fit: BoxFit.cover,
       // The ground the puppets stand on stays in view.
-      alignment: const Alignment(0, 0.6),
+      alignment: Alignment(x, 0.6),
       gaplessPlayback: true,
     );
+    final picture = pan == null
+        ? image(0)
+        : ValueListenableBuilder<double>(
+            valueListenable: pan,
+            builder: (context, value, _) => image(value.clamp(-1.0, 1.0)),
+          );
+    return _tinted(picture);
+  }
+
+  Widget _tinted(Widget image) {
     final tint = tintOf(scene);
     return tint == null
         ? image

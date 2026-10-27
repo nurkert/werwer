@@ -2305,6 +2305,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get pageSettings;
+
+  /// No description provided for @pageFigure.
+  ///
+  /// In en, this message translates to:
+  /// **'Figure'**
+  String get pageFigure;
+
+  /// No description provided for @figureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you tonight?'**
+  String get figureTitle;
+
+  /// No description provided for @figureTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'taken'**
+  String get figureTaken;
+
+  /// No description provided for @quickJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {name}\'s table'**
+  String quickJoin(String name);
+
+  /// No description provided for @quickJoinLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last table'**
+  String get quickJoinLast;
 }
 
 class _AppLocalizationsDelegate

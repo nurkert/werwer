@@ -358,9 +358,14 @@ void main() {
               );
               await shot.shoot('02-lobby');
               if (find.byType(PageView).evaluate().isNotEmpty) {
-                await tester.drag(find.byType(PageView), const Offset(-500, 0));
-                await tester.pumpAndSettle();
-                await shot.shoot('02-lobby-game');
+                for (final page in ['table', 'game']) {
+                  await tester.drag(
+                    find.byType(PageView),
+                    const Offset(-500, 0),
+                  );
+                  await tester.pumpAndSettle();
+                  await shot.shoot('02-lobby-$page');
+                }
               }
             }
             table.ownerSends(const StartGameIntent());

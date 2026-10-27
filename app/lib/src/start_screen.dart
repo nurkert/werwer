@@ -5,19 +5,20 @@ import 'package:game_core/game_core.dart' show NarratorLanguage;
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
-import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
 import 'package:whowolf/src/layout.dart';
+import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/stage/stage_pages.dart';
+import 'package:whowolf/src/stage/wolf_title.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// First screen: the wordmark, your name, open or join a room.
@@ -37,6 +38,10 @@ class _StartScreenState extends State<StartScreen> {
   ResumeInfo? _resume;
   SavedRoom? _savedRoom;
 
+  /// Rooms open on this Wi-Fi, to join in one tap; the last one first.
+  final _finder = RoomFinder();
+  String? _lastRoom;
+
   /// Rejoining by itself happens once per app start; coming back to this
   /// screen afterwards (the player left) shows the buttons instead.
   static bool _autoResumed = false;
@@ -46,6 +51,28 @@ class _StartScreenState extends State<StartScreen> {
     super.initState();
     unawaited(_loadResume(auto: !_autoResumed));
     _autoResumed = true;
+    unawaited(
+      Future.wait([const Store().name(), const Store().lastRoom()]).then((v) {
+        if (!mounted) return;
+        setState(() {
+          if (_name.text.isEmpty && v[0] != null) _name.text = v[0]!;
+          _lastRoom = v[1];
+        });
+      }),
+    );
+    _name.addListener(_keepName);
+  }
+
+  void _keepName() => unawaited(const Store().setName(_name.text.trim()));
+
+  Future<void> _quickJoin(NearbyRoom room) async {
+    final name = _checkedName();
+    if (name == null) return;
+    await playSession(
+      context,
+      playerSession(name: name, room: room.room, lan: room.lan),
+    );
+    await _loadResume();
   }
 
   Future<void> _loadResume({bool auto = false}) async {
@@ -215,7 +242,10 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   void dispose() {
-    _name.dispose();
+    _finder.dispose();
+    _name
+      ..removeListener(_keepName)
+      ..dispose();
     super.dispose();
   }
 
@@ -292,13 +322,7 @@ class _StartScreenState extends State<StartScreen> {
         builder: (context) {
           final layout = StageLayout.of(context);
           final stage = [
-            Image.asset(
-              'assets/brand/wordmark.png',
-              semanticLabel: 'Whowolf',
-              height: layout.twoColumns ? null : 150,
-            ),
-            const SizedBox(height: 12),
-            _Cast(height: layout.twoColumns ? 240 : (layout.short ? 100 : 170)),
+            WolfTitle(width: layout.twoColumns ? 520 : 360),
             const SizedBox(height: 14),
             Text(
               l10n.tagline,
@@ -327,6 +351,35 @@ class _StartScreenState extends State<StartScreen> {
               ),
               const SizedBox(height: 20),
             ],
+            // Tables open nearby: one tap, the last one first.
+            ListenableBuilder(
+              listenable: _finder,
+              builder: (context, _) {
+                final rooms = [..._finder.rooms]
+                  ..sort(
+                    (a, b) =>
+                        (b.room == _lastRoom ? 1 : 0) -
+                        (a.room == _lastRoom ? 1 : 0),
+                  );
+                return Column(
+                  children: [
+                    for (final room in rooms.take(2)) ...[
+                      SecondaryButton(
+                        label: room.hostName.isEmpty
+                            ? l10n.joinRoom
+                            : l10n.quickJoin(room.hostName),
+                        icon: room.room == _lastRoom
+                            ? Icons.history_rounded
+                            : Icons.wifi_rounded,
+                        selected: room.room == _lastRoom,
+                        onPressed: () => _quickJoin(room),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ],
+                );
+              },
+            ),
             TextField(
               controller: _name,
               maxLength: 24,
@@ -391,12 +444,14 @@ class _StartScreenState extends State<StartScreen> {
               pages: [
                 (
                   label: l10n.howTitle,
-                  child: Column(
-                    children: [
-                      Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
-                      const SizedBox(height: 10),
-                      const HowSteps(),
-                    ],
+                  child: ScrollingPage(
+                    child: Column(
+                      children: [
+                        Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
+                        const SizedBox(height: 14),
+                        const HowSteps(),
+                      ],
+                    ),
                   ),
                 ),
                 (
@@ -439,37 +494,4 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
   }
-}
-
-/// A row of cardboard figures, slightly overlapping.
-class _Cast extends StatelessWidget {
-  const _Cast({this.height = 120});
-
-  /// The middle figure's height; the others stand a little smaller.
-  final double height;
-
-  @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    // Shrinks as a whole when the column is narrower than the ensemble.
-    child: FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (final (i, asset) in castAssets.indexed)
-            Transform.translate(
-              offset: Offset((2 - i) * height / 15, 0),
-              child: Transform.rotate(
-                angle: (i - 2) * 0.03,
-                child: TurningFigure(
-                  asset: asset,
-                  height: i == 2 ? height : height * 0.83,
-                ),
-              ),
-            ),
-        ],
-      ),
-    ),
-  );
 }

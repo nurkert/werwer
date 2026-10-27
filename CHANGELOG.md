@@ -14,6 +14,13 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - Swipe instead of scroll: the start screen and the lobby are pages, like
   a home screen. A short "How it works" sits on the start screen.
 - The figure choice is a shelf of all figures.
+- A new app icon: the werewolf under the full moon over the village, with
+  the wordmark.
+- The start screen remembers your name and offers the tables open nearby
+  in one tap, the last one first; "Restore room" only shows when a game
+  was really under way.
+- On the start screen the werewolf reaches over the title; swiping the
+  pages pans the stage set and walks the scenery along.
 - Ghosts: the dead can watch, holding a button to see every role and, if
   the table allows it, what happens at night and who votes for whom.
 - A tied vote leads to a runoff between the tied.

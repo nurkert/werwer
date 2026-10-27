@@ -31,6 +31,7 @@ Future<GameSession> playerSession({
   String? token,
 }) async {
   const store = Store();
+  unawaited(store.setLastRoom(room));
   final keys = RoomKeys(hostKey: hostKey, roomSecret: roomSecret);
   // Wi-Fi only means Wi-Fi only, whatever a link or an old game says.
   final off = await store.relayOff();
