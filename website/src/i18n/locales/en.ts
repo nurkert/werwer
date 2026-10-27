@@ -147,7 +147,7 @@ const en: Copy = {
       { state: 'done', title: 'Version 0.1', text: 'Out since 26 October 2026 as a developer beta: playable in your own Wi-Fi, end-to-end encrypted, downloads for Android, macOS, Windows and Linux.' },
       { state: 'done', title: '0.1.1: Every device', text: 'Same day: the app fits phones, tablets and desktops, has cardboard in its interface, new wordless sounds and a narrator voice you can turn off. If the host’s phone goes away, another one takes over within seconds. And the app knows the official relay server play.whowolf.de, which goes live soon.' },
       { state: 'done', title: '0.1.2: The classic night', text: 'Since 27 October: everyone closes their eyes and the narrator calls the roles one by one, with a recorded voice that walks around the table. Plus sounds in step on every phone, joining in the browser on the same Wi-Fi, and a privacy notice.' },
-      { state: 'now', title: '0.2: The stage', text: 'Every moment of the evening becomes a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff when the vote is tied.' },
+      { state: 'done', title: '0.1.3: The stage', text: 'Since 27 October, every moment of the evening is a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff when the vote is tied.' },
       { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',

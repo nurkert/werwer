@@ -146,7 +146,7 @@ const de = {
       { state: 'done', title: 'Version 0.1', text: 'Seit dem 26. Oktober 2026 als Entwickler-Beta: spielbar im eigenen WLAN, Ende-zu-Ende verschlüsselt, zum Download für Android, macOS, Windows und Linux.' },
       { state: 'done', title: '0.1.1: Jedes Gerät', text: 'Am selben Tag: Die App passt sich Handy, Tablet und Desktop an, hat Pappe in der Oberfläche, neue wortlose Klänge und eine abschaltbare Erzählstimme. Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Und die App kennt den offiziellen Relay-Server play.whowolf.de, der bald online geht.' },
       { state: 'done', title: '0.1.2: Die klassische Nacht', text: 'Seit dem 27. Oktober: Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, mit eingesprochener Stimme, die um den Tisch wandert. Dazu Klänge im Gleichtakt auf allen Handys, Mitspielen im Browser im selben WLAN und ein Datenschutzhinweis.' },
-      { state: 'now', title: '0.2: Die Bühne', text: 'Jeder Moment des Abends wird ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister: Wer tot ist, darf zuschauen. Und bei Gleichstand gibt es eine Stichwahl.' },
+      { state: 'done', title: '0.1.3: Die Bühne', text: 'Seit dem 27. Oktober ist jeder Moment des Abends ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister: Wer tot ist, darf zuschauen. Und bei Gleichstand gibt es eine Stichwahl.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',

@@ -5,6 +5,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.3 – 2026-10-27
+
 ### Added
 - A new look: every moment of the evening is a painted stage set by
   moonlight, framed by wings that shift as you tilt your phone. The moon
@@ -13,7 +15,11 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   costume.
 - Swipe instead of scroll: the start screen and the lobby are pages, like
   a home screen. A short "How it works" sits on the start screen.
-- The figure choice is a shelf of all figures.
+- The figure choice is a page of big cards: the picked figure flies up
+  to your place with a turn, and the one it replaces slides back into its
+  card.
+- The host sets up the game on its own page in the lobby, no sheet to
+  open; the lobby opens on the table with the invitation and QR code.
 - A new app icon: the werewolf under the full moon over the village, with
   the wordmark.
 - The start screen remembers your name and offers the tables open nearby
@@ -23,8 +29,11 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   board, each in its own time, and the werewolf's paw reaches over the
   letters. Swiping the pages pans the stage set; the scenery is one
   panorama, so what reaches in at a page's edge passes over into the next.
-- The app's settings (language, online server, about) sit on the start
-  screen's right page, no dialog to open.
+- The app's settings (online server, about) sit on the start screen's
+  right page, no dialog to open; the language is a flag in the corner.
+- Menus and side-by-side choices are brass-edged plaques throughout, and
+  every text standing on a painted set has a soft patch of night behind
+  it.
 - Ghosts: the dead can watch, holding a button to see every role and, if
   the table allows it, what happens at night and who votes for whom.
 - A tied vote leads to a runoff between the tied.
@@ -33,6 +42,7 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 - In the lobby everyone picks their own figure among the free ones, at
   every level (Classic used to switch this off).
 - Phones play upright only.
+- A room you closed yourself no longer shows up to join.
 - Tilting the phone moves the stage set only a little, and smoothly.
 - Website: the scenes melt into each other instead of meeting at hard
   edges, the download page shows how often Whowolf was downloaded, and the
