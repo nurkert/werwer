@@ -1,0 +1,416 @@
+/* The stage design of the app (task 012), for the website: every section
+   is a lit stage set by moonlight, the interface lies calm in front of it. */
+
+/* ---- Type ---------------------------------------------------------- */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.6rem;
+  font-family: 'Ancizar Serif', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--stage-ivory-soft) 85%, transparent);
+}
+.eyebrow::before,
+.eyebrow::after {
+  content: '';
+  width: 1.1rem;
+  height: 1px;
+  background: currentColor;
+}
+
+.stage-title {
+  margin: 0;
+  font-family: 'Ancizar Serif', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(2.1rem, 1.3rem + 3.2vw, 3.9rem);
+  line-height: 1.05;
+  color: var(--stage-ivory);
+  text-wrap: balance;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.75);
+}
+
+.stage-lead {
+  max-width: 38rem;
+  margin: 1rem auto 0;
+  font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.18rem);
+  line-height: 1.55;
+  color: var(--stage-ivory-soft);
+  text-shadow: 0 1px 6px rgb(0 0 0 / 0.9), 0 0 16px rgb(0 0 0 / 0.6);
+}
+
+.stage-head {
+  text-align: center;
+  margin-bottom: clamp(1.6rem, 3vw, 2.6rem);
+}
+
+/* ---- Plaques and buttons ------------------------------------------- */
+
+.plaque {
+  position: relative;
+  padding: 1.15rem 1.25rem;
+  border-radius: 18px;
+  color: var(--stage-ivory-soft);
+  background: linear-gradient(180deg, rgb(35 30 26 / 0.9), rgb(23 21 21 / 0.88));
+  border: 1.5px solid var(--stage-brass);
+  box-shadow:
+    inset 0 0 0 4px rgb(23 21 21 / 0.6),
+    inset 0 0 0 4.8px color-mix(in srgb, var(--stage-brass) 45%, transparent),
+    0 8px 22px rgb(0 0 0 / 0.45);
+}
+.plaque h3 {
+  margin: 0 0 0.35rem;
+  font-family: 'Ancizar Serif', Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--stage-ivory);
+}
+.plaque p {
+  margin: 0;
+  line-height: 1.5;
+}
+.plaque--lit {
+  border-color: var(--stage-lantern-top);
+  box-shadow:
+    inset 0 0 0 4px rgb(23 21 21 / 0.6),
+    inset 0 0 0 4.8px color-mix(in srgb, var(--stage-lantern-top) 45%, transparent),
+    0 0 18px color-mix(in srgb, var(--stage-lantern-top) 30%, transparent),
+    0 8px 22px rgb(0 0 0 / 0.45);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 3.4rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 18px;
+  font-family: 'Ancizar Serif', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.btn:active {
+  transform: translateY(2px) scale(0.985);
+}
+.btn svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+.btn--lantern {
+  color: var(--stage-lantern-ink);
+  background: linear-gradient(180deg, var(--stage-lantern-top), var(--stage-lantern) 55%, var(--stage-lantern-bottom));
+  border: 1.5px solid #8a4a16;
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.32),
+    0 6px 18px color-mix(in srgb, var(--stage-lantern-bottom) 45%, transparent);
+}
+.btn--lantern:hover {
+  color: var(--stage-lantern-ink);
+}
+.btn--plaque {
+  color: var(--stage-ivory);
+  background: rgb(23 21 21 / 0.85);
+  border: 1.5px solid var(--stage-brass);
+  box-shadow: inset 0 0 0 4px rgb(23 21 21 / 0.6), inset 0 0 0 4.8px color-mix(in srgb, var(--stage-brass) 45%, transparent);
+}
+.btn--plaque:hover {
+  color: var(--stage-ivory);
+}
+
+/* ---- Scenes -------------------------------------------------------- */
+
+.scene {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding: clamp(5.5rem, 9vh, 7.5rem) 0 clamp(3rem, 7vh, 5rem);
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--stage-night);
+}
+/* Off-screen scenes are not drawn until they come near. */
+.scene:not(.scene--first) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100svh;
+}
+.scene__set,
+.scene__set img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 80%;
+  z-index: -3;
+}
+.scene__moon {
+  position: absolute;
+  z-index: -2;
+  width: var(--moon-size, clamp(90px, 18vmin, 190px));
+  aspect-ratio: 1;
+  left: var(--moon-x, 70%);
+  top: var(--moon-y, 12%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, #fff3d6, var(--stage-moonlight) 55%, #d9b57e);
+  box-shadow: 0 0 60px 18px color-mix(in srgb, var(--stage-moonlight) 30%, transparent);
+  pointer-events: none;
+}
+.scene__moon--crescent {
+  background: none;
+  box-shadow: inset calc(var(--moon-size, 140px) * -0.22) calc(var(--moon-size, 140px) * -0.06) 0 0 var(--stage-moonlight);
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--stage-moonlight) 45%, transparent));
+}
+.scene__moon--blood {
+  background: radial-gradient(circle at 35% 32%, #f39a84, #b3282d 60%, #7a1c1e);
+  box-shadow: 0 0 60px 18px rgb(179 40 45 / 0.35);
+}
+.scene__moon--sun {
+  background: radial-gradient(circle at 35% 32%, #fff6d8, #ffd27a 60%, #f2b455);
+  box-shadow: 0 0 80px 26px rgb(255 200 110 / 0.35);
+}
+/* The dark at the top and the foot that keeps type readable. */
+.scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(6 11 20 / 0.72), rgb(6 11 20 / 0) 26%, rgb(6 11 20 / 0) 58%, rgb(6 11 20 / 0.88));
+  pointer-events: none;
+}
+.scene__content {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 2rem, 1120px);
+  margin-inline: auto;
+}
+
+/* Scenery: cardboard cut-outs with a cut edge and a shadow on the set. */
+.piece {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  height: var(--h, 70%);
+  width: auto;
+  filter: drop-shadow(3px 2px 0 #6e4e2e) drop-shadow(5px 9px 9px rgb(0 0 0 / 0.45));
+}
+.piece img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+.piece--left {
+  left: 0;
+  bottom: 0;
+  transform: translateX(calc(-1 * var(--hide, 50%)));
+}
+.piece--right {
+  right: 0;
+  bottom: 0;
+  transform: translateX(var(--hide, 50%));
+}
+.piece--top-left {
+  left: 0;
+  top: -1%;
+  transform: translateX(calc(-1 * var(--hide, 15%)));
+}
+.piece--top-right {
+  right: 0;
+  top: -1%;
+  transform: translateX(var(--hide, 15%));
+}
+.piece--mirror img {
+  transform: scaleX(-1);
+}
+.piece--top {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  transform: translateY(calc(-1 * var(--hide, 30%)));
+}
+.piece--top img {
+  height: var(--h, 18vh);
+}
+/* Wide windows only. */
+.piece--wide {
+  display: none;
+}
+@media (min-width: 900px) {
+  .piece--wide {
+    display: block;
+  }
+}
+@media (max-width: 640px) {
+  .piece--left,
+  .piece--right {
+    height: min(var(--h, 70%), 120vw);
+  }
+  .piece--left {
+    transform: translateX(calc(-1 * var(--hide-phone, 62%)));
+  }
+  .piece--right {
+    transform: translateX(var(--hide-phone, 62%));
+  }
+}
+
+/* A cardboard puppet standing on the stage, rocking a little. */
+.puppet {
+  position: relative;
+  display: inline-block;
+  transform-origin: 50% 100%;
+  animation: puppet-sway var(--sway, 6s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  filter: drop-shadow(2px 2px 0 #6e4e2e);
+}
+.puppet::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -4%;
+  height: 8%;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.4);
+  filter: blur(6px);
+  z-index: -1;
+}
+.puppet img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+@keyframes puppet-sway {
+  0%,
+  100% {
+    transform: rotate(-1.4deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puppet {
+    animation: none;
+  }
+  .btn,
+  .btn:hover,
+  .btn:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Sections snap like pages, gently, on the home page. */
+html.stage-snap {
+  scroll-snap-type: y proximity;
+}
+
+/* ---- The shared classes of every page, on the stage (task 012) ------ */
+
+/* Paper stays for long reading (like the morning news in the app), now
+   framed by a brass edge as a notice pinned to the stage. */
+.paper {
+  border: 1.5px solid var(--stage-brass);
+  box-shadow:
+    inset 0 0 0 5px var(--paper),
+    inset 0 0 0 6px color-mix(in srgb, var(--stage-brass) 55%, transparent),
+    0 1.6rem 3rem rgb(0 0 0 / 0.55),
+    0 0.3rem 0.6rem rgb(0 0 0 / 0.35);
+}
+.night--deep {
+  background: rgb(23 21 21 / 0.82);
+  border: 1.5px solid var(--stage-brass);
+  box-shadow: inset 0 0 0 5px rgb(23 21 21 / 0.6), inset 0 0 0 6px color-mix(in srgb, var(--stage-brass) 45%, transparent), 0 1.6rem 3rem rgb(0 0 0 / 0.5);
+}
+
+.button {
+  border-radius: 16px;
+  font-family: 'Ancizar Serif', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+.button:hover {
+  transform: translateY(-1px);
+}
+.button--primary,
+.paper .button--primary {
+  color: var(--stage-lantern-ink);
+  background: linear-gradient(180deg, var(--stage-lantern-top), var(--stage-lantern) 55%, var(--stage-lantern-bottom));
+  box-shadow: inset 0 0 0 1.5px #8a4a16, inset 0 2px 0 rgb(255 255 255 / 0.3), 0 6px 16px color-mix(in srgb, var(--stage-lantern-bottom) 40%, transparent);
+}
+.button--primary:hover,
+.paper .button--primary:hover {
+  color: var(--stage-lantern-ink);
+  background: linear-gradient(180deg, var(--stage-lantern-top), var(--stage-lantern-top) 40%, var(--stage-lantern));
+}
+.button--ghost {
+  color: var(--stage-ivory);
+  background: rgb(23 21 21 / 0.75);
+  box-shadow: inset 0 0 0 1.5px var(--stage-brass), inset 0 0 0 5px rgb(23 21 21 / 0.6), inset 0 0 0 5.8px color-mix(in srgb, var(--stage-brass) 45%, transparent);
+}
+.button--ghost:hover {
+  color: var(--stage-ivory);
+  box-shadow: inset 0 0 0 1.5px var(--stage-lantern-top), inset 0 0 0 5px rgb(23 21 21 / 0.6);
+}
+.paper .button--ghost {
+  background: transparent;
+}
+
+.stamp--status {
+  color: var(--stage-lantern-top);
+}
+
+/* ---- The stage behind every page but home ---------------------------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* One composited layer: scrolling never repaints it. */
+  transform: translateZ(0);
+}
+.backdrop img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 75%;
+}
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(6 11 20 / 0.55), rgb(6 11 20 / 0.35) 40%, rgb(6 11 20 / 0.7)),
+    radial-gradient(ellipse 60% 70% at 50% 45%, rgb(6 11 20 / 0.35), transparent);
+}
+.backdrop .piece {
+  z-index: 1;
+}
+@media (max-width: 900px) {
+  .backdrop .piece {
+    display: none;
+  }
+}
+
+body.has-backdrop {
+  background: none;
+}

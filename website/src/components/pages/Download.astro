@@ -8,8 +8,12 @@ import Base from '../../layouts/Base.astro';
 import { languages, repoUrl, ui, type Lang } from '../../i18n/ui';
 import { platformIcons, type PlatformIcon } from '../../lib/platform-icons';
 import { loadReleases, type Platform } from '../../lib/releases';
-import seherin from '../../../../design/source/figures/seherin.png';
-import tableCluster from '../../assets/plates/table-cluster.png';
+import seherin from '../../../../app/assets/figures/seherin.webp';
+import werwolf from '../../../../app/assets/figures/werwolf.webp';
+import deRole from '../../assets/screens/de-role.webp';
+import enRole from '../../assets/screens/en-role.webp';
+import deCalled from '../../assets/screens/de-called.webp';
+import enCalled from '../../assets/screens/en-called.webp';
 
 interface Props {
   lang: Lang;
@@ -36,7 +40,7 @@ const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, {
 const formats = ['avif', 'webp'] as const;
 ---
 
-<Base lang={lang} page="download" title={`${d.title} – Whowolf`} description={d.metaDescription}>
+<Base lang={lang} page="download" title={`${d.title} – Whowolf`} description={d.metaDescription} backdrop="village">
   <main class="dl">
     <header class="dl-head container">
       <div class="dl-head__copy">
@@ -45,7 +49,7 @@ const formats = ['avif', 'webp'] as const;
         {
           shown ? (
             <p class="dl-head__version">
-              <span class="stamp stamp--wolf">{shown.prerelease ? d.prerelease : d.current}</span>
+              <span class="stamp stamp--status">{shown.prerelease ? d.prerelease : d.current}</span>
               <strong>{shown.version}</strong> · {date(shown.publishedAt)} · <a href={shown.url}>{d.whatsNew}</a>
             </p>
           ) : (
@@ -56,8 +60,10 @@ const formats = ['avif', 'webp'] as const;
         }
       </div>
       <div class="dl-head__art" aria-hidden="true">
-        <Picture class="dl-head__cluster" src={tableCluster} alt="" formats={formats} widths={[480, 960]} sizes="(max-width: 900px) 80vw, 34vw" />
-        <Picture class="dl-head__seer" src={seherin} alt="" formats={formats} widths={[200, 400]} sizes="12rem" />
+        <div class="dl-phone dl-phone--back"><Picture src={lang === 'de' ? deCalled : enCalled} alt="" formats={formats} widths={[200, 400]} sizes="11rem" /></div>
+        <div class="dl-phone dl-phone--front"><Picture src={lang === 'de' ? deRole : enRole} alt="" formats={formats} widths={[240, 480]} sizes="13rem" /></div>
+        <span class="puppet dl-head__seer"><Picture src={seherin} alt="" formats={formats} widths={[160, 320]} sizes="9rem" /></span>
+        <span class="puppet dl-head__wolf" style="--delay: -3s"><Picture src={werwolf} alt="" formats={formats} widths={[180, 360]} sizes="10rem" /></span>
       </div>
     </header>
 
@@ -211,7 +217,8 @@ const formats = ['avif', 'webp'] as const;
   }
   .dl-head h1 {
     font-size: clamp(2.8rem, 2rem + 4vw, 5rem);
-    color: var(--moon-100);
+    color: var(--stage-ivory);
+    text-shadow: 0 2px 14px rgb(0 0 0 / 0.8);
   }
   .dl-head__lede {
     margin-top: var(--space-2);
@@ -232,24 +239,49 @@ const formats = ['avif', 'webp'] as const;
   }
   .dl-head__art {
     position: relative;
+    height: clamp(320px, 46vh, 480px);
+  }
+  .dl-phone {
+    position: absolute;
+    border-radius: 1.9rem;
+    padding: 0.5rem;
+    background: linear-gradient(160deg, #2b2f3d, #12141c);
+    border: 2px solid var(--stage-brass);
+    box-shadow: 0 0 0 5px rgb(233 214 172 / 0.9), 0 22px 40px rgb(0 0 0 / 0.55);
+  }
+  .dl-phone :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 1.45rem;
+  }
+  .dl-phone--front {
+    width: clamp(150px, 13vw, 210px);
+    left: 34%;
+    top: 0;
+    transform: rotate(4deg);
+  }
+  .dl-phone--back {
+    width: clamp(130px, 11vw, 180px);
+    left: 8%;
+    top: 10%;
+    transform: rotate(-7deg);
+    filter: brightness(0.82);
   }
   .dl-head__art :global(picture) {
     display: contents;
   }
-  .dl-head__art :global(.dl-head__cluster) {
-    width: 100%;
-    height: auto;
-    transform: rotate(-3deg);
-    filter: drop-shadow(0 1.2rem 1.6rem rgb(0 0 0 / 0.5));
-  }
-  .dl-head__art :global(.dl-head__seer) {
+  .dl-head__seer {
     position: absolute;
-    left: -6%;
-    bottom: 2%;
-    width: 28%;
-    height: auto;
-    transform: rotate(-5deg);
-    filter: drop-shadow(0 0.8rem 1rem rgb(0 0 0 / 0.5));
+    left: 0;
+    bottom: 0;
+    height: 52%;
+  }
+  .dl-head__wolf {
+    position: absolute;
+    right: 2%;
+    bottom: 0;
+    height: 60%;
   }
   .dl-note {
     margin-bottom: var(--space-3);

@@ -15,6 +15,7 @@ const en: Copy = {
     short: 'Early development, expect rough edges.',
     report: 'Report a bug',
   },
+  eyebrows: { play: 'The game', evening: 'An evening', night: 'The night', cast: 'The cast', trail: 'The wolf trail', rules: 'Backstage', finale: 'Curtain up' },
   hero: {
     statement: 'Werewolf at the table. Everyone on their own phone.',
     sub: 'The app tells the story. Nobody has to be game master, you need no paper slips, and no noise gives you away at night.',
@@ -145,7 +146,8 @@ const en: Copy = {
     steps: [
       { state: 'done', title: 'Version 0.1', text: 'Out since 26 October 2026 as a developer beta: playable in your own Wi-Fi, end-to-end encrypted, downloads for Android, macOS, Windows and Linux.' },
       { state: 'done', title: '0.1.1: Every device', text: 'Same day: the app fits phones, tablets and desktops, has cardboard in its interface, new wordless sounds and a narrator voice you can turn off. If the host’s phone goes away, another one takes over within seconds. And the app knows the official relay server play.whowolf.de, which goes live soon.' },
-      { state: 'now', title: '0.1.2: The classic night', text: 'Everyone closes their eyes, the narrator calls the roles one by one, and only the one called picks up their phone. This becomes the app’s default. The release also brings sounds in sync on every phone, players in the same Wi-Fi always stay connected locally, and a privacy notice in the app. Also in progress: joining in the browser, no app needed.' },
+      { state: 'done', title: '0.1.2: The classic night', text: 'Since 27 October: everyone closes their eyes and the narrator calls the roles one by one, with a recorded voice that walks around the table. Plus sounds in step on every phone, joining in the browser on the same Wi-Fi, and a privacy notice.' },
+      { state: 'now', title: '0.2: The stage', text: 'Every moment of the evening becomes a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff on a tie.' },
       { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',

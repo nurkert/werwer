@@ -1,15 +1,21 @@
 ---
-import '@fontsource/lilita-one';
 import '@fontsource/ancizar-serif/400.css';
 import '@fontsource/ancizar-serif/700.css';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
+import '../styles/stage.css';
 
 import { Picture } from 'astro:assets';
 
 import Icon from '../components/Icon.astro';
 import emblem from '../../../design/source/brand/emblem.png';
 import wordmark from '../assets/plates/nav-wordmark.png';
+import village from '../../../app/assets/stage/village.webp';
+import backstage from '../../../app/assets/stage/backstage.webp';
+import theatre from '../../../app/assets/stage/theatre.webp';
+import oak from '../../../app/assets/stage/scenery/oak.webp';
+import house from '../../../app/assets/stage/scenery/house.webp';
+import curtain from '../../../app/assets/stage/scenery/curtain.webp';
 import { alternates, defaultLang, languages, langs, path, repoUrl, ui, type Lang, type Page } from '../i18n/ui';
 
 interface Props {
@@ -24,9 +30,14 @@ interface Props {
   page?: Page;
   /** Keep the page out of search results. */
   noindex?: boolean;
+  /** The stage set behind the page (task 012); home draws its own scenes. */
+  backdrop?: 'village' | 'backstage' | 'theatre' | 'none';
 }
 
 const { lang, title, description, overlay = false, bare = false, page, noindex = false } = Astro.props;
+const backdrop = Astro.props.backdrop ?? (overlay ? 'none' : 'backstage');
+const sets = { village, backstage, theatre };
+const wings = { village: [oak, house], backstage: [], theatre: [curtain, curtain] };
 const t = ui[lang];
 const site = Astro.site!;
 const canonical = new URL(Astro.url.pathname, site);
@@ -108,8 +119,20 @@ const jsonLd = {
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
-  <body>
+  <body class:list={{ 'has-backdrop': backdrop !== 'none' }}>
     <a class="skip" href="#inhalt">{t.skip}</a>
+    {
+      backdrop !== 'none' && (
+        <div class="backdrop" aria-hidden="true">
+          <Picture src={sets[backdrop]} alt="" formats={['avif', 'webp']} widths={[640, 960, 1254]} sizes="100vw" quality={55} loading="eager" />
+          {wings[backdrop].map((src, i) => (
+            <div class:list={['piece', i === 0 ? 'piece--left' : 'piece--right', { 'piece--mirror': i === 1 && backdrop === 'theatre' }]} style={`--h: ${backdrop === 'theatre' ? '104%' : '80%'}; --hide: ${backdrop === 'theatre' ? '45%' : '55%'}`}>
+              <Picture src={src} alt="" formats={['avif', 'webp']} widths={[240, 400]} sizes="min(28vw, 360px)" quality={62} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      )
+    }
 
     {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
       <p class="beta-strip">
@@ -458,10 +481,9 @@ const jsonLd = {
     height: 2.9rem;
     filter: drop-shadow(0 0.2rem 0.5rem rgb(8 10 28 / 0.6));
   }
-  /* The hero's own wordmark flies up here while scrolling; the header shows its copy only
-     once the flight has landed, so the swap happens on the same pixels (without script the
-     noscript style in the head shows it right away). */
-  .site-header--overlay:not(.is-docked) .brand--wordmark {
+  /* Over the hero its big wordmark is the logo; the header's own shows once the
+     header turns solid (without script the noscript style in the head shows it). */
+  .site-header--overlay:not(.is-solid) .brand--wordmark {
     visibility: hidden;
   }
 

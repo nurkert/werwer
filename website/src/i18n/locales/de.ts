@@ -14,6 +14,7 @@ const de = {
     short: 'Früh in Entwicklung, es kann ruckeln.',
     report: 'Fehler melden',
   },
+  eyebrows: { play: 'Das Spiel', evening: 'Ein Abend', night: 'Die Nacht', cast: 'Die Besetzung', trail: 'Die Wolfsspur', rules: 'Hinter der Bühne', finale: 'Vorhang auf' },
   hero: {
     statement: 'Werwolf am Tisch. Jeder mit seinem Handy.',
     sub: 'Die App erzählt. Niemand muss Spielleiter sein, Zettel braucht ihr keine, und nachts verrät euch kein Geräusch.',
@@ -144,7 +145,8 @@ const de = {
     steps: [
       { state: 'done', title: 'Version 0.1', text: 'Seit dem 26. Oktober 2026 als Entwickler-Beta: spielbar im eigenen WLAN, Ende-zu-Ende verschlüsselt, zum Download für Android, macOS, Windows und Linux.' },
       { state: 'done', title: '0.1.1: Jedes Gerät', text: 'Am selben Tag: Die App passt sich Handy, Tablet und Desktop an, hat Pappe in der Oberfläche, neue wortlose Klänge und eine abschaltbare Erzählstimme. Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Und die App kennt den offiziellen Relay-Server play.whowolf.de, der bald online geht.' },
-      { state: 'now', title: '0.1.2: Die klassische Nacht', text: 'Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, und nur wer gerufen wird, nimmt sein Handy. So spielt die App künftig von Haus aus. Dazu kommen Klänge im Gleichtakt auf allen Handys, Spieler im selben WLAN bleiben immer lokal verbunden, und die App bekommt einen Datenschutzhinweis. Ebenfalls in Arbeit: im Browser mitspielen, ganz ohne App.' },
+      { state: 'done', title: '0.1.2: Die klassische Nacht', text: 'Seit dem 27. Oktober: Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, mit eingesprochener Stimme, die um den Tisch wandert. Dazu Klänge im Gleichtakt auf allen Handys, Mitspielen im Browser im selben WLAN und ein Datenschutzhinweis.' },
+      { state: 'now', title: '0.2: Die Bühne', text: 'Jeder Moment des Abends wird ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister, die den Toten zuschauen lassen, und eine Stichwahl bei Gleichstand.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',
