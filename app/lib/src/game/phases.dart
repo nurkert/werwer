@@ -330,14 +330,6 @@ class _LobbyPhaseState extends State<LobbyPhase> {
                 ]
                 case final extras when extras.isNotEmpty)
               Body(l10n.lobbyExtras(extras.join(', ')), muted: true),
-            if (session.isOwner) ...[
-              const SizedBox(height: 12),
-              SecondaryButton(
-                label: l10n.settingsButton,
-                expand: false,
-                onPressed: () => showSettingsSheet(context, session),
-              ),
-            ],
           ],
         ),
       ),
@@ -373,6 +365,17 @@ class _LobbyPhaseState extends State<LobbyPhase> {
             label: l10n.pageGame,
             child: page([title, ...pending, ...invite, ...game]),
           ),
+          // The host sets up the game right here, no sheet to open.
+          if (session.isOwner)
+            (
+              label: l10n.pageSettings,
+              child: ScrollingPage(
+                child: page([
+                  Headline(l10n.settingsTitle, eyebrow: l10n.eyebrowEvening),
+                  GameSettingsPanel(session: session),
+                ]),
+              ),
+            ),
         ],
       );
     }
@@ -385,6 +388,10 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         _PersonaPicker(session: session),
         for (final child in table) Aside(child: child),
         ...game,
+        if (session.isOwner) ...[
+          Headline(l10n.settingsTitle),
+          GameSettingsPanel(session: session),
+        ],
       ],
     );
   }
@@ -449,36 +456,70 @@ class _FigureStage extends StatefulWidget {
   State<_FigureStage> createState() => _FigureStageState();
 }
 
-class _FigureStageState extends State<_FigureStage> {
-  /// The figure shown: turns its back while the new one comes in.
-  Persona? _shown;
-  bool _turning = false;
+class _FigureStageState extends State<_FigureStage>
+    with SingleTickerProviderStateMixin {
+  /// The figure shown: it turns away to its edge, becomes the new one
+  /// exactly there, where neither front nor back shows, and turns back.
+  late Persona _shown;
+  Persona? _target;
+  late final AnimationController _flip = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 560),
+  );
+  final ValueNotifier<double> _angle = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
     _shown = widget.session.view!.yourSeat.persona;
+    _flip
+      ..addListener(_turn)
+      ..addStatusListener((status) {
+        // Picked again while turning: turn once more to the latest.
+        if (status == AnimationStatus.completed) _follow();
+      });
+  }
+
+  void _turn() {
+    final v = _flip.value;
+    if (v < 0.5) {
+      _angle.value = Curves.easeIn.transform(v * 2) * pi / 2;
+      return;
+    }
+    final target = _target;
+    if (target != null && target != _shown) setState(() => _shown = target);
+    _angle.value = -(1 - Curves.easeOut.transform((v - 0.5) * 2)) * pi / 2;
+  }
+
+  void _follow() {
+    final mine = widget.session.view?.yourSeat.persona;
+    if (mine == null || mine == _shown || !mounted) return;
+    _target = mine;
+    if (MediaQuery.of(context).disableAnimations) {
+      setState(() => _shown = mine);
+      return;
+    }
+    if (!_flip.isAnimating) unawaited(_flip.forward(from: 0));
   }
 
   @override
   void didUpdateWidget(_FigureStage old) {
     super.didUpdateWidget(old);
-    final mine = widget.session.view?.yourSeat.persona;
-    if (mine == null || mine == _shown || _turning) return;
-    // Turn away, swap at the edge-on moment, turn back.
-    _turning = true;
-    Future<void>.delayed(const Duration(milliseconds: 380), () {
-      if (!mounted) return;
-      setState(() {
-        _shown = widget.session.view?.yourSeat.persona ?? mine;
-        _turning = false;
-      });
-    });
+    _follow();
+  }
+
+  @override
+  void dispose() {
+    _flip.dispose();
+    _angle.dispose();
+    super.dispose();
   }
 
   void _pick(Persona persona) {
     if (persona == widget.session.view!.yourSeat.persona) return;
-    SoundScope.play(context, Sound.turn);
+    // Ready before the figure reaches its edge.
+    unawaited(precacheImage(AssetImage(personaAsset(persona)), context));
+    SoundScope.play(context, Sound.tap);
     widget.session.send(PersonaIntent(persona));
   }
 
@@ -492,7 +533,7 @@ class _FigureStageState extends State<_FigureStage> {
         if (s.id != view.you) s.persona: s.name,
     };
     final allTaken = taken.length >= Persona.values.length;
-    final shown = _shown ?? mine;
+    final shown = _shown;
     final screen = MediaQuery.sizeOf(context);
     final figureHeight = (screen.height * 0.26).clamp(150.0, 240.0);
     return Column(
@@ -505,8 +546,7 @@ class _FigureStageState extends State<_FigureStage> {
             child: TurningFigure(
               key: const ValueKey('my-figure'),
               asset: personaAsset(shown),
-              backAsset: personaAsset(shown),
-              showBack: _turning,
+              angle: _angle,
               height: figureHeight,
             ),
           ),

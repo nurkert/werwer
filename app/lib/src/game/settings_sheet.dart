@@ -32,45 +32,39 @@ extension PresetText on AppLocalizations {
       : seconds(d.inSeconds);
 }
 
-/// Opens the host's settings for the next game. Every change goes to the
-/// host at once (it checks and broadcasts them), so the sheet always shows
-/// what the table will play.
-Future<void> showSettingsSheet(BuildContext context, GameSession session) =>
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.9,
-        maxChildSize: 0.95,
-        builder: (context, scroll) => ListenableBuilder(
-          listenable: session,
-          builder: (context, _) {
-            final view = session.view;
-            if (view == null) return const SizedBox.shrink();
-            return _SettingsBody(
-              settings: view.settings,
-              players: view.seats.length,
-              scroll: scroll,
-              onChanged: (settings) => session.send(SettingsIntent(settings)),
-            );
-          },
-        ),
-      ),
-    );
+/// The host's settings for the next game, laid out in place (the lobby's
+/// settings page, task 012). Every change goes to the host at once (it
+/// checks and broadcasts them), so the page always shows what the table
+/// will play.
+class GameSettingsPanel extends StatelessWidget {
+  const GameSettingsPanel({required this.session, super.key});
+
+  final GameSession session;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: session,
+    builder: (context, _) {
+      final view = session.view;
+      if (view == null) return const SizedBox.shrink();
+      return _SettingsBody(
+        settings: view.settings,
+        players: view.seats.length,
+        onChanged: (settings) => session.send(SettingsIntent(settings)),
+      );
+    },
+  );
+}
 
 class _SettingsBody extends StatelessWidget {
   const _SettingsBody({
     required this.settings,
     required this.players,
-    required this.scroll,
     required this.onChanged,
   });
 
   final GameSettings settings;
   final int players;
-  final ScrollController scroll;
   final void Function(GameSettings) onChanged;
 
   @override
@@ -79,203 +73,201 @@ class _SettingsBody extends StatelessWidget {
     final s = settings;
     final suggested = suggestedWerewolves(players.clamp(minPlayers, 99));
     final fits = s.rolesFor(players.clamp(minPlayers, 99)) != null;
-    return ListView(
-      controller: scroll,
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-      children: [
-        Headline(l10n.settingsTitle),
-        const SizedBox(height: 16),
-        for (final preset in Preset.values) ...[
-          _PresetCard(
-            preset: preset,
-            selected: s.preset == preset,
-            onTap: () => onChanged(
-              preset.settings.copyWith(narratorLanguage: s.narratorLanguage),
-            ),
+    final children = [
+      for (final preset in Preset.values) ...[
+        _PresetCard(
+          preset: preset,
+          selected: s.preset == preset,
+          onTap: () => onChanged(
+            preset.settings.copyWith(narratorLanguage: s.narratorLanguage),
           ),
-          const SizedBox(height: 10),
-        ],
-        if (s.preset == null)
-          Center(child: Stamp(l10n.settingsName(s), size: 16)),
-        _Section(l10n.settingsRoles),
-        Wrap(
-          spacing: 8,
-          runSpacing: 10,
-          alignment: WrapAlignment.center,
-          children: [
-            for (final role in specialRoles)
-              _RoleToggle(
-                role: role,
-                on: s.roles.contains(role),
-                onTap: () => onChanged(
-                  s.copyWith(
-                    roles: s.roles.contains(role)
-                        ? ({...s.roles}..remove(role))
-                        : {...s.roles, role},
-                  ),
+        ),
+        const SizedBox(height: 10),
+      ],
+      if (s.preset == null)
+        Center(child: Stamp(l10n.settingsName(s), size: 16)),
+      _Section(l10n.settingsRoles),
+      Wrap(
+        spacing: 8,
+        runSpacing: 10,
+        alignment: WrapAlignment.center,
+        children: [
+          for (final role in specialRoles)
+            _RoleToggle(
+              role: role,
+              on: s.roles.contains(role),
+              onTap: () => onChanged(
+                s.copyWith(
+                  roles: s.roles.contains(role)
+                      ? ({...s.roles}..remove(role))
+                      : {...s.roles, role},
                 ),
               ),
-          ],
-        ),
-        if (!fits) ...[
-          const SizedBox(height: 10),
-          Body(l10n.tooManyRoles(players), muted: true),
+            ),
         ],
-        _Section(l10n.settingsWolves),
-        _Stepper(
-          label: s.werewolves == null
-              ? l10n.wolvesSuggested(suggested)
-              : '${s.werewolves}',
-          onLess: (s.werewolves ?? suggested) > 1
-              ? () => onChanged(
-                  s.copyWith(werewolves: (s.werewolves ?? suggested) - 1),
-                )
-              : null,
-          onMore: (s.werewolves ?? suggested) < maxWerewolves
-              ? () => onChanged(
-                  s.copyWith(werewolves: (s.werewolves ?? suggested) + 1),
-                )
-              : null,
-          onReset: s.werewolves == null
-              ? null
-              : () => onChanged(s.copyWith(suggestWerewolves: true)),
-          resetLabel: l10n.wolvesSuggested(suggested),
-        ),
-        _Section(l10n.settingsTimes),
-        _TimeSlider(
-          label: l10n.timeNight,
-          value: s.nightTime,
-          range: nightTimeRange,
-          step: const Duration(seconds: 15),
-          onChanged: (d) => onChanged(s.copyWith(nightTime: d)),
-        ),
-        _TimeSlider(
-          label: l10n.timeDay,
-          value: s.dayTime,
-          range: dayTimeRange,
-          step: const Duration(minutes: 1),
-          onChanged: (d) => onChanged(s.copyWith(dayTime: d)),
-        ),
-        _TimeSlider(
-          label: l10n.timeVote,
-          value: s.voteTime,
-          range: voteTimeRange,
-          step: const Duration(seconds: 15),
-          onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
-        ),
-        _Section(l10n.settingsNight),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.settingsNarratorLanguage,
-                style: const TextStyle(color: Palette.moon100),
-              ),
+      ),
+      if (!fits) ...[
+        const SizedBox(height: 10),
+        Body(l10n.tooManyRoles(players), muted: true),
+      ],
+      _Section(l10n.settingsWolves),
+      _Stepper(
+        label: s.werewolves == null
+            ? l10n.wolvesSuggested(suggested)
+            : '${s.werewolves}',
+        onLess: (s.werewolves ?? suggested) > 1
+            ? () => onChanged(
+                s.copyWith(werewolves: (s.werewolves ?? suggested) - 1),
+              )
+            : null,
+        onMore: (s.werewolves ?? suggested) < maxWerewolves
+            ? () => onChanged(
+                s.copyWith(werewolves: (s.werewolves ?? suggested) + 1),
+              )
+            : null,
+        onReset: s.werewolves == null
+            ? null
+            : () => onChanged(s.copyWith(suggestWerewolves: true)),
+        resetLabel: l10n.wolvesSuggested(suggested),
+      ),
+      _Section(l10n.settingsTimes),
+      _TimeSlider(
+        label: l10n.timeNight,
+        value: s.nightTime,
+        range: nightTimeRange,
+        step: const Duration(seconds: 15),
+        onChanged: (d) => onChanged(s.copyWith(nightTime: d)),
+      ),
+      _TimeSlider(
+        label: l10n.timeDay,
+        value: s.dayTime,
+        range: dayTimeRange,
+        step: const Duration(minutes: 1),
+        onChanged: (d) => onChanged(s.copyWith(dayTime: d)),
+      ),
+      _TimeSlider(
+        label: l10n.timeVote,
+        value: s.voteTime,
+        range: voteTimeRange,
+        step: const Duration(seconds: 15),
+        onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
+      ),
+      _Section(l10n.settingsNight),
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.settingsNarratorLanguage,
+              style: const TextStyle(color: Palette.moon100),
             ),
-            SegmentedButton<NarratorLanguage>(
-              segments: const [
-                ButtonSegment(value: NarratorLanguage.de, label: Text('DE')),
-                ButtonSegment(value: NarratorLanguage.en, label: Text('EN')),
-              ],
-              selected: {s.narratorLanguage},
-              onSelectionChanged: (v) =>
-                  onChanged(s.copyWith(narratorLanguage: v.first)),
-            ),
-          ],
-        ),
-        _Switch(
-          label: l10n.settingsNightCalled,
-          hint: s.nightMode == NightMode.called
-              ? l10n.settingsNightCalledHint
-              : l10n.settingsNightTogetherHint,
-          value: s.nightMode == NightMode.called,
-          onChanged: (v) => onChanged(
-            s.copyWith(nightMode: v ? NightMode.called : NightMode.together),
           ),
-        ),
-        _Section(l10n.settingsRules),
-        _Switch(
-          label: l10n.settingsRevealRoles,
-          value: s.revealRoleOnDeath,
-          onChanged: (v) => onChanged(s.copyWith(revealRoleOnDeath: v)),
-        ),
-        _Switch(
-          label: l10n.settingsSeerRole,
-          value: s.seerSeesRole,
-          onChanged: (v) => onChanged(s.copyWith(seerSeesRole: v)),
-        ),
-        _Switch(
-          label: l10n.settingsRunoff,
-          value: s.tieRule == TieRule.runoff,
-          onChanged: (v) => onChanged(
-            s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.settingsGhosts,
-                style: const TextStyle(color: Palette.moon100),
-              ),
-            ),
-            SegmentedButton<GhostSight>(
-              segments: [
-                ButtonSegment(
-                  value: GhostSight.off,
-                  label: Text(l10n.ghostsOff),
-                ),
-                ButtonSegment(
-                  value: GhostSight.roles,
-                  label: Text(l10n.ghostsRoles),
-                ),
-                ButtonSegment(
-                  value: GhostSight.everything,
-                  label: Text(l10n.ghostsEverything),
-                ),
-              ],
-              selected: {s.ghosts},
-              onSelectionChanged: (v) => onChanged(s.copyWith(ghosts: v.first)),
-            ),
-          ],
-        ),
-        if (s.ghosts != GhostSight.off)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Body(l10n.settingsGhostsHint, muted: true),
-          ),
-        _Section(l10n.settingsExtras),
-        // Both need the phones in hand at night: not in the called night.
-        if (s.nightMode == NightMode.together) ...[
-          _Switch(
-            label: l10n.settingsSheep,
-            hint: s.sheepCounting ? null : l10n.settingsSheepOff,
-            value: s.sheepCounting,
-            onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
-          ),
-          _Switch(
-            label: l10n.settingsDoorSigns,
-            value: s.doorSigns,
-            onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
+          SegmentedButton<NarratorLanguage>(
+            segments: const [
+              ButtonSegment(value: NarratorLanguage.de, label: Text('DE')),
+              ButtonSegment(value: NarratorLanguage.en, label: Text('EN')),
+            ],
+            selected: {s.narratorLanguage},
+            onSelectionChanged: (v) =>
+                onChanged(s.copyWith(narratorLanguage: v.first)),
           ),
         ],
+      ),
+      _Switch(
+        label: l10n.settingsNightCalled,
+        hint: s.nightMode == NightMode.called
+            ? l10n.settingsNightCalledHint
+            : l10n.settingsNightTogetherHint,
+        value: s.nightMode == NightMode.called,
+        onChanged: (v) => onChanged(
+          s.copyWith(nightMode: v ? NightMode.called : NightMode.together),
+        ),
+      ),
+      _Section(l10n.settingsRules),
+      _Switch(
+        label: l10n.settingsRevealRoles,
+        value: s.revealRoleOnDeath,
+        onChanged: (v) => onChanged(s.copyWith(revealRoleOnDeath: v)),
+      ),
+      _Switch(
+        label: l10n.settingsSeerRole,
+        value: s.seerSeesRole,
+        onChanged: (v) => onChanged(s.copyWith(seerSeesRole: v)),
+      ),
+      _Switch(
+        label: l10n.settingsRunoff,
+        value: s.tieRule == TieRule.runoff,
+        onChanged: (v) => onChanged(
+          s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.settingsGhosts,
+              style: const TextStyle(color: Palette.moon100),
+            ),
+          ),
+          SegmentedButton<GhostSight>(
+            segments: [
+              ButtonSegment(
+                value: GhostSight.off,
+                label: Text(l10n.ghostsOff),
+              ),
+              ButtonSegment(
+                value: GhostSight.roles,
+                label: Text(l10n.ghostsRoles),
+              ),
+              ButtonSegment(
+                value: GhostSight.everything,
+                label: Text(l10n.ghostsEverything),
+              ),
+            ],
+            selected: {s.ghosts},
+            onSelectionChanged: (v) => onChanged(s.copyWith(ghosts: v.first)),
+          ),
+        ],
+      ),
+      if (s.ghosts != GhostSight.off)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Body(l10n.settingsGhostsHint, muted: true),
+        ),
+      _Section(l10n.settingsExtras),
+      // Both need the phones in hand at night: not in the called night.
+      if (s.nightMode == NightMode.together) ...[
         _Switch(
-          label: l10n.settingsAtmosphere,
-          value: s.atmosphere,
-          onChanged: (v) => onChanged(s.copyWith(atmosphere: v)),
+          label: l10n.settingsSheep,
+          hint: s.sheepCounting ? null : l10n.settingsSheepOff,
+          value: s.sheepCounting,
+          onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
         ),
         _Switch(
-          label: l10n.settingsWolfTrail,
-          value: s.wolfTrail,
-          onChanged: (v) => onChanged(s.copyWith(wolfTrail: v)),
-        ),
-        _Switch(
-          label: l10n.settingsVoice,
-          value: s.narratorVoice,
-          onChanged: (v) => onChanged(s.copyWith(narratorVoice: v)),
+          label: l10n.settingsDoorSigns,
+          value: s.doorSigns,
+          onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
         ),
       ],
+      _Switch(
+        label: l10n.settingsAtmosphere,
+        value: s.atmosphere,
+        onChanged: (v) => onChanged(s.copyWith(atmosphere: v)),
+      ),
+      _Switch(
+        label: l10n.settingsWolfTrail,
+        value: s.wolfTrail,
+        onChanged: (v) => onChanged(s.copyWith(wolfTrail: v)),
+      ),
+      _Switch(
+        label: l10n.settingsVoice,
+        value: s.narratorVoice,
+        onChanged: (v) => onChanged(s.copyWith(narratorVoice: v)),
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
     );
   }
 }

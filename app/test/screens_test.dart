@@ -410,7 +410,7 @@ void main() {
             await table.close();
           }
 
-          // The host's settings, opened from the lobby.
+          // The host's settings in the lobby.
           final host = _Table(1, youOwn: true);
           await tester.pumpWidget(
             shot.frame(
@@ -423,17 +423,18 @@ void main() {
           );
           await tester.pump();
           final l10n = await AppLocalizations.delegate.load(Locale(locale));
-          // On a phone the settings sit on the lobby's last page.
+          // On a phone the settings are the lobby's last page; on wider
+          // windows they sit in the lobby itself.
           for (
             var i = 0;
-            i < 3 && find.text(l10n.settingsButton).evaluate().isEmpty;
+            i < 3 &&
+                find.text(l10n.settingsRoles).hitTestable().evaluate().isEmpty;
             i++
           ) {
+            if (find.byType(PageView).evaluate().isEmpty) break;
             await tester.drag(find.byType(PageView), const Offset(-500, 0));
             await tester.pumpAndSettle();
           }
-          await tester.ensureVisible(find.text(l10n.settingsButton));
-          await tester.tap(find.text(l10n.settingsButton));
           await tester.pump(const Duration(milliseconds: 400));
           await shot.shoot('09-settings');
           await tester.pumpWidget(const SizedBox());
