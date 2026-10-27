@@ -189,9 +189,17 @@ const toc = headings.filter((heading) => heading.depth === 2);
     color: var(--moon-100);
     opacity: 1;
   }
-  .docs__toc {
-    padding-left: 0.9rem;
-    border-left: 1px dotted rgb(246 232 198 / 0.3);
+  /* Both side columns stand on a plaque, so they read on the backstage
+     set behind them. */
+  @media (min-width: 821px) {
+    .docs__nav,
+    .docs__toc {
+      padding: var(--space-3);
+      background: linear-gradient(180deg, rgb(35 30 26 / 0.94), rgb(23 21 21 / 0.92));
+      border: 1.5px solid var(--stage-brass, #987552);
+      border-radius: var(--radius-m, 14px);
+      box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.4);
+    }
   }
 
   @media (max-width: 1180px) {

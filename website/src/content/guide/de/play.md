@@ -26,7 +26,7 @@ Wer den QR-Code mit der normalen Kamera scannt, landet auf einer kleinen Seite, 
 
 ## 3. Figur wählen
 
-In der Lobby bekommt jeder automatisch eine freie Pappfigur. Mit **„Figur wählen“** könnt ihr sie tauschen. Die Figur ist nur euer Aussehen, die Rolle wird später geheim und zufällig verteilt.
+In der Lobby bekommt jeder automatisch eine freie Pappfigur. Die erste Seite der Lobby zeigt alle Figuren als Karten: Tippt auf eine freie, dann fliegt sie an euren Platz. Figuren, die schon jemand gewählt hat, stehen im Schatten mit dessen Namen. Die Figur ist nur euer Aussehen, die Rolle wird später geheim und zufällig verteilt.
 
 ## 4. Rollen verteilen
 

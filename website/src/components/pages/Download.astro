@@ -391,7 +391,7 @@ const formats = ['avif', 'webp'] as const;
   /* Each platform is a punch-out component card. */
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    grid-template-columns: 1fr;
     gap: var(--space-3);
     margin: 0;
     padding: 0;
@@ -402,6 +402,12 @@ const formats = ['avif', 'webp'] as const;
   .card__badge,
   .cards__others {
     display: none;
+  }
+  /* The other systems two by two on wider windows: no card left alone. */
+  @media (min-width: 760px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
   .card.is-yours {
     order: -2;

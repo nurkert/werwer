@@ -26,7 +26,7 @@ If you scan the QR code with your normal camera, you land on a small page that e
 
 ## 3. Pick a figure
 
-In the lobby, everyone automatically gets a free cardboard figure. Tap **“Choose your figure”** to swap it. The figure is only your look; roles are dealt later, secretly and at random.
+In the lobby, everyone automatically gets a free cardboard figure. The first page of the lobby shows all figures as cards: tap a free one and it flies up to your place. Figures someone else has picked are in shadow with their name. The figure is only your look; roles are dealt later, secretly and at random.
 
 ## 4. Deal the roles
 
