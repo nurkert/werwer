@@ -11,3 +11,4 @@ Alle Wünsche aus dem Chat vom 27. Oktober sind in Task 013 umgesetzt (der Verla
 - [x] **Download-Seite: Version und Zahlen eingebettet:** die aktuelle Versionsnummer groß und präsent im Kopf der Seite, die Download-Zahlen auf derselben Tafel statt als eigener Block daruntergeklatscht; Handy und Desktop fotografiert. Umgesetzt als Ticket-Plakette im Kopf: Versionsnummer groß in Laternenfarbe, darunter Datum und „Was ist neu?“, hinter einer gestrichelten Naht die Zahlen.
 - [x] **Website: Vorhangbogen in der Theaterszene zu klein:** der Bogen oben läuft groß über die ganze Breite (wie in der App), Desktop und Handy fotografiert.
 - [x] **Website: Figuren und Handys im Startbild auf dem Desktop zu weit oben:** sie stehen jetzt auf den Bühnenbrettern; Desktop fotografiert.
+- [x] **Website: Girlanden zwischen den Szenen zu klein:** die Girlanden („Die Besetzung“, Finale) laufen groß über die ganze Breite wie der Vorhangbogen; Desktop und Handy fotografiert.
