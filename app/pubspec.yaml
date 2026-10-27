@@ -50,6 +50,7 @@ flutter:
   assets:
     - assets/brand/
     - assets/figures/
+    - assets/stage/
     - assets/figures/roles/
     - assets/sheep/
     - assets/licenses/
@@ -63,6 +64,12 @@ flutter:
     - family: LilitaOne
       fonts:
         - asset: assets/fonts/LilitaOne-Regular.ttf
+    # Variable font: weights 400–700 via the weight axis.
+    - family: AncizarSerif
+      fonts:
+        - asset: assets/fonts/AncizarSerif-Variable.ttf
+        - asset: assets/fonts/AncizarSerif-Italic-Variable.ttf
+          style: italic
     - family: Manrope
       fonts:
         - asset: assets/fonts/Manrope-Regular.ttf

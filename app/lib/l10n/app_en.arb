@@ -32,7 +32,7 @@
   "byeMisbehaved": "The connection was ended.",
   "byeLost": "The connection to the host is lost.",
   "backToStart": "Back to start",
-  "lobbyTitle": "Lobby",
+  "lobbyTitle": "The table fills up",
   "lobbyJoinHint": "Others tap “Join a room” and enter:",
   "players": "{count, plural, =1{1 player} other{{count} players}}",
   "@players": {
@@ -708,5 +708,34 @@
   "settingsGhostsHint": "Only once they have nothing left to do, and only while holding a button.",
   "settingsRunoff": "Runoff on a tie (otherwise nobody goes)",
   "extraGhosts": "ghosts watch",
-  "extraRunoff": "runoff on a tie"
+  "extraRunoff": "runoff on a tie",
+  "eyebrowEvening": "Game night",
+  "eyebrowYourRole": "Only for you",
+  "eyebrowNight": "Night {round}",
+  "@eyebrowNight": {
+    "placeholders": {
+      "round": {
+        "type": "String"
+      }
+    }
+  },
+  "eyebrowAwake": "Only you are awake",
+  "eyebrowDay": "Day {round}",
+  "@eyebrowDay": {
+    "placeholders": {
+      "round": {
+        "type": "String"
+      }
+    }
+  },
+  "eyebrowVote": "The vote",
+  "eyebrowTie": "A tie",
+  "eyebrowLastShot": "The last shot",
+  "eyebrowEnd": "The show is over",
+  "eyebrowNarrator": "The narrator",
+  "dayTalkTitle": "Talk to each other",
+  "voteQuestion": "Whom do you suspect?",
+  "hunterQuestion": "Whom do you take with you?",
+  "introTitle": "Listen closely",
+  "eyesClosedTitle": "Eyes closed"
 }

@@ -20,6 +20,7 @@ import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
+import 'package:whowolf/src/game/walking_narrator.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
@@ -38,6 +39,21 @@ class _Silence implements Sounds {
 }
 
 const _silence = _Silence();
+
+/// The narrator's recordings: no audio in a picture.
+class _SilentClip implements ClipPlayer {
+  @override
+  Future<void> prepare(String asset, double volume) async {}
+
+  @override
+  void start() {}
+
+  @override
+  void volume(double volume) {}
+
+  @override
+  void stop() {}
+}
 
 /// Every device class the layout serves: the phone shots land in the
 /// folder itself (the website uses them), the others in a subfolder.
@@ -75,15 +91,22 @@ void _silencePlugins() {
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   const wakelock = 'dev.flutter.pigeon.wakelock_plus_platform_interface';
-  for (final channel in [
-    '$wakelock.WakelockPlusApi.toggle',
-    'plugins.it_nomads.com/flutter_secure_storage',
-  ]) {
-    messenger.setMockMessageHandler(
-      channel,
+  messenger
+    ..setMockMessageHandler(
+      '$wakelock.WakelockPlusApi.toggle',
       (_) async => const StandardMessageCodec().encodeMessage(<Object?>[null]),
+    )
+    // A device that has seen the privacy notice already, nothing else
+    // saved.
+    ..setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async =>
+          call.method == 'read' &&
+              (call.arguments as Map<Object?, Object?>)['key'] ==
+                  'privacyNoticeSeen'
+          ? '1'
+          : null,
     );
-  }
 }
 
 class _Shooter {
@@ -128,7 +151,7 @@ class _Shooter {
 Future<void> _precache(WidgetTester tester) async {
   final context = tester.element(find.byType(Scaffold).first);
   await tester.runAsync(() async {
-    for (final dir in ['brand', 'figures', 'figures/roles', 'sheep']) {
+    for (final dir in ['brand', 'figures', 'figures/roles', 'sheep', 'stage']) {
       for (final file in Directory('assets/$dir').listSync()) {
         if (file is! File) continue;
         await precacheImage(AssetImage(file.path), context);
@@ -251,6 +274,10 @@ void main() {
     // Real time, before any widget asks for it inside the fake clock.
     await Grain.load();
     await _loadFont('LilitaOne', ['assets/fonts/LilitaOne-Regular.ttf']);
+    await _loadFont('AncizarSerif', [
+      'assets/fonts/AncizarSerif-Variable.ttf',
+      'assets/fonts/AncizarSerif-Italic-Variable.ttf',
+    ]);
     await _loadFont('Manrope', [
       'assets/fonts/Manrope-Regular.ttf',
       'assets/fonts/Manrope-SemiBold.ttf',
@@ -282,7 +309,13 @@ void main() {
           for (var seed = 1; wanted.isNotEmpty && seed < 40; seed++) {
             final table = _Table(seed);
             await tester.pumpWidget(
-              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+              shot.frame(
+                GameScreen(
+                  session: table.you,
+                  sounds: _silence,
+                  clips: _SilentClip.new,
+                ),
+              ),
             );
             await tester.pump();
             final first = seed == 1;
@@ -332,7 +365,13 @@ void main() {
           // The host's settings, opened from the lobby.
           final host = _Table(1, youOwn: true);
           await tester.pumpWidget(
-            shot.frame(GameScreen(session: host.you, sounds: _silence)),
+            shot.frame(
+              GameScreen(
+                session: host.you,
+                sounds: _silence,
+                clips: _SilentClip.new,
+              ),
+            ),
           );
           await tester.pump();
           final l10n = await AppLocalizations.delegate.load(Locale(locale));
@@ -349,7 +388,13 @@ void main() {
           for (var seed = 1; missing.isNotEmpty && seed < 60; seed++) {
             final table = _Table(seed);
             await tester.pumpWidget(
-              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+              shot.frame(
+                GameScreen(
+                  session: table.you,
+                  sounds: _silence,
+                  clips: _SilentClip.new,
+                ),
+              ),
             );
             await tester.pump();
             table.ownerSends(SettingsIntent(Preset.fullStage.settings));
@@ -386,7 +431,13 @@ void main() {
           for (var seed = 1; classic.isNotEmpty && seed < 40; seed++) {
             final table = _Table(seed);
             await tester.pumpWidget(
-              shot.frame(GameScreen(session: table.you, sounds: _silence)),
+              shot.frame(
+                GameScreen(
+                  session: table.you,
+                  sounds: _silence,
+                  clips: _SilentClip.new,
+                ),
+              ),
             );
             await tester.pump();
             table.ownerSends(SettingsIntent(Preset.classic.settings));

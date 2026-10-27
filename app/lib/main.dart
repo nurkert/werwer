@@ -14,7 +14,7 @@ Future<void> main() async {
 
 /// The bundled fonts are SIL OFL: their licence travels with the app.
 Stream<LicenseEntry> _fontLicenses() async* {
-  for (final font in ['LilitaOne', 'Manrope']) {
+  for (final font in ['AncizarSerif', 'LilitaOne', 'Manrope']) {
     final text = await rootBundle.loadString('assets/licenses/$font-OFL.txt');
     yield LicenseEntryWithLineBreaks([font], text);
   }

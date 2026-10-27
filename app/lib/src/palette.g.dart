@@ -25,6 +25,28 @@ abstract final class Palette {
   static const card200 = Color(0xFFE9D6AC);
   static const wood700 = Color(0xFF5A3A22);
   static const forest700 = Color(0xFF22382F);
+  static const stageInk = Color(0xFF060B14);
+  static const stageNight = Color(0xFF08111D);
+  static const stageNight2 = Color(0xFF0E1A2C);
+  static const stageNight3 = Color(0xFF16253B);
+  static const stageNight4 = Color(0xFF23344C);
+  static const stageDusk = Color(0xFF2B4772);
+  static const stageDuskDeep = Color(0xFF133763);
+  static const stageDawn = Color(0xFFA28070);
+  static const stagePlaque = Color(0xFF171515);
+  static const stageBrass = Color(0xFF987552);
+  static const stageBrassLight = Color(0xFFC7A172);
+  static const stageBrassDark = Color(0xFF5E513F);
+  static const stageIvory = Color(0xFFEFDFBB);
+  static const stageIvorySoft = Color(0xFFE6D2AE);
+  static const stageMoonlight = Color(0xFFF9D89F);
+  static const stageLanternTop = Color(0xFFF8A745);
+  static const stageLantern = Color(0xFFEB9032);
+  static const stageLanternBottom = Color(0xFFD57622);
+  static const stageLanternInk = Color(0xFF261004);
+  static const stageCurtain = Color(0xFF9E2A24);
+  static const stageBlood = Color(0xFFB3282D);
+  static const stageWood = Color(0xFF5D3C1D);
 }
 
 /// Corner radii, shared with the website.

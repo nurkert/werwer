@@ -48,8 +48,8 @@ class ColumnSpace extends InheritedWidget {
 /// A scrolling column on the stage. It keeps clear of what floats above
 /// and below it (the app bar, the narrator, the home indicator: whatever
 /// [MediaQuery.paddingOf] reports) but scrolls underneath it, fading out
-/// on the way instead of stopping at a hard edge. Short content sits in
-/// the middle.
+/// on the way instead of stopping at a hard edge. Short content starts at
+/// the top, under the title, as on a stage bill (task 012).
 class StageScroll extends StatelessWidget {
   const StageScroll({
     required this.child,
@@ -105,9 +105,9 @@ class StageScroll extends StatelessWidget {
                 bottom,
               ),
               child: ConstrainedBox(
-                // At least the visible height, so short content can centre.
                 constraints: BoxConstraints(minHeight: viewport),
-                child: Center(
+                child: Align(
+                  alignment: Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     child: ColumnSpace(height: viewport, child: child),

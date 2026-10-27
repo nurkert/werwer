@@ -3,7 +3,7 @@ import 'package:whowolf/src/palette.g.dart';
 
 export 'package:whowolf/src/palette.g.dart';
 
-const displayFont = 'LilitaOne';
+const displayFont = 'AncizarSerif';
 const textFont = 'Manrope';
 
 /// The app's theme: night stage, Manrope text, Lilita One titles. Screens

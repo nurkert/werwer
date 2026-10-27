@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @lobbyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Lobby'**
+  /// **'The table fills up'**
   String get lobbyTitle;
 
   /// No description provided for @lobbyJoinHint.
@@ -2059,6 +2059,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'runoff on a tie'**
   String get extraRunoff;
+
+  /// No description provided for @eyebrowEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Game night'**
+  String get eyebrowEvening;
+
+  /// No description provided for @eyebrowYourRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for you'**
+  String get eyebrowYourRole;
+
+  /// No description provided for @eyebrowNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night {round}'**
+  String eyebrowNight(String round);
+
+  /// No description provided for @eyebrowAwake.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you are awake'**
+  String get eyebrowAwake;
+
+  /// No description provided for @eyebrowDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {round}'**
+  String eyebrowDay(String round);
+
+  /// No description provided for @eyebrowVote.
+  ///
+  /// In en, this message translates to:
+  /// **'The vote'**
+  String get eyebrowVote;
+
+  /// No description provided for @eyebrowTie.
+  ///
+  /// In en, this message translates to:
+  /// **'A tie'**
+  String get eyebrowTie;
+
+  /// No description provided for @eyebrowLastShot.
+  ///
+  /// In en, this message translates to:
+  /// **'The last shot'**
+  String get eyebrowLastShot;
+
+  /// No description provided for @eyebrowEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'The show is over'**
+  String get eyebrowEnd;
+
+  /// No description provided for @eyebrowNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'The narrator'**
+  String get eyebrowNarrator;
+
+  /// No description provided for @dayTalkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk to each other'**
+  String get dayTalkTitle;
+
+  /// No description provided for @voteQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Whom do you suspect?'**
+  String get voteQuestion;
+
+  /// No description provided for @hunterQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Whom do you take with you?'**
+  String get hunterQuestion;
+
+  /// No description provided for @introTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen closely'**
+  String get introTitle;
+
+  /// No description provided for @eyesClosedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyes closed'**
+  String get eyesClosedTitle;
 }
 
 class _AppLocalizationsDelegate

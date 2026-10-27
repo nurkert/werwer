@@ -13,6 +13,7 @@ import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The night, in one or two steps (the witch decides after the wolves).
@@ -191,42 +192,29 @@ class _NightPhaseState extends State<NightPhase> {
         view.round == 1 && view.settings.roles.contains(Role.cupid);
     final first =
         view.nightStep == (cupidFirst ? NightStep.link : NightStep.hunt);
+    final awake = task != null && !view.youActed;
     return PhaseBody(
       children: [
-        Headline(l10n.nightTitle(view.round)),
+        if (awake)
+          Headline(l10n.nightYourTurn, eyebrow: l10n.eyebrowAwake)
+        else
+          Headline(
+            l10n.eyesClosedTitle,
+            eyebrow: l10n.eyebrowNight('${view.round}'),
+          ),
         if (first) LastNews(view: view),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
-        else if (task != null && !view.youActed)
-          Panel(
-            highlight: true,
-            child: Column(
-              children: [
-                Headline(l10n.nightYourTurn, size: 26),
-                const SizedBox(height: 12),
-                ...task,
-              ],
-            ),
-          )
-        else
-          Panel(
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.bedtime_rounded,
-                  size: 56,
-                  color: Palette.lantern300,
-                ),
-                const SizedBox(height: 10),
-                Headline(l10n.nightEyesClosed, size: 30),
-                const SizedBox(height: 8),
-                Body(l10n.nightAwakeNow(awakeIn(view.nightStep, l10n))),
-                const SizedBox(height: 6),
-                Body(l10n.nightEyesClosedHint, muted: true),
-              ],
-            ),
-          ),
+        else if (awake)
+          Panel(highlight: true, child: Column(children: task))
+        else ...[
+          // The same for everyone whose eyes are closed (task 012): the
+          // moon, its ring running evenly from the step's start.
+          _NightMoon(session: session),
+          Body(l10n.nightAwakeNow(awakeIn(view.nightStep, l10n))),
+          Body(l10n.nightEyesClosedHint, muted: true),
+        ],
       ],
     );
   }
@@ -453,5 +441,46 @@ class _NightPhaseState extends State<NightPhase> {
         ),
       ),
     ];
+  }
+}
+
+/// The night's moon with its ring: how far the step has run, from its
+/// start and the night's length only, so it looks the same on every phone
+/// whatever anyone picked (never a called role's time left).
+class _NightMoon extends StatefulWidget {
+  const _NightMoon({required this.session});
+
+  final GameSession session;
+
+  @override
+  State<_NightMoon> createState() => _NightMoonState();
+}
+
+class _NightMoonState extends State<_NightMoon> {
+  late final Timer _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _tick.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final view = widget.session.view!;
+    return Moon(
+      size: figureHeight(context, phone: 220, share: 0.36),
+      progress: nightRing(
+        nowMs: DateTime.now().millisecondsSinceEpoch,
+        phaseStartedAtMs: widget.session.phaseStartedAtMs,
+        nightLength: view.settings.nightTime,
+      ),
+    );
   }
 }

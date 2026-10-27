@@ -26,7 +26,7 @@ void main() {
     Color colorOf(String text) =>
         tester.widget<Text>(find.text(text)).style!.color!;
     expect(colorOf('paper'), Palette.inkSoft);
-    expect(colorOf('night'), Palette.moon200);
+    expect(colorOf('night'), Palette.stageIvorySoft);
   });
 
   testWidgets('a stamp shows its label, a little crooked', (tester) async {

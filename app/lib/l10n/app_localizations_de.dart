@@ -90,7 +90,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get backToStart => 'Zurück zum Start';
 
   @override
-  String get lobbyTitle => 'Lobby';
+  String get lobbyTitle => 'Der Tisch füllt sich';
 
   @override
   String get lobbyJoinHint =>
@@ -1180,4 +1180,53 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get extraRunoff => 'Stichwahl bei Gleichstand';
+
+  @override
+  String get eyebrowEvening => 'Spielabend';
+
+  @override
+  String get eyebrowYourRole => 'Nur für dich';
+
+  @override
+  String eyebrowNight(String round) {
+    return 'Nacht $round';
+  }
+
+  @override
+  String get eyebrowAwake => 'Nur du bist wach';
+
+  @override
+  String eyebrowDay(String round) {
+    return 'Tag $round';
+  }
+
+  @override
+  String get eyebrowVote => 'Die Abstimmung';
+
+  @override
+  String get eyebrowTie => 'Gleichstand';
+
+  @override
+  String get eyebrowLastShot => 'Der letzte Schuss';
+
+  @override
+  String get eyebrowEnd => 'Die Vorstellung ist aus';
+
+  @override
+  String get eyebrowNarrator => 'Der Erzähler';
+
+  @override
+  String get dayTalkTitle => 'Redet miteinander';
+
+  @override
+  String get voteQuestion => 'Wen verdächtigst du?';
+
+  @override
+  String get hunterQuestion => 'Wen nimmst du mit?';
+
+  @override
+  String get introTitle => 'Hört gut zu';
+
+  @override
+  String get eyesClosedTitle => 'Augen zu';
 }

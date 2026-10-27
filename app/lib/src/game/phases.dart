@@ -22,10 +22,41 @@ import 'package:whowolf/src/theme.dart';
 /// window splits it: the [Aside] children (the table, the meadow, a big
 /// figure) move into a second column on the right, the rest stays on the
 /// left. Each column scrolls by itself and centres when it is short.
+///
+/// The [action] (the screen's one main button, task 012) stays put at the
+/// foot of the screen, or of the left column, while the rest scrolls.
 class PhaseBody extends StatelessWidget {
-  const PhaseBody({required this.children, super.key});
+  const PhaseBody({required this.children, this.action, super.key});
 
   final List<Widget> children;
+  final Widget? action;
+
+  /// The column with the action pinned below it.
+  Widget _withAction(BuildContext context, Widget scroll, double side) {
+    final action = this.action;
+    if (action == null) return scroll;
+    final insets = MediaQuery.paddingOf(context);
+    return Column(
+      children: [
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: scroll,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            side + insets.left,
+            8,
+            side + insets.right,
+            insets.bottom + 14,
+          ),
+          child: action,
+        ),
+      ],
+    );
+  }
 
   static const double _gap = 18;
 
@@ -43,9 +74,12 @@ class PhaseBody extends StatelessWidget {
     final layout = StageLayout.of(context);
     final aside = children.whereType<Aside>().toList();
     if (!layout.twoColumns || aside.isEmpty) {
-      return StageScroll(
-        maxWidth: layout.columnWidth,
-        child: _stack(children),
+      return _withAction(
+        context,
+        StageScroll(maxWidth: layout.columnWidth, child: _stack(children)),
+        layout.size.width > layout.columnWidth + 40
+            ? (layout.size.width - layout.columnWidth) / 2
+            : 20,
       );
     }
     final main = [
@@ -67,9 +101,10 @@ class PhaseBody extends StatelessWidget {
               children: [
                 SizedBox(
                   width: (width * 0.4).clamp(340, 500),
-                  child: StageScroll(
-                    horizontal: 24,
-                    child: _stack(main),
+                  child: _withAction(
+                    context,
+                    StageScroll(horizontal: 24, child: _stack(main)),
+                    24,
                   ),
                 ),
                 Expanded(
@@ -209,7 +244,16 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     final link = widget.link;
     final swapFrom = _swapFrom;
     return PhaseBody(
+      action: session.isOwner
+          ? PrimaryButton(
+              label: l10n.startGame,
+              onPressed: canStart
+                  ? () => session.send(const StartGameIntent())
+                  : null,
+            )
+          : null,
       children: [
+        Headline(l10n.lobbyTitle, eyebrow: l10n.eyebrowEvening),
         for (final p in session.pending)
           _PendingPanel(session: session, join: p),
         if (session.isOwner && link != null)
@@ -279,12 +323,6 @@ class _LobbyPhaseState extends State<LobbyPhase> {
             Body(l10n.fewPlayersHint, muted: true),
           if (count < minPlayers)
             Body(l10n.needPlayers(minPlayers), muted: true),
-          PrimaryButton(
-            label: l10n.startGame,
-            onPressed: canStart
-                ? () => session.send(const StartGameIntent())
-                : null,
-          ),
         ] else
           Body(l10n.waitingForOwner, muted: true),
       ],
@@ -610,7 +648,7 @@ class _RevealPhaseState extends State<RevealPhase> {
       for (final s in view.seats)
         if (s.id != view.you && s.role == Role.werewolf) s.name,
     ];
-    final color = wolf ? Palette.curtain600 : Palette.forest700;
+    final color = wolf ? Palette.curtain400 : Palette.stageLanternTop;
     final wide = StageLayout.of(context).twoColumns;
     void turn() {
       SoundScope.play(context, Sound.turn);
@@ -666,45 +704,43 @@ class _RevealPhaseState extends State<RevealPhase> {
               child: child,
             ),
           );
+    // The figure stands on the theatre's stage (task 012); what it is
+    // shows on a plaque below it.
+    final plaque = Panel(
+      highlight: _shown,
+      child: SizedBox(width: double.infinity, child: text),
+    );
     return PhaseBody(
+      action: listening
+          ? (widget.onSkip == null
+                ? null
+                : SecondaryButton(
+                    label: l10n.introSkip,
+                    icon: Icons.skip_next_rounded,
+                    onPressed: widget.onSkip,
+                  ))
+          : !view.youConfirmed
+          ? PrimaryButton(
+              label: l10n.confirmRole,
+              icon: Icons.check_rounded,
+              onPressed: _shown
+                  ? () => widget.session.send(const ConfirmRoleIntent())
+                  : null,
+            )
+          : null,
       children: [
-        Headline(l10n.revealTitle),
-        if (wide) ...[
-          Panel(
-            paper: true,
-            highlight: _shown,
-            child: SizedBox(width: double.infinity, child: text),
-          ),
-          Aside(child: tappable(Center(child: figure))),
-        ] else
-          tappable(
-            Panel(
-              paper: true,
-              highlight: _shown,
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    figure,
-                    const SizedBox(height: 14),
-                    text,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        if (listening) ...[
-          if (widget.onSkip != null)
-            SecondaryButton(label: l10n.introSkip, onPressed: widget.onSkip),
-        ] else if (!view.youConfirmed)
-          PrimaryButton(
-            label: l10n.confirmRole,
-            onPressed: _shown
-                ? () => widget.session.send(const ConfirmRoleIntent())
-                : null,
-          )
+        if (listening)
+          Headline(l10n.introTitle, eyebrow: l10n.eyebrowNarrator)
         else
+          Headline(l10n.revealTitle, eyebrow: l10n.eyebrowYourRole),
+        if (wide) ...[
+          plaque,
+          Aside(child: tappable(Center(child: figure))),
+        ] else ...[
+          tappable(Center(child: figure)),
+          plaque,
+        ],
+        if (!listening && view.youConfirmed)
           Body(l10n.waitingFor(view.waitingFor), muted: true),
       ],
     );
@@ -793,8 +829,17 @@ class DayPhase extends StatelessWidget {
     final view = session.view!;
     final sheep = view.settings.sheepInPlay && view.lastNightSheep.isNotEmpty;
     return PhaseBody(
+      action: session.isOwner
+          ? PrimaryButton(
+              label: l10n.startVote,
+              onPressed: () => session.send(const EndDiscussionIntent()),
+            )
+          : null,
       children: [
-        Headline(l10n.dayTitle(view.round)),
+        Headline(
+          l10n.dayTalkTitle,
+          eyebrow: l10n.eyebrowDay('${view.round}'),
+        ),
         LastNews(view: view),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive) GhostPanel(view: view),
@@ -812,13 +857,7 @@ class DayPhase extends StatelessWidget {
             },
           ),
         ),
-        if (session.isOwner)
-          PrimaryButton(
-            label: l10n.startVote,
-            onPressed: () => session.send(const EndDiscussionIntent()),
-          )
-        else
-          Body(l10n.ownerStartsVote, muted: true),
+        if (!session.isOwner) Body(l10n.ownerStartsVote, muted: true),
       ],
     );
   }
@@ -838,6 +877,13 @@ class HunterPhase extends StatelessWidget {
     final shooter = view.shooter;
     final yours = shooter == view.you;
     return PhaseBody(
+      action: yours
+          ? SecondaryButton(
+              label: l10n.hunterSpare,
+              icon: Icons.front_hand_rounded,
+              onPressed: () => session.send(const ShootIntent(null)),
+            )
+          : null,
       children: [
         Aside(
           child: TurningFigure(
@@ -850,7 +896,10 @@ class HunterPhase extends StatelessWidget {
             height: figureHeight(context, phone: 180),
           ),
         ),
-        Headline(l10n.roleHunter),
+        Headline(
+          yours ? l10n.hunterQuestion : l10n.roleHunter,
+          eyebrow: l10n.eyebrowLastShot,
+        ),
         LastNews(view: view),
         Body(
           yours
@@ -858,17 +907,11 @@ class HunterPhase extends StatelessWidget {
               : l10n.hunterWait(shooter == null ? '?' : view.nameOf(shooter)),
         ),
         Countdown(endsAt: session.phaseEndsAt),
-        if (yours) ...[
+        if (yours)
           SeatGrid(
             view: view,
             onTap: (seat) => session.send(ShootIntent(seat.id)),
           ),
-          SecondaryButton(
-            label: l10n.hunterSpare,
-            expand: false,
-            onPressed: () => session.send(const ShootIntent(null)),
-          ),
-        ],
       ],
     );
   }
@@ -886,8 +929,18 @@ class VotePhase extends StatelessWidget {
     final vote = view.yourVote;
     final runoff = view.runoff.isNotEmpty;
     return PhaseBody(
+      action: view.yourSeat.isAlive
+          ? SecondaryButton(
+              label: l10n.abstain,
+              selected: view.youVoted && vote == null,
+              onPressed: () => session.send(const VoteIntent(null)),
+            )
+          : null,
       children: [
-        Headline(runoff ? l10n.runoffTitle : l10n.voteTitle),
+        if (runoff)
+          Headline(l10n.runoffTitle, eyebrow: l10n.eyebrowTie)
+        else
+          Headline(l10n.voteQuestion, eyebrow: l10n.eyebrowVote),
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
@@ -912,12 +965,6 @@ class VotePhase extends StatelessWidget {
                 session.send(VoteIntent(seat.id));
               },
             ),
-          ),
-          SecondaryButton(
-            label: l10n.abstain,
-            expand: false,
-            selected: view.youVoted && vote == null,
-            onPressed: () => session.send(const VoteIntent(null)),
           ),
           if (view.youVoted)
             Body(
@@ -946,12 +993,23 @@ class EndedPhase extends StatelessWidget {
       Faction.village || null => (Role.villager, Palette.lantern400),
     };
     return PhaseBody(
+      action: session.isOwner
+          ? PrimaryButton(
+              label: l10n.playAgain,
+              icon: Icons.replay_rounded,
+              onPressed: () => session.send(const RematchIntent()),
+            )
+          : null,
       children: [
+        Headline(
+          l10n.winner(view.winner),
+          color: color,
+          eyebrow: l10n.eyebrowEnd,
+        ),
         RoleFigure(
           role: figure,
           height: figureHeight(context, phone: 200, wideShare: 0.36),
         ),
-        Headline(l10n.winner(view.winner), color: color),
         LastNews(view: view),
         if (_bestDreamer(view) case (final name, final points))
           Panel(paper: true, child: Body(l10n.bestDreamer(name, points))),
@@ -965,11 +1023,6 @@ class EndedPhase extends StatelessWidget {
             },
           ),
         ),
-        if (session.isOwner)
-          PrimaryButton(
-            label: l10n.playAgain,
-            onPressed: () => session.send(const RematchIntent()),
-          ),
         TextButton(onPressed: onLeave, child: Text(l10n.leave)),
       ],
     );

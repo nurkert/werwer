@@ -21,6 +21,7 @@ import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
+import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The game from this player's seat. If this device hosts, it also owns the
@@ -30,6 +31,7 @@ class GameScreen extends StatefulWidget {
     required this.session,
     this.room,
     this.sounds,
+    this.clips,
     super.key,
   });
 
@@ -38,6 +40,10 @@ class GameScreen extends StatefulWidget {
 
   /// Where night sounds go; the platform's audio unless a test passes one.
   final Sounds? sounds;
+
+  /// Plays the narrator's recordings; the platform's audio unless a test
+  /// passes one.
+  final ClipPlayer Function()? clips;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -86,8 +92,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     unawaited(
       VoiceBank.load().then((bank) {
         if (mounted) {
-          _walker = WalkingNarrator(bank: bank, room: session.roomCode)
-            ..muted = _quiet;
+          _walker = WalkingNarrator(
+            bank: bank,
+            room: session.roomCode,
+            player: widget.clips,
+          )..muted = _quiet;
         }
       }),
     );
@@ -276,6 +285,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         child: StageMoment(
           view: view,
           child: StageScaffold(
+            scene:
+                session.status == SessionStatus.reconnecting ||
+                    (view == null && session.status != SessionStatus.ended)
+                ? Scene.curtain
+                : sceneFor(view),
             floatingAppBar: true,
             appBar: AppBar(
               toolbarHeight: StageLayout.of(context).short

@@ -6,8 +6,10 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/cardboard.dart';
-import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/stage.dart';
+import 'package:whowolf/src/stage/moon.dart';
+import 'package:whowolf/src/stage/puppet_card.dart';
+import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
 extension RoleText on AppLocalizations {
@@ -78,25 +80,56 @@ class Surface extends InheritedWidget {
   bool updateShouldNotify(Surface old) => old.onPaper != onPaper;
 }
 
-/// A big title in the display font.
+/// A big title in the book serif, warm on the night, with a soft glow;
+/// [eyebrow] sets the small line above it ("— SPIELABEND —").
 class Headline extends StatelessWidget {
-  const Headline(this.text, {super.key, this.color, this.size = 34});
+  const Headline(
+    this.text, {
+    super.key,
+    this.color,
+    this.size = 34,
+    this.eyebrow,
+  });
 
   final String text;
   final Color? color;
   final double size;
+  final String? eyebrow;
 
   @override
-  Widget build(BuildContext context) => Text(
-    text,
-    textAlign: TextAlign.center,
-    style: TextStyle(
-      fontFamily: displayFont,
-      fontSize: size,
-      height: 1.1,
-      color: color ?? (Surface.paper(context) ? Palette.ink : Palette.moon100),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final paper = Surface.paper(context);
+    final title = Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontFamily: displayFont,
+        fontSize: size,
+        fontWeight: FontWeight.w700,
+        height: 1.08,
+        color: color ?? (paper ? Palette.ink : Palette.stageIvory),
+        shadows: paper
+            ? null
+            : const [
+                Shadow(
+                  color: Color(0xCC000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+      ),
+    );
+    final line = eyebrow;
+    if (line == null) return title;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Eyebrow(line, color: paper ? Palette.inkSoft : null),
+        const SizedBox(height: 8),
+        title,
+      ],
+    );
+  }
 }
 
 /// Body text, cream on the night, ink on paper.
@@ -109,7 +142,7 @@ class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paper = Surface.paper(context);
-    final color = paper ? Palette.inkSoft : Palette.moon200;
+    final color = paper ? Palette.inkSoft : Palette.stageIvorySoft;
     return Text(
       text,
       textAlign: TextAlign.center,
@@ -147,40 +180,46 @@ class Panel extends StatelessWidget {
   static const double _paperInset = 6;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-    painter: BoardPainter(
-      radius: Radii.m,
-      face: paper ? BoardFace.kraft : BoardFace.night,
-      rim: highlight ? Palette.lantern400 : null,
-      paperInset: paper ? _paperInset : null,
-    ),
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: thickness),
-      child: paper
-          ? Padding(
-              padding: const EdgeInsets.all(_paperInset),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(Radii.m - _paperInset),
-                child: CustomPaint(
-                  foregroundPainter: GrainPainter(
-                    opacity: 0.16,
-                    blend: BlendMode.multiply,
-                  ),
-                  child: _GoldRule(
-                    child: Surface(
-                      onPaper: true,
-                      child: Padding(padding: padding, child: child),
-                    ),
-                  ),
+  Widget build(BuildContext context) {
+    if (!paper) {
+      return DecoratedBox(
+        decoration: PlaqueDecoration(lit: highlight),
+        child: Surface(
+          onPaper: false,
+          child: Padding(padding: padding, child: child),
+        ),
+      );
+    }
+    return CustomPaint(
+      painter: BoardPainter(
+        radius: Radii.m,
+        face: BoardFace.kraft,
+        rim: highlight ? Palette.lantern400 : null,
+        paperInset: _paperInset,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: thickness),
+        child: Padding(
+          padding: const EdgeInsets.all(_paperInset),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.m - _paperInset),
+            child: CustomPaint(
+              foregroundPainter: GrainPainter(
+                opacity: 0.16,
+                blend: BlendMode.multiply,
+              ),
+              child: _GoldRule(
+                child: Surface(
+                  onPaper: true,
+                  child: Padding(padding: padding, child: child),
                 ),
               ),
-            )
-          : Surface(
-              onPaper: false,
-              child: Padding(padding: padding, child: child),
             ),
-    ),
-  );
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// The double gold rule just inside a paper card, as on the playbill.
@@ -297,150 +336,55 @@ class SeatGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Two cards a row on a phone, more on wider screens.
+    // Puppet cards (task 012): two a row for a few, three for more,
+    // more on wider screens.
     return LayoutBuilder(
       builder: (context, box) {
-        const gap = 10.0;
-        final columns = max(2, ((box.maxWidth + gap) / 190).floor());
+        const gap = 12.0;
+        final few = view.seats.length <= 4;
+        final columns = max(
+          few ? 2 : 3,
+          ((box.maxWidth + gap) / 170).floor(),
+        );
         final width = min<double>(
-          220,
+          few ? 180 : 150,
           (box.maxWidth - gap * (columns - 1)) / columns,
         );
         return Wrap(
           spacing: gap,
-          runSpacing: 12,
+          runSpacing: 16,
           alignment: WrapAlignment.center,
           children: [
             for (final seat in view.seats)
-              _SeatTile(
-                width: width,
-                seat: seat,
-                isYou: seat.id == view.you,
-                selected: seat.id == selected || chosen.contains(seat.id),
-                enabled:
+              () {
+                final can =
                     onTap != null &&
                     (enabled?.call(seat) ??
-                        (seat.isAlive && seat.id != view.you)),
-                onTap: () => onTap?.call(seat),
-                subtitle: [
-                  if (seat.id == view.you) l10n.you,
-                  ?openRole(view, seat, l10n),
-                  ?badges[seat.id],
-                ].where((part) => part.isNotEmpty).join(' · '),
-                deadLabel: l10n.dead,
-                trailing: trailing?.call(seat),
-              ),
+                        (seat.isAlive && seat.id != view.you));
+                final card = PuppetCard(
+                  persona: seat.persona,
+                  name: seat.name,
+                  width: width,
+                  you: seat.id == view.you,
+                  alive: seat.isAlive,
+                  selected: seat.id == selected || chosen.contains(seat.id),
+                  onTap: can ? () => onTap?.call(seat) : null,
+                  subtitle: [
+                    if (seat.id == view.you) l10n.you,
+                    ?openRole(view, seat, l10n),
+                    ?badges[seat.id],
+                  ].where((part) => part.isNotEmpty).join(' · '),
+                  deadLabel: l10n.dead,
+                  trailing: trailing?.call(seat),
+                );
+                // Out of the choice (yourself, outside a runoff): dimmed.
+                return onTap != null && !can && seat.isAlive
+                    ? Opacity(opacity: 0.45, child: card)
+                    : card;
+              }(),
           ],
         );
       },
-    );
-  }
-}
-
-class _SeatTile extends StatelessWidget {
-  const _SeatTile({
-    required this.width,
-    required this.seat,
-    required this.isYou,
-    required this.selected,
-    required this.enabled,
-    required this.onTap,
-    required this.subtitle,
-    required this.deadLabel,
-    this.trailing,
-  });
-
-  final double width;
-  final SeatView seat;
-  final bool isYou;
-  final bool selected;
-  final bool enabled;
-  final VoidCallback onTap;
-  final String subtitle;
-  final String deadLabel;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final edge = selected
-        ? Palette.lantern400
-        : isYou
-        ? Palette.moon200.withValues(alpha: 0.55)
-        : Palette.card200.withValues(alpha: 0.22);
-    final radius = BorderRadius.circular(Radii.m);
-    final reduce = MediaQuery.of(context).disableAnimations;
-    return AnimatedSlide(
-      // A picked card lifts a little off the stage.
-      offset: selected ? const Offset(0, -0.04) : Offset.zero,
-      duration: reduce ? Duration.zero : const Duration(milliseconds: 220),
-      curve: Curves.easeOutBack,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Opacity(
-            opacity: seat.isAlive ? 1 : 0.5,
-            child: Material(
-              color: selected ? Palette.night700 : Palette.night800,
-              shape: RoundedRectangleBorder(
-                borderRadius: radius,
-                side: BorderSide(color: edge, width: selected ? 2.5 : 1.5),
-              ),
-              shadowColor: Colors.black,
-              elevation: selected ? 8 : 2,
-              child: InkWell(
-                borderRadius: radius,
-                onTap: enabled ? onTap : null,
-                child: SizedBox(
-                  width: width,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      children: [
-                        Portrait(persona: seat.persona, grey: !seat.isAlive),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                seat.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  color: Palette.moon100,
-                                ),
-                              ),
-                              if (subtitle.isNotEmpty)
-                                Text(
-                                  subtitle,
-                                  maxLines: 3,
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    height: 1.3,
-                                    color: Palette.moon200,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        ?trailing,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (!seat.isAlive)
-            Positioned(
-              right: 8,
-              top: -6,
-              child: Stamp(deadLabel, color: Palette.curtain400, size: 13),
-            ),
-        ],
-      ),
     );
   }
 }
@@ -477,59 +421,95 @@ class _CountdownState extends State<Countdown> {
     super.dispose();
   }
 
+  /// The time the phase had when this clock first saw its end: the ring
+  /// runs from there.
+  DateTime? _seenEnd;
+  int _total = 1;
+
   @override
   Widget build(BuildContext context) {
     final endsAt = widget.endsAt;
     if (endsAt == null) return const SizedBox.shrink();
-    final seconds = endsAt.difference(DateTime.now()).inSeconds.clamp(0, 9999);
+    final now = DateTime.now();
+    if (endsAt != _seenEnd) {
+      _seenEnd = endsAt;
+      _total = endsAt.difference(now).inMilliseconds.clamp(1, 1 << 30);
+    }
+    final leftMs = endsAt.difference(now).inMilliseconds.clamp(0, _total);
+    final seconds = (leftMs / 1000).ceil();
     final urgent = seconds <= 10;
-    final color = urgent ? Palette.curtain400 : Palette.lantern300;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.hourglass_bottom_rounded, size: 18, color: color),
-        const SizedBox(width: 4),
-        Text(
-          AppLocalizations.of(context).timeLeft(seconds),
-          style: TextStyle(
-            color: color,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+    final label = seconds >= 60
+        ? '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}'
+        : '0:${seconds.toString().padLeft(2, '0')}';
+    // The moon clock (task 012): the ring runs as the time goes.
+    return Semantics(
+      label: AppLocalizations.of(context).timeLeft(seconds),
+      excludeSemantics: true,
+      child: SizedBox.square(
+        dimension: 92,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Moon(
+              size: 92,
+              progress: 1 - leftMs / _total,
+              glow: false,
+            ),
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Palette.stagePlaque.withValues(alpha: 0.78),
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: displayFont,
+                fontWeight: FontWeight.w700,
+                fontSize: 20,
+                color: urgent ? Palette.curtain400 : Palette.stageIvory,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-/// The main action: a lantern-orange board whose cut edge gives under a
-/// finger.
+/// The main action: a wide lantern-orange button with an icon on the
+/// right, its label in the book serif. One per screen.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     required this.label,
     required this.onPressed,
     super.key,
+    this.icon = Icons.arrow_forward_rounded,
   });
 
   final String label;
   final VoidCallback? onPressed;
 
+  /// Shown after the label; `null` for none.
+  final IconData? icon;
+
   @override
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
-    child: _BoardButton(
-      face: BoardFace.paint,
-      paint: Palette.lantern400,
-      foreground: Palette.ink,
+    child: _StageButton(
+      lantern: true,
       onPressed: onPressed,
       label: label,
+      trailing: icon,
     ),
   );
 }
 
-/// A quieter action next to the primary one: a plain board (midnight on
-/// the stage, kraft on paper) with a rim.
+/// A quieter action next to the primary one: dark board with a brass edge
+/// (lit when [selected]), or on paper a kraft board.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     required this.label,
@@ -537,6 +517,7 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     this.selected = false,
     this.expand = true,
+    this.icon,
   });
 
   final String label;
@@ -548,49 +529,45 @@ class SecondaryButton extends StatelessWidget {
   /// Takes the full width; otherwise as wide as its label.
   final bool expand;
 
+  /// Shown before the label.
+  final IconData? icon;
+
   @override
   Widget build(BuildContext context) {
-    final paper = Surface.paper(context);
-    final button = _BoardButton(
-      face: paper ? BoardFace.kraft : BoardFace.night,
-      foreground: paper ? Palette.ink : Palette.moon100,
-      rim: selected
-          ? Palette.lantern400
-          : paper
-          ? Palette.wood700
-          : Palette.night500,
+    final button = _StageButton(
+      lantern: false,
+      selected: selected,
       onPressed: onPressed,
       label: label,
+      leading: icon,
     );
     return expand ? SizedBox(width: double.infinity, child: button) : button;
   }
 }
 
-/// A button cut from board: the face sinks into the corrugated edge while
-/// pressed and springs back.
-class _BoardButton extends StatefulWidget {
-  const _BoardButton({
-    required this.face,
-    required this.foreground,
+/// A button that gives a little under the finger and springs back.
+class _StageButton extends StatefulWidget {
+  const _StageButton({
+    required this.lantern,
     required this.onPressed,
     required this.label,
-    this.paint,
-    this.rim,
+    this.selected = false,
+    this.leading,
+    this.trailing,
   });
 
-  final BoardFace face;
-  final Color? paint;
-  final Color foreground;
-  final Color? rim;
+  final bool lantern;
+  final bool selected;
   final VoidCallback? onPressed;
   final String label;
+  final IconData? leading;
+  final IconData? trailing;
 
   @override
-  State<_BoardButton> createState() => _BoardButtonState();
+  State<_StageButton> createState() => _StageButtonState();
 }
 
-class _BoardButtonState extends State<_BoardButton> {
-  static const double _thickness = 6;
+class _StageButtonState extends State<_StageButton> {
   bool _down = false;
 
   void _set(bool down) {
@@ -600,52 +577,50 @@ class _BoardButtonState extends State<_BoardButton> {
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onPressed != null;
+    final paper = Surface.paper(context);
+    final foreground = !enabled
+        ? Palette.stageIvorySoft.withValues(alpha: 0.45)
+        : widget.lantern
+        ? Palette.stageLanternInk
+        : paper
+        ? Palette.ink
+        : Palette.stageIvory;
+    final big = widget.lantern;
     return Listener(
       onPointerDown: (_) => _set(true),
       onPointerUp: (_) => _set(false),
       onPointerCancel: (_) => _set(false),
       child: TweenAnimationBuilder<double>(
-        tween: Tween(end: _down ? 0.7 : 0),
-        duration: Duration(milliseconds: _down ? 60 : 160),
+        tween: Tween(end: _down ? 1 : 0),
+        duration: Duration(milliseconds: _down ? 60 : 180),
         curve: _down ? Curves.easeOut : Curves.easeOutBack,
-        builder: (context, press, child) => CustomPaint(
-          painter: BoardPainter(
-            radius: 999,
-            face: enabled ? widget.face : BoardFace.paint,
-            color: enabled ? widget.paint : Palette.night700,
-            rim: enabled ? widget.rim : Palette.night500,
-            press: press,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: _thickness),
-            child: Transform.translate(
-              offset: Offset(0, _thickness * press),
+        builder: (context, press, child) => Transform.translate(
+          offset: Offset(0, 2 * press),
+          child: Transform.scale(
+            scale: 1 - 0.015 * press,
+            child: DecoratedBox(
+              decoration: widget.lantern
+                  ? LanternDecoration(press: press, enabled: enabled)
+                  : PlaqueDecoration(lit: widget.selected),
               child: child,
             ),
           ),
         ),
         child: TextButton(
           style: ButtonStyle(
-            foregroundColor: WidgetStateProperty.resolveWith(
-              (states) => states.contains(WidgetState.disabled)
-                  ? Palette.moon200.withValues(alpha: 0.45)
-                  : widget.foreground,
-            ),
+            foregroundColor: WidgetStatePropertyAll(foreground),
             overlayColor: WidgetStatePropertyAll(
-              widget.foreground.withValues(alpha: 0.08),
+              foreground.withValues(alpha: 0.06),
             ),
-            padding: const WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 26, vertical: 15),
+            padding: WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 22, vertical: big ? 15 : 11),
             ),
-            minimumSize: const WidgetStatePropertyAll(Size(48, 52)),
-            textStyle: const WidgetStatePropertyAll(
-              TextStyle(
-                fontFamily: textFont,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
+            minimumSize: WidgetStatePropertyAll(Size(48, big ? 58 : 48)),
+            shape: const WidgetStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(Radii.m)),
               ),
             ),
-            shape: const WidgetStatePropertyAll(StadiumBorder()),
           ),
           onPressed: widget.onPressed == null
               ? null
@@ -653,7 +628,31 @@ class _BoardButtonState extends State<_BoardButton> {
                   SoundScope.play(context, Sound.tap);
                   widget.onPressed!();
                 },
-          child: Text(widget.label, textAlign: TextAlign.center),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.leading case final icon?) ...[
+                Icon(icon, size: 20, color: foreground),
+                const SizedBox(width: 10),
+              ],
+              Flexible(
+                child: Text(
+                  widget.label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: displayFont,
+                    fontSize: big ? 21 : 17,
+                    fontWeight: FontWeight.w700,
+                    color: foreground,
+                  ),
+                ),
+              ),
+              if (widget.trailing case final icon?) ...[
+                const SizedBox(width: 12),
+                Icon(icon, size: 22, color: foreground),
+              ],
+            ],
+          ),
         ),
       ),
     );

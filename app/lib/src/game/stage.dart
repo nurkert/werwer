@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:whowolf/src/game/cardboard.dart';
+import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The stock everything is printed on: a small tile of noise, made once and
@@ -120,41 +121,23 @@ class _StageBackgroundState extends State<StageBackground> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final top = MediaQuery.paddingOf(context).top;
-    // Opaque cardstock first: a gradient alone would replace the colour.
-    return ColoredBox(
-      color: Palette.night900,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0, -1.1),
-            radius: 1.1,
-            colors: [Color(0x593A4677), Color(0x003A4677)],
+  Widget build(BuildContext context) => ColoredBox(
+    color: Palette.stageNight,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        // The scene of this moment (task 012), with the grain over it and
+        // never over text.
+        IgnorePointer(child: StageSet(scene: SceneScope.of(context))),
+        IgnorePointer(
+          child: RepaintBoundary(
+            child: CustomPaint(painter: GrainPainter(opacity: 0.05)),
           ),
         ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // The board's grain lies under the content, never over text.
-            IgnorePointer(
-              child: RepaintBoundary(
-                child: CustomPaint(painter: GrainPainter()),
-              ),
-            ),
-            widget.child,
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              height: top + Valance.drop,
-              child: const IgnorePointer(child: Valance()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+        widget.child,
+      ],
+    ),
+  );
 }
 
 /// The scalloped curtain at the top of the stage. It fills the status bar
@@ -250,8 +233,12 @@ class StageScaffold extends StatelessWidget {
     required this.body,
     this.appBar,
     this.floatingAppBar = false,
+    this.scene,
     super.key,
   });
+
+  /// The stage set; the one around it if `null`.
+  final Scene? scene;
 
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -261,14 +248,18 @@ class StageScaffold extends StatelessWidget {
   final bool floatingAppBar;
 
   @override
-  Widget build(BuildContext context) => StageBackground(
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: floatingAppBar,
-      appBar: appBar,
-      body: body,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final page = StageBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: floatingAppBar,
+        appBar: appBar,
+        body: body,
+      ),
+    );
+    final scene = this.scene;
+    return scene == null ? page : SceneScope(scene: scene, child: page);
+  }
 }
 
 /// A body with a [header] floating above it (the narrator's line). The

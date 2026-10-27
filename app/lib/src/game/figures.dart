@@ -109,6 +109,10 @@ const _faces = <Persona, (double, double, double)>{
   Persona.grandfather: (0.62, 0.13, 324 / 640),
 };
 
+/// Where [persona]'s face is in its figure: (x, y) as fractions of the
+/// image, and the image's aspect ratio (width / height).
+(double, double, double) faceOf(Persona persona) => _faces[persona]!;
+
 /// A round portrait of a persona, zoomed onto the face, cut from card with
 /// a pale edge like the figures. [grey] for players who are out.
 class Portrait extends StatelessWidget {
