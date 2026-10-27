@@ -274,7 +274,6 @@ Persona _persona(GameState state, PlayerId player, Persona? wish) {
 GameUpdate _choosePersona(GameState state, ChoosePersona action) {
   _expectPhase(state, Phase.lobby);
   if (state.player(action.player) == null) _refuse(Violation.unknownPlayer);
-  if (!state.settings.personaChoice) _refuse(Violation.disabled);
   final persona = _persona(state, action.player, action.persona);
   return GameUpdate(
     state.copyWith(

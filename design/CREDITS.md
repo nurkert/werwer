@@ -4,6 +4,7 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 
 | File | Tool | Date | Prompt |
 |---|---|---|---|
+| `reference/ui_concept_v1.png` (UI concept board, direction for task 012) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/ui_concept.md`](prompts/ui_concept.md) |
 | `reference/mondbuehne.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/mondbuehne.md`](prompts/mondbuehne.md) |
 | `characters/werwolf.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |
 | `characters/seherin.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |

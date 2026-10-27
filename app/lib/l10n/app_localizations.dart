@@ -1352,12 +1352,6 @@ abstract class AppLocalizations {
   /// **'Night sounds and the morning yawn'**
   String get settingsAtmosphere;
 
-  /// No description provided for @settingsPersonas.
-  ///
-  /// In en, this message translates to:
-  /// **'Players choose their figure'**
-  String get settingsPersonas;
-
   /// No description provided for @settingsVoice.
   ///
   /// In en, this message translates to:
@@ -1867,12 +1861,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'night sounds'**
   String get extraAtmosphere;
-
-  /// No description provided for @extraPersonas.
-  ///
-  /// In en, this message translates to:
-  /// **'free choice of figures'**
-  String get extraPersonas;
 
   /// No description provided for @webJoinTitle.
   ///

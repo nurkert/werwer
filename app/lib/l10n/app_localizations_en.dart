@@ -765,9 +765,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAtmosphere => 'Night sounds and the morning yawn';
 
   @override
-  String get settingsPersonas => 'Players choose their figure';
-
-  @override
   String get settingsVoice => 'Narrator voice on the host device';
 
   @override
@@ -1055,9 +1052,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get extraAtmosphere => 'night sounds';
-
-  @override
-  String get extraPersonas => 'free choice of figures';
 
   @override
   String get webJoinTitle => 'Play in the browser';

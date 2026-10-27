@@ -3,6 +3,17 @@
 All notable changes to Whowolf. Versions follow [Semantic Versioning](https://semver.org/);
 0.0.x are test versions, 0.1.0 is the first release (developer beta).
 
+## Unreleased
+
+### Added
+- Ghosts: the dead can watch, holding a button to see every role and, if
+  the table allows it, what happens at night and who votes for whom.
+- A tied vote leads to a runoff between the tied.
+
+### Changed
+- In the lobby everyone picks their own figure among the free ones, at
+  every level (Classic used to switch this off).
+
 ## 0.1.2 – 2026-10-27
 
 ### Added

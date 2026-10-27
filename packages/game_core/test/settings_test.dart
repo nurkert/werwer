@@ -24,7 +24,6 @@ void main() {
             .copyWith(
               sheepCounting: true,
               atmosphere: true,
-              personaChoice: true,
               doorSigns: true,
               narratorVoice: false,
               nightMode: NightMode.together,
@@ -168,13 +167,24 @@ void main() {
       expect(day.state.dreams, isEmpty);
     });
 
-    test('without persona choice, personas stay as dealt', () {
-      final state = lobby(3, settings: Preset.classic.settings);
-      expect(
-        () => apply(state, ChoosePersona(id(0), Persona.mayor)),
-        refuses(Violation.disabled),
-      );
-    });
+    test(
+      'in the lobby everyone picks among the free figures, at any level',
+      () {
+        for (final preset in Preset.values) {
+          final state = lobby(3, settings: preset.settings);
+          final taken = state.players[1].persona;
+          final free = Persona.values.firstWhere(
+            (p) => !state.players.any((q) => q.persona == p),
+          );
+          final picked = apply(state, ChoosePersona(id(0), free)).state;
+          expect(picked.players.first.persona, free);
+          expect(
+            () => apply(state, ChoosePersona(id(0), taken)),
+            refuses(Violation.personaTaken),
+          );
+        }
+      },
+    );
 
     test('the phase times come from the settings', () {
       final settings = const GameSettings().copyWith(

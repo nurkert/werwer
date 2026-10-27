@@ -498,7 +498,6 @@
   "settingsSheepOff": "Without sheep, everyone answers a plain question at night, so tapping gives nobody away.",
   "settingsWolfTrail": "Wolf trail (after the first release)",
   "settingsAtmosphere": "Night sounds and the morning yawn",
-  "settingsPersonas": "Players choose their figure",
   "settingsVoice": "Narrator voice on the host device",
   "tooManyRoles": "For {count} players these are too many roles.",
   "@tooManyRoles": {
@@ -626,7 +625,6 @@
   "extraSheep": "counting sheep",
   "extraDoorSigns": "door signs",
   "extraAtmosphere": "night sounds",
-  "extraPersonas": "free choice of figures",
   "webJoinTitle": "Play in the browser",
   "webJoinHint": "No app needed: enter your name and take your seat at the table.",
   "webJoinNoLink": "Scan the QR code at the table with your phone's camera to continue here.",

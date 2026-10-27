@@ -271,11 +271,6 @@ class _SettingsBody extends StatelessWidget {
           onChanged: (v) => onChanged(s.copyWith(wolfTrail: v)),
         ),
         _Switch(
-          label: l10n.settingsPersonas,
-          value: s.personaChoice,
-          onChanged: (v) => onChanged(s.copyWith(personaChoice: v)),
-        ),
-        _Switch(
           label: l10n.settingsVoice,
           value: s.narratorVoice,
           onChanged: (v) => onChanged(s.copyWith(narratorVoice: v)),

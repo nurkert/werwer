@@ -258,7 +258,6 @@ class _LobbyPhaseState extends State<LobbyPhase> {
                     if (settings.sheepInPlay) l10n.extraSheep,
                     if (settings.doorSignsInPlay) l10n.extraDoorSigns,
                     if (settings.atmosphere) l10n.extraAtmosphere,
-                    if (settings.personaChoice) l10n.extraPersonas,
                     if (settings.ghosts != GhostSight.off) l10n.extraGhosts,
                     if (settings.tieRule == TieRule.runoff) l10n.extraRunoff,
                   ]
@@ -413,14 +412,12 @@ class _PersonaPicker extends StatelessWidget {
                     color: Palette.moon100,
                   ),
                 ),
-                if (session.view!.settings.personaChoice) ...[
-                  const SizedBox(height: 6),
-                  SecondaryButton(
-                    label: l10n.changePersona,
-                    expand: false,
-                    onPressed: () => _pick(context),
-                  ),
-                ],
+                const SizedBox(height: 6),
+                SecondaryButton(
+                  label: l10n.changePersona,
+                  expand: false,
+                  onPressed: () => _pick(context),
+                ),
               ],
             ),
           ),

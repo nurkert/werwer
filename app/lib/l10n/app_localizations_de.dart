@@ -775,9 +775,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsAtmosphere => 'Nachtgeräusche und Morgen-Gähnen';
 
   @override
-  String get settingsPersonas => 'Figuren selbst wählen';
-
-  @override
   String get settingsVoice => 'Erzählstimme auf dem Gastgeber-Gerät';
 
   @override
@@ -1067,9 +1064,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get extraAtmosphere => 'Nachtgeräusche';
-
-  @override
-  String get extraPersonas => 'freie Figurenwahl';
 
   @override
   String get webJoinTitle => 'Mitspielen im Browser';

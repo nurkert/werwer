@@ -207,6 +207,22 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ---
 
+## 0.2.0 – Die Bühne
+
+**Ziel:** Die App sieht aus wie das freigegebene Konzept: jeder Moment ein Bühnenbild bei Mondlicht, Pappfiguren in 3D, eine ruhige, hochwertige Bedienung. Plan und Bildschirm-Katalog in [Task 012](tasks/012-buehnenbild-neu.md).
+
+- [ ] Phase 0: Konzepttafeln für alle Bildschirme und „Figuren in 3D“, Titelschrift entschieden
+- [ ] Phase 1: Tokens, Schriften, Komponenten mit Galerie und Screenshot-Tests
+- [ ] Phase 2: Bausteine (Szenen-Ebenen, Requisiten, Monde, Dorf-Posen aller 20 Figuren, Symbole)
+- [ ] Phase 3: der Kernabend (Start, Beitreten, Lobby, Rolle, Nacht, Abstimmung, Ende)
+- [ ] Phase 4: alle übrigen Bildschirme und Zustände
+- [ ] Phase 5: Bewegung (Vorhang, Wiegen, Mondring, Parallaxe)
+- [ ] Phase 6: Barrierefreiheit, Leistung, Screenshots, Store-Bilder
+- [ ] Phase 7: Website mit echten Screenshots angleichen
+- [x] Figurenwahl in der Lobby in jeder Stufe (2026-10-27)
+
+---
+
 ## Nach dem MVP
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.

@@ -89,7 +89,6 @@ class GameSettings {
     this.sheepCounting = true,
     this.wolfTrail = false,
     this.atmosphere = false,
-    this.personaChoice = true,
     this.narratorVoice = false,
     this.doorSigns = false,
     this.nightMode = NightMode.together,
@@ -130,10 +129,6 @@ class GameSettings {
 
   /// Whether the night soundscape and the morning yawn play.
   final bool atmosphere;
-
-  /// Whether players pick their persona in the lobby (otherwise they keep
-  /// the one they got).
-  final bool personaChoice;
 
   /// Whether the narrator speaks aloud (otherwise text only). Off unless
   /// the host turns it on: the system voices are no pleasure to hear yet;
@@ -221,7 +216,6 @@ class GameSettings {
     bool? sheepCounting,
     bool? wolfTrail,
     bool? atmosphere,
-    bool? personaChoice,
     bool? narratorVoice,
     bool? doorSigns,
     NightMode? nightMode,
@@ -239,7 +233,6 @@ class GameSettings {
     sheepCounting: sheepCounting ?? this.sheepCounting,
     wolfTrail: wolfTrail ?? this.wolfTrail,
     atmosphere: atmosphere ?? this.atmosphere,
-    personaChoice: personaChoice ?? this.personaChoice,
     narratorVoice: narratorVoice ?? this.narratorVoice,
     doorSigns: doorSigns ?? this.doorSigns,
     nightMode: nightMode ?? this.nightMode,
@@ -262,7 +255,6 @@ class GameSettings {
       other.sheepCounting == sheepCounting &&
       other.wolfTrail == wolfTrail &&
       other.atmosphere == atmosphere &&
-      other.personaChoice == personaChoice &&
       other.narratorVoice == narratorVoice &&
       other.doorSigns == doorSigns &&
       other.nightMode == nightMode &&
@@ -282,7 +274,6 @@ class GameSettings {
     sheepCounting,
     wolfTrail,
     atmosphere,
-    personaChoice,
     narratorVoice,
     doorSigns,
     nightMode,
@@ -297,19 +288,18 @@ class GameSettings {
 enum Preset {
   /// Like the card game: everyone closes their eyes and the narrator
   /// calls the roles one by one; the app narrates aloud and counts the
-  /// votes. No sheep score, no wolf trail, no atmosphere, fixed personas.
+  /// votes. No sheep score, no wolf trail, no atmosphere.
   classic(
     GameSettings(
       roles: {Role.seer, Role.witch, Role.hunter},
       sheepCounting: false,
-      personaChoice: false,
       narratorVoice: true,
       nightMode: NightMode.called,
     ),
   ),
 
   /// Classic plus Whowolf's own touches: sheep counting with the morning
-  /// score, door signs, atmosphere and the morning yawn, persona choice.
+  /// score, door signs, atmosphere and the morning yawn.
   whowolf(
     GameSettings(
       roles: {Role.seer, Role.witch, Role.hunter},
