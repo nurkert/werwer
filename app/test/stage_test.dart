@@ -5,6 +5,8 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/stage/scene.dart';
+import 'package:whowolf/src/stage/scenery.dart';
+import 'package:whowolf/src/stage/scenery.g.dart';
 
 void main() {
   PlayerView view(Phase phase, {Faction? winner}) => PlayerView(
@@ -53,7 +55,9 @@ void main() {
     for (final scene in Scene.values) {
       final files = [
         ?plateOf(scene),
-        if (wingsOf(scene) case (final l, final r)) ...[l, r],
+        for (final piece in sceneryOf(scene))
+          if (sceneryAspects.containsKey(piece.name))
+            'assets/stage/scenery/${piece.name}.webp',
       ];
       for (final file in files) {
         expect(File(file).existsSync(), isTrue, reason: '$scene: $file');

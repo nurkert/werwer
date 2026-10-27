@@ -64,13 +64,13 @@ Die App folgt dem freigegebenen Codex-Konzept und den Konzepttafeln in `design/r
 - **Ebenen**, jede in eigener Tiefe:
   - das gemalte Bühnenbild (`app/assets/stage/*.webp`, ohne Mond);
   - der Mond als eigenes Widget;
-  - die Seitenkulissen links und rechts (`app/assets/stage/wings/`);
+  - die Kulissen (`app/assets/stage/scenery/`, `Scenery`): Pappstücke im Stil der Figuren mit hellem Kartonrand, sichtbarer Pappkante und Schatten auf dem Bühnenbild. Sie stehen unten an den Seiten, hängen von oben herab (Äste, Vorhänge) oder laufen quer über den oberen Rand (Lichterkette, Volant). Jede Szene hat ihre eigene Komposition von hinten nach vorn;
   - eine Abdunkelung oben und unten für Titel und Knöpfe.
   - Auf Handys und Tablets verschieben sich die Ebenen beim Neigen (`StageTilt`, `sensors_plus`): die Kulissen am stärksten, das Bild kaum. Bei reduzierter Bewegung steht alles still.
 - **Responsiv:**
   - Handys spielen nur hochkant.
   - Bühnenbilder sind quadratisch und füllen jedes Format, der Boden bleibt im Bild.
-  - Kulissen zeigen höchstens einen schmalen Streifen (20 % der Breite, höchstens 150 px).
+  - Wie viele Kulissen stehen, richtet sich nach der Breite: auf dem Handy die vorderen, ab Tablet und Desktop weitere dahinter. Seitliche Stücke ragen höchstens ein Drittel der Breite hinein, Vorhänge höchstens 22 %. Obere Stücke kacheln, statt sich zu strecken.
   - Auf breiten Fenstern steht der Mond kleiner und hoch zwischen den Spalten.
 - **Der Mond** (`Moon`) ist das Leitmotiv und hat eine Aufgabe:
   - Er zeigt die Tageszeit: Sichel, halb, voll, Blutmond, Sonne.
@@ -130,7 +130,7 @@ Die älteren Tokens (`night-*`, `moon-*`, `paper`, `ink`, `lantern-*`, `gold-500
 ## Asset-Pipeline
 
 - **Erzeugung** mit der Codex-Bildgenerierung, immer mit Referenzbildern aus dem Projekt als Stilvorlage.
-- **Sammelbögen:** mehrere Elemente pro Bild auf transparentem Hintergrund (spart Kontingent und hält den Stil einheitlich), dann mit `tool/assets/slice_sheet.py` ausschneiden und mit `clean_alpha.py` säubern. Malt Codex einen Hintergrund statt Transparenz, stellt `tool/assets/cutout.py` die Stücke frei. Die Dorf-Posen schneidet `tool/assets/poses.py` und schreibt die Gesichtslage.
+- **Sammelbögen:** mehrere Elemente pro Bild auf transparentem Hintergrund (spart Kontingent und hält den Stil einheitlich), dann mit `tool/assets/slice_sheet.py` ausschneiden und mit `clean_alpha.py` säubern. Kulissen entstehen als ein Stück pro Bild in voller Auflösung, `tool/assets/scenery.py` stellt sie frei (auch von einem gemalten Hintergrund) und schreibt ihre Seitenverhältnisse. Die Dorf-Posen schneidet `tool/assets/poses.py` und schreibt die Gesichtslage.
 - **Prompts versioniert** in `design/prompts/`, Herkunft in `design/CREDITS.md`, in die Bilder eingebettet.
 - **Ordner:** `design/reference/` (Stilreferenzen), `design/source/` (Originale), `design/sheets/` (Sammelbögen); optimiert (AVIF/WebP) in Website und App (`app/assets/figures`, `app/assets/sheep`).
 

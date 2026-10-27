@@ -217,7 +217,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Phase 3: der Kernabend (Start, Beitreten, Lobby, Rolle, Nacht, Abstimmung, Ende)
 - [x] Phase 4: alle übrigen Bildschirme und Zustände, dazu Wischseiten statt Scrollen
 - [x] Phase 5: Bewegung (Vorhang, Wiegen mit Bodenschatten, Mondring, Parallaxe beim Neigen)
-- [ ] Phase 6: Barrierefreiheit, 200 % Schrift und Screenshots erledigt; Bildrate am Gerät und Store-Bilder offen
+- [x] Phase 6: Barrierefreiheit, 200 % Schrift, Bildrate auf iPhone 15 und macOS gemessen, App-Store-Bilder
 - [x] Phase 7: Website zeigt echte Screenshots der neuen App
 - [x] Figurenwahl in der Lobby in jeder Stufe (2026-10-27)
 

@@ -22,17 +22,4 @@ Codex CLI 0.164.0 (built-in image generation), 2026-10-27, run as `codex exec --
 - `source/scenes/backstage.png`: Backstage of a puppet theatre: a wooden wall with hanging costumes on a rack, a dressing mirror with warm bulbs, ropes and sandbags, a folded red curtain, wooden floor; cosy warm light, calm surfaces.
 - `source/scenes/curtain.png`: A closed heavy red velvet theatre curtain filling the stage, with golden tassels and a golden fringe, a thin vertical gap of warm light in the middle, wooden stage floor in the foreground, two small hanging lanterns at the sides.
 
-## Wings (`source/wings/sheet.png`)
-
-> Create ONE image with the built-in image generation tool. Do not write any code and do not create any other files.
-> Match the painted style of the attached design direction (moonlit puppet theatre, painted cardboard scenery with a thin pale cardboard rim around every cut-out piece).
-> A sprite sheet on a fully TRANSPARENT background: separate cut-out theatre wing pieces, each standing alone with wide empty gaps between them, nothing touching another piece or the image edge. These pieces frame the left and right edges of a phone screen, so each is TALL and NARROW and its inner side is open:
-> 1. LEFT wing: a gnarled oak tree trunk with leafy branches reaching right over the top, a hanging iron lantern glowing warmly on a branch.
-> 2. RIGHT wing: the corner of a half-timbered house with a lit window, a wooden sign and a bush at its foot.
-> 3. LEFT wing: tall dark pine trees, one behind the other.
-> 4. RIGHT wing: tall dark pine trees with an owl sitting on a branch.
-> 5. LEFT wing: a heavy red velvet theatre curtain gathered with a golden tassel rope.
-> 6. RIGHT wing: the same curtain mirrored.
-> 7. A wide low foreground strip: wooden stage planks with a front edge, footlights glowing.
-> 8. A wide low foreground strip: grass, ferns and a short wooden fence.
-> No text, no characters. Original designs only.
+The first wings sheet (2026-10-27) was replaced by single scenery pieces, see `scenery.md`.

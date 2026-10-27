@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/stage/moon.dart';
+import 'package:whowolf/src/stage/scenery.dart';
 import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -118,7 +119,7 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.finale => (
     sky: const [Color(0xFF2B4772), Color(0xFF9A7A78), Color(0xFFF2C890)],
     moon: MoonPhase.sun,
-    moonAt: const Alignment(-0.6, -0.3),
+    moonAt: const Alignment(0, -0.62),
     stars: 0,
     horizon: const Color(0xFF2A3446),
     wings: const Color(0xFF151C2A),
@@ -350,24 +351,6 @@ Color? tintOf(Scene scene) => switch (scene) {
   _ => null,
 };
 
-/// The wings at both sides of a scene (task 012): tall cut-outs that
-/// frame the screen and shift most when the phone tilts.
-(String, String)? wingsOf(Scene scene) => switch (scene) {
-  Scene.village || Scene.dusk || Scene.morning || Scene.finale => (
-    'assets/stage/wings/oak.webp',
-    'assets/stage/wings/house.webp',
-  ),
-  Scene.nightLake || Scene.hunt || Scene.finaleLovers => (
-    'assets/stage/wings/pines_l.webp',
-    'assets/stage/wings/pines_owl.webp',
-  ),
-  Scene.theatre || Scene.finaleWolves => (
-    'assets/stage/wings/curtain_l.webp',
-    'assets/stage/wings/curtain_r.webp',
-  ),
-  Scene.backstage || Scene.curtain => null,
-};
-
 /// The moon in a plate's sky.
 class _MoonLayer extends CustomPainter {
   const _MoonLayer(this.scene);
@@ -478,8 +461,9 @@ class StageSet extends StatelessWidget {
                       child: CustomPaint(painter: _MoonLayer(scene)),
                     ),
                   ),
-                  if (wingsOf(scene) case (final left, final right))
-                    shift(18, _Wings(left: left, right: right)),
+                  // The scenery (cut-outs at the sides and from the
+                  // top), each piece at its own depth.
+                  Scenery(scene: scene, tint: tintOf(scene)),
                   RepaintBoundary(
                     child: CustomPaint(painter: _PlateLight(scene)),
                   ),
@@ -509,47 +493,8 @@ class _Plate extends StatelessWidget {
     return tint == null
         ? image
         : ColorFiltered(
-            colorFilter: ColorFilter.mode(tint, BlendMode.multiply),
+            colorFilter: ColorFilter.mode(tint, BlendMode.modulate),
             child: image,
           );
   }
-}
-
-/// Two tall cut-outs, each showing only its inner part at the screen's
-/// edge, like wings at the side of a stage.
-class _Wings extends StatelessWidget {
-  const _Wings({required this.left, required this.right});
-
-  final String left;
-  final String right;
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      final height = (box.maxHeight * 0.78).clamp(0.0, box.maxWidth * 2.2);
-      // How much of each wing reaches into the screen: a frame, never
-      // more than a narrow strip, so content on wide windows stays clear.
-      final reach = (box.maxWidth * 0.2).clamp(60.0, 150.0);
-      Widget wing(String asset, {required bool isLeft}) => Positioned(
-        bottom: -box.maxHeight * 0.02,
-        height: height,
-        left: isLeft ? 0 : box.maxWidth - reach,
-        width: reach,
-        child: OverflowBox(
-          alignment: isLeft ? Alignment.centerRight : Alignment.centerLeft,
-          maxWidth: double.infinity,
-          child: Image.asset(asset, height: height, fit: BoxFit.fitHeight),
-        ),
-      );
-      return RepaintBoundary(
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            wing(left, isLeft: true),
-            wing(right, isLeft: false),
-          ],
-        ),
-      );
-    },
-  );
 }

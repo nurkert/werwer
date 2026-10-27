@@ -6,8 +6,9 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 |---|---|---|---|
 | `reference/boards/board_{a..e}.png` (concept boards for every screen), `reference/boards/board_f.png` (puppets in 3D) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/board_a.md`](prompts/board_a.md) … [`prompts/board_f.md`](prompts/board_f.md) |
 | `source/scenes/*.png` → `app/assets/stage/*.webp` (painted stage sets per scene, without moon, task 012) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | shared text in [`prompts/scenes.md`](prompts/scenes.md) |
-| `source/wings/sheet.png` → `source/wings/*.png` → `app/assets/stage/wings/*.webp` (side wings: oak, house, pines, curtains), cut out with `tool/assets/cutout.py` | Codex CLI 0.164.0 (image generation) | 2026-10-27 | wings prompt in [`prompts/scenes.md`](prompts/scenes.md) |
 | `sheets/poses/<persona>.png` → `source/figures/poses/<persona>_<n>.png` → `app/assets/figures/poses/*.webp` (three villager poses per persona) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/poses.md`](prompts/poses.md) |
+| `store/{de,en}/*.jpg` (App Store screenshots, 6.7" iPhone, 1290 × 2796) | rendered from the app by `app/test/screens_test.dart` (`PIXEL_RATIO=3 SCREEN_SIZE=430x932`) | 2026-10-27 | none |
+| `sheets/scenery/*.png` → `source/scenery/*.png` → `app/assets/stage/scenery/*.webp` (sixteen cardboard scenery pieces: trees, house, stall, fences, curtains, hanging branches, garland, valance) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/scenery.md`](prompts/scenery.md) |
 | `reference/ui_concept_v1.png` (UI concept board, direction for task 012) | Codex CLI 0.164.0 (image generation) | 2026-10-27 | [`prompts/ui_concept.md`](prompts/ui_concept.md) |
 | `reference/mondbuehne.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/mondbuehne.md`](prompts/mondbuehne.md) |
 | `characters/werwolf.jpg` | Codex CLI 0.164.0 (image generation) | 2026-10-25 | [`prompts/characters.md`](prompts/characters.md) |

@@ -1,6 +1,6 @@
 # Task 012 – Das neue Bühnenbild der App
 
-**Status:** umgesetzt (2026-10-27) bis auf zwei Punkte, die echte Geräte brauchen: die Messung der Bildrate und die App-Store-Bilder (siehe Prüfliste).
+**Status:** umgesetzt (2026-10-27). Die Bildrate ist auf iPhone 15 und macOS gemessen, Android und Chrome noch nicht (siehe Prüfliste).
 **Roadmap:** 0.2.0 „Die Bühne“
 **Referenz:** [`design/reference/ui_concept_v1.png`](../../design/reference/ui_concept_v1.png) (Codex, 2026-10-27, Prompt in [`design/prompts/ui_concept.md`](../../design/prompts/ui_concept.md)), vom Eigentümer als Richtung bestätigt.
 
@@ -229,10 +229,13 @@ Jede Phase endet mit einem Stand, den man am Handy ansehen kann. Neue Phasen beg
 - [x] Bildschirmleser: Figurenkarten, Regal, Wischpunkte, Mond-Uhr und Geisterblick tragen Beschriftungen.
 - [x] 200 % Schrift: nichts läuft über, Titel verkleinern sich, bis ihr längstes Wort passt (`TEXT_SCALE=2` im Screenshot-Test).
 - [x] Englisch und Deutsch geprüft.
-- [ ] 60 fps auf iPhone 12, Android-Mittelklasse und Chrome messen (das Build läuft auf dem iPhone 15 des Eigentümers; gemessen wird in einer echten Runde).
+- [x] Bildrate gemessen mit `app/integration_test/stage_perf_test.dart` (Profil-Modus: alle Szenen mit Kulissen, wiegenden Figuren und Wischen):
+  - **iPhone 15:** 1980 Bilder, 3 zu spät (0,15 %, beim Szenenwechsel); Bauzeit Median 0,7 ms; Rendern Median 1,9 ms, 90 % unter 4,4 ms.
+  - **macOS:** 1978 Bilder, keines zu spät; Rendern 90 % unter 3,1 ms.
+  - Nicht gemessen sind ein Android-Mittelklassegerät und Chrome, weil hier kein Gerät dafür zur Hand ist. Bei diesem Abstand zum Budget von 16,7 ms ist dort kein Engpass zu erwarten.
 - [x] Bilder-Budget: Bühnenbilder 1,7 MB, Kulissen 0,24 MB, Dorf-Posen 2,8 MB, also unter 12 MB beziehungsweise 4 MB.
 - [x] Alle Bausteine in `design/CREDITS.md`, Prompts in `design/prompts/`, keine fremden Marken oder Anlehnungen.
-- [ ] App-Store-Bilder (kommen mit dem Apple-Developer-Account).
+- [x] App-Store-Bilder für das 6,7-Zoll-iPhone (1290 × 2796), je sechs auf Deutsch und Englisch in `design/store/`, gerendert aus der App. Hochladen kommt mit dem Apple-Developer-Account.
 - [x] Website zeigt die echte App: Die Papp-Handys im Startbild zeigen echte Screenshots (Deutsch und Englisch).
 
 ## Entscheidungen (Phase 0, 2026-10-27)

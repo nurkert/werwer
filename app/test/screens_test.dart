@@ -141,12 +141,19 @@ class _Shooter {
   );
 
   Future<void> shoot(String name) async {
+    // Let images on the screen decode (figures, costumes, poses).
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 600)),
+    );
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(seconds: 1));
     final boundary =
         _boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     await tester.runAsync(() async {
-      final image = await boundary.toImage(pixelRatio: 2);
+      // `PIXEL_RATIO=3` with `SCREEN_SIZE=430x932` gives App Store size.
+      final ratio =
+          double.tryParse(Platform.environment['PIXEL_RATIO'] ?? '') ?? 2;
+      final image = await boundary.toImage(pixelRatio: ratio);
       final png = await image.toByteData(format: ui.ImageByteFormat.png);
       File('$_out/${folder.isEmpty ? '' : '$folder/'}$locale-$name.png')
         ..createSync(recursive: true)
@@ -165,7 +172,7 @@ Future<void> _precache(WidgetTester tester) async {
       'figures/poses',
       'sheep',
       'stage',
-      'stage/wings',
+      'stage/scenery',
     ]) {
       for (final file in Directory('assets/$dir').listSync()) {
         if (file is! File) continue;
