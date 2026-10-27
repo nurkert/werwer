@@ -245,6 +245,11 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
    - eigener Server in den Einstellungen
    - Docker-Image (ghcr.io) und offizieller Server auf eigenem VPS unter Subdomain von whowolf.de (Arbeitsname `game.whowolf.de`), mit genau diesem Container
    - optional: Server als Spielleiter
+10. **Tisch einmessen (nur Idee, 2026-10-27):** Die Handys messen sich akustisch gegenseitig ein (kurze Chirps, jedes Gerät nimmt sein eigenes und die fremden Signale auf, Abstände aus den Laufzeiten, Lage per MDS). Ziel ist nicht ein Klang-Gimmick, sondern **Storytelling wie ein Hörbuch**: Der Erzähler weiß, wo wer sitzt, und kann Geschichten durch den Raum wandern lassen, von einer Seite des Tisches zur anderen, auf jemanden zu. Nebenbei stimmt die Sitzordnung automatisch. Bedingungen, bevor es gebaut wird:
+    - **Mikrofon nur als bewusster, freiwilliger Schritt** in der Lobby („Tisch einmessen“), nie in der Nacht; Aufnahme nur im Speicher, über das Netz gehen nur die Zeitpunkte der erkannten Signale. Datenschutzerklärung und SECURITY_DESIGN anpassen, Sicherheitsnotiz mit Test (heute steht dort, dass die App kein Mikrofon nutzt).
+    - **Patent:** Das Microsoft-Patent US7729204B2 auf genau dieses Messprinzip (BeepBeep, ETOA) ist laut Google Patents bis voraussichtlich 07.10.2027 aktiv; vor einem öffentlichen Release vorher prüfen lassen oder danach planen.
+    - Erst ein kleiner Prototyp mit hörbarem „Kalibrier-Sweep“ auf 2–3 iPhones; Ziel zuerst nur die Reihenfolge im Kreis. Android braucht Testgeräte.
+    - Bausteine (alle permissiv): `flutter_soloud` (MIT) zum Abspielen, `flutter_recorder` (Apache-2.0) zum Aufnehmen, eigener Code für Chirp, Korrelation, MDS; keine GPL-Pakete (Snapcast, Ableton Link, mic_stream).
 
 ---
 
