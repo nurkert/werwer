@@ -34,9 +34,10 @@ Rückmeldung des Eigentümers: App und Website wirken noch „recht tot“. Gew�
 
 ## Prüfliste
 
-- [ ] Lichterkennung mit Vorschau geprüft (alle Bühnenbilder und Kulissen).
-- [ ] App: Leben in allen Szenen, Screenshots, Bildrate auf dem iPhone gemessen.
-- [ ] App: reduzierte Bewegung zeigt ein ruhiges Standbild.
-- [ ] Theater: Vollmond hoch am Himmel.
-- [ ] Website: Leben in allen Szenen, Desktop und Handy fotografiert, Bildrate gemessen.
+- [x] Lichterkennung mit Vorschau geprüft (alle Bühnenbilder und Kulissen); in der App mit eingezeichneten Markierungen (`LIGHTS=1` im Szenen-Test) auf Handy, Tablet und Desktop: jeder Punkt sitzt auf seinem Fenster.
+- [x] App: Leben in allen Szenen, Einzelbilder mit laufender Animation (`LIFE=1` im Szenen-Test).
+- [ ] App: Bildrate auf dem iPhone gemessen.
+- [x] App: reduzierte Bewegung zeigt ein ruhiges Standbild (Uhr steht bei einem leuchtenden Moment).
+- [x] Theater: Vollmond hoch am Himmel.
+- [x] Website: Leben in allen acht Szenen, fotografiert; Bildrate auf gedrosseltem Handy 60 fps, schlimmstes Bild 17 ms, keine Blockierzeit, JavaScript 22 KB.
 - [ ] check.sh grün, gepusht, auf dem iPhone installiert.
