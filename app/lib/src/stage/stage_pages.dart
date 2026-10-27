@@ -7,8 +7,8 @@ import 'package:whowolf/src/theme.dart';
 typedef StagePage = ({String label, Widget child});
 
 /// Pages to swipe like a phone's home screen instead of one long scroll
-/// (task 012): the stage stays, only the front pans away, a little
-/// slower than the finger and fading, so it feels like depth. Each page
+/// (task 012): the stage stays, only the front pans away, fading and
+/// stepping back a little. Each page
 /// fits the window; on a very small one it shrinks as a whole rather than
 /// scroll.
 class StagePages extends StatefulWidget {
@@ -17,7 +17,11 @@ class StagePages extends StatefulWidget {
     super.key,
     this.maxWidth = 440,
     this.action,
+    this.initialPage = 0,
   });
+
+  /// The page shown first (the others to its left and right).
+  final int initialPage;
 
   final List<StagePage> pages;
   final double maxWidth;
@@ -30,7 +34,7 @@ class StagePages extends StatefulWidget {
 }
 
 class _StagePagesState extends State<StagePages> {
-  final _controller = PageController();
+  late final _controller = PageController(initialPage: widget.initialPage);
 
   @override
   void dispose() {
@@ -40,8 +44,8 @@ class _StagePagesState extends State<StagePages> {
 
   double get _page =>
       _controller.hasClients && _controller.position.haveDimensions
-      ? _controller.page ?? 0
-      : 0;
+      ? _controller.page ?? widget.initialPage.toDouble()
+      : widget.initialPage.toDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -52,24 +56,26 @@ class _StagePagesState extends State<StagePages> {
         Expanded(
           child: PageView.builder(
             controller: _controller,
+            // No bounce past the first or last page.
+            physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
             itemCount: widget.pages.length,
             itemBuilder: (context, i) => AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                final off = still ? 0.0 : _page - i;
+                // The page moves exactly with the finger; leaving, it fades
+                // and steps back a little (never into its neighbour).
+                final off = still ? 0.0 : (_page - i).abs().clamp(0.0, 1.0);
                 return Opacity(
-                  opacity: (1 - off.abs() * 0.6).clamp(0.0, 1.0),
-                  child: Transform.translate(
-                    // Lagging behind the finger a little: depth.
-                    offset: Offset(off * 60, 0),
-                    child: child,
-                  ),
+                  opacity: 1 - off * 0.55,
+                  child: Transform.scale(scale: 1 - off * 0.06, child: child),
                 );
               },
-              child: _FitPage(
-                maxWidth: widget.maxWidth,
-                top: insets.top + 8,
-                child: widget.pages[i].child,
+              child: RepaintBoundary(
+                child: _FitPage(
+                  maxWidth: widget.maxWidth,
+                  top: insets.top + 8,
+                  child: widget.pages[i].child,
+                ),
               ),
             ),
           ),
@@ -155,8 +161,8 @@ class _Dots extends StatelessWidget {
     animation: controller,
     builder: (context, _) {
       final page = controller.hasClients && controller.position.haveDimensions
-          ? controller.page ?? 0
-          : 0.0;
+          ? controller.page ?? controller.initialPage.toDouble()
+          : controller.initialPage.toDouble();
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

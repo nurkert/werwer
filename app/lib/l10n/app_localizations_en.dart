@@ -1282,4 +1282,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageGame => 'Game';
+
+  @override
+  String get act1 => 'Prologue';
+
+  @override
+  String get act2 => 'Act one';
+
+  @override
+  String get act3 => 'Act two';
+
+  @override
+  String get act4 => 'Act three';
+
+  @override
+  String get act5 => 'Finale';
+
+  @override
+  String get pageSettings => 'Settings';
 }

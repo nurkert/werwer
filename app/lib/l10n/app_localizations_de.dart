@@ -1294,4 +1294,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pageGame => 'Spiel';
+
+  @override
+  String get act1 => 'Vorspiel';
+
+  @override
+  String get act2 => 'Erster Akt';
+
+  @override
+  String get act3 => 'Zweiter Akt';
+
+  @override
+  String get act4 => 'Dritter Akt';
+
+  @override
+  String get act5 => 'Finale';
+
+  @override
+  String get pageSettings => 'Einstellungen';
 }

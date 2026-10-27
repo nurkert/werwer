@@ -2269,6 +2269,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Game'**
   String get pageGame;
+
+  /// No description provided for @act1.
+  ///
+  /// In en, this message translates to:
+  /// **'Prologue'**
+  String get act1;
+
+  /// No description provided for @act2.
+  ///
+  /// In en, this message translates to:
+  /// **'Act one'**
+  String get act2;
+
+  /// No description provided for @act3.
+  ///
+  /// In en, this message translates to:
+  /// **'Act two'**
+  String get act3;
+
+  /// No description provided for @act4.
+  ///
+  /// In en, this message translates to:
+  /// **'Act three'**
+  String get act4;
+
+  /// No description provided for @act5.
+  ///
+  /// In en, this message translates to:
+  /// **'Finale'**
+  String get act5;
+
+  /// No description provided for @pageSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get pageSettings;
 }
 
 class _AppLocalizationsDelegate

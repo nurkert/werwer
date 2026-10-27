@@ -425,9 +425,8 @@ class StageSet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plate = plateOf(scene);
-    final tilt = StageTilt.of(context);
     Widget shift(double depth, Widget child) =>
-        Transform.translate(offset: tilt * -depth, child: child);
+        TiltShift(depth: depth, child: child);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 600),
       child: KeyedSubtree(

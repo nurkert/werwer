@@ -85,97 +85,132 @@ class HelpLink extends StatelessWidget {
   );
 }
 
-/// The game in five steps, with the figures (task 012): on the start
-/// screen's second page and in [showHowItWorks].
+/// The game in five acts, as a playbill (task 012): three villagers stand
+/// on the stage above a paper slip with the acts. On the start screen's
+/// left page and in [showHowItWorks].
 class HowSteps extends StatelessWidget {
-  const HowSteps({super.key, this.figure = 76});
+  const HowSteps({super.key, this.figure = 120});
 
-  /// How tall the figure beside each step stands.
+  /// How tall the villagers above the playbill stand.
   final double figure;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final steps = [
-      (Icons.qr_code_2_rounded, Role.villager, l10n.how1Title, l10n.how1Text),
-      (Icons.style_rounded, Role.werewolf, l10n.how2Title, l10n.how2Text),
-      (Icons.bedtime_rounded, Role.seer, l10n.how3Title, l10n.how3Text),
-      (Icons.forum_rounded, Role.hunter, l10n.how4Title, l10n.how4Text),
-      (Icons.how_to_vote_rounded, Role.witch, l10n.how5Title, l10n.how5Text),
+    final acts = [
+      (l10n.act1, l10n.how1Title, l10n.how1Text),
+      (l10n.act2, l10n.how2Title, l10n.how2Text),
+      (l10n.act3, l10n.how3Title, l10n.how3Text),
+      (l10n.act4, l10n.how4Title, l10n.how4Text),
+      (l10n.act5, l10n.how5Title, l10n.how5Text),
     ];
+    final (baker, _) = posed(Persona.baker, 3);
+    final (smith, _) = posed(Persona.smith, 2);
+    final (maid, _) = posed(Persona.maid, 1);
     return Column(
       children: [
-        for (final (i, (icon, role, title, text)) in steps.indexed) ...[
-          if (i > 0) const SizedBox(height: 10),
-          Panel(
-            padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+        // The ensemble, the werewolf hiding in the middle.
+        ExcludeSemantics(
+          child: SizedBox(
+            height: figure,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                      BorderSide(color: Palette.stageBrassLight, width: 1.5),
-                    ),
-                  ),
-                  child: Text(
-                    '${i + 1}',
-                    style: const TextStyle(
-                      fontFamily: displayFont,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: Palette.stageIvory,
-                    ),
+                Image.asset(baker, height: figure * 0.86),
+                Transform.translate(
+                  offset: Offset(-figure * 0.08, 0),
+                  child: Image.asset(
+                    figureAsset(Role.werewolf),
+                    height: figure,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
+                Transform.translate(
+                  offset: Offset(-figure * 0.16, 0),
+                  child: Image.asset(smith, height: figure * 0.9),
+                ),
+                Transform.translate(
+                  offset: Offset(-figure * 0.24, 0),
+                  child: Image.asset(maid, height: figure * 0.82),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Panel(
+          paper: true,
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Column(
+            children: [
+              for (final (i, (act, title, text)) in acts.indexed) ...[
+                if (i > 0)
+                  Container(
+                    height: 1,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    color: Palette.gold500.withValues(alpha: 0.45),
+                  ),
+                Semantics(
+                  container: true,
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Icon(icon, size: 18, color: Palette.stageLanternTop),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
+                      SizedBox(
+                        width: 34,
+                        child: Text(
+                          '${i + 1}',
+                          style: const TextStyle(
+                            fontFamily: displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 28,
+                            height: 1,
+                            color: Palette.curtain600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              act.toUpperCase(),
+                              style: const TextStyle(
+                                fontFamily: displayFont,
+                                fontSize: 10.5,
+                                letterSpacing: 1.6,
+                                fontWeight: FontWeight.w700,
+                                color: Palette.inkSoft,
+                              ),
+                            ),
+                            Text(
                               title,
                               style: const TextStyle(
                                 fontFamily: displayFont,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 17,
-                                color: Palette.stageIvory,
+                                height: 1.15,
+                                color: Palette.ink,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        text,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          color: Palette.stageIvorySoft,
-                          height: 1.3,
+                            const SizedBox(height: 2),
+                            Text(
+                              text,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                height: 1.3,
+                                color: Palette.inkSoft,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                ExcludeSemantics(
-                  child: SizedBox(
-                    width: figure * 0.7,
-                    height: figure,
-                    child: Image.asset(figureAsset(role), fit: BoxFit.contain),
-                  ),
-                ),
               ],
-            ),
+            ],
           ),
-        ],
+        ),
       ],
     );
   }
@@ -195,7 +230,7 @@ Future<void> showHowItWorks(BuildContext context) {
           children: [
             Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
             const SizedBox(height: 16),
-            const HowSteps(),
+            const HowSteps(figure: 100),
             const SizedBox(height: 16),
             PrimaryButton(
               label: l10n.howDone,

@@ -326,10 +326,14 @@ void main() {
           await shot.shoot('01-start');
           // The start screen's other pages, swiped to like a home screen.
           if (find.byType(PageView).evaluate().isNotEmpty) {
-            for (final page in ['how', 'about']) {
-              await tester.drag(find.byType(PageView), const Offset(-500, 0));
+            for (final (page, dx) in [
+              ('how', 500.0),
+              ('play', -500.0),
+              ('settings', -500.0),
+            ]) {
+              await tester.drag(find.byType(PageView), Offset(dx, 0));
               await tester.pumpAndSettle();
-              await shot.shoot('01-start-$page');
+              if (page != 'play') await shot.shoot('01-start-$page');
             }
           }
 

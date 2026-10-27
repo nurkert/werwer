@@ -346,18 +346,8 @@ class _StartScreenState extends State<StartScreen> {
             SecondaryButton(label: l10n.joinRoom, onPressed: _join),
           ];
           final about = [
-            Headline(l10n.pageAbout, eyebrow: 'Whowolf'),
+            Headline(l10n.pageSettings, eyebrow: 'Whowolf'),
             const SizedBox(height: 18),
-            Panel(
-              child: Column(
-                children: [
-                  Stamp(l10n.devStamp(widget.version), size: 18),
-                  const SizedBox(height: 12),
-                  Body(l10n.testNote),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
             SecondaryButton(
               label: l10n.settings,
               icon: Icons.settings_outlined,
@@ -368,6 +358,16 @@ class _StartScreenState extends State<StartScreen> {
               label: l10n.privacyRead,
               icon: Icons.shield_outlined,
               onPressed: () => showPrivacy(context),
+            ),
+            const SizedBox(height: 18),
+            Panel(
+              child: Column(
+                children: [
+                  Stamp(l10n.devStamp(widget.version), size: 18),
+                  const SizedBox(height: 12),
+                  Body(l10n.testNote),
+                ],
+              ),
             ),
           ];
           final form = [
@@ -386,24 +386,26 @@ class _StartScreenState extends State<StartScreen> {
           if (!layout.twoColumns) {
             // Pages to swipe instead of one long scroll (task 012).
             return StagePages(
+              // So geht's to the left, settings to the right.
+              initialPage: 1,
               pages: [
+                (
+                  label: l10n.howTitle,
+                  child: Column(
+                    children: [
+                      Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
+                      const SizedBox(height: 10),
+                      const HowSteps(),
+                    ],
+                  ),
+                ),
                 (
                   label: l10n.pagePlay,
                   child: Column(
                     children: [...stage, const SizedBox(height: 22), ...play],
                   ),
                 ),
-                (
-                  label: l10n.howTitle,
-                  child: Column(
-                    children: [
-                      Headline(l10n.howTitle, eyebrow: l10n.howEyebrow),
-                      const SizedBox(height: 16),
-                      const HowSteps(figure: 64),
-                    ],
-                  ),
-                ),
-                (label: l10n.pageAbout, child: Column(children: about)),
+                (label: l10n.pageSettings, child: Column(children: about)),
               ],
             );
           }

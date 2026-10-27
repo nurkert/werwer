@@ -757,5 +757,11 @@
   "pageAbout": "About",
   "pageTable": "Table",
   "pageInvite": "Invite",
-  "pageGame": "Game"
+  "pageGame": "Game",
+  "act1": "Prologue",
+  "act2": "Act one",
+  "act3": "Act two",
+  "act4": "Act three",
+  "act5": "Finale",
+  "pageSettings": "Settings"
 }

@@ -233,7 +233,6 @@ class Scenery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tilt = StageTilt.of(context);
     return LayoutBuilder(
       builder: (context, box) {
         final w = box.maxWidth;
@@ -242,7 +241,6 @@ class Scenery extends StatelessWidget {
         for (final piece in sceneryOf(scene)) {
           final aspect = sceneryAspects[piece.name];
           if (aspect == null || w < piece.from) continue;
-          final shift = tilt * -piece.depth;
           if (piece.edge == Edge.top) {
             // Along the top in as many lengths as the width needs, each no
             // taller than a fifth of the window: wide screens get more.
@@ -253,14 +251,17 @@ class Scenery extends StatelessWidget {
             for (var i = 0; i < count; i++) {
               children.add(
                 Positioned(
-                  left: start + i * segment + shift.dx,
-                  top: -height * (1 - piece.reach) + shift.dy,
+                  left: start + i * segment,
+                  top: -height * (1 - piece.reach),
                   width: segment,
                   height: height,
-                  child: CardboardPiece(
-                    asset: 'assets/stage/scenery/${piece.name}.webp',
-                    mirror: i.isOdd && piece.mirror,
-                    tint: tint,
+                  child: TiltShift(
+                    depth: piece.depth,
+                    child: CardboardPiece(
+                      asset: 'assets/stage/scenery/${piece.name}.webp',
+                      mirror: i.isOdd && piece.mirror,
+                      tint: tint,
+                    ),
                   ),
                 ),
               );
@@ -304,14 +305,17 @@ class Scenery extends StatelessWidget {
           }
           children.add(
             Positioned(
-              left: left + shift.dx,
-              top: top + shift.dy,
+              left: left,
+              top: top,
               width: width,
               height: height,
-              child: CardboardPiece(
-                asset: 'assets/stage/scenery/${piece.name}.webp',
-                mirror: piece.mirror,
-                tint: tint,
+              child: TiltShift(
+                depth: piece.depth,
+                child: CardboardPiece(
+                  asset: 'assets/stage/scenery/${piece.name}.webp',
+                  mirror: piece.mirror,
+                  tint: tint,
+                ),
               ),
             ),
           );

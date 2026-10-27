@@ -375,5 +375,11 @@
   "pageAbout": "Über",
   "pageTable": "Tisch",
   "pageInvite": "Einladen",
-  "pageGame": "Spiel"
+  "pageGame": "Spiel",
+  "act1": "Vorspiel",
+  "act2": "Erster Akt",
+  "act3": "Zweiter Akt",
+  "act4": "Dritter Akt",
+  "act5": "Finale",
+  "pageSettings": "Einstellungen"
 }
