@@ -15,6 +15,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- At night every phone first shows the same lit card with a question,
+  werewolf or not; in the called night the card no longer glows.
 - The quick picks in the lobby settings keep their title on one line
   (the tick sits on the corner) and centre their text.
 - "Open a room" without the arrow.

@@ -137,9 +137,9 @@ class _NightPhaseState extends State<NightPhase> {
     if (seat != null) unawaited(showSeerVision(context, seat, result));
   }
 
-  /// Counting sheep is the cover task; after a while the app sends the
-  /// (effectless) cover pick at a random moment, like a real pick. Without
-  /// sheep the player answers the plain question by hand instead.
+  /// With sheep to count, the player need not answer the cover question:
+  /// after a while the app sends the (effectless) cover pick at a random
+  /// moment, like a real pick. Without sheep the player answers by hand.
   void _planDecoy(PlayerView view) {
     final due =
         view.settings.sheepInPlay &&
@@ -299,8 +299,9 @@ class _NightPhaseState extends State<NightPhase> {
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
+        // Not lit up: a bright card would shine past closed eyes.
         else if (awake)
-          Panel(highlight: true, child: Column(children: task))
+          Panel(child: Column(children: task))
         else ...[
           // The same for everyone whose eyes are closed (task 012): the
           // moon, its ring running evenly from the step's start.
@@ -351,8 +352,7 @@ class _NightPhaseState extends State<NightPhase> {
     );
   }
 
-  /// What this step asks of you, or `null` if counting sheep is all (the
-  /// cover pick then goes by itself).
+  /// What this step asks of you, or `null` if nothing (the dead).
   List<Widget>? _task(PlayerView view, AppLocalizations l10n) {
     final countdown = Countdown(endsAt: session.phaseEndsAt);
     switch (view.yourNightTask) {
@@ -426,12 +426,16 @@ class _NightPhaseState extends State<NightPhase> {
       case NightAbility.brew:
         if (view.youActed) return [Body(l10n.brewSent)];
         return [Body(l10n.nightBrew), countdown, ..._brew(view, l10n)];
-      case NightAbility.decoy || null:
-        if (view.settings.sheepInPlay) return null;
-        // No sheep tonight: a plain question everyone answers by hand.
+      case null:
+        return null;
+      case NightAbility.decoy:
+        // The cover question, in the same lit card a werewolf sees first:
+        // a glance across the table tells nothing. With sheep the app
+        // answers it by itself after a while (see _planDecoy).
         return [
           Body(l10n.nightDecoy),
-          countdown,
+          // Like the werewolves' card: the clock stands by the sheep.
+          if (!view.settings.sheepInPlay) countdown,
           const SizedBox(height: 12),
           SeatGrid(
             view: view,
