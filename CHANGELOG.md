@@ -5,6 +5,32 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.7 – 2026-10-28
+
+Every device at the table needs this version (protocol 11).
+
+### Added
+- What really happened: at the end, the game tells night by night whom
+  the werewolves chose, whom the seer looked at, what the witch did and
+  who voted for whom.
+- Open voting as a setting: everyone sees the votes as they come in and,
+  the day after, how yesterday's vote went.
+- Last words: whoever dies stands in the spotlight for seven seconds on
+  every phone.
+- "We're ready": with more than half of the living ready, the vote
+  follows after a five-second warning.
+- The game leader's clock: pause and resume, thirty seconds more, end
+  the vote.
+- By day the table sees whose device is not connected.
+- A seat can go to another device with a one-time QR code, for a phone
+  whose battery died.
+- Phase times suited to the number of players, with one tap.
+- The app tells you when a new version is out (you can switch this off).
+
+### Changed
+- On the website, Linux users can install from the signed apt archive
+  and get updates automatically.
+
 ## 0.1.6 – 2026-10-28
 
 0.1.5 was tagged but not published (the Linux build lacked ALSA for the

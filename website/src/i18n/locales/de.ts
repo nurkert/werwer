@@ -149,6 +149,7 @@ const de = {
       { state: 'done', title: '0.1.3: Die Bühne', text: 'Seit dem 27. Oktober ist jeder Moment des Abends ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister: Wer tot ist, darf zuschauen. Und bei Gleichstand gibt es eine Stichwahl.' },
       { state: 'done', title: '0.1.4: Die lebendige Bühne', text: 'Seit dem 28. Oktober glühen und flackern die Fenster, Sterne funkeln, der See wogt und Glühwürmchen ziehen umher. „So geht’s“ erklärt eine Runde in acht kleinen Szenen, und der Spielleiter wählt Klassisch oder Whowolf mit einem Tipp.' },
       { state: 'done', title: '0.1.6: Erzähler, Ton und Browser', text: 'Seit dem 28. Oktober geht der Erzähler wie ein Geschichtenerzähler um den Tisch, der Tisch wählt, welche Handys Ton spielen, und die Seherin sieht ihre Vision groß. Ohne WLAN spielt man im Browser über den Server mit.' },
+      { state: 'done', title: '0.1.7: Ein reibungsloser Spieleabend', text: 'Seit dem 28. Oktober erzählt das Spiel am Ende, was wirklich geschah, Tote haben ihre letzten Worte, der Tisch sagt, wann er abstimmen will, der Spielleiter hat die Uhr in der Hand, und ein Platz wandert aufs andere Handy, wenn ein Akku leer ist.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',
