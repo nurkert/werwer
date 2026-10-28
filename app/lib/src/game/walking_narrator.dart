@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
@@ -7,9 +8,10 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/narrator_walk.dart';
 
-/// One recorded variant of a moment, and the facts it needs to be true
-/// (see `storyFacts`); none for a line that always fits.
-typedef Clip = ({String file, int ms, Set<String> only});
+/// One recorded variant of a moment, the facts it needs to be true (see
+/// `storyFacts`; none for a line that always fits) and the pauses between
+/// its words, where the voice may change phones unheard.
+typedef Clip = ({String file, int ms, Set<String> only, List<Pause> pauses});
 
 /// The narrator's recordings in this build (`tool/voice/encode.py` writes
 /// them with a manifest); empty where there are none, and then the screen
@@ -30,6 +32,13 @@ class VoiceBank {
           only: {
             for (final f in (m['if'] as List<Object?>?) ?? []) f! as String,
           },
+          pauses: [
+            for (final p in (m['pauses'] as List<Object?>?) ?? [])
+              (
+                start: (p! as List<Object?>)[0]! as int,
+                end: (p as List<Object?>)[1]! as int,
+              ),
+          ],
         );
       }
 
@@ -94,9 +103,20 @@ class _AudioClipPlayer implements ClipPlayer {
   );
 }
 
+/// A footstep of the narrator walking to the next line: on which phone,
+/// when (this device's clock).
+typedef Step = ({int seat, int at});
+
 /// One moment as the narrator will say it: which recording, when (this
-/// device's clock) and how the voice walks meanwhile.
-typedef Planned = ({String key, Clip clip, int at, NarratorWalk walk});
+/// device's clock), how the voice walks meanwhile and the footsteps that
+/// lead to it.
+typedef Planned = ({
+  String key,
+  Clip clip,
+  int at,
+  NarratorWalk walk,
+  List<Step> steps,
+});
 
 /// The narrator walking around the table: every phone that plays sound
 /// plays its part of the same walk at the same time (the clocks are in
@@ -143,8 +163,15 @@ class WalkingNarrator {
   /// in mid-sentence would be out of step.
   static const _late = 250;
 
-  /// How often the volume follows the walk.
-  static const _step = Duration(milliseconds: 40);
+  /// How often the volume follows the walk during a handover (between
+  /// handovers it does not change, and nothing ticks).
+  static const _step = Duration(milliseconds: 12);
+
+  /// Between two footsteps (about two steps a second).
+  static const stepMs = 450;
+
+  /// How loud a footstep plays: about 10 dB under the voice.
+  static const stepVolume = 0.32;
 
   /// Whether this phone stays silent.
   bool muted = false;
@@ -169,6 +196,8 @@ class WalkingNarrator {
     int? deadlineMs,
     Set<String> facts = const {},
     bool goingOn = false,
+    NarratorStage stage = NarratorStage.lively,
+    bool night = false,
   }) {
     final now = _clock();
     if (goingOn) {
@@ -184,12 +213,17 @@ class WalkingNarrator {
       speakers: speakers,
       deadlineMs: deadlineMs,
       facts: facts,
+      stage: stage,
+      night: night,
     );
     final mine = speakers.indexOf(me);
     if (muted || mine < 0) return planned;
     for (final p in planned) {
       // Going on, a moment already begun stays with those saying it.
       if (goingOn && p.at <= now) continue;
+      for (final (i, step) in p.steps.indexed) {
+        if (step.seat == mine) _scheduleStep(i, step.at);
+      }
       if (p.walk.activeFor(mine, p.clip.ms).isNotEmpty) {
         _schedule(p.clip, p.walk, mine, p.at);
       }
@@ -208,6 +242,8 @@ class WalkingNarrator {
     required List<PlayerId> speakers,
     int? deadlineMs,
     Set<String> facts = const {},
+    NarratorStage stage = NarratorStage.lively,
+    bool night = false,
   }) {
     final planned = <Planned>[];
     if (speakers.isEmpty) return planned;
@@ -226,9 +262,31 @@ class WalkingNarrator {
             count: variants.length,
             occurrence: occurrence,
           )];
-      final begins = planned.isEmpty
+      var begins = planned.isEmpty
           ? at
           : at + gap(planned.last.key, moment.key);
+      // Between two lines the narrator may walk somewhere else, audibly:
+      // a footstep on each phone it passes. Never at night.
+      final steps = <Step>[];
+      final from = position;
+      final to = from == null || night
+          ? null
+          : NarratorWalk.relocate(
+              seats: speakers.length,
+              room: room,
+              round: round,
+              line: moment.key,
+              occurrence: occurrence,
+              from: from,
+              stage: stage,
+            );
+      if (from != null && to != null) {
+        final way = NarratorWalk.path(speakers.length, from, to);
+        for (final (i, seat) in way.indexed) {
+          steps.add((seat: seat, at: at + 250 + i * stepMs));
+        }
+        begins = max(begins, steps.last.at + stepMs);
+      }
       if (deadlineMs != null && begins + clip.ms > deadlineMs) break;
       final target = moment.to == null ? -1 : speakers.indexOf(moment.to!);
       final walk = NarratorWalk.plan(
@@ -238,10 +296,19 @@ class WalkingNarrator {
         line: moment.key,
         lengthMs: clip.ms,
         occurrence: occurrence,
-        start: position,
+        start: to ?? position,
         to: target < 0 ? null : target,
+        pauses: clip.pauses,
+        stage: stage,
+        night: night,
       );
-      planned.add((key: moment.key, clip: clip, at: begins, walk: walk));
+      planned.add((
+        key: moment.key,
+        clip: clip,
+        at: begins,
+        walk: walk,
+        steps: steps,
+      ));
       position = walk.end;
       at = begins + clip.ms;
     }
@@ -280,6 +347,7 @@ class WalkingNarrator {
               return;
             }
             player.start();
+            final fades = walk.fades;
             void tick() {
               final ms = _clock() - startMs;
               if (ms > clip.ms) {
@@ -288,7 +356,17 @@ class WalkingNarrator {
                 return;
               }
               player.volume(walk.gainAt(seat, ms));
-              follow = _startTimer(_step, tick);
+              // Fine steps through a handover; otherwise asleep until the
+              // next one (or the end of the clip).
+              final inFade = fades.any((f) => f.from <= ms && ms < f.until);
+              final next = fades
+                  .where((f) => f.from > ms)
+                  .map((f) => f.from)
+                  .fold(clip.ms + 1, min);
+              follow = _startTimer(
+                inFade ? _step : Duration(milliseconds: max(1, next - ms)),
+                tick,
+              );
             }
 
             tick();
@@ -296,6 +374,44 @@ class WalkingNarrator {
         ),
       )
       ..add(() => follow?.call());
+  }
+
+  /// The [i]-th footstep of a walk, on this phone at [startMs].
+  void _scheduleStep(int i, int startMs) {
+    if (startMs < _clock() - _late) return;
+    final player = _player();
+    var prepared = false;
+    _playing.add(player);
+    unawaited(
+      player
+          .prepare('sounds/steps/step${i % 5}.mp3', stepVolume)
+          .then((_) => prepared = true)
+          .catchError((Object _) => false),
+    );
+    final wait = startMs - _clock();
+    late final void Function() cancelStart;
+    _waiting[player] = () {
+      cancelStart();
+      _playing.remove(player);
+      player.stop();
+    };
+    _cancels.add(
+      cancelStart = _startTimer(Duration(milliseconds: max(0, wait)), () {
+        _waiting.remove(player);
+        if (!prepared) {
+          _playing.remove(player);
+          player.stop();
+          return;
+        }
+        player.start();
+        _cancels.add(
+          _startTimer(const Duration(milliseconds: 900), () {
+            _playing.remove(player);
+            player.stop();
+          }),
+        );
+      }),
+    );
   }
 
   /// Drops the clips that have not begun.

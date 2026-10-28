@@ -310,6 +310,36 @@ class _SettingsBody extends StatelessWidget {
           selected: s.narratorLanguage,
           onChanged: (v) => onChanged(s.copyWith(narratorLanguage: v)),
         ),
+      // How much the voice walks around the table.
+      if (s.narratorVoice) ...[
+        SettingsChoice<NarratorStage>(
+          label: l10n.settingsStage,
+          segments: [
+            ButtonSegment(
+              value: NarratorStage.calm,
+              label: Text(l10n.stageCalm),
+            ),
+            ButtonSegment(
+              value: NarratorStage.lively,
+              label: Text(l10n.stageLively),
+            ),
+            ButtonSegment(
+              value: NarratorStage.theater,
+              label: Text(l10n.stageTheater),
+            ),
+          ],
+          selected: s.narratorStage,
+          onChanged: (v) => onChanged(s.copyWith(narratorStage: v)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Body(switch (s.narratorStage) {
+            NarratorStage.calm => l10n.stageCalmHint,
+            NarratorStage.lively => l10n.stageLivelyHint,
+            NarratorStage.theater => l10n.stageTheaterHint,
+          }, muted: true),
+        ),
+      ],
       _SoundPlaces(settings: s, seats: seats, you: you, onChanged: onChanged),
     ];
     // Each section on its own plaque, so it reads on any stage set; the

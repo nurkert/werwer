@@ -1065,6 +1065,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get narratorAlwaysHint => 'The voice tells every line.';
 
   @override
+  String get settingsStage => 'Stage & battery';
+
+  @override
+  String get stageCalm => 'Calm';
+
+  @override
+  String get stageLively => 'Lively';
+
+  @override
+  String get stageTheater => 'Theatre';
+
+  @override
+  String get stageCalmHint => 'The voice stays with one phone per line.';
+
+  @override
+  String get stageLivelyHint =>
+      'Now and then the voice moves on, always in a pause, and by day you hear its steps.';
+
+  @override
+  String get stageTheaterHint =>
+      'The voice moves as on a stage: more often, and from line to line across the table.';
+
+  @override
   String get settingsSoundWhere => 'Sound plays on';
 
   @override
@@ -1802,9 +1825,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSaved => 'Saved';
-
-  @override
-  String get settingsStage => 'Stage & battery';
 
   @override
   String get motionFull => 'Full stage';

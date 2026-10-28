@@ -43,10 +43,27 @@ void main() {
   ).start;
   const bank = VoiceBank({
     'de': {
-      'discuss': [(file: 'de/discuss_1_de.mp3', ms: 4000, only: <String>{})],
+      'discuss': [
+        (
+          file: 'de/discuss_1_de.mp3',
+          ms: 4000,
+          only: <String>{},
+          pauses: <Pause>[],
+        ),
+      ],
       'vote': [
-        (file: 'de/vote_1_de.mp3', ms: 2000, only: <String>{}),
-        (file: 'de/vote_2_de.mp3', ms: 2000, only: <String>{}),
+        (
+          file: 'de/vote_1_de.mp3',
+          ms: 2000,
+          only: <String>{},
+          pauses: <Pause>[],
+        ),
+        (
+          file: 'de/vote_2_de.mp3',
+          ms: 2000,
+          only: <String>{},
+          pauses: <Pause>[],
+        ),
       ],
     },
   });
@@ -180,15 +197,44 @@ void main() {
     const many = VoiceBank({
       'de': {
         'died_one': [
-          (file: 'de/died_one_1_de.mp3', ms: 1000, only: <String>{}),
+          (
+            file: 'de/died_one_1_de.mp3',
+            ms: 1000,
+            only: <String>{},
+            pauses: <Pause>[],
+          ),
         ],
         'role_seer': [
-          (file: 'de/role_seer_1_de.mp3', ms: 1000, only: <String>{}),
+          (
+            file: 'de/role_seer_1_de.mp3',
+            ms: 1000,
+            only: <String>{},
+            pauses: <Pause>[],
+          ),
         ],
-        'discuss': [(file: 'de/discuss_1_de.mp3', ms: 1000, only: <String>{})],
-        'sleep': [(file: 'de/sleep_1_de.mp3', ms: 1000, only: <String>{})],
+        'discuss': [
+          (
+            file: 'de/discuss_1_de.mp3',
+            ms: 1000,
+            only: <String>{},
+            pauses: <Pause>[],
+          ),
+        ],
+        'sleep': [
+          (
+            file: 'de/sleep_1_de.mp3',
+            ms: 1000,
+            only: <String>{},
+            pauses: <Pause>[],
+          ),
+        ],
         'wake_seer': [
-          (file: 'de/wake_seer_1_de.mp3', ms: 1000, only: <String>{}),
+          (
+            file: 'de/wake_seer_1_de.mp3',
+            ms: 1000,
+            only: <String>{},
+            pauses: <Pause>[],
+          ),
         ],
       },
     });
@@ -200,6 +246,8 @@ void main() {
         round: 1,
         startMs: 0,
         speakers: seats,
+        // Standing still: no walk between the lines to wait for.
+        stage: NarratorStage.calm,
       ))
         p.at,
     ];
@@ -211,9 +259,14 @@ void main() {
     const bank = VoiceBank({
       'de': {
         'night_called': [
-          (file: 'de/a.mp3', ms: 1000, only: <String>{}),
-          (file: 'de/b.mp3', ms: 1000, only: {'deaths'}),
-          (file: 'de/c.mp3', ms: 1000, only: {'deaths', 'wolves'}),
+          (file: 'de/a.mp3', ms: 1000, only: <String>{}, pauses: <Pause>[]),
+          (file: 'de/b.mp3', ms: 1000, only: {'deaths'}, pauses: <Pause>[]),
+          (
+            file: 'de/c.mp3',
+            ms: 1000,
+            only: {'deaths', 'wolves'},
+            pauses: <Pause>[],
+          ),
         ],
       },
     });
@@ -336,4 +389,149 @@ void main() {
       );
     });
   });
+
+  test('the recordings carry the pauses between their words', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final bank = await VoiceBank.load();
+    final intro = bank.variants(NarratorLanguage.de, 'intro');
+    expect(intro, isNotEmpty);
+    for (final clip in intro) {
+      expect(clip.pauses, isNotEmpty, reason: clip.file);
+      for (final p in clip.pauses) {
+        expect(p.end - p.start, greaterThanOrEqualTo(250));
+        expect(p.end, lessThan(clip.ms));
+      }
+    }
+  });
+
+  group('between lines', () {
+    const talk = VoiceBank({
+      'de': {
+        'discuss': [
+          (file: 'de/d.mp3', ms: 3000, only: <String>{}, pauses: <Pause>[]),
+        ],
+        'vote': [
+          (file: 'de/v.mp3', ms: 3000, only: <String>{}, pauses: <Pause>[]),
+        ],
+        'voted_out': [
+          (file: 'de/o.mp3', ms: 3000, only: <String>{}, pauses: <Pause>[]),
+        ],
+      },
+    });
+    const eight = [
+      PlayerId('a'),
+      PlayerId('b'),
+      PlayerId('c'),
+      PlayerId('d'),
+      PlayerId('e'),
+      PlayerId('f'),
+      PlayerId('g'),
+      PlayerId('h'),
+    ];
+    const lines = [
+      (key: 'discuss', to: null),
+      (key: 'vote', to: null),
+      (key: 'voted_out', to: null),
+    ];
+    List<Planned> plan(int round, {bool night = false}) =>
+        WalkingNarrator(bank: talk, room: '4711').plan(
+          moments: lines,
+          language: NarratorLanguage.de,
+          round: round,
+          startMs: 0,
+          speakers: eight,
+          stage: NarratorStage.theater,
+          night: night,
+        );
+
+    test('by day the narrator walks to the next line, a footstep on every '
+        'phone it passes, and speaks once it has arrived', () {
+      var walked = 0;
+      for (var round = 1; round < 30; round++) {
+        final planned = plan(round);
+        for (var i = 1; i < planned.length; i++) {
+          final steps = planned[i].steps;
+          if (steps.isEmpty) {
+            expect(planned[i].walk.start, planned[i - 1].walk.end);
+            continue;
+          }
+          walked++;
+          expect(
+            steps.map((s) => s.seat),
+            NarratorWalk.path(
+              8,
+              planned[i - 1].walk.end,
+              planned[i].walk.start,
+            ),
+          );
+          for (var k = 1; k < steps.length; k++) {
+            expect(steps[k].at - steps[k - 1].at, WalkingNarrator.stepMs);
+          }
+          expect(steps.first.at, greaterThan(planned[i - 1].at));
+          expect(planned[i].at, greaterThan(steps.last.at));
+        }
+      }
+      expect(walked, greaterThan(5));
+    });
+
+    test('at night nobody hears steps, and every line comes from the moon', () {
+      for (var round = 1; round < 30; round++) {
+        final moon = moonSeat(seats: 8, room: '4711', round: round);
+        for (final p in plan(round, night: true)) {
+          expect(p.steps, isEmpty);
+          expect(p.walk.stops, [(seat: moon, at: 0, fade: 0)]);
+        }
+      }
+    });
+
+    test('a phone the narrator passes plays its footstep, softly', () async {
+      final round = [
+        for (var r = 1; r < 30; r++)
+          if (plan(r).any((p) => p.steps.isNotEmpty)) r,
+      ].first;
+      final step = plan(round).expand((p) => p.steps).first;
+      var now = 0;
+      final timers = <(int, void Function())>[];
+      final players = <_Player>[];
+      final log = <String>[];
+      WalkingNarrator(
+        bank: talk,
+        room: '4711',
+        clock: () => now,
+        player: () => _addPlayer(players, log),
+        startTimer: (after, callback) {
+          final entry = (now + after.inMilliseconds, callback);
+          timers.add(entry);
+          return () => timers.remove(entry);
+        },
+      ).speak(
+        moments: lines,
+        language: NarratorLanguage.de,
+        round: round,
+        startMs: 0,
+        speakers: eight,
+        me: eight[step.seat],
+        stage: NarratorStage.theater,
+      );
+      await Future<void>.delayed(Duration.zero);
+      while (timers.isNotEmpty) {
+        timers.sort((a, b) => a.$1.compareTo(b.$1));
+        final next = timers.removeAt(0);
+        now = next.$1;
+        next.$2();
+        if (now > step.at) break;
+      }
+      final foot = players.firstWhere(
+        (p) => (p.asset ?? '').startsWith('sounds/steps/'),
+      );
+      expect(foot.started, isTrue);
+      expect(foot.volumes.first, WalkingNarrator.stepVolume);
+    });
+  });
+}
+
+_Player _addPlayer(List<_Player> players, List<String> log) {
+  final p = _Player(log);
+  players.add(p);
+  return p;
 }

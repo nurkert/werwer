@@ -23,6 +23,7 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'trail': settings.wolfTrail,
   'atmosphere': settings.atmosphere,
   'narrator': settings.narratorMode.name,
+  'stage': settings.narratorStage.name,
   'sound': settings.soundMode.name,
   'soundSeats': [for (final seat in settings.soundSeats) seat.value],
   'doorSigns': settings.doorSigns,
@@ -78,6 +79,9 @@ GameSettings decodeSettings(JsonReader json) {
     doorSigns: json.boolean('doorSigns'),
     nightMode: json.enumValue('nights', NightMode.values),
     narratorLanguage: json.enumValue('voiceLang', NarratorLanguage.values),
+    // A game saved before the stage had a switch walks as it did.
+    narratorStage:
+        json.maybeEnum('stage', NarratorStage.values) ?? NarratorStage.lively,
     // Missing in a game saved before ghosts and runoffs: the defaults.
     ghosts:
         json.maybeEnum('ghosts', GhostSight.values) ??

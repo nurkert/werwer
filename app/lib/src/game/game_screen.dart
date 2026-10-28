@@ -313,6 +313,9 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               deadlineMs: _deadline(view, started),
               facts: facts,
               goingOn: goingOn,
+              stage: settings.narratorStage,
+              // At night every call comes from one place (task 023 E5).
+              night: view.phase == Phase.night,
             );
         final planned = speak(speakers);
         _replan = (over) => speak(over, goingOn: true);
@@ -410,6 +413,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       speakers: _speakers(view),
       me: view.you,
       facts: storyFacts(view),
+      stage: view.settings.narratorStage,
     );
   }
 

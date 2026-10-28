@@ -21,6 +21,12 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- The narrator glides: the voice moves to another phone only in a pause
+  between words, hands over in the silence and stays a while; by day
+  you hear its footsteps when it walks to the next line; at night every
+  call comes from one place. New setting "Stage": calm, lively, theatre.
+- The recordings are cleaner when several phones play at once (no
+  rumble below the voice, a little quieter).
 - On wide screens a phase's title stands centred above both columns, and
   the cards fit the window's height in even rows.
 - On a computer the gear opens all of the app's settings, like the

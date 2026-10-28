@@ -1850,6 +1850,48 @@ abstract class AppLocalizations {
   /// **'The voice tells every line.'**
   String get narratorAlwaysHint;
 
+  /// Settings page: group for how much the stage moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage & battery'**
+  String get settingsStage;
+
+  /// No description provided for @stageCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get stageCalm;
+
+  /// No description provided for @stageLively.
+  ///
+  /// In en, this message translates to:
+  /// **'Lively'**
+  String get stageLively;
+
+  /// No description provided for @stageTheater.
+  ///
+  /// In en, this message translates to:
+  /// **'Theatre'**
+  String get stageTheater;
+
+  /// No description provided for @stageCalmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice stays with one phone per line.'**
+  String get stageCalmHint;
+
+  /// No description provided for @stageLivelyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Now and then the voice moves on, always in a pause, and by day you hear its steps.'**
+  String get stageLivelyHint;
+
+  /// No description provided for @stageTheaterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice moves as on a stage: more often, and from line to line across the table.'**
+  String get stageTheaterHint;
+
   /// No description provided for @settingsSoundWhere.
   ///
   /// In en, this message translates to:
@@ -3151,12 +3193,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get settingsSaved;
-
-  /// Settings page: group for how much the stage moves.
-  ///
-  /// In en, this message translates to:
-  /// **'Stage & battery'**
-  String get settingsStage;
 
   /// Stage motion option: everything moves.
   ///

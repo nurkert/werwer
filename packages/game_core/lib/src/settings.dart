@@ -86,6 +86,18 @@ enum NarratorMode {
   always,
 }
 
+/// How much the narrator walks around the table ("Bühne").
+enum NarratorStage {
+  /// Hardly at all: the voice stays at one phone per line.
+  calm,
+
+  /// Now and then, in the pauses between words, with footsteps by day.
+  lively,
+
+  /// Like a play: more often, and from line to line across the table.
+  theater,
+}
+
 /// Which phones play the narrator and the shared sounds.
 enum SoundMode {
   /// Every phone at the table.
@@ -119,6 +131,7 @@ class GameSettings {
     this.wolfTrail = false,
     this.atmosphere = false,
     this.narratorMode = NarratorMode.moments,
+    this.narratorStage = NarratorStage.lively,
     this.soundMode = SoundMode.everyone,
     this.soundSeats = const {},
     this.doorSigns = false,
@@ -164,6 +177,9 @@ class GameSettings {
 
   /// How much the narrator says aloud.
   final NarratorMode narratorMode;
+
+  /// How much the narrator walks around the table.
+  final NarratorStage narratorStage;
 
   /// Whether the narrator speaks aloud at all.
   bool get narratorVoice => narratorMode != NarratorMode.off;
@@ -329,6 +345,7 @@ class GameSettings {
     bool? wolfTrail,
     bool? atmosphere,
     NarratorMode? narratorMode,
+    NarratorStage? narratorStage,
     SoundMode? soundMode,
     Set<PlayerId>? soundSeats,
     bool? doorSigns,
@@ -349,6 +366,7 @@ class GameSettings {
     wolfTrail: wolfTrail ?? this.wolfTrail,
     atmosphere: atmosphere ?? this.atmosphere,
     narratorMode: narratorMode ?? this.narratorMode,
+    narratorStage: narratorStage ?? this.narratorStage,
     soundMode: soundMode ?? this.soundMode,
     soundSeats: soundSeats ?? this.soundSeats,
     doorSigns: doorSigns ?? this.doorSigns,
@@ -374,6 +392,7 @@ class GameSettings {
       other.wolfTrail == wolfTrail &&
       other.atmosphere == atmosphere &&
       other.narratorMode == narratorMode &&
+      other.narratorStage == narratorStage &&
       other.soundMode == soundMode &&
       other.soundSeats.length == soundSeats.length &&
       other.soundSeats.containsAll(soundSeats) &&
@@ -385,7 +404,7 @@ class GameSettings {
       other.openVotes == openVotes;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     Object.hashAllUnordered(roles),
     werewolves,
     nightTime,
@@ -397,6 +416,7 @@ class GameSettings {
     wolfTrail,
     atmosphere,
     narratorMode,
+    narratorStage,
     soundMode,
     Object.hashAllUnordered(soundSeats),
     doorSigns,
@@ -405,7 +425,7 @@ class GameSettings {
     ghosts,
     tieRule,
     openVotes,
-  );
+  ]);
 }
 
 /// Starting points the host picks with one tap and may then change in

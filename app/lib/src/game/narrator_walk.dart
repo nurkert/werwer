@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:game_core/game_core.dart' show stableHash;
+import 'package:game_core/game_core.dart' show NarratorStage, stableHash;
 
 /// How the narrator moves while saying one line.
 enum Gait {
@@ -91,6 +91,15 @@ class _Dice {
 /// from the seat before within `fade` ms around that moment.
 typedef Stop = ({int seat, int at, int fade});
 
+/// A stretch of silence inside a recording, between two words (from the
+/// manifest, see `tool/voice/pauses.py`).
+typedef Pause = ({int start, int end});
+
+/// The one seat every call of the night comes from: from public dice per
+/// room and round, so the voice's place tells nothing about who wakes.
+int moonSeat({required int seats, required String room, required int round}) =>
+    _Dice('$room/$round/moon').below(seats);
+
 /// How loud each phone plays the narrator while it walks: a pure function
 /// of public values (room, round, line, the speakers in seat order), so
 /// every phone plans the same walk and plays its part of it. Never from a
@@ -115,9 +124,17 @@ class NarratorWalk {
   /// said the [occurrence]-th time in [round] in [room]. It starts at
   /// [start] (where the last line ended) or at a seat from the dice.
   ///
+  /// The voice changes phones only inside the recording's [pauses], with
+  /// a short crossfade in the silence, so nobody hears a switch; between
+  /// two changes it stays a while ([stage] decides how long, and with
+  /// [NarratorStage.calm] it does not walk within a line at all). A line
+  /// without pauses is said from one phone. At [night] every line comes
+  /// from the [moonSeat].
+  ///
   /// [to] is someone whose fate is public (the dead, the voted out, the
-  /// hunter): the narrator goes there only sometimes, so going to someone
-  /// is no pattern. Never pass a seat that depends on a secret.
+  /// hunter): the narrator goes there only sometimes, and as often walks
+  /// up to someone else, so going to someone is no pattern. Never pass a
+  /// seat that depends on a secret.
   factory NarratorWalk.plan({
     required int seats,
     required String room,
@@ -127,35 +144,106 @@ class NarratorWalk {
     int occurrence = 0,
     int? start,
     int? to,
+    List<Pause> pauses = const [],
+    NarratorStage stage = NarratorStage.lively,
+    bool night = false,
   }) {
+    if (seats == 1) return NarratorWalk.still(1, 0);
+    if (night) {
+      return NarratorWalk.still(
+        seats,
+        moonSeat(seats: seats, room: room, round: round),
+      );
+    }
     final dice = _Dice('$room/$round/$line/$occurrence');
     final first = start ?? dice.below(seats);
-    if (seats == 1) return NarratorWalk.still(1, 0);
     final mood = moodOf(line);
-    final gait = to != null && to != first && dice.next() < 0.5
-        ? Gait.approach
-        : dice.pick(_weights[mood]!);
-    final stops = <Stop>[(seat: first, at: 0, fade: 0)];
-    final gaits = [gait];
-    // A long line may change its pace halfway, like a speaker would.
-    final others = {
-      for (final MapEntry(:key, :value) in _weights[mood]!.entries)
-        if (key != gait && key != Gait.stay) key: value,
-    };
-    final split =
-        gait != Gait.stay &&
-            gait != Gait.approach &&
-            others.isNotEmpty &&
-            lengthMs > 6500
-        ? (lengthMs * dice.between(0.45, 0.6)).round()
-        : lengthMs;
-    _walk(gait, stops, dice, seats, until: split, to: to);
-    if (split < lengthMs) {
-      final second = dice.pick(others);
-      gaits.add(second);
-      _walk(second, stops, dice, seats, until: lengthMs, from: split);
+    final roll = dice.next();
+    final decoys = mood == Mood.news || mood == Mood.finale;
+    final Gait gait;
+    int? goal;
+    if (to != null && to != first && roll < approachShare) {
+      gait = Gait.approach;
+      goal = to;
+    } else if (decoys && roll < approachShare + decoyShare) {
+      // Up to someone else, as an approach looks: seeing the voice walk up
+      // to a seat does not mean that seat is the one in the news.
+      final others = [
+        for (var s = 0; s < seats; s++)
+          if (s != first && s != to) s,
+      ];
+      gait = others.isEmpty ? Gait.stay : Gait.approach;
+      goal = others.isEmpty ? null : others[dice.below(others.length)];
+    } else {
+      gait = dice.pick(_weights[mood]!);
     }
-    return NarratorWalk(seats, stops, gaits: gaits);
+    final raw = <Stop>[(seat: first, at: 0, fade: 0)];
+    final gaits = [gait];
+    if (gait == Gait.approach) {
+      // Straight to them at the first pause it may take.
+      raw.add((seat: goal!, at: 0, fade: 0));
+    } else {
+      // A long line may change its pace halfway, like a speaker would.
+      final others = {
+        for (final MapEntry(:key, :value) in _weights[mood]!.entries)
+          if (key != gait && key != Gait.stay) key: value,
+      };
+      final split = gait != Gait.stay && others.isNotEmpty && lengthMs > 6500
+          ? (lengthMs * dice.between(0.45, 0.6)).round()
+          : lengthMs;
+      _walk(gait, raw, dice, seats, until: split);
+      if (split < lengthMs) {
+        final second = dice.pick(others);
+        gaits.add(second);
+        _walk(second, raw, dice, seats, until: lengthMs, from: split);
+      }
+    }
+    if (stage == NarratorStage.calm) {
+      return NarratorWalk(seats, [raw.first], gaits: gaits);
+    }
+    return NarratorWalk(seats, _inPauses(raw, pauses, stage), gaits: gaits);
+  }
+
+  /// How often the voice walks up to someone whose fate is public.
+  static const approachShare = 0.45;
+
+  /// How often, in a line of news, it walks up to someone else instead.
+  static const decoyShare = 0.35;
+
+  /// How long the voice stays at a phone at least before it moves on.
+  static int dwellOf(NarratorStage stage) =>
+      stage == NarratorStage.theater ? 1800 : 2600;
+
+  /// The first change may come this early in a line.
+  static const _firstMove = 900;
+
+  /// The seats of [raw], in its order, each at the next pause it may take
+  /// (at least [dwellOf] after the change before): a stroll still goes
+  /// seat by seat, a leap still leaps, only later. What finds no pause any
+  /// more is left out.
+  static List<Stop> _inPauses(
+    List<Stop> raw,
+    List<Pause> pauses,
+    NarratorStage stage,
+  ) {
+    final stops = <Stop>[raw.first];
+    final wanted = [for (final stop in raw.skip(1)) stop.seat];
+    final dwell = dwellOf(stage);
+    var next = 0;
+    var last = 0;
+    for (final pause in [...pauses]..sort((a, b) => a.start - b.start)) {
+      final middle = (pause.start + pause.end) ~/ 2;
+      if (middle < (stops.length == 1 ? _firstMove : last + dwell)) continue;
+      while (next < wanted.length && wanted[next] == stops.last.seat) {
+        next++;
+      }
+      if (next >= wanted.length) break;
+      // Raised cosine of 60 to 120 ms, all of it inside the silence.
+      final fade = (pause.end - pause.start - 40).clamp(60, 120);
+      stops.add((seat: wanted[next++], at: middle, fade: fade));
+      last = middle;
+    }
+    return stops;
   }
 
   /// Adds the stops of [gait] from [from] until [until] ms.
@@ -166,7 +254,6 @@ class NarratorWalk {
     int seats, {
     required int until,
     int from = 0,
-    int? to,
   }) {
     var seat = stops.last.seat;
     var at = from;
@@ -221,14 +308,38 @@ class NarratorWalk {
           stops.add((seat: next, at: from + 300, fade: 500));
         }
       case Gait.approach:
-        final target = to!;
-        var way = (target - seat) % seats;
-        if (way > seats / 2) way -= seats;
-        const interval = 800;
-        for (var i = 0; i < way.abs(); i++) {
-          step(seat + way.sign, interval, 360);
-        }
+        // Planned apart (see [NarratorWalk.plan]).
+        break;
     }
+  }
+
+  /// Where the voice goes between two lines, if it moves: from [from] to a
+  /// seat at least two away, by public dice, more often on a livelier
+  /// [stage]; `null` to stay. Never at night (see [moonSeat]).
+  static int? relocate({
+    required int seats,
+    required String room,
+    required int round,
+    required String line,
+    required int occurrence,
+    required int from,
+    required NarratorStage stage,
+  }) {
+    if (seats < 4 || stage == NarratorStage.calm) return null;
+    final dice = _Dice('$room/$round/$line/$occurrence/enter');
+    final share = stage == NarratorStage.theater ? 0.6 : 0.3;
+    if (dice.next() >= share) return null;
+    return (from + 2 + dice.below(seats - 3)) % seats;
+  }
+
+  /// The seats passed walking the shorter way from [from] to [to], [to]
+  /// last (one footstep each).
+  static List<int> path(int seats, int from, int to) {
+    var way = (to - from) % seats;
+    if (way > seats / 2) way -= seats;
+    return [
+      for (var i = 1; i <= way.abs(); i++) (from + i * way.sign) % seats,
+    ];
   }
 
   /// Speakers at the table.
@@ -247,11 +358,22 @@ class NarratorWalk {
   int get end => stops.last.seat;
 
   /// How loud a phone that takes the voice over plays, [t] (0 to 1)
-  /// through the handover; the one handing it over plays `_rise(1 - t)`.
-  /// Both are above 0.96 in the middle: one phone is always almost at
-  /// full volume.
-  static double _rise(double t) =>
-      sin(pi / 2 * min(1, max(0, t) / 0.6).toDouble());
+  /// through the handover (a raised cosine); the one handing it over
+  /// plays `_rise(1 - t)`. Both are above 0.9 in the middle: one phone is
+  /// always almost at full volume, and the handover lies in a pause.
+  static double _rise(double t) {
+    final x = min(1, max(0, t) / 0.6).toDouble();
+    return 0.5 - 0.5 * cos(pi * x);
+  }
+
+  /// When the volume changes, in ms from the line's start: the handovers.
+  /// Outside them every phone plays at one level, so a player needs no
+  /// volume steps there.
+  List<({int from, int until})> get fades => [
+    for (final stop in stops.skip(1))
+      if (stop.fade > 0)
+        (from: stop.at - stop.fade ~/ 2, until: stop.at + stop.fade ~/ 2 + 1),
+  ];
 
   /// This phone's volume (0 to 1) at [seat], [ms] after the line began.
   double gainAt(int seat, int ms) {

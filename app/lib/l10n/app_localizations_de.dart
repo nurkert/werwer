@@ -1075,6 +1075,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get narratorAlwaysHint => 'Die Stimme erzählt jeden Satz.';
 
   @override
+  String get settingsStage => 'Bühne & Akku';
+
+  @override
+  String get stageCalm => 'Ruhig';
+
+  @override
+  String get stageLively => 'Lebendig';
+
+  @override
+  String get stageTheater => 'Theater';
+
+  @override
+  String get stageCalmHint => 'Die Stimme bleibt bei einem Handy pro Satz.';
+
+  @override
+  String get stageLivelyHint =>
+      'Die Stimme wandert ab und zu weiter, immer in einer Sprechpause, tagsüber hört man ihre Schritte.';
+
+  @override
+  String get stageTheaterHint =>
+      'Die Stimme geht wie auf einer Bühne: öfter, und von Satz zu Satz quer über den Tisch.';
+
+  @override
   String get settingsSoundWhere => 'Ton spielt auf';
 
   @override
@@ -1814,9 +1837,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSaved => 'Gespeichert';
-
-  @override
-  String get settingsStage => 'Bühne & Akku';
 
   @override
   String get motionFull => 'Volle Bühne';
