@@ -58,20 +58,25 @@ class HostedRoom {
     bool online = true,
     bool serveWebApp = true,
     String? webAppBuild,
-  }) {
+  }) async {
     final random = Random.secure();
     final code = List.generate(
       roomCodeLength,
       (_) => random.nextInt(10),
     ).join();
+    // The keys first: the host hands the room secret to players it lets in
+    // without the QR code, so they can come back after a dropped
+    // connection like everyone else.
+    final keys = await HostKeys.generate();
     return _start(
       GameHost(
         roomCode: code,
         random: random,
+        roomSecret: keys.roomSecret,
         // The narrator speaks the host's language to the whole table.
         settings: GameHost.defaultSettings.copyWith(narratorLanguage: language),
       ),
-      keys: null,
+      keys: keys,
       hostName: hostName,
       relayServer: relayServer,
       notice: notice,

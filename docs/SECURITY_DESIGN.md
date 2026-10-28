@@ -209,14 +209,20 @@
 ### Relay-Server (A5)
 
 - Der Relay sieht nur Chiffrat und Verbindungsdaten. Er kennt keine Spielregeln und keinen Spielstand und protokolliert keine Inhalte.
-- **Speicher:** `dart:io` liest eine WebSocket-Nachricht ganz, bevor wir sie prüfen. Deshalb macht der Server den Handshake selbst (RFC 6455) und zählt jedes eingehende Byte gegen ein Budget pro Verbindung: 256 KiB bei 64 KiB/s für Spieler, 4 MiB bei 1 MiB/s für Hosts. Wer mehr schickt, wird sofort getrennt, also bevor ein großer Frame vollständig ist. Kompression ist aus.
+- **Speicher:** `dart:io` setzt eine WebSocket-Nachricht aus beliebig vielen Fragmenten zusammen und puffert Ausgabe ohne Grenze. Deshalb macht der Server den Handshake selbst (RFC 6455) und bewacht den rohen Socket (`game_host/socket_guard.dart`, auch im LAN-Host):
+  - **Eingang:** Jedes Byte zählt gegen ein Budget pro Verbindung (256 KiB bei 64 KiB/s für Spieler, 4 MiB bei 1 MiB/s für Hosts).
+  - **Nachrichten:** Der Server liest die Frame-Köpfe mit und zählt jede Nachricht über alle Fragmente (Spieler 8 KiB, Hosts 128 KiB). Eine unfertige Nachricht darf höchstens 10 s offen bleiben. Steuerframes sind kurz und nie fragmentiert.
+  - **Ausgang:** Höchstens 256 KiB warten auf einen Empfänger. Wer 15 s lang nichts liest, wird getrennt.
+  - Kompression ist aus.
+- **Abstürze:** Jede Anfrage läuft in einem eigenen Fehlerfang, der ganze Prozess zusätzlich in einer Zone, die nur den Fehlertyp notiert. Wiederholte Header (z. B. zwei `Origin`) werden als Liste gelesen, nie mit `headers.value`, das dann wirft.
+- **Web-App:** Komprimiert gehaltene Dateien werden nie auf Anfrage entpackt. Wer kein gzip annimmt, bekommt 406, so kostet keine Anfrage Rechenzeit nach fremdem Willen. Jede einfache Anfrage zählt gegen das Limit pro Adresse, auch `/health` und 404. Caddy trennt Clients, die ihre Header langsam schicken (`read_header 10s`, `idle 2m`).
 - **Fluten:**
   - Grenzen für Verbindungen gesamt und pro Adresse sowie für neue Verbindungen pro Adresse und Minute; das macht auch das Durchprobieren von Raum-IDs aussichtslos.
   - Räume pro Adresse und Spieler pro Raum sind begrenzt, ebenso die Nachrichtenrate.
   - Die Grenzen werden nach dem Upgrade erneut geprüft.
 - **Echte Adressen:** Hinter Caddy kommt die Adresse aus `X-Forwarded-For`, aber nur mit `TRUST_PROXY=1`. Das ist sicher, weil der Relay-Port nicht öffentlich ist und Caddy den Header des Clients überschreibt.
 - **Betrieb:** Container read-only, ohne Capabilities, `no-new-privileges`, Speicher- und CPU-Grenze. Updates nur als signiertes Image aus dem Release-Workflow (Sigstore, gegen die Workflow-Identität geprüft), gestartet über den Digest. Der Server bietet dafür keinen Endpunkt an.
-- **Tests:** `server/test/relay_test.dart` (riesiger Frame, Grenzen pro Adresse, Raum-IDs raten, Proxy-Adresse).
+- **Tests:** `server/test/relay_test.dart` (riesiger Frame, Grenzen pro Adresse, Raum-IDs raten, Proxy-Adresse), `server/test/guard_test.dart` (doppelter Header, endlose Fragmente, liegengelassene Nachricht, Spieler, der nicht liest), `packages/game_host/test/player_link_test.dart` (ein ungeprüfter Host kann einen Spieler am Prüfbild nicht fluten).
 
 ## Sicherheit im Entwicklungsablauf
 

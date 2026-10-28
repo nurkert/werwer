@@ -9,9 +9,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
+import 'package:game_host/socket_guard.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf_server/web_apps.dart';
 
@@ -84,56 +83,33 @@ class RelayConfig {
   final List<String>? androidCertSha256;
 }
 
-/// How many bytes a connection may send: a bucket that fills up at [rate]
-/// bytes per second up to [burst]. A connection that sends more is cut off
-/// at once, before a large frame is even complete, so no message can grow
-/// beyond [burst] in the server's memory (`dart:io` would otherwise
-/// buffer a whole WebSocket message of any size).
-class ByteBudget {
-  /// Creates a budget.
-  const ByteBudget({required this.burst, required this.rate});
+/// What a player's connection may cost: messages of a few hundred bytes
+/// in, filtered views out.
+const playerSocketLimits = SocketLimits(
+  burst: 256 * 1024,
+  rate: 64 * 1024,
+  maxMessage: 8 * 1024,
+  maxBacklog: 256 * 1024,
+);
 
-  /// What a player may send: their messages are a few hundred bytes.
-  static const player = ByteBudget(burst: 256 * 1024, rate: 64 * 1024);
-
-  /// What a host may send: every view to every player.
-  static const host = ByteBudget(burst: 4 << 20, rate: 1 << 20);
-
-  /// Most bytes at once.
-  final int burst;
-
-  /// Bytes per second over time.
-  final int rate;
-}
-
-class _Bucket {
-  _Bucket(this.budget) : _tokens = budget.burst.toDouble();
-
-  final ByteBudget budget;
-  final _watch = Stopwatch()..start();
-  double _tokens;
-
-  bool spend(int bytes) {
-    final elapsed = _watch.elapsedMicroseconds;
-    _watch.reset();
-    _tokens = min(
-      budget.burst.toDouble(),
-      _tokens + elapsed * budget.rate / 1e6,
-    );
-    _tokens -= bytes;
-    return _tokens >= 0;
-  }
-}
+/// What a host's connection may cost: every view to every player in,
+/// small player messages out.
+const hostSocketLimits = SocketLimits(
+  burst: 4 << 20,
+  rate: 1 << 20,
+  maxMessage: 2 * maxHostMessage,
+  maxBacklog: 256 * 1024,
+);
 
 class _Room {
   _Room(this.id, this.host, this.address);
 
   final String id;
-  final WebSocket host;
+  final GuardedWebSocket host;
 
   /// Where the host connected from.
   final String? address;
-  final peers = <int, WebSocket>{};
+  final peers = <int, GuardedWebSocket>{};
   int nextPeer = 1;
 }
 
@@ -175,7 +151,12 @@ class RelayServer {
       random ?? Random.secure(),
       webApps ?? WebApps.none(),
     );
-    server.listen(relay._handle, onError: (Object _) {});
+    // One bad request (a malformed header, a client gone mid-answer) must
+    // never take the server down: every request runs inside its own guard.
+    server.listen(
+      (request) => unawaited(relay._guarded(request)),
+      onError: (Object _) {},
+    );
     return relay;
   }
 
@@ -196,9 +177,9 @@ class RelayServer {
   final _upgrades = <String, List<int>>{};
   final _clock = Stopwatch()..start();
 
-  /// Byte budgets; replaceable in tests.
-  ByteBudget hostBudget = ByteBudget.host;
-  ByteBudget playerBudget = ByteBudget.player;
+  /// What a connection may cost; replaceable in tests.
+  SocketLimits hostLimits = hostSocketLimits;
+  SocketLimits playerLimits = playerSocketLimits;
 
   int get port => _server.port;
 
@@ -209,13 +190,38 @@ class RelayServer {
 
   Future<void> close() async {
     for (final room in [..._rooms.values]) {
-      await room.host.close();
+      await room.host.socket.close();
     }
     await _server.close(force: true);
   }
 
+  Future<void> _guarded(HttpRequest request) async {
+    try {
+      await _handle(request);
+    } on Object {
+      // Nothing about the request is logged (it may carry a room).
+      try {
+        request.response.statusCode = HttpStatus.badRequest;
+      } on Object {
+        // Headers already sent.
+      }
+      try {
+        await request.response.close();
+      } on Object {
+        // Already closed, or the socket was detached for a WebSocket.
+      }
+    }
+  }
+
   Future<void> _handle(HttpRequest request) async {
     final path = request.uri.path;
+    final upgrade = WebSocketTransformer.isUpgradeRequest(request);
+    // Every plain request counts against its address, not only the files.
+    if (!upgrade && !_mayRequest(_clientAddress(request))) {
+      request.response.statusCode = HttpStatus.tooManyRequests;
+      await request.response.close();
+      return;
+    }
     if (path == '/health') {
       request.response
         ..statusCode = HttpStatus.ok
@@ -224,12 +230,6 @@ class RelayServer {
       return;
     }
     if (WebApps.owns(path) || path.startsWith('/.well-known/')) {
-      final address = _clientAddress(request);
-      if (!_mayRequest(address)) {
-        request.response.statusCode = HttpStatus.tooManyRequests;
-        await request.response.close();
-        return;
-      }
       if (path.startsWith('/.well-known/')) return _wellKnown(request, path);
       final host = config.publicHost;
       return webApps.serve(request, host == null ? '' : 'wss://$host');
@@ -238,9 +238,9 @@ class RelayServer {
     // Browsers always send an Origin with a WebSocket, the app never: no
     // web page, not even a foreign one, can open rooms from a visitor's
     // browser. Browsers only join.
-    final isHost = path == '/host' && request.headers.value('origin') == null;
-    if ((!isHost && joinMatch == null) ||
-        !WebSocketTransformer.isUpgradeRequest(request)) {
+    // (`headers.value` would throw on a repeated header: ask for the list.)
+    final isHost = path == '/host' && request.headers['origin'] == null;
+    if ((!isHost && joinMatch == null) || !upgrade) {
       request.response.statusCode = HttpStatus.notFound;
       await request.response.close();
       return;
@@ -262,20 +262,27 @@ class RelayServer {
       await request.response.close();
       return;
     }
-    final WebSocket socket;
+    final GuardedWebSocket socket;
     try {
-      socket = await _upgrade(request, isHost ? hostBudget : playerBudget);
+      socket = await upgradeGuarded(
+        request,
+        isHost ? hostLimits : playerLimits,
+        pingInterval: const Duration(seconds: 10),
+      );
     } on Object {
       return;
     }
     _count(address, 1);
-    unawaited(socket.done.whenComplete(() => _count(address, -1)));
-    socket.pingInterval = const Duration(seconds: 10);
+    unawaited(
+      socket.socket.done
+          .catchError((Object _) {})
+          .whenComplete(() => _count(address, -1)),
+    );
     // The upgrade took a moment: other requests may have opened rooms or the
     // room may be gone by now, so the limits are checked again before the
     // socket counts.
     if (isHost ? !_mayOpenRoom(address) : !_mayJoin(room!)) {
-      unawaited(socket.close());
+      unawaited(socket.socket.close().catchError((Object _) {}));
       return;
     }
     if (isHost) {
@@ -386,36 +393,6 @@ class RelayServer {
     }
   }
 
-  /// The WebSocket handshake by hand (RFC 6455, section 4.2.2), so the raw
-  /// socket can be metered byte by byte before `dart:io` assembles frames.
-  /// No compression: the payloads are ciphertext, and inflating an
-  /// attacker's frame could turn one small message into gigabytes.
-  static Future<WebSocket> _upgrade(
-    HttpRequest request,
-    ByteBudget budget,
-  ) async {
-    final key = request.headers.value('sec-websocket-key');
-    if (key == null || key.length > 64) throw const FormatException('no key');
-    final accept = base64.encode(
-      sha1
-          .convert(
-            ascii.encode('${key.trim()}258EAFA5-E914-47DA-95CA-C5AB0DC85B11'),
-          )
-          .bytes,
-    );
-    request.response
-      ..statusCode = HttpStatus.switchingProtocols
-      ..headers.set(HttpHeaders.connectionHeader, 'Upgrade')
-      ..headers.set(HttpHeaders.upgradeHeader, 'websocket')
-      ..headers.set('Sec-WebSocket-Accept', accept);
-    final raw = await request.response.detachSocket();
-    return WebSocket.fromUpgradedSocket(
-      _MeteredSocket(raw, _Bucket(budget)),
-      serverSide: true,
-      compression: CompressionOptions.compressionOff,
-    );
-  }
-
   /// Room for one more room, overall and for [address].
   bool _mayOpenRoom(String? address) {
     final perAddress = config.maxRoomsPerAddress;
@@ -428,7 +405,7 @@ class RelayServer {
   /// [room] is still open and has a free seat.
   bool _mayJoin(_Room room) =>
       _rooms[room.id] == room &&
-      room.host.readyState == WebSocket.open &&
+      room.host.socket.readyState == WebSocket.open &&
       room.peers.length < config.maxPeersPerRoom;
 
   String _newRoomId() {
@@ -441,22 +418,22 @@ class RelayServer {
     }
   }
 
-  void _openRoom(WebSocket host, String? address) {
+  void _openRoom(GuardedWebSocket host, String? address) {
     final room = _Room(_newRoomId(), host, address);
     _rooms[room.id] = room;
-    _send(host, RoomOpened(room.id).encode());
+    host.send(RoomOpened(room.id).encode());
     final meter = _Meter(config.maxMessagesPerSecond * config.maxPeersPerRoom);
     void end() {
       if (_rooms[room.id] != room) return;
       _rooms.remove(room.id);
       for (final peer in room.peers.values) {
-        unawaited(peer.close());
+        unawaited(peer.socket.close().catchError((Object _) {}));
       }
       room.peers.clear();
-      unawaited(host.close());
+      unawaited(host.socket.close().catchError((Object _) {}));
     }
 
-    host.listen(
+    host.socket.listen(
       (data) {
         if (data is! String || meter.tick()) return end();
         final RelayFrame frame;
@@ -467,10 +444,19 @@ class RelayServer {
         }
         switch (frame) {
           case PeerData(:final peer, :final data):
-            final socket = room.peers[peer];
-            if (socket != null) _send(socket, data);
+            // A player who stops reading is dropped by its guard, never
+            // buffered without end.
+            room.peers[peer]?.send(data);
           case PeerLeft(:final peer):
-            unawaited(room.peers.remove(peer)?.close());
+            unawaited(
+              room.peers
+                  .remove(peer)
+                  ?.socket
+                  .close()
+                  .catchError(
+                    (Object _) {},
+                  ),
+            );
           case RoomOpened() || PeerJoined():
             end();
         }
@@ -481,134 +467,28 @@ class RelayServer {
     );
   }
 
-  /// Sends [data] if [socket] can still take it. A socket may report
-  /// itself open while its sink is already closed (this side began closing
-  /// it); a write then must not throw out of the server.
-  static void _send(WebSocket socket, String data) {
-    if (socket.readyState != WebSocket.open) return;
-    try {
-      socket.add(data);
-      // dart:io has no way to ask whether this side already closed the
-      // sink; the write tells by throwing. The peer is gone either way.
-      // ignore: avoid_catching_errors
-    } on StateError {
-      return;
-    }
-  }
-
-  void _joinRoom(_Room room, WebSocket peer) {
+  void _joinRoom(_Room room, GuardedWebSocket peer) {
     final id = room.nextPeer++;
     room.peers[id] = peer;
-    _send(room.host, PeerJoined(id).encode());
+    room.host.send(PeerJoined(id).encode());
     final meter = _Meter(config.maxMessagesPerSecond);
     void leave() {
       if (room.peers.remove(id) != null) {
-        _send(room.host, PeerLeft(id).encode());
+        room.host.send(PeerLeft(id).encode());
       }
-      unawaited(peer.close());
+      unawaited(peer.socket.close().catchError((Object _) {}));
     }
 
-    peer.listen(
+    peer.socket.listen(
       (data) {
         if (data is! String || data.length > maxClientMessage || meter.tick()) {
           return leave();
         }
-        _send(room.host, PeerData(id, data).encode());
+        room.host.send(PeerData(id, data).encode());
       },
       onDone: leave,
       onError: (Object _) => leave(),
       cancelOnError: true,
     );
   }
-}
-
-/// A socket whose incoming bytes are counted against a budget; one that
-/// sends too much is destroyed on the spot.
-class _MeteredSocket extends Stream<Uint8List> implements Socket {
-  _MeteredSocket(this._inner, this._bucket);
-
-  final Socket _inner;
-  final _Bucket _bucket;
-
-  @override
-  StreamSubscription<Uint8List> listen(
-    void Function(Uint8List event)? onData, {
-    Function? onError,
-    void Function()? onDone,
-    bool? cancelOnError,
-  }) => _inner
-      .where((chunk) {
-        if (_bucket.spend(chunk.length)) return true;
-        _inner.destroy();
-        return false;
-      })
-      .listen(
-        onData,
-        onError: onError,
-        onDone: onDone,
-        cancelOnError: cancelOnError,
-      );
-
-  @override
-  Encoding get encoding => _inner.encoding;
-
-  @override
-  set encoding(Encoding value) => _inner.encoding = value;
-
-  @override
-  InternetAddress get address => _inner.address;
-
-  @override
-  InternetAddress get remoteAddress => _inner.remoteAddress;
-
-  @override
-  int get port => _inner.port;
-
-  @override
-  int get remotePort => _inner.remotePort;
-
-  @override
-  bool setOption(SocketOption option, bool enabled) =>
-      _inner.setOption(option, enabled);
-
-  @override
-  Uint8List getRawOption(RawSocketOption option) => _inner.getRawOption(option);
-
-  @override
-  void setRawOption(RawSocketOption option) => _inner.setRawOption(option);
-
-  @override
-  void add(List<int> data) => _inner.add(data);
-
-  @override
-  void addError(Object error, [StackTrace? stackTrace]) =>
-      _inner.addError(error, stackTrace);
-
-  @override
-  Future<void> addStream(Stream<List<int>> stream) => _inner.addStream(stream);
-
-  @override
-  Future<void> close() => _inner.close();
-
-  @override
-  Future<void> get done => _inner.done;
-
-  @override
-  Future<void> flush() => _inner.flush();
-
-  @override
-  void write(Object? object) => _inner.write(object);
-
-  @override
-  void writeAll(Iterable<Object?> objects, [String separator = '']) =>
-      _inner.writeAll(objects, separator);
-
-  @override
-  void writeCharCode(int charCode) => _inner.writeCharCode(charCode);
-
-  @override
-  void writeln([Object? object = '']) => _inner.writeln(object);
-
-  @override
-  void destroy() => _inner.destroy();
 }

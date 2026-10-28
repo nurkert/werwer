@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:game_core/game_core.dart';
 import 'package:game_host/game_host.dart';
 import 'package:game_host/relay.dart';
+import 'package:game_host/socket_guard.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 import 'package:whowolf_server/relay_server.dart';
@@ -156,7 +157,12 @@ void main() {
 
     test('a huge frame is cut off before it is complete', () async {
       final relay = await start(const RelayConfig());
-      relay.playerBudget = const ByteBudget(burst: 16 * 1024, rate: 1024);
+      relay.playerLimits = const SocketLimits(
+        burst: 16 * 1024,
+        rate: 1024,
+        maxMessage: 1 << 20,
+        maxBacklog: 1 << 20,
+      );
       final room = await RelayTransport.open(
         Uri.parse('ws://127.0.0.1:${relay.port}'),
       );

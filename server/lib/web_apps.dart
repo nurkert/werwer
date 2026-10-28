@@ -148,26 +148,34 @@ class WebApps {
         page ? 'no-cache' : 'public, max-age=31536000, immutable',
       );
     webAppHeaders(socket).forEach(headers.set);
-    if (request.headers.value(HttpHeaders.ifNoneMatchHeader) == file.etag) {
+    if (file.gzip) {
+      // Held compressed only, and sent only so: unpacking it for every
+      // request that asks otherwise would cost the server memory and time
+      // at a stranger's will. Every browser that runs the app takes gzip.
+      headers.set(HttpHeaders.varyHeader, 'Accept-Encoding');
+      final accepts =
+          request.headers[HttpHeaders.acceptEncodingHeader]?.join(',') ?? '';
+      if (!accepts.contains('gzip')) {
+        response.statusCode = HttpStatus.notAcceptable;
+        _close(response);
+        return;
+      }
+      headers.set(HttpHeaders.contentEncodingHeader, 'gzip');
+    }
+    if (request.headers[HttpHeaders.ifNoneMatchHeader]?.contains(file.etag) ??
+        false) {
       response.statusCode = HttpStatus.notModified;
-      unawaited(response.close());
+      _close(response);
       return;
     }
-    var bytes = file.bytes;
-    if (file.gzip) {
-      final accepts =
-          request.headers.value(HttpHeaders.acceptEncodingHeader) ?? '';
-      if (accepts.contains('gzip')) {
-        headers.set(HttpHeaders.contentEncodingHeader, 'gzip');
-      } else {
-        bytes = gzip.decode(bytes);
-      }
-      headers.set(HttpHeaders.varyHeader, 'Accept-Encoding');
-    }
-    response.contentLength = bytes.length;
-    if (request.method == 'GET') response.add(bytes);
-    unawaited(response.close());
+    response.contentLength = file.bytes.length;
+    if (request.method == 'GET') response.add(file.bytes);
+    _close(response);
   }
+
+  /// Ends [response]; a browser that went away meanwhile is no error.
+  static void _close(HttpResponse response) =>
+      unawaited(response.close().catchError((Object _) {}));
 
   /// A plain page instead of a blank screen: this server does not have the
   /// build the QR code asks for.

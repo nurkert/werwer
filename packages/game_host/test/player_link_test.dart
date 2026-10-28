@@ -21,8 +21,9 @@ class _Unchecked implements Transport {
 }
 
 class _Side implements Connection, PeerTrust {
-  _Side(this._raw);
+  _Side(this._raw, {this.onClose});
   final Connection _raw;
+  final void Function()? onClose;
 
   @override
   bool get verified => false;
@@ -40,7 +41,10 @@ class _Side implements Connection, PeerTrust {
   void send(String message) => _raw.send(message);
 
   @override
-  Future<void> close() => _raw.close();
+  Future<void> close() {
+    onClose?.call();
+    return _raw.close();
+  }
 }
 
 /// Timers that only fire when told to.
@@ -131,7 +135,7 @@ void main() {
         c.messages.first.then((_) {
           c.send(
             Welcome(
-              token: 't' * tokenLength,
+              token: 'a' * tokenLength,
               you: const PlayerId('p9'),
             ).encode(),
           );
@@ -152,6 +156,39 @@ void main() {
     expect(ada.needsCodeConfirmation, isTrue);
     expect(ada.status, isNot(LinkStatus.connected));
     expect(savedKey, isNull);
+    ada.close();
+  });
+
+  test('an unchecked host cannot flood a player waiting at the code', () async {
+    final fake = MemoryTransport();
+    fake.connections.listen((c) {
+      unawaited(
+        c.messages.first.then((_) {
+          // Answers with endless welcomes.
+          for (var i = 0; i < 200; i++) {
+            c.send(
+              Welcome(
+                token: 'a' * tokenLength,
+                you: const PlayerId('p9'),
+              ).encode(),
+            );
+          }
+        }),
+      );
+    });
+    var hungUp = false;
+    final ada = PlayerLink(
+      name: 'Ada',
+      roomCode: '1234',
+      dial: () async => _Side(fake.connect(), onClose: () => hungUp = true),
+      startTimer: timers.start,
+      random: Random(1),
+    );
+    for (var i = 0; i < 20; i++) {
+      await settle();
+    }
+    expect(hungUp, isTrue, reason: 'past the limit the link hangs up');
+    expect(ada.view, isNull);
     ada.close();
   });
 

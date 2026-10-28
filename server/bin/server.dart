@@ -20,7 +20,17 @@ import 'package:whowolf_server/web_apps.dart';
 ///
 /// `server healthcheck` asks the running server for `/health` and exits with
 /// 0 or 1 (the container image has no shell or curl).
-Future<void> main(List<String> args) async {
+void main(List<String> args) {
+  // The last line of defence: an error no handler caught (from any socket
+  // or timer) is noted by its type only, never with addresses or contents,
+  // and the server keeps serving everyone else.
+  runZonedGuarded(
+    () => unawaited(_serve(args)),
+    (error, _) => stderr.writeln('Unhandled error: ${error.runtimeType}'),
+  );
+}
+
+Future<void> _serve(List<String> args) async {
   int env(String name, int fallback) =>
       int.tryParse(Platform.environment[name] ?? '') ?? fallback;
 

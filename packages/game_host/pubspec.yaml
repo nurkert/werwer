@@ -7,6 +7,9 @@ environment:
   sdk: ^3.12.0
 
 dependencies:
+  # SHA-1 for the WebSocket handshake by hand (lib/socket_guard.dart); a
+  # dart.dev package, already used by the relay server.
+  crypto: ^3.0.7
   game_core:
     path: ../game_core
   protocol:

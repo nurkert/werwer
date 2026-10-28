@@ -8,14 +8,15 @@ environment:
 
 dependencies:
   crypto: ^3.0.7
+  # The guarded WebSocket (lib/socket_guard.dart), shared with the LAN host.
+  game_host:
+    path: ../packages/game_host
   protocol:
     path: ../packages/protocol
 
 dev_dependencies:
   game_core:
     path: ../packages/game_core
-  game_host:
-    path: ../packages/game_host
   # For the browser test's VM side (spawnHybridUri), part of package:test.
   stream_channel: ^2.1.4
   test: ^1.31.0

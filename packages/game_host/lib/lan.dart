@@ -9,9 +9,20 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:game_host/socket_guard.dart';
 import 'package:game_host/src/transport.dart';
 import 'package:protocol/protocol.dart'
     show hostSocketPath, isWebAppPath, webAppHeaders;
+
+/// What one player's connection to the host may cost on the Wi-Fi: small
+/// messages in (the encrypted handshake and frames, which secure_channel
+/// caps at 90 000 characters), views out.
+const lanSocketLimits = SocketLimits(
+  burst: 512 * 1024,
+  rate: 128 * 1024,
+  maxMessage: 192 * 1024,
+  maxBacklog: 512 * 1024,
+);
 
 /// Port the host tries first; if it is taken, the system picks one.
 const defaultPort = 47470;
@@ -86,16 +97,18 @@ class LanTransport implements Transport {
     try {
       // No compression: ciphertext does not compress, and inflating a
       // stranger's frame could blow up memory from one small message.
-      final socket = await WebSocketTransformer.upgrade(
+      // Guarded on the raw socket: a stranger on the Wi-Fi can neither
+      // send one endless message nor stop reading and let output pile up.
+      final guarded = await upgradeGuarded(
         request,
-        compression: CompressionOptions.compressionOff,
+        lanSocketLimits,
+        pingInterval: const Duration(seconds: 5),
       );
-      socket.pingInterval = const Duration(seconds: 5);
       if (_incoming.isClosed) {
-        await socket.close();
+        await guarded.socket.close();
         return;
       }
-      _incoming.add(WebSocketConnection(socket));
+      _incoming.add(WebSocketConnection.guarded(guarded));
     } on Object {
       // A broken handshake only affects that one request.
     }
@@ -125,18 +138,22 @@ class LanTransport implements Transport {
       final port = request.headers.port;
       final self = host == null ? '' : 'ws://$host:$port';
       final accepts =
-          request.headers.value(HttpHeaders.acceptEncodingHeader) ?? '';
-      var bytes = file.bytes;
+          request.headers[HttpHeaders.acceptEncodingHeader]?.join(',') ?? '';
+      final bytes = file.bytes;
       final headers = response.headers
         ..contentType = ContentType.parse(file.contentType)
         ..set(HttpHeaders.cacheControlHeader, 'no-cache');
       webAppHeaders(self).forEach(headers.set);
       if (file.gzip) {
-        if (accepts.contains('gzip')) {
-          headers.set(HttpHeaders.contentEncodingHeader, 'gzip');
-        } else {
-          bytes = gzip.decode(bytes);
+        // Never unpacked on request (a stranger could make the phone do
+        // it again and again); every browser that runs the app takes gzip.
+        headers.set(HttpHeaders.varyHeader, 'Accept-Encoding');
+        if (!accepts.contains('gzip')) {
+          response.statusCode = HttpStatus.notAcceptable;
+          await response.close();
+          return;
         }
+        headers.set(HttpHeaders.contentEncodingHeader, 'gzip');
       }
       response.contentLength = bytes.length;
       if (method == 'GET') response.add(bytes);
@@ -161,9 +178,15 @@ class LanTransport implements Transport {
 /// A `Connection` over a WebSocket. Binary frames end the connection.
 class WebSocketConnection implements Connection {
   /// Wraps a connected WebSocket.
-  WebSocketConnection(this._socket);
+  WebSocketConnection(this._socket) : _guarded = null;
+
+  /// Wraps a guarded WebSocket (the host's side of a LAN connection).
+  WebSocketConnection.guarded(GuardedWebSocket guarded)
+    : _socket = guarded.socket,
+      _guarded = guarded;
 
   final WebSocket _socket;
+  final GuardedWebSocket? _guarded;
   bool _closed = false;
 
   @override
@@ -174,7 +197,13 @@ class WebSocketConnection implements Connection {
   @override
   void send(String message) {
     // The socket stays "open" for a moment after close(); adding then throws.
-    if (!_closed && _socket.readyState == WebSocket.open) _socket.add(message);
+    if (_closed || _socket.readyState != WebSocket.open) return;
+    final guarded = _guarded;
+    if (guarded != null) {
+      guarded.send(message);
+    } else {
+      _socket.add(message);
+    }
   }
 
   @override

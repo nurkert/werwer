@@ -104,13 +104,15 @@ void main() {
     );
     expect(code.headers.value('content-security-policy'), isNotNull);
 
-    // Without gzip support the same file comes plain.
+    // A file held compressed is never unpacked on request: who does not
+    // take gzip gets 406 (every browser that runs the app does).
     final plain = await get(
       '/v/7/0.2.0/main.dart.js',
       headers: {'accept-encoding': 'identity'},
     );
-    expect(plain.headers.value('content-encoding'), isNull);
-    expect(await body(plain), 'code();');
+    expect(plain.statusCode, HttpStatus.notAcceptable);
+    expect(plain.headers.value('vary'), 'Accept-Encoding');
+    await plain.drain<void>();
 
     // A browser that has it already gets 304.
     final again = await get(

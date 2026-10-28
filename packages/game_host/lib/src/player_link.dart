@@ -67,6 +67,10 @@ class LinkConfig {
 /// client and the chaos tests all use it.
 ///
 /// The host being gone for a while is a normal state ([LinkStatus.paused]),
+/// Most messages a player holds from an unchecked host while the code is
+/// compared (states replace each other and count once).
+const maxHeldMessages = 16;
+
 /// not an error: the last view stays, nothing typed in the meantime is lost.
 class PlayerLink {
   /// Starts joining [roomCode] under the given name through the dialer.
@@ -193,6 +197,9 @@ class PlayerLink {
   /// confirmed the check code; they count once [confirmCheckCode] is called.
   final _held = <String>[];
 
+  /// Where the held state is in [_held], if one is held.
+  int? _heldStateAt;
+
   /// The host refused the name; [rename] tries another one.
   bool nameRefused = false;
 
@@ -282,6 +289,7 @@ class PlayerLink {
     _unchecked = false;
     _codeConfirmed = false;
     _held.clear();
+    _heldStateAt = null;
     if (connection case final PeerTrust trust) {
       checkCode = trust.checkCode;
       // Every unchecked channel has its own code: it is confirmed anew.
@@ -340,7 +348,21 @@ class PlayerLink {
         message is! Bye &&
         message is! Refused) {
       _cancelSilence?.call();
-      _held.add(raw);
+      // Bounded: only the latest state counts, and a host that keeps
+      // sending anything else while the code is compared is not one to
+      // wait for (an unchecked host could be anyone on the Wi-Fi).
+      final state = message is StateMessage;
+      final last = _heldStateAt;
+      if (state && last != null) {
+        _held[last] = raw;
+      } else {
+        if (_held.length >= maxHeldMessages) {
+          unawaited(connection.close());
+          return;
+        }
+        if (state) _heldStateAt = _held.length;
+        _held.add(raw);
+      }
       _changed();
       return;
     }
@@ -597,6 +619,7 @@ class PlayerLink {
     _codeConfirmed = true;
     final held = [..._held];
     _held.clear();
+    _heldStateAt = null;
     for (final raw in held) {
       _receive(connection, raw);
     }
