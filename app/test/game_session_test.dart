@@ -9,6 +9,8 @@ import 'package:whowolf/src/net/game_session.dart';
 void main() {
   test('sessions join a host, play into the night and come back', () async {
     final host = GameHost(
+      // No lead before a new phase: this test is about joining.
+      config: const HostConfig(switchLead: Duration.zero),
       roomCode: '1234',
       random: Random(4),
       settings: const GameSettings(),
