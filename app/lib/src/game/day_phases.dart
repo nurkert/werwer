@@ -100,10 +100,20 @@ class DayPhase extends StatelessWidget {
 
 /// The hunter has fallen: he picks whom to take along, everyone else
 /// waits for the shot.
-class HunterPhase extends StatelessWidget {
+class HunterPhase extends StatefulWidget {
   const HunterPhase({required this.session, super.key});
 
   final GameSession session;
+
+  @override
+  State<HunterPhase> createState() => _HunterPhaseState();
+}
+
+class _HunterPhaseState extends State<HunterPhase> {
+  /// Who the hunter aims at before he fires (a shot cannot be taken back).
+  PlayerId? _aim;
+
+  GameSession get session => widget.session;
 
   @override
   Widget build(BuildContext context) {
@@ -142,11 +152,22 @@ class HunterPhase extends StatelessWidget {
               : l10n.hunterWait(shooter == null ? '?' : view.nameOf(shooter)),
         ),
         Countdown(endsAt: session.phaseEndsAt),
-        if (yours)
+        if (yours) ...[
           SeatGrid(
             view: view,
-            onTap: (seat) => session.send(ShootIntent(seat.id)),
+            selected: _aim,
+            onTap: (seat) =>
+                setState(() => _aim = _aim == seat.id ? null : seat.id),
           ),
+          PrimaryButton(
+            label: _aim == null
+                ? l10n.hunterAim
+                : l10n.hunterShoot(view.nameOf(_aim!)),
+            onPressed: _aim == null
+                ? null
+                : () => session.send(ShootIntent(_aim)),
+          ),
+        ],
         if (session.paused) const PausedNote(),
         if (session.isOwner)
           LeaderBar(session: session, canEnd: false, canExtend: false),
@@ -155,15 +176,29 @@ class HunterPhase extends StatelessWidget {
   }
 }
 
-class VotePhase extends StatelessWidget {
+class VotePhase extends StatefulWidget {
   const VotePhase({required this.session, super.key});
 
   final GameSession session;
 
   @override
+  State<VotePhase> createState() => _VotePhaseState();
+}
+
+class _VotePhaseState extends State<VotePhase> {
+  /// The card picked but not yet confirmed: a stray tap casts no vote.
+  PlayerId? _draft;
+
+  GameSession get session => widget.session;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
+    // A draft counts only while that player can still be voted for.
+    final draft = view.seats.any((s) => s.id == _draft && s.isAlive)
+        ? _draft
+        : null;
     final vote = view.yourVote;
     final runoff = view.runoff.isNotEmpty;
     return PhaseBody(
@@ -193,19 +228,27 @@ class VotePhase extends StatelessWidget {
           Aside(
             child: SeatGrid(
               view: view,
-              selected: vote,
+              selected: draft ?? vote,
               // In a runoff only the tied can be chosen.
               enabled: runoff
                   ? (seat) =>
                         view.runoff.contains(seat.id) && seat.id != view.you
                   : null,
               badges: {for (final id in session.offline) id: l10n.offlineBadge},
-              onTap: (seat) {
-                SoundScope.play(context, Sound.ballot);
-                session.send(VoteIntent(seat.id));
-              },
+              onTap: (seat) =>
+                  setState(() => _draft = _draft == seat.id ? null : seat.id),
             ),
           ),
+          if (draft != null && draft != vote)
+            PrimaryButton(
+              label: l10n.voteConfirm(view.nameOf(draft)),
+              icon: Icons.how_to_vote_rounded,
+              onPressed: () {
+                SoundScope.play(context, Sound.ballot);
+                session.send(VoteIntent(draft));
+                setState(() => _draft = null);
+              },
+            ),
           if (view.youVoted)
             Body(
               vote == null ? l10n.abstained : l10n.votedFor(view.nameOf(vote)),
@@ -227,8 +270,8 @@ class VotePhase extends StatelessWidget {
   }
 }
 
-/// The clock stands still: the game leader paused it.
-/// "The game leader paused", the same on every screen.
+/// The clock stands still: the game leader paused it (the same note on
+/// every screen).
 class PausedNote extends StatelessWidget {
   const PausedNote({super.key});
 

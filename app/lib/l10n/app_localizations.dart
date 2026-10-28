@@ -896,6 +896,24 @@ abstract class AppLocalizations {
   /// **'Who is a werewolf?'**
   String get votePrompt;
 
+  /// No description provided for @voteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote for {name}'**
+  String voteConfirm(String name);
+
+  /// No description provided for @hunterAim.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a target first'**
+  String get hunterAim;
+
+  /// No description provided for @hunterShoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoot {name}'**
+  String hunterShoot(String name);
+
   /// No description provided for @abstain.
   ///
   /// In en, this message translates to:
@@ -1429,6 +1447,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whom do you bind as lovers? Pick two (you may pick yourself).'**
   String get nightLink;
+
+  /// No description provided for @nightChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get nightChoose;
 
   /// No description provided for @linkConfirm.
   ///

@@ -502,6 +502,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get votePrompt => 'Wer ist ein Werwolf?';
 
   @override
+  String voteConfirm(String name) {
+    return 'Stimme für $name abgeben';
+  }
+
+  @override
+  String get hunterAim => 'Erst ein Ziel wählen';
+
+  @override
+  String hunterShoot(String name) {
+    return 'Auf $name schießen';
+  }
+
+  @override
   String get abstain => 'Enthalten';
 
   @override
@@ -821,6 +834,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get nightLink =>
       'Wen verbindest du als Liebespaar? Wähl zwei (auch dich selbst).';
+
+  @override
+  String get nightChoose => 'Wählen';
 
   @override
   String get linkConfirm => 'Verbinden';

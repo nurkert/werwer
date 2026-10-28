@@ -64,6 +64,10 @@ class _NightPhaseState extends State<NightPhase> {
   bool _heal = false;
   PlayerId? _poison;
 
+  /// A pick before it is confirmed. Every night card works alike (pick,
+  /// then "Choose"), so no card looks different across the table.
+  PlayerId? _draft;
+
   GameSession get session => widget.session;
 
   @override
@@ -115,6 +119,7 @@ class _NightPhaseState extends State<NightPhase> {
       _open = false;
       _heal = false;
       _poison = null;
+      _draft = null;
     }
     _planDecoy(view);
     _showVisions(view);
@@ -322,6 +327,27 @@ class _NightPhaseState extends State<NightPhase> {
   /// that reads the same for every role, unfolded only on request.
   bool _open = false;
 
+  void _pick(PlayerId seat) =>
+      setState(() => _draft = _draft == seat ? null : seat);
+
+  /// The same button under every night card: it sends the pick.
+  Widget _choose(PlayerId? sent) {
+    final draft = _draft;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: PrimaryButton(
+        label: AppLocalizations.of(context).nightChoose,
+        icon: null,
+        onPressed: draft == null || draft == sent
+            ? null
+            : () {
+                session.send(NightIntent(draft));
+                setState(() => _draft = null);
+              },
+      ),
+    );
+  }
+
   /// The living werewolves, as a werewolf sees them.
   static int _wolves(PlayerView view) =>
       view.seats.where((s) => s.isAlive && s.role == Role.werewolf).length;
@@ -397,7 +423,7 @@ class _NightPhaseState extends State<NightPhase> {
           const SizedBox(height: 12),
           SeatGrid(
             view: view,
-            selected: choice,
+            selected: _draft ?? choice,
             enabled: (seat) =>
                 seat.isAlive &&
                 seat.id != view.you &&
@@ -407,8 +433,9 @@ class _NightPhaseState extends State<NightPhase> {
               for (final MapEntry(:key, :value) in view.packChoices.entries)
                 if (key != view.you) value: l10n.packPick(view.nameOf(key)),
             },
-            onTap: (seat) => session.send(NightIntent(seat.id)),
+            onTap: (seat) => _pick(seat.id),
           ),
+          if (!inspected) _choose(choice),
           if (choice != null) ...[
             const SizedBox(height: 10),
             Body(l10n.picked(view.nameOf(choice))),
@@ -470,9 +497,10 @@ class _NightPhaseState extends State<NightPhase> {
           const SizedBox(height: 12),
           SeatGrid(
             view: view,
-            selected: view.yourNightChoice,
-            onTap: (seat) => session.send(NightIntent(seat.id)),
+            selected: _draft ?? view.yourNightChoice,
+            onTap: (seat) => _pick(seat.id),
           ),
+          _choose(view.yourNightChoice),
         ];
     }
   }
@@ -561,12 +589,20 @@ class _NightPhaseState extends State<NightPhase> {
               setState(() => _poison = _poison == seat.id ? null : seat.id),
         ),
       ],
-      PrimaryButton(
-        label: heal || poison != null ? l10n.brewDone : l10n.brewNothing,
-        onPressed: () => session.send(
-          NightIntent.of([if (heal) ?victim, ?poison]),
+      // The potions are the witch's choice; brewing nothing is the quiet
+      // way out, not the big button.
+      if (heal || poison != null)
+        PrimaryButton(
+          label: l10n.brewDone,
+          onPressed: () => session.send(
+            NightIntent.of([if (heal) ?victim, ?poison]),
+          ),
+        )
+      else
+        SecondaryButton(
+          label: l10n.brewNothing,
+          onPressed: () => session.send(NightIntent.of(const [])),
         ),
-      ),
     ];
   }
 }

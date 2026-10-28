@@ -249,6 +249,11 @@
   "ownerStartsVote": "The host starts the vote when you are done.",
   "voteTitle": "Vote",
   "votePrompt": "Who is a werewolf?",
+  "voteConfirm": "Vote for {name}",
+  "@voteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "hunterAim": "Choose a target first",
+  "hunterShoot": "Shoot {name}",
+  "@hunterShoot": {"placeholders": {"name": {"type": "String"}}},
   "abstain": "Abstain",
   "votedFor": "Your vote: {name}",
   "@votedFor": {
@@ -437,6 +442,7 @@
   "roleCupidText": "In the first night you bind two people as lovers. If one of them dies, so does the other.",
   "factionLovers": "Lovers",
   "nightLink": "Whom do you bind as lovers? Pick two (you may pick yourself).",
+  "nightChoose": "Choose",
   "linkConfirm": "Bind them",
   "linked": "{first} and {second} are lovers now.",
   "@linked": {

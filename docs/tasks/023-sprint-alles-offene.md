@@ -47,8 +47,8 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 ## B – Rollen bedienen
 
 - [x] **B1 Wölfe können ihre Wahl ändern,** bis sich das Rudel einig ist. Die Kopfzeile sagt dann „Das Rudel ist wach“ statt „Nur du bist wach“. Test im Host: eine geänderte Wahl gilt, die Einigung danach auch. (erledigt: die Karte bzw. der Wach-Bildschirm bleibt offen, bis alle lebenden Wölfe dieselbe Beute nennen; die Regeln erlaubten das Umwählen schon, Test `werewolves can change their pick`)
-- [ ] **B2 Hexe: die richtige Hauptaktion.** Heute ist „Nichts brauen“ der große Hauptknopf. Künftig sind die Tränke die Hauptaktionen, und „Nichts brauen“ ist ein zurückhaltender Knopf.
-- [ ] **B3 Bestätigungsschritt für Seherin, Abstimmung und Jäger.** Erst auswählen, dann „Bestätigen“. Danach ist die Wahl fest. Bis die Zeit abläuft, ist ein Wechsel nur bei der Abstimmung erlaubt, wie heute.
+- [x] **B2 Hexe: die richtige Hauptaktion.** Heute ist „Nichts brauen“ der große Hauptknopf. Künftig sind die Tränke die Hauptaktionen, und „Nichts brauen“ ist ein zurückhaltender Knopf. (erledigt: „Brauen“ ist erst mit einem Trank die Hauptaktion, „Nichts brauen“ ein zurückhaltender Knopf)
+- [x] **B3 Bestätigungsschritt für Seherin, Abstimmung und Jäger.** Erst auswählen, dann „Bestätigen“. Danach ist die Wahl fest. Bis die Zeit abläuft, ist ein Wechsel nur bei der Abstimmung erlaubt, wie heute. (erledigt: Abstimmung „Stimme für … abgeben“, Jäger „Auf … schießen“; nachts hat jede Karte dieselbe Folge „wählen, dann Wählen“, auch Rudel und Deckfrage, damit die Seherin nicht auffällt; geprüft mit Screenshots)
 - [ ] **B4 Die eigene Rolle jederzeit per Halten ansehen.** Ein Knopf, den man gedrückt hält, zeigt die Rolle nur, solange man drückt. Er sieht für alle gleich aus und ist auch nachts erlaubt, aber nur verdeckt.
 
 ## C – Desktop

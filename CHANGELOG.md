@@ -15,6 +15,9 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- Picks are confirmed: every night card, the vote and the hunter's shot
+  first select, then a button sends. The witch's potions are her main
+  action, "brew nothing" the quiet one.
 - Werewolves keep their choice open until the whole pack names the same
   prey; the called night says "The pack is awake".
 - Cards, quick picks and role switches work with the keyboard (Tab,
