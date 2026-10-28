@@ -8,6 +8,12 @@ Heute kann man im Browser nur im selben WLAN mitspielen. Das Host-Handy liefert 
 ## Ziel und Grenzen
 
 - **Für wen:** Leute, die **mit am Tisch sitzen**, aber nicht im WLAN sind. Sie scannen den QR-Code mit der Kamera und spielen im Browser über mobile Daten mit.
+- **Ausdrücklich auch:**
+  - Hotel- oder Gäste-WLAN, in dem sich die Geräte nicht gegenseitig erreichen (Client-Isolation).
+  - Gar kein WLAN: Alle, auch der Host, sind über mobile Daten verbunden.
+
+  In beiden Fällen läuft alles über das Relay. App-Spieler können das schon heute (das WLAN scheitert, nach 1,5 s übernimmt das Relay). Browser-Spieler können es mit diesem Task.
+- **Die Falle dabei:** Ein `http://`-QR-Code im WLAN sieht für den Host gut aus, funktioniert bei Client-Isolation aber nicht. Deshalb nimmt *Automatisch* den Server, sobald er den Build hat, auch wenn der Host im WLAN ist. *Von diesem Handy* sagt dazu: „Nur, wenn sich die Handys im WLAN erreichen (nicht in vielen Hotel- und Gäste-WLANs).“
 - **Nicht für Fernspieler:** Sitzkreis, Türzeichen, Wolfsspur und wandernder Erzähler setzen einen gemeinsamen Tisch voraus. Echtes Fernspiel wäre später ein eigenes Feature mit eigenen Regeln (Fernplatz ohne Sitz, ohne Türzeichen). Die Docs für Spieler sagen das so.
 - **Ein Code:** Die Browser-Version ist dieselbe Flutter-App, für das Web gebaut (`tool/build_webapp.sh`). Unterschiede nur an den Rändern (Verbindung, Speicher, Ton freischalten, Wake Lock), keine eigene Browser-Oberfläche und keine Browser-Logik in den Bildschirmen.
 - **Wer die Seite ausliefert:** über das Internet nur der **Server** (opt-in am Relay, auf `play.whowolf.de` an), im WLAN wie heute das **Host-Handy**. Keine Mitspieler, kein Tunnel vom Host durch das Relay (siehe Review unten).
