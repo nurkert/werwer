@@ -286,6 +286,23 @@ void main() {
       expect(apply(state, const PhaseTimeout()).state.phase, Phase.day);
     });
 
+    test('the times follow the table until the host sets them', () {
+      var state = lobby(3, settings: const GameSettings().timedFor(0));
+      expect(state.settings.dayTime, const GameSettings().timedFor(3).dayTime);
+      for (var i = 3; i < 9; i++) {
+        state = apply(state, AddPlayer(PlayerId('p$i'), 'N$i')).state;
+      }
+      expect(state.settings.dayTime, const GameSettings().timedFor(9).dayTime);
+      final mine = state.settings.copyWith(
+        dayTime: const Duration(minutes: 3),
+      );
+      state = apply(state, ChangeSettings(mine)).state;
+      state = apply(state, const RemovePlayer(PlayerId('p8'))).state;
+      expect(state.settings.dayTime, const Duration(minutes: 3));
+      // A preset keeps the table's times.
+      expect(Preset.classic.settings.withTableOf(mine).dayTime, mine.dayTime);
+    });
+
     test('the phase times come from the settings', () {
       final settings = const GameSettings().copyWith(
         nightTime: const Duration(seconds: 45),

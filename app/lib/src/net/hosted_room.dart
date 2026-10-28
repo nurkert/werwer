@@ -73,8 +73,11 @@ class HostedRoom {
         roomCode: code,
         random: random,
         roomSecret: keys.roomSecret,
-        // The narrator speaks the host's language to the whole table.
-        settings: GameHost.defaultSettings.copyWith(narratorLanguage: language),
+        // The narrator speaks the host's language to the whole table; the
+        // phase times then follow the table as it fills (see retimed).
+        settings: GameHost.defaultSettings
+            .timedFor(0)
+            .copyWith(narratorLanguage: language),
       ),
       keys: keys,
       hostName: hostName,

@@ -269,8 +269,10 @@ GameUpdate _addPlayer(GameState state, AddPlayer action) {
       _unprintable.hasMatch(name)) {
     _refuse(Violation.invalidName);
   }
+  final count = state.players.length;
   return GameUpdate(
     state.copyWith(
+      settings: state.settings.retimed(count, count + 1),
       players: [
         ...state.players,
         Player(
@@ -333,8 +335,10 @@ GameUpdate _swapSeats(GameState state, SwapSeats action) {
 GameUpdate _removePlayer(GameState state, RemovePlayer action) {
   _expectPhase(state, Phase.lobby);
   if (state.player(action.player) == null) _refuse(Violation.unknownPlayer);
+  final count = state.players.length;
   return GameUpdate(
     state.copyWith(
+      settings: state.settings.retimed(count, count - 1),
       players: [
         for (final p in state.players)
           if (p.id != action.player) p,

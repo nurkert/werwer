@@ -212,12 +212,27 @@ class GameSettings {
       .firstOrNull;
 
   /// These settings with the table's own choices from [other]: the
-  /// narrator's language and where sound plays (a preset keeps them).
+  /// narrator's language, where sound plays and the phase times (a preset
+  /// keeps them).
   GameSettings withTableOf(GameSettings other) => copyWith(
     narratorLanguage: other.narratorLanguage,
     soundMode: other.soundMode,
     soundSeats: other.soundSeats,
+    nightTime: other.nightTime,
+    dayTime: other.dayTime,
+    voteTime: other.voteTime,
   );
+
+  bool _sameTimes(GameSettings other) =>
+      other.nightTime == nightTime &&
+      other.dayTime == dayTime &&
+      other.voteTime == voteTime;
+
+  /// These settings for a table that went from [from] to [to] players: the
+  /// phase times follow it while they are the ones that suited [from] (see
+  /// [timedFor]); times the host set by hand stay.
+  GameSettings retimed(int from, int to) =>
+      _sameTimes(timedFor(from)) ? timedFor(to) : this;
 
   /// Throws a [RuleViolation] unless every value is within its bounds.
   void validate() {
