@@ -428,82 +428,94 @@ class SeatGrid extends StatelessWidget {
         final most = max(3, ((box.maxWidth + gap) / (112 + gap)).floor());
         final rows = (seats.length / most).ceil().clamp(1, 99);
         final columns = (seats.length / rows).ceil().clamp(1, most);
+        // Never so big that two rows leave the screen of a short window.
+        final double tallest = max(
+          96,
+          MediaQuery.sizeOf(context).height * 0.17,
+        );
         final width = min<double>(
-          170,
+          min(170, tallest),
           (box.maxWidth - gap * (columns - 1)) / columns,
         );
-        return Wrap(
-          spacing: gap,
-          runSpacing: 16,
-          alignment: WrapAlignment.center,
-          children: [
-            for (final seat in seats)
-              () {
-                final tappable = can(seat);
-                final card = PuppetCard(
-                  // A villager pose at work, but plain figures at night.
-                  pose: view.phase == Phase.night
-                      ? 0
-                      : poseFor(
-                          seat.persona,
-                          '${view.round}/${view.phase.name}/${seat.id.value}',
-                        ),
-                  persona: seat.persona,
-                  name: seat.name,
-                  width: width,
-                  you: seat.id == view.you,
-                  alive: seat.isAlive,
-                  selected: seat.id == selected || chosen.contains(seat.id),
-                  onTap: tappable ? () => onTap?.call(seat) : null,
-                  subtitle: [
-                    if (seat.id == view.you) l10n.you,
-                    // Never your own role at night: a glance across the
-                    // table would read it.
-                    if (!(seat.id == view.you && view.phase == Phase.night))
-                      ?openRole(view, seat, l10n),
-                    ?badges[seat.id],
-                  ].where((part) => part.isNotEmpty).join(' · '),
-                  deadLabel: l10n.dead,
-                  trailing: trailing?.call(seat),
-                );
-                // Alive but out of this choice (outside a runoff): dimmed.
-                // A small lock says why it cannot be tapped.
-                return onTap != null && !tappable && seat.isAlive
-                    ? Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Opacity(opacity: 0.45, child: card),
-                          Positioned(
-                            right: -6,
-                            top: -6,
-                            child: Semantics(
-                              label: l10n.notChoosable,
-                              child: Container(
-                                width: 26,
-                                height: 26,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Palette.stagePlaque,
-                                  border: Border.fromBorderSide(
-                                    BorderSide(
-                                      color: Palette.stageBrass,
-                                      width: 1.5,
+        // As wide as the planned columns, so the rows stay even (3 + 2,
+        // never 4 + 1) however small the cards are.
+        return Center(
+          child: SizedBox(
+            width: columns * width + gap * (columns - 1) + 0.5,
+            child: Wrap(
+              spacing: gap,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                for (final seat in seats)
+                  () {
+                    final tappable = can(seat);
+                    final card = PuppetCard(
+                      // A villager pose at work, but plain figures at night.
+                      pose: view.phase == Phase.night
+                          ? 0
+                          : poseFor(
+                              seat.persona,
+                              '${view.round}/${view.phase.name}/${seat.id.value}',
+                            ),
+                      persona: seat.persona,
+                      name: seat.name,
+                      width: width,
+                      you: seat.id == view.you,
+                      alive: seat.isAlive,
+                      selected: seat.id == selected || chosen.contains(seat.id),
+                      onTap: tappable ? () => onTap?.call(seat) : null,
+                      subtitle: [
+                        if (seat.id == view.you) l10n.you,
+                        // Never your own role at night: a glance across the
+                        // table would read it.
+                        if (!(seat.id == view.you && view.phase == Phase.night))
+                          ?openRole(view, seat, l10n),
+                        ?badges[seat.id],
+                      ].where((part) => part.isNotEmpty).join(' · '),
+                      deadLabel: l10n.dead,
+                      trailing: trailing?.call(seat),
+                    );
+                    // Alive but out of this choice (outside a runoff): dimmed.
+                    // A small lock says why it cannot be tapped.
+                    return onTap != null && !tappable && seat.isAlive
+                        ? Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Opacity(opacity: 0.45, child: card),
+                              Positioned(
+                                right: -6,
+                                top: -6,
+                                child: Semantics(
+                                  label: l10n.notChoosable,
+                                  child: Container(
+                                    width: 26,
+                                    height: 26,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Palette.stagePlaque,
+                                      border: Border.fromBorderSide(
+                                        BorderSide(
+                                          color: Palette.stageBrass,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.lock_rounded,
+                                      size: 15,
+                                      color: Palette.stageIvorySoft,
                                     ),
                                   ),
                                 ),
-                                child: const Icon(
-                                  Icons.lock_rounded,
-                                  size: 15,
-                                  color: Palette.stageIvorySoft,
-                                ),
                               ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : card;
-              }(),
-          ],
+                            ],
+                          )
+                        : card;
+                  }(),
+              ],
+            ),
+          ),
         );
       },
     );

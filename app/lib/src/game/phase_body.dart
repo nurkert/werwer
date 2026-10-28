@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 
 /// Shared scaffold of every phase. On a phone it is one column; a wide
@@ -69,6 +70,11 @@ class PhaseBody extends StatelessWidget {
       for (final child in children)
         if (child is! Aside) child,
     ];
+    // The phase's title stands above both columns, centred: a short column
+    // standing on the floor does not take it down with it.
+    final head = main.isNotEmpty && main.first is Headline
+        ? main.removeAt(0)
+        : null;
     final insets = MediaQuery.paddingOf(context);
     final action = this.action;
     // Two columns standing on the stage floor, so their boxes line up at
@@ -85,9 +91,15 @@ class PhaseBody extends StatelessWidget {
             removeRight: true,
             child: Column(
               children: [
+                if (head != null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, insets.top + 4, 24, 0),
+                    child: head,
+                  ),
                 Expanded(
                   child: MediaQuery.removePadding(
                     context: context,
+                    removeTop: head != null,
                     removeBottom: action != null,
                     child: Row(
                       children: [
