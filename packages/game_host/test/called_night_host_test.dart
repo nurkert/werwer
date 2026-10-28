@@ -5,6 +5,9 @@ import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
+/// No lead before a new phase: these tests count the phases' own times.
+const noLead = HostConfig(switchLead: Duration.zero);
+
 Future<void> settle() => Future<void>.delayed(Duration.zero);
 
 void main() {
@@ -23,6 +26,7 @@ void main() {
         () {};
 
     final host = GameHost(
+      config: noLead,
       roomCode: '1234',
       random: Random(5),
       settings: Preset.classic.settings.copyWith(roles: {Role.seer}),

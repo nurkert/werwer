@@ -6,6 +6,9 @@ import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
+/// No lead before a new phase: these tests count the phases' own times.
+const noLead = HostConfig(switchLead: Duration.zero);
+
 /// Connections that came in encrypted but without the QR code's secret, on
 /// both ends (the host sees them unverified, so does the player).
 class _Unchecked implements Transport {
@@ -74,6 +77,7 @@ void main() {
   setUp(() {
     timers = _Timers();
     host = GameHost(
+      config: noLead,
       settings: const GameSettings(),
       roomCode: '1234',
       random: Random(3),
@@ -254,5 +258,72 @@ void main() {
     expect(parseVersionNotice('{"v":"3","type":"version"}'), isNull);
     expect(parseVersionNotice('x' * 100), isNull);
     expect(parseVersionNotice('[]'), isNull);
+  });
+
+  test('an announced state shows at the agreed moment, also if the link '
+      'dropped in between', () async {
+    var now = 1000;
+    var pongs = 0;
+    final host = MemoryTransport();
+    late Connection side;
+    host.connections.listen((c) {
+      side = c;
+      c.messages.listen((raw) {
+        final message = ClientMessage.parse(raw);
+        switch (message) {
+          case Hello():
+            c.send(
+              const Welcome(
+                token: '0123456789abcdef0123456789abcdef',
+                you: PlayerId('p1'),
+              ).encode(),
+            );
+          // The same clock as the player's: no offset. Only a few: before
+          // its first state the link asks again at every pong.
+          case PingIntent(:final sent?) when pongs++ < 3:
+            c.send(Pong(0, echo: sent, at: now).encode());
+          default:
+            break;
+        }
+      });
+    });
+    final link = PlayerLink(
+      name: 'Ada',
+      roomCode: '1234',
+      dial: () async => host.connect(),
+      startTimer: timers.start,
+      clock: () => now,
+      random: Random(1),
+    );
+    await settle();
+    timers.fire(Duration.zero); // the first quick ping: clocks in step
+    await settle();
+    expect(link.clock.offset, 0);
+    final lobby = apply(
+      GameState.lobby(),
+      const AddPlayer(PlayerId('p1'), 'Ada'),
+    ).state;
+    side.send(
+      StateMessage(
+        version: 1,
+        view: viewFor(lobby, const PlayerId('p1')),
+        isOwner: false,
+        showAt: 3000,
+        phaseAt: 3000,
+      ).encode(),
+    );
+    await settle();
+    expect(link.view, isNull, reason: 'not before the agreed moment');
+    expect(link.switchingAtMs, 3000);
+    expect(link.version, 1, reason: 'the host need not send it again');
+    // The Wi-Fi drops; the moment comes all the same.
+    await side.close();
+    await settle();
+    now = 3000;
+    timers.fire(const Duration(milliseconds: 2000));
+    expect(link.view, isNotNull);
+    expect(link.switchingAtMs, isNull);
+    expect(link.phaseStartedAtMs, 3000);
+    link.close();
   });
 }

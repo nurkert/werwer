@@ -1,6 +1,6 @@
 # Task 021 – Nahtlos weiterspielen: Fehlertoleranz nach Lehrbuch
 
-**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritte 1 und 2 erledigt.
+**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritte 1 bis 3 erledigt.
 **Bezug:** [ARCHITECTURE](../ARCHITECTURE.md), [SECURITY_DESIGN](../SECURITY_DESIGN.md), Task 002 (stabiles Netz), Task 008 (Host-Übernahme), Task 020 (Spielabend)
 
 ## Ziel
@@ -60,6 +60,13 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 - Absichten nach dem Eingabeschluss bekommen eine klare Antwort („zu spät“), nie Schweigen.
 - Wo es den Spielablauf nicht verändert (Ende von Diskussion, Nachtschritt, Abstimmung nach Zeit): ja. Vorzeitige Enden („alle haben gestimmt“) laufen weiter sofort, mit `showAt` = jetzt + kleiner Puffer, damit alle gleichzeitig umschalten.
 
+**Umgesetzt (2026-10-28), Protokoll Version 14:**
+- Jeder Phasen- oder Schrittwechsel wird beschlossen und mit `showAt` = jetzt + `HostConfig.switchLead` (1,2 s) verteilt; die neue Phase zählt ihre Zeit ab dann, Erzähler und gemeinsame Klänge hängen am selben Zeitpunkt (`phaseAt` = `showAt`). Zeit- und Absichts-Enden laufen gleich, die Hexe, die früher entscheidet, verschiebt nur den Zeitpunkt.
+- `PlayerLink` hält einen angekündigten Stand und zeigt ihn zum vereinbarten Zeitpunkt, auch wenn die Verbindung dazwischen abreißt. Ein Gerät, das ihn zu spät bekommt, zeigt ihn sofort und steigt mitten im Plan ein; Sätze, deren Zeit vorbei ist, sagt es nicht nach.
+- Abweisungen für Tipps auf den Schritt, der gerade endet, sieht der Spieler nicht.
+- **Stimmen mit Lebenszeichen:** Der Host führt `voices` (verbunden, in den letzten 7 s gehört, nicht stumm) und schickt jede Änderung sofort, auch mitten in der Nacht. Ohne eigenen Timer: jede eingehende Nachricht (alle Geräte pingen alle 3 s) prüft die Liste. Alle Geräte planen Erzähler und gemeinsame Klänge über diese Liste; fällt ein Gerät aus oder wird stumm, geht der Rest des Plans an die anderen, der laufende Satz endet, wo er läuft.
+- Tests: `host_test.dart` (Ankündigung und Zeit ab dem Zeigen; Stimmen folgen Stummschalten, Schweigen, Rückkehr, Abbruch), `player_link_test.dart` (Umschalten zum vereinbarten Zeitpunkt trotz Abbruch), `walking_narrator_test.dart` (Ausfall mitten im Satz).
+
 ### 4. Nie zwei Hosts: Leader-Lease
 
 **Befund:** Bei einer Partition übernimmt der Nachfolger, während der alte Host mit seinen Spielern weiterschaltet (Split Brain).
@@ -86,6 +93,7 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 ## Sicherheit
 
 - **Was schiefgehen kann:** vorgemerkte Sichten verraten zu früh etwas; ein alter Host oder ein Fremder im WLAN spaltet das Spiel; erneut gesendete Absichten wirken doppelt; ein Spieler erschleicht sich Nachfolger und Zeugen; Zeitmuster verraten Rollen.
+- **Bewusst in Kauf genommen:** `voices` zeigt auch nachts, welches Gerät gerade weg ist. Das hört man am Tisch ohnehin (das Gerät spricht nicht); eine Rolle verrät es nicht.
 - **Was es verhindert:** vorgemerkte Sichten sind dieselben gefilterten Sichten, nie früher als heute die Restzeit sichtbar ist; Lease und Epoche; Sequenzprüfung; zufällige Wahl über verschiedene Adressen; fester Sendetakt in geheimen Schritten.
 - **Welche Tests es zeigen:** die Tests aus den Schritten 1, 2, 4 und 7, dazu ein Leck-Test „vorgemerkte Sicht enthält nichts, was die aktuelle Sicht des Empfängers nicht auch enthalten dürfte“ und ein Test, dass in der klassischen Nacht alle Geräte gleich viele, gleich große Nachrichten senden und bekommen.
 

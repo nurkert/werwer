@@ -174,7 +174,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   /// The phones that play the narrator and the shared sounds, in seat
   /// order (the same list on every phone): the chosen seats, or all if
-  /// none of them is at the table any more, without the silent ones.
+  /// none of them is at the table any more, only those the host counts on
+  /// right now (there, heard from, not silent).
   List<PlayerId> _speakers(PlayerView view) {
     final seats = [for (final s in view.seats) s.id];
     final settings = view.settings;
@@ -185,11 +186,27 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
           ]
         : seats;
     if (chosen.isEmpty) chosen = seats;
+    final voices = session.voices.toSet();
     final silent = session.silent.toSet();
     return [
       for (final id in chosen)
-        if (!silent.contains(id)) id,
+        if (voices.isEmpty ? !silent.contains(id) : voices.contains(id)) id,
     ];
+  }
+
+  /// The narrator's last plan, to plan its rest again over other phones.
+  List<Planned> Function(List<PlayerId> speakers)? _replan;
+  List<PlayerId> _lastSpeakers = const [];
+
+  /// A phone dropped out (or came back, or went silent) in the middle of
+  /// a phase: what is still to come goes to the phones there now; what is
+  /// past stays unsaid, nobody says it late.
+  void _followVoices(PlayerView view) {
+    final speakers = _speakers(view);
+    if (listEquals(speakers, _lastSpeakers)) return;
+    _lastSpeakers = speakers;
+    _atmosphere.speaker = speakers.contains(view.you);
+    _replan?.call(speakers);
   }
 
   /// When the narrator must be done, on this device's clock: the end of
@@ -257,6 +274,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         force: phaseChanged && session.silent.contains(view.you) != silentHere,
       );
       final speakers = _speakers(view);
+      _lastSpeakers = speakers;
+      _replan = null;
       _atmosphere.speaker = speakers.contains(view.you);
       final line = narration(before, view, l10n);
       final spoken = spokenMoments(before, view);
@@ -275,18 +294,24 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         // the same moment (just after the phase began, by the host's
         // clock).
         final started = session.phaseStartedAtMs;
-        final planned = walker.speak(
-          moments: spoken,
-          language: settings.narratorLanguage,
-          round: view.round,
-          startMs:
-              (started ?? DateTime.now().millisecondsSinceEpoch) +
-              narratorLeadIn(before, view),
-          speakers: speakers,
-          me: view.you,
-          deadlineMs: _deadline(view, started),
-          facts: storyFacts(view),
-        );
+        final startMs =
+            (started ?? DateTime.now().millisecondsSinceEpoch) +
+            narratorLeadIn(before, view);
+        final facts = storyFacts(view);
+        List<Planned> speak(List<PlayerId> over, {bool goingOn = false}) =>
+            walker.speak(
+              moments: spoken,
+              language: settings.narratorLanguage,
+              round: view.round,
+              startMs: startMs,
+              speakers: over,
+              me: view.you,
+              deadlineMs: _deadline(view, started),
+              facts: facts,
+              goingOn: goingOn,
+            );
+        final planned = speak(speakers);
+        _replan = (over) => speak(over, goingOn: true);
         _followIntro(planned);
         // When the role of this night step is called: its tasks open then.
         NightPhase.callAt.value = view.phase == Phase.night
@@ -309,6 +334,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       _lastWords(before, view);
       if (view.phase != Phase.roleReveal) _followIntro(const []);
       _followSkip(view);
+    } else if (view != null && mounted) {
+      _followVoices(view);
     }
     setState(() {});
   }

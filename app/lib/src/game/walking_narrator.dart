@@ -126,6 +126,9 @@ class WalkingNarrator {
   final _cancels = <void Function()>[];
   final _playing = <ClipPlayer>{};
 
+  /// Clips planned but not begun yet, with what stops them.
+  final _waiting = <ClipPlayer, void Function()>{};
+
   /// The pause between two moments, as one speaker would leave it: short
   /// within one thought (who died, then what they were), longer when the
   /// story moves on, and time to close and open eyes between two roles.
@@ -152,6 +155,10 @@ class WalkingNarrator {
   /// Nothing runs past [deadlineMs] (the end of the phase). Stops whatever
   /// was still being said. Returns the plan, also when this phone is
   /// silent, so the screen can follow it.
+  ///
+  /// With [goingOn] the same moments are planned again over other
+  /// [speakers] (a phone dropped out or came back): what is being said
+  /// goes on to its end, only what is still to come moves to the others.
   List<Planned> speak({
     required List<Spoken> moments,
     required NarratorLanguage language,
@@ -161,8 +168,14 @@ class WalkingNarrator {
     required PlayerId me,
     int? deadlineMs,
     Set<String> facts = const {},
+    bool goingOn = false,
   }) {
-    stop();
+    final now = _clock();
+    if (goingOn) {
+      _stopWaiting();
+    } else {
+      stop();
+    }
     final planned = plan(
       moments: moments,
       language: language,
@@ -175,6 +188,8 @@ class WalkingNarrator {
     final mine = speakers.indexOf(me);
     if (muted || mine < 0) return planned;
     for (final p in planned) {
+      // Going on, a moment already begun stays with those saying it.
+      if (goingOn && p.at <= now) continue;
       if (p.walk.activeFor(mine, p.clip.ms).isNotEmpty) {
         _schedule(p.clip, p.walk, mine, p.at);
       }
@@ -246,31 +261,49 @@ class WalkingNarrator {
     );
     void Function()? follow;
     final wait = startMs - _clock();
+    late final void Function() cancelStart;
+    _waiting[player] = () {
+      cancelStart();
+      _playing.remove(player);
+      player.stop();
+    };
     _cancels
       ..add(
-        _startTimer(Duration(milliseconds: wait < 0 ? 0 : wait), () {
-          if (!prepared) {
-            // Not loaded in time: better silent than late and out of step.
-            _playing.remove(player);
-            player.stop();
-            return;
-          }
-          player.start();
-          void tick() {
-            final ms = _clock() - startMs;
-            if (ms > clip.ms) {
+        cancelStart = _startTimer(
+          Duration(milliseconds: wait < 0 ? 0 : wait),
+          () {
+            _waiting.remove(player);
+            if (!prepared) {
+              // Not loaded in time: better silent than late and out of step.
               _playing.remove(player);
               player.stop();
               return;
             }
-            player.volume(walk.gainAt(seat, ms));
-            follow = _startTimer(_step, tick);
-          }
+            player.start();
+            void tick() {
+              final ms = _clock() - startMs;
+              if (ms > clip.ms) {
+                _playing.remove(player);
+                player.stop();
+                return;
+              }
+              player.volume(walk.gainAt(seat, ms));
+              follow = _startTimer(_step, tick);
+            }
 
-          tick();
-        }),
+            tick();
+          },
+        ),
       )
       ..add(() => follow?.call());
+  }
+
+  /// Drops the clips that have not begun.
+  void _stopWaiting() {
+    for (final stop in [..._waiting.values]) {
+      stop();
+    }
+    _waiting.clear();
   }
 
   /// Stops the voice at once.
@@ -279,6 +312,7 @@ class WalkingNarrator {
       cancel();
     }
     _cancels.clear();
+    _waiting.clear();
     for (final player in _playing) {
       player.stop();
     }

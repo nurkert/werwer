@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 13;
+const protocolVersion = 14;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -719,6 +719,7 @@ sealed class HostMessage {
         phaseEndsInMs: json.maybeInteger('endsIn'),
         phaseEndsAt: json.maybeInteger('endsAt', max: maxClock),
         phaseAt: json.maybeInteger('phaseAt', max: maxClock),
+        showAt: json.maybeInteger('showAt', max: maxClock),
         introSkippedAt: json.maybeInteger('skippedAt', max: maxClock),
         inBrowser: json.has('web')
             ? [
@@ -734,6 +735,7 @@ sealed class HostMessage {
             : const [],
         ready: _idList(json, 'ready'),
         offline: _idList(json, 'offline'),
+        voices: _idList(json, 'voices'),
         paused: json.maybeBoolean('paused') ?? false,
         silent: json.has('silent')
             ? [
@@ -1018,8 +1020,10 @@ final class StateMessage extends HostMessage {
     this.phaseEndsInMs,
     this.phaseEndsAt,
     this.phaseAt,
+    this.showAt,
     this.introSkippedAt,
     this.pending = const [],
+    this.voices = const [],
     this.inBrowser = const [],
     this.silent = const [],
     this.ready = const [],
@@ -1058,6 +1062,17 @@ final class StateMessage extends HostMessage {
   /// For the room owner: people waiting to be let in.
   final List<PendingJoin> pending;
 
+  /// When this state shows, on the host's clock, if that is still ahead:
+  /// a new phase is decided a moment before, so every phone has it in
+  /// time and all switch at the same instant.
+  final int? showAt;
+
+  /// In a running game: whose phones play sound right now (connected,
+  /// heard from lately, not silent). The narrator and the shared sounds
+  /// are planned over them; when one drops out, the rest of the plan goes
+  /// to the others.
+  final List<PlayerId> voices;
+
   /// Counts up with every change; older states arriving late are dropped.
   final int version;
 
@@ -1086,6 +1101,8 @@ final class StateMessage extends HostMessage {
     'endsIn': ?phaseEndsInMs,
     'endsAt': ?phaseEndsAt,
     'phaseAt': ?phaseAt,
+    'showAt': ?showAt,
+    if (voices.isNotEmpty) 'voices': [for (final p in voices) p.value],
     'skippedAt': ?introSkippedAt,
     if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],
     if (silent.isNotEmpty) 'silent': [for (final p in silent) p.value],

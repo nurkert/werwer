@@ -32,7 +32,14 @@ class HostConfig {
     this.maxMessagesPerSecond = 20,
     this.maxBadMessages = 3,
     this.maxPending = 6,
+    this.switchLead = const Duration(milliseconds: 1200),
   });
+
+  /// How far ahead a new phase is announced: every phone has it before it
+  /// shows, and all switch at the same instant, also one that missed the
+  /// message by a moment (it gets it with its next ping). The new phase's
+  /// time counts from then.
+  final Duration switchLead;
 
   /// How long players have to look at their role before the first night
   /// falls anyway, so one absent phone cannot hold up the table.
@@ -84,6 +91,9 @@ class _Session {
 
   /// This player's phone plays no sound (muted or at zero volume).
   bool silent = false;
+
+  /// When this player's device last said anything (host clock).
+  int lastHeard = 0;
 }
 
 class _Pending {
@@ -215,6 +225,8 @@ class GameHost {
       .._phaseStartedAt = offset != null && startedAt != null && startedAt > 0
           ? startedAt - offset
           : now;
+    // Restored while the newest phase was still being announced.
+    if (host._phaseStartedAt > now) host._showAt = host._phaseStartedAt;
     if (pausedLeft != null) {
       // Paused by the game leader: it stays paused, with the same time.
       host._pausedLeft = pausedLeft;
@@ -296,8 +308,21 @@ class GameHost {
   void Function()? _cancelPhaseTimer;
   int? _phaseDeadline;
 
-  /// When the current phase or night step began (host clock).
+  /// When the current phase or night step began (host clock). For a new
+  /// phase that lies [HostConfig.switchLead] ahead: every phone switches
+  /// then.
   int _phaseStartedAt = 0;
+
+  /// The agreed moment the newest phase shows on every phone (host clock),
+  /// while it is still ahead.
+  int? _showAt;
+
+  /// A device silent for this long is not counted on to speak: it plays
+  /// no part of the narrator and the shared sounds until it is back.
+  static const voiceTimeout = Duration(seconds: 7);
+
+  /// The phones that play sound right now, as last told to the players.
+  Set<PlayerId> _voices = const {};
 
   /// When the owner skipped the narrator's intro in this role reveal.
   int? _introSkippedAt;
@@ -617,6 +642,7 @@ class GameHost {
     }
     unawaited(link.connection.close());
     _reviewSuccession();
+    if (!_closed) _reviewVoices();
   }
 
   void _bye(_Link link, ByeReason reason) {
@@ -666,6 +692,10 @@ class GameHost {
       if (message is Hello) return _hello(link, message);
       return _bye(link, ByeReason.misbehaved);
     }
+    if (identical(session.link, link)) session.lastHeard = _clock();
+    // Every message is a chance to notice a phone that fell silent: with
+    // a table of phones pinging, that is often enough, and no timer runs.
+    _reviewVoices();
     if (message is PingIntent) {
       final sent = message.sent;
       if (message.version < _version) _sendState(session);
@@ -850,7 +880,9 @@ class GameHost {
   void _bind(_Link link, _Session session, {Candidate? candidate}) {
     link.cancelHello?.call();
     link.session = session;
-    session.link = link;
+    session
+      ..link = link
+      ..lastHeard = _clock();
     // The device may have changed (or lost its keys) since the last time.
     if (!link.owner) session.candidate = candidate;
     final waited = _pending.length;
@@ -923,7 +955,7 @@ class GameHost {
           // Only ever this player's own phone, from their own session.
           if (session.silent == silent) return;
           session.silent = silent;
-          if (_state.phase == Phase.lobby) _broadcast();
+          if (_state.phase == Phase.lobby || !_reviewVoices()) _broadcast();
         case HandoverIntent(:final player, :final code):
           _ownerOnly(session);
           _offerSeat(player, code);
@@ -1132,7 +1164,11 @@ class GameHost {
       _voteSoon = false;
       _pausedLeft = null;
       _extended = Duration.zero;
-      _schedulePhaseTimer();
+      // Decided now, shown a moment later on every phone at once; the new
+      // phase's time counts from then.
+      final showAt = _clock() + config.switchLead.inMilliseconds;
+      _showAt = showAt;
+      _schedulePhaseTimer(startAt: showAt);
     } else if (_state.phase == Phase.night &&
         timeLimit(before) != timeLimit(_state)) {
       // The same step with a new limit (nobody in a called step is left to
@@ -1161,8 +1197,11 @@ class GameHost {
     Duration? remaining,
     bool sameStep = false,
     bool beyondLimit = false,
+    int? startAt,
   }) {
-    if (!sameStep) _phaseStartedAt = _clock();
+    final now = _clock();
+    final from = sameStep ? now : (startAt ?? now);
+    if (!sameStep) _phaseStartedAt = from;
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
     _phaseDeadline = null;
@@ -1186,8 +1225,9 @@ class GameHost {
       _state.round,
       _state.nightStep,
     );
-    _phaseDeadline = _clock() + duration.inMilliseconds;
-    _cancelPhaseTimer = _startTimer(duration, () {
+    final deadline = from + duration.inMilliseconds;
+    _phaseDeadline = deadline;
+    _cancelPhaseTimer = _startTimer(Duration(milliseconds: deadline - now), () {
       if (_closed ||
           _state.phase != phase ||
           _state.round != round ||
@@ -1198,8 +1238,33 @@ class GameHost {
     });
   }
 
+  Set<PlayerId> _voicesNow() {
+    final now = _clock();
+    return {
+      for (final s in _sessions.values)
+        if (s.link != null &&
+            !s.silent &&
+            now - s.lastHeard <= voiceTimeout.inMilliseconds)
+          s.player,
+    };
+  }
+
+  /// Tells everyone when the phones that play sound changed (one went
+  /// silent, dropped out or came back), so they plan the rest of the
+  /// narrator without it. Returns whether it did.
+  bool _reviewVoices() {
+    if (_closed || _state.phase == Phase.lobby) return false;
+    final now = _voicesNow();
+    if (now.length == _voices.length && now.containsAll(_voices)) {
+      return false;
+    }
+    _broadcast();
+    return true;
+  }
+
   void _broadcast() {
     _version++;
+    _voices = _voicesNow();
     onSnapshot?.call(snapshot());
     _sessions.values.forEach(_sendState);
     _reviewSuccession();
@@ -1222,6 +1287,8 @@ class GameHost {
         phaseEndsInMs: hideTime ? null : _phaseLeft(),
         phaseEndsAt: hideTime ? null : _phaseDeadline,
         phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
+        showAt: _showAt != null && _showAt! > _clock() ? _showAt : null,
+        voices: _state.phase == Phase.lobby ? const [] : [..._voices],
         introSkippedAt: _state.phase == Phase.roleReveal
             ? _introSkippedAt
             : null,

@@ -16,6 +16,9 @@ import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
+/// No lead before a new phase: these tests count the phases' own times.
+const noLead = HostConfig(switchLead: Duration.zero);
+
 /// Virtual time: events run in time order, nothing waits for real.
 class Sim {
   int now = 0;
@@ -301,6 +304,7 @@ class Table {
     final generation = ++_generation;
     host = snapshot == null
         ? GameHost(
+            config: noLead,
             settings: const GameSettings(),
             roomCode: '1234',
             random: Random(seed),
@@ -309,6 +313,7 @@ class Table {
           )
         : GameHost.restore(
             snapshot,
+            config: noLead,
             random: Random(seed + generation),
             startTimer: sim.start,
             clock: sim.clock,

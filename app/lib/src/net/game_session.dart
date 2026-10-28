@@ -246,6 +246,10 @@ class GameSession extends ChangeNotifier {
   Violation? get refused => _link.refused;
   set refused(Violation? value) => _link.refused = value;
 
+  /// Whose phones play sound right now, as the host sees it (connected,
+  /// heard from lately, not silent); empty in the lobby.
+  List<PlayerId> get voices => _link.voices;
+
   /// When the current phase began, on this device's clock (synced with
   /// the host's), or `null` until the clocks are in step.
   int? get phaseStartedAtMs => _link.phaseStartedAtMs;

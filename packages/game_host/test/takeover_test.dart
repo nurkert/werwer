@@ -50,6 +50,9 @@ class FakeSealer implements RoomSealer {
   }
 }
 
+/// A short lead before each new phase: whole games play in real time.
+const quick = HostConfig(switchLead: Duration(milliseconds: 100));
+
 const fast = LinkConfig(
   ping: Duration(milliseconds: 100),
   resend: Duration(milliseconds: 100),
@@ -180,6 +183,7 @@ class Table {
 
   void open(int players) {
     host = GameHost(
+      config: quick,
       settings: const GameSettings(),
       roomCode: code,
       random: Random(1),
@@ -213,6 +217,7 @@ class Table {
       newOwner: newOwner,
       oldClockAhead: oldClockAhead,
       startTimer: quickHunt,
+      config: quick,
     )..custody = custody;
     hosts.add(next);
     final transport = MemoryTransport();

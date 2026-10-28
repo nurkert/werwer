@@ -7,6 +7,9 @@ import 'package:game_host/lan.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
+/// No lead before a new phase: these tests count the phases' own times.
+const noLead = HostConfig(switchLead: Duration.zero);
+
 const room = '4711';
 
 /// A player's app as seen through the protocol.
@@ -118,6 +121,7 @@ void main() {
   setUp(() {
     timers = FakeTimers();
     host = GameHost(
+      config: noLead,
       settings: const GameSettings(),
       roomCode: room,
       random: Random(9),
@@ -350,6 +354,7 @@ void main() {
     await host.close();
     timers = FakeTimers();
     host = GameHost(
+      config: noLead,
       settings: const GameSettings(),
       roomCode: room,
       random: Random(9),
@@ -732,6 +737,7 @@ void main() {
     await host.close();
     final restored = GameHost.restore(
       saved!,
+      config: noLead,
       random: Random(1),
       startTimer: timers.start,
       clock: () => timers.now,
@@ -764,11 +770,11 @@ void main() {
 
   test('a broken snapshot is refused', () {
     expect(
-      () => GameHost.restore('{"v":1}', random: Random(1)),
+      () => GameHost.restore('{"v":1}', config: noLead, random: Random(1)),
       throwsA(isA<ProtocolError>()),
     );
     expect(
-      () => GameHost.restore('nonsense', random: Random(1)),
+      () => GameHost.restore('nonsense', config: noLead, random: Random(1)),
       throwsA(isA<ProtocolError>()),
     );
   });
@@ -849,6 +855,7 @@ void main() {
       }
       await host.close();
       host = GameHost(
+        config: noLead,
         settings: const GameSettings(),
         roomCode: room,
         random: Random(seed + 100),
@@ -913,6 +920,7 @@ void main() {
     // The attempt survives a restart of the host.
     final restored = GameHost.restore(
       host.snapshot(),
+      config: noLead,
       random: Random(1),
       startTimer: timers.start,
     );
@@ -958,6 +966,7 @@ void main() {
       after.now = now;
       return GameHost.restore(
         saved!,
+        config: noLead,
         random: Random(2),
         startTimer: after.start,
         clock: () => after.now,
@@ -1017,4 +1026,75 @@ void main() {
       expect(waiting.every((p) => p.closed), isTrue);
     },
   );
+
+  test('a new phase is announced ahead; its time counts from when it '
+      'shows', () async {
+    await host.close();
+    host = GameHost(
+      settings: const GameSettings(),
+      roomCode: room,
+      random: Random(9),
+      startTimer: timers.start,
+      clock: () => timers.now,
+    );
+    transport = MemoryTransport();
+    host.serve(transport);
+    final lead = const HostConfig().switchLead.inMilliseconds;
+    final players = await table(4);
+    timers.now = 10000;
+    players.first.send(const StartGameIntent());
+    await settle();
+    for (final p in players) {
+      expect(p.view.phase, Phase.roleReveal);
+      expect(p.last!.showAt, 10000 + lead);
+      expect(p.last!.phaseAt, 10000 + lead);
+    }
+    final reveal = const HostConfig().revealTime;
+    expect(timers.pending.single.$1, reveal + Duration(milliseconds: lead));
+    expect(
+      players.first.last!.phaseEndsAt,
+      10000 + lead + reveal.inMilliseconds,
+    );
+    // Once it shows, a state says nothing more about it.
+    timers.now = 10000 + lead + 1;
+    players[1].send(const PersonaIntent(Persona.smith));
+    await settle();
+    expect(players[1].last!.showAt, isNull);
+  });
+
+  test('the phones that play sound follow who is there and who is '
+      'silent, at once', () async {
+    final players = await table(5);
+    await start(players);
+    Set<PlayerId?> voices(Player p) => {...p.last!.voices};
+    final all = {for (final p in players) p.id};
+    expect(voices(players.first), all);
+    // Muted at night: out of the plan at once (the frozen list stays).
+    players[2].send(const SilentIntent(silent: true));
+    await settle();
+    expect(voices(players.first), all.difference({players[2].id}));
+    expect(players.first.last!.silent, isEmpty);
+    // A phone that says nothing for a while drops out; the others' pings
+    // are enough to notice.
+    timers.now += GameHost.voiceTimeout.inMilliseconds + 1;
+    for (final p in players) {
+      if (p != players[3]) p.send(PingIntent(p.last!.version));
+    }
+    await settle();
+    expect(
+      voices(players.first),
+      all.difference({players[2].id, players[3].id}),
+    );
+    // Back with a ping: back in.
+    players[3].send(PingIntent(players[3].last!.version));
+    await settle();
+    expect(voices(players.first), all.difference({players[2].id}));
+    // A dropped connection: out.
+    await players[4].connection.close();
+    await settle();
+    expect(
+      voices(players.first),
+      all.difference({players[2].id, players[4].id}),
+    );
+  });
 }

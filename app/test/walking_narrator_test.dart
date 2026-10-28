@@ -275,4 +275,65 @@ void main() {
     );
     expect(t.players, isEmpty);
   });
+
+  group('a phone drops out in the middle', () {
+    const moments = [(key: 'discuss', to: null), (key: 'vote', to: null)];
+    final me = seats[startOf('discuss')];
+
+    List<Planned> speak(
+      WalkingNarrator narrator,
+      List<PlayerId> speakers, {
+      bool goingOn = false,
+    }) => narrator.speak(
+      moments: moments,
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 1000,
+      speakers: speakers,
+      me: me,
+      goingOn: goingOn,
+    );
+
+    test('what is being said goes on; what is to come moves to the phones '
+        'still there', () async {
+      final t = table();
+      speak(t.narrator, seats);
+      await Future<void>.delayed(Duration.zero);
+      t.run(2000);
+      final saying = t.players.firstWhere((p) => p.started);
+      expect(saying.asset, 'voice/de/discuss_1_de.mp3');
+      // Everyone else is gone: this phone says the rest alone.
+      speak(t.narrator, [me], goingOn: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(saying.stopped, isFalse, reason: 'not cut off mid-sentence');
+      t.run(20000);
+      expect(
+        t.players.where((p) => p.started).map((p) => p.asset),
+        contains(startsWith('voice/de/vote_')),
+      );
+      // Nothing said twice.
+      expect(
+        t.players.where((p) => p.started && p.asset == saying.asset),
+        hasLength(1),
+      );
+    });
+
+    test('a phone that goes silent ends its sentence and says nothing '
+        'more', () async {
+      final t = table();
+      speak(t.narrator, seats);
+      await Future<void>.delayed(Duration.zero);
+      t.run(2000);
+      final others = [
+        for (final s in seats)
+          if (s != me) s,
+      ];
+      speak(t.narrator, others, goingOn: true);
+      t.run(20000);
+      expect(
+        t.players.where((p) => p.started).map((p) => p.asset),
+        ['voice/de/discuss_1_de.mp3'],
+      );
+    });
+  });
 }

@@ -7,6 +7,9 @@ import 'package:game_host/game_host.dart';
 import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
+/// No lead before a new phase: these tests count the phases' own times.
+const noLead = HostConfig(switchLead: Duration.zero);
+
 const room = '4711';
 const config = HostConfig();
 const settings = GameSettings();
@@ -179,6 +182,7 @@ class Room {
   Room(this.timers) {
     _open(
       GameHost(
+        config: noLead,
         settings: const GameSettings(),
         roomCode: room,
         random: Random(1),
@@ -245,6 +249,7 @@ class Room {
     _open(
       GameHost.restore(
         saved!,
+        config: noLead,
         random: Random(2),
         startTimer: timers.start,
         clock: () => timers.now,
@@ -507,6 +512,7 @@ void main() {
   test('a player let in after the check code gets the room secret', () async {
     final secret = [for (var i = 0; i < 32; i++) i];
     final host = GameHost(
+      config: noLead,
       settings: const GameSettings(),
       roomCode: room,
       random: Random(3),
@@ -693,6 +699,7 @@ Future<void> _simulate(int seed) async {
     // The snapshot restores exactly this state.
     final copy = GameHost.restore(
       r.host.snapshot(),
+      config: noLead,
       random: Random(0),
       startTimer: (_, _) => () {},
     );

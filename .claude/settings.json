@@ -20,9 +20,6 @@
       "Bash(git add *)",
       "Bash(git commit *)"
     ],
-    "ask": [
-      "Bash(git push)",
-      "Bash(git push *)"
-    ]
+    "ask": []
   }
 }

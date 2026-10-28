@@ -197,6 +197,21 @@ class PlayerLink {
   /// By day: whose device is not connected.
   List<PlayerId> offline = const [];
 
+  /// In a running game: whose phones play sound right now (see
+  /// [StateMessage.voices]).
+  List<PlayerId> voices = const [];
+
+  /// A state that shows at an agreed moment, and its timer.
+  StateMessage? _upcoming;
+  void Function()? _cancelUpcoming;
+
+  /// When the next phase shows, on this device's clock, while it is still
+  /// ahead: the step on screen is over, taps on it come too late.
+  int? get switchingAtMs {
+    final at = _upcoming?.showAt;
+    return at == null ? null : clock.toLocal(at);
+  }
+
   /// The game leader paused the clock.
   bool paused = false;
 
@@ -510,19 +525,29 @@ class PlayerLink {
       case StateMessage():
         if (message.version < version) return;
         version = message.version;
-        view = message.view;
-        isOwner = message.isOwner;
-        pending = message.pending;
-        inBrowser = message.inBrowser;
-        silent = message.silent;
-        ready = message.ready;
-        offline = message.offline;
-        paused = message.paused;
-        phaseStartedAtHostMs = message.phaseAt;
-        introSkippedAtHostMs = message.introSkippedAt;
-        final endsIn = message.phaseEndsInMs;
-        _phaseEndsAtArrival = endsIn == null ? null : _clock() + endsIn;
-        _phaseEndsAtHost = endsIn == null ? null : message.phaseEndsAt;
+        _cancelUpcoming?.call();
+        _cancelUpcoming = null;
+        _upcoming = null;
+        final showAt = message.showAt;
+        final at = showAt == null ? null : clock.toLocal(showAt);
+        final wait = at == null ? 0 : at - _clock();
+        if (wait > 0) {
+          // Decided, shown at the agreed moment, on every phone at once;
+          // also if this link drops in between. What the host refuses
+          // meanwhile answers taps on the step that is over.
+          final state = message;
+          _upcoming = state;
+          _quietUntil = max(_quietUntil, at! + config.resend.inMilliseconds);
+          _cancelUpcoming = _startTimer(Duration(milliseconds: wait), () {
+            if (_closed || !identical(_upcoming, state)) return;
+            _upcoming = null;
+            _cancelUpcoming = null;
+            _show(state);
+            _changed();
+          });
+        } else {
+          _show(message);
+        }
       case Refused(:final reason):
         if (reason == Violation.invalidName && _token == null) {
           nameRefused = true;
@@ -533,6 +558,24 @@ class PlayerLink {
         return _end(reason);
     }
     _changed();
+  }
+
+  /// Shows [message]: the view and everything that goes with it.
+  void _show(StateMessage message) {
+    view = message.view;
+    voices = message.voices;
+    isOwner = message.isOwner;
+    pending = message.pending;
+    inBrowser = message.inBrowser;
+    silent = message.silent;
+    ready = message.ready;
+    offline = message.offline;
+    paused = message.paused;
+    phaseStartedAtHostMs = message.phaseAt;
+    introSkippedAtHostMs = message.introSkippedAt;
+    final endsIn = message.phaseEndsInMs;
+    _phaseEndsAtArrival = endsIn == null ? null : _clock() + endsIn;
+    _phaseEndsAtHost = endsIn == null ? null : message.phaseEndsAt;
   }
 
   void _welcomed(
@@ -658,6 +701,7 @@ class PlayerLink {
     byeReason ??= reason;
     status = LinkStatus.ended;
     _closed = true;
+    _cancelUpcoming?.call();
     custody = null;
     witness = null;
     _stopLoops();
@@ -749,6 +793,7 @@ class PlayerLink {
   void close() {
     if (_closed) return;
     _closed = true;
+    _cancelUpcoming?.call();
     custody = null;
     witness = null;
     unawaited(_changes.close());
