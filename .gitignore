@@ -47,3 +47,6 @@ app/assets/webapp/*
 
 # Voice references stay local (rights, see docs/tasks/010)
 design/source/voice/
+
+# Agent worktrees
+.claude/worktrees/
