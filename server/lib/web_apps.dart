@@ -18,8 +18,7 @@ import 'package:protocol/protocol.dart';
 
 /// One file of a build, ready to send.
 class _File {
-  _File(this.bytes, this.type, {required this.gzip})
-    : etag = '"${sha256.convert(bytes).toString().substring(0, 32)}"';
+  _File(this.bytes, this.type, this.etag, {required this.gzip});
 
   final List<int> bytes;
   final String type;
@@ -46,6 +45,8 @@ class WebApps {
   }) async {
     final files = <String, _File>{};
     final builds = <String>[];
+    // Builds share most files (pictures, voice): each content is held once.
+    final contents = <String, List<int>>{};
     var total = 0;
     final versions = await root.list().toList()
       ..sort((a, b) => a.path.compareTo(b.path));
@@ -68,12 +69,19 @@ class WebApps {
           if (gzip) path = path.substring(0, path.length - 3);
           final type = webAppType(path);
           if (type == null || !isWebAppPath(path)) continue;
-          final size = await entry.length();
-          if (size > maxFileBytes || total + size > maxBytes) {
+          if (await entry.length() > maxFileBytes) {
+            throw StateError('web app file too large: $prefix$path');
+          }
+          final bytes = await entry.readAsBytes();
+          final digest = sha256.convert(bytes).toString().substring(0, 32);
+          final held = contents.putIfAbsent(digest, () {
+            total += bytes.length;
+            return bytes;
+          });
+          if (total > maxBytes) {
             throw StateError('web apps exceed the limit at $prefix$path');
           }
-          total += size;
-          found[path] = _File(await entry.readAsBytes(), type, gzip: gzip);
+          found[path] = _File(held, type, '"$digest"', gzip: gzip);
         }
         if (!found.containsKey('index.html')) continue;
         found.forEach((path, file) => files['$prefix$path'] = file);

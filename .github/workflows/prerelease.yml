@@ -86,7 +86,11 @@ jobs:
         # The same web build as one release file; relay images serve it to
         # browsers that join over the internet (tool/fetch_webapps.sh).
         if: matrix.target == 'linux'
-        run: mkdir -p dist && tool/package_webapp.sh "$NAME" "dist/whowolf-$NAME-webapp.tar.gz"
+        run: |
+          mkdir -p dist
+          tool/package_webapp.sh "$NAME" "dist/whowolf-$NAME-webapp.tar.gz"
+          # It must start in Chrome under exactly the relay's headers.
+          tool/verify_webapp.sh "dist/whowolf-$NAME-webapp.tar.gz"
       - name: Signed Apple build
         # With the App Store Connect key in the repository secrets, macOS is
         # signed with Developer ID and notarized, and iOS goes to TestFlight.

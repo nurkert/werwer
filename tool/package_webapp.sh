@@ -22,8 +22,12 @@ stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT
 
 cp -R "$web/." "$stage/"
-# Nothing that could outlive a game in the browser.
+# Nothing that could outlive a game in the browser, only the CanvasKit the
+# page loads (like tool/build_webapp.sh), and not the host's own copy of
+# this web app.
 rm -f "$stage"/flutter_service_worker.js "$stage"/.last_build_id
+find "$stage/canvaskit" -mindepth 1 -maxdepth 1 ! -name canvaskit.js ! -name canvaskit.wasm -exec rm -rf {} +
+rm -rf "$stage/assets/assets/webapp"
 find "$stage" -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.wasm' \
   -o -name '*.json' -o -name '*.html' -o -name '*.css' -o -name '*.otf' \
   -o -name '*.ttf' -o -name NOTICES \) -exec gzip -9 -n {} \;

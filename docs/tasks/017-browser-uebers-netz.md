@@ -122,7 +122,7 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 - Relay: Pfadtricks (`..`, `%2e%2e`, `//`, Backslash, Nullbyte), Dateien außerhalb des Manifests, unbekannter Build, POST/PUT, zu viele Anfragen pro Adresse werden abgelehnt. Ist die Auslieferung aus, antwortet auch `HEAD` mit 404. Kein Pfad im Log.
 - Relay: `/host` mit `Origin`-Header wird abgelehnt, ohne angenommen.
 - Datenschutz: Ein Raum im WLAN mit *nur bei Bedarf* öffnet keine Verbindung zum Server, bis der Host es will (Test zählt die Verbindungen am Relay).
-- Relay: CSP und die übrigen Header stehen auf jeder Datei. Der Browser-Test aus Phase 1 läuft **unter genau diesen Headern** (beweist, dass CanvasKit und wasm damit laufen).
+- Relay: CSP und die übrigen Header stehen auf jeder Datei (`server/test/web_apps_test.dart`). Vor jedem Release startet `tool/verify_webapp.sh` den gepackten Build vom Relay in Headless-Chrome **unter genau diesen Headern**: Flutter muss starten, und der Browser darf nichts verweigern außer dem absichtlich gesperrten `<base>`. Am 2026-10-28 lokal mit Chromium bestanden.
 - Image-Build bricht bei falscher Prüfsumme ab. `webapps.lock` wird nur ergänzt, nie geändert (CI-Test).
 - Browser: Ein Client mit falschem Schlüssel kommt nicht durch den Handshake, einer mit anderer Protokollversion wird abgewiesen. Neuladen unter `/v/…/` landet wieder am Tisch.
 - App: Parser-Tests für die neuen Linkformen, kein HTTPS-Link ohne Schlüssel.
