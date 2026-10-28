@@ -12,11 +12,16 @@ Heute kann man im Browser nur im selben WLAN mitspielen: Das Host-Handy liefert 
 - **Mehrere Versionen auf dem Server:** Unter `/v/<Protokollversion>/` liegt jede veröffentlichte Version. Der QR-Link des Hosts zeigt auf genau seine, damit Host und Browser nie aneinander vorbeireden.
 - **Rückfall auf den Host:** Hat der Server die Version des Hosts nicht (eigener Server ohne Web-App, neue Version noch nicht ausgerollt), kommt die Oberfläche vom Host-Handy, durch das Relay getunnelt.
 - Im WLAN ändert sich nichts: Die App verbindet sich weiter zuerst direkt, das Relay nur, wenn es sein muss.
+- **Wer ausliefert, ist einstellbar:**
+  - **Eigene Einstellungen (global, opt-out):** „Browser-Spielern die Oberfläche von meinem Gerät ausliefern“, Standard an. Wer es abschaltet, spart mobile Daten und Akku, denn jeder Browser-Spieler lädt etwa 5 MB.
+  - **Lobby (nur Host, gilt nur für diese Runde):** „Oberfläche für den Browser kommt von“ *Automatisch* (Server, wenn er die Version hat, sonst dieses Gerät), *diesem Gerät* oder *dem Server*. Das überschreibt die globale Einstellung vorübergehend. Ist keine Quelle möglich, sagt die Lobby das, und der QR-Code ist dann nur für die App gedacht.
+  - **Nur Host oder Server, keine Mitspieler:** Wer die Seite ausliefert, könnte mit einer veränderten App die geheime Rolle des Browser-Spielers lesen. Der Host kennt sie ohnehin, der Server spielt nicht mit. Ein Mitspieler als Lieferant wäre dagegen ein Schummelweg.
+  - Die Wahl ist Sache des Host-Geräts und seines Transports, keine Spielregel. Sie gehört also weder in `GameSettings` noch ins Protokoll, sondern bleibt beim `HostedRoom` bzw. in den App-Einstellungen.
 
 ## Ablauf
 
 1. Der Host öffnet einen Raum mit Relay. Beim Anmelden (`/host`) sagt das Relay, ob es die Web-App für die Protokollversion des Hosts ausliefert.
-2. Der QR-Code zeigt dann:
+2. Der QR-Code zeigt dann, je nach Wahl in der Lobby:
    - **Server hat die Version:** `https://<server>/v/<pv>/join?room=…&relay=…&lan=…#k=…&s=…`
    - **Server hat sie nicht:** `https://<server>/r/<relayRoom>/join?…#k=…&s=…`. Das Relay holt jede Datei beim Host ab.
    - **Kein Relay:** wie heute `http://<Host-IP>/join?…`
@@ -50,7 +55,15 @@ Heute kann man im Browser nur im selben WLAN mitspielen: Das Host-Handy liefert 
 - [ ] Die Seite verbindet sich danach wie in Phase 1 über `wss://<server>/join/<relayRoom>`.
 - [ ] Test: Ein Relay ohne Web-App liefert die Seite des Hosts aus, ein Browser spielt damit mit.
 
-### Phase 4 – Abschluss
+### Phase 4 – Einstellungen
+
+- [ ] App-Einstellungen: Schalter „Browser-Spielern die Oberfläche von meinem Gerät ausliefern“ (Standard an), gespeichert wie die anderen Einstellungen in `Store`.
+- [ ] Lobby des Hosts: Auswahl *Automatisch* / *dieses Gerät* / *Server*, vorbelegt aus der globalen Einstellung. Eine Änderung gilt nur für diesen Raum und baut den QR-Code sofort neu.
+- [ ] *Server* ist nur wählbar, wenn das Relay verbunden ist und die Version des Hosts ausliefert. *Dieses Gerät* über das Netz nur mit Relay, im WLAN immer.
+- [ ] Ist die Auslieferung durch das Gerät aus, liefert der Host im WLAN auch keine Seite mehr aus (der LAN-Server antwortet dann nur noch auf WebSockets), und das Relay verweigert `/r/<relayRoom>/…` für diesen Raum.
+- [ ] Test: Mit abgeschalteter Auslieferung kommt keine Datei mehr vom Host, weder im WLAN noch über das Relay. Der QR-Code wechselt mit der Lobby-Wahl.
+
+### Phase 5 – Abschluss
 
 - [ ] SECURITY_DESIGN, Datenschutz (Website und App), Docs für Spieler und Server-Betreiber (`server/deploy/README.md`) ergänzen.
 - [ ] Auf echten Geräten: iPhone als Host, ein Handy über mobile Daten im Browser, eines im WLAN im Browser.
