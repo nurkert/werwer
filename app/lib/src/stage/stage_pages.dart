@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -30,7 +32,12 @@ class StagePages extends StatefulWidget {
     this.maxWidth = 440,
     this.action,
     this.initialPage = 0,
+    this.arrows = false,
   });
+
+  /// Arrows at the sides and the arrow keys turn the pages (on a computer,
+  /// where there is no finger to swipe with).
+  final bool arrows;
 
   /// The page shown first (the others to its left and right).
   final int initialPage;
@@ -79,7 +86,22 @@ class _StagePagesState extends State<StagePages> {
     _stage = StagePan.of(context);
   }
 
-  void _panStage() => _stage?.set(_page - widget.initialPage);
+  void _panStage() {
+    _stage?.set(_page - widget.initialPage);
+    // The arrows show or hide at the first and last page.
+    if (widget.arrows && mounted) setState(() {});
+  }
+
+  void _go(int delta) {
+    final target = (_page.round() + delta).clamp(0, widget.pages.length - 1);
+    unawaited(
+      _controller.animateToPage(
+        target,
+        duration: const Duration(milliseconds: 420),
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -97,6 +119,71 @@ class _StagePagesState extends State<StagePages> {
       ? _controller.page ?? widget.initialPage.toDouble()
       : widget.initialPage.toDouble();
 
+  /// The pages with an arrow at each side (where there is a page to go
+  /// to) and the arrow keys bound, when [StagePages.arrows] asks for it.
+  Widget _withArrows(Widget pages) {
+    if (!widget.arrows || widget.pages.length < 2) return pages;
+    final at = _page.round();
+    Widget arrow(int delta, IconData icon, String label) => AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: (at + delta < 0 || at + delta >= widget.pages.length) ? 0 : 1,
+      child: IgnorePointer(
+        ignoring: at + delta < 0 || at + delta >= widget.pages.length,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Tooltip(
+            message: label,
+            child: Material(
+              color: const Color(0xD91C1814),
+              shape: const CircleBorder(
+                side: BorderSide(color: Palette.stageBrass, width: 1.5),
+              ),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => _go(delta),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Icon(icon, color: Palette.stageLanternTop, size: 30),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final labels = [for (final p in widget.pages) p.label];
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.arrowLeft): () => _go(-1),
+        const SingleActivator(LogicalKeyboardKey.arrowRight): () => _go(1),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Stack(
+          children: [
+            Positioned.fill(child: pages),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: arrow(
+                -1,
+                Icons.chevron_left_rounded,
+                at > 0 ? labels[at - 1] : '',
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: arrow(
+                1,
+                Icons.chevron_right_rounded,
+                at + 1 < labels.length ? labels[at + 1] : '',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final insets = MediaQuery.paddingOf(context);
@@ -113,34 +200,41 @@ class _StagePagesState extends State<StagePages> {
       child: Column(
         children: [
           Expanded(
-            child: PageView.builder(
-              controller: _controller,
-              // No bounce past the first or last page.
-              physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
-              itemCount: widget.pages.length,
-              itemBuilder: (context, i) => AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  // The page moves exactly with the finger; leaving, it fades
-                  // and steps back a little (never into its neighbour).
-                  final off = still ? 0.0 : (_page - i).abs().clamp(0.0, 1.0);
-                  return Opacity(
-                    opacity: 1 - off * 0.55,
-                    child: Transform.scale(scale: 1 - off * 0.06, child: child),
-                  );
-                },
-                child: RepaintBoundary(
-                  child: widget.pages[i].child is ScrollingPage
-                      ? _ScrollPage(
-                          maxWidth: widget.maxWidth,
-                          top: insets.top + 8,
-                          child: widget.pages[i].child,
-                        )
-                      : _FitPage(
-                          maxWidth: widget.maxWidth,
-                          top: insets.top + 8,
-                          child: widget.pages[i].child,
-                        ),
+            child: _withArrows(
+              PageView.builder(
+                controller: _controller,
+                // No bounce past the first or last page.
+                physics: const PageScrollPhysics(
+                  parent: ClampingScrollPhysics(),
+                ),
+                itemCount: widget.pages.length,
+                itemBuilder: (context, i) => AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    // The page moves exactly with the finger; leaving, it fades
+                    // and steps back a little (never into its neighbour).
+                    final off = still ? 0.0 : (_page - i).abs().clamp(0.0, 1.0);
+                    return Opacity(
+                      opacity: 1 - off * 0.55,
+                      child: Transform.scale(
+                        scale: 1 - off * 0.06,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: RepaintBoundary(
+                    child: widget.pages[i].child is ScrollingPage
+                        ? _ScrollPage(
+                            maxWidth: widget.maxWidth,
+                            top: insets.top + 8,
+                            child: widget.pages[i].child,
+                          )
+                        : _FitPage(
+                            maxWidth: widget.maxWidth,
+                            top: insets.top + 8,
+                            child: widget.pages[i].child,
+                          ),
+                  ),
                 ),
               ),
             ),

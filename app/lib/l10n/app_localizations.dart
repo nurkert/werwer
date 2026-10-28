@@ -746,6 +746,30 @@ abstract class AppLocalizations {
   /// **'Get the app'**
   String get webAppGet;
 
+  /// No description provided for @inviteOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite players'**
+  String get inviteOpen;
+
+  /// No description provided for @inviteFold.
+  ///
+  /// In en, this message translates to:
+  /// **'Fold away'**
+  String get inviteFold;
+
+  /// No description provided for @inviteInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How the others get in'**
+  String get inviteInfoTitle;
+
+  /// No description provided for @inviteInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'On the same Wi-Fi the others open Whowolf and tap “Join a room”: your room shows up there by itself, no code needed.\n\nFor everyone else (another Wi-Fi, mobile data, the browser without the app) there is the QR code. Only when you unfold it does the room go onto the online server; games on the Wi-Fi stay unknown to it.'**
+  String get inviteInfo;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

@@ -13,7 +13,7 @@ import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/theme.dart';
 
 void main() {
-  testWidgets('the host opens on the invitation with its QR code', (
+  testWidgets('the host opens on the invitation, its QR code one tap away', (
     tester,
   ) async {
     // A phone: the lobby comes as pages to swipe.
@@ -46,8 +46,13 @@ void main() {
       ),
     );
     await tester.pump();
-    // On the first page the host sees, without swiping.
-    expect(find.byType(QrImageView).hitTestable(), findsOneWidget);
+    // On the first page the host sees, without swiping: the invitation,
+    // folded; one tap shows the QR code.
+    expect(find.byType(QrImageView), findsNothing);
+    await tester.tap(find.text('Invite players').hitTestable());
+    // The stage keeps moving: pump the unfolding, not until still.
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.byType(QrImageView), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     owner.dispose();
     await host.close();

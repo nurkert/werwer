@@ -92,11 +92,13 @@ class PhaseBody extends StatelessWidget {
       for (final child in children)
         if (child is! Aside) child,
     ];
-    final width = layout.size.width;
     final insets = MediaQuery.paddingOf(context);
+    // Two columns standing together in the middle of the stage, each
+    // centred when it is short and scrolling when it is long; the main
+    // button right under its column's content, not at the window's foot.
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1240),
+        constraints: const BoxConstraints(maxWidth: 1160),
         child: Padding(
           padding: EdgeInsets.only(left: insets.left, right: insets.right),
           child: MediaQuery.removePadding(
@@ -106,17 +108,18 @@ class PhaseBody extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: (width * 0.4).clamp(340, 500),
-                  child: _withAction(
-                    context,
-                    StageScroll(horizontal: 24, child: _stack(main)),
-                    24,
+                  width: (layout.size.width * 0.38).clamp(360, 480),
+                  child: StageScroll(
+                    horizontal: 24,
+                    center: true,
+                    child: _stack([...main, ?action]),
                   ),
                 ),
                 Expanded(
                   child: StageScroll(
                     maxWidth: 720,
                     horizontal: 24,
+                    center: true,
                     child: _stack(aside),
                   ),
                 ),
@@ -425,19 +428,66 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         ],
       );
     }
-    return PhaseBody(
-      action: action,
+    // On a computer: the same pages, wide, turned with arrows or the keys
+    // (no long column to scroll). The table page holds the invitation and
+    // what will be played next to the table itself.
+    Widget column(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        title,
-        ...pending,
-        ...invite,
-        _PersonaPicker(session: session),
-        for (final child in table) Aside(child: child),
-        ...game,
-        if (session.isOwner) ...[
-          Headline(l10n.settingsTitle),
-          GameSettingsPanel(session: session),
+        for (final (i, child) in children.indexed) ...[
+          if (i > 0) const SizedBox(height: 16),
+          child,
         ],
+      ],
+    );
+    return StagePages(
+      action: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: action ?? const SizedBox.shrink(),
+        ),
+      ),
+      arrows: true,
+      maxWidth: 1040,
+      initialPage: 1,
+      pages: [
+        (
+          label: l10n.pageFigure,
+          child: ScrollingPage(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: column([...pending, _FigureStage(session: session)]),
+              ),
+            ),
+          ),
+        ),
+        (
+          label: l10n.pageTable,
+          child: ScrollingPage(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: column([title, ...pending, ...invite, ...game]),
+                ),
+                const SizedBox(width: 32),
+                Expanded(flex: 5, child: column(table)),
+              ],
+            ),
+          ),
+        ),
+        if (session.isOwner)
+          (
+            label: l10n.pageSettings,
+            child: ScrollingPage(
+              child: column([
+                Headline(l10n.settingsTitle, eyebrow: l10n.eyebrowEvening),
+                GameSettingsPanel(session: session),
+              ]),
+            ),
+          ),
       ],
     );
   }
@@ -920,225 +970,6 @@ class _FigureCard extends StatelessWidget {
   }
 }
 
-class _PersonaPicker extends StatelessWidget {
-  const _PersonaPicker({required this.session});
-
-  final GameSession session;
-
-  Future<void> _pick(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final view = session.view!;
-    // Who stands as which figure already.
-    final taken = {
-      for (final s in view.seats)
-        if (s.id != view.you) s.persona: s.name,
-    };
-    final allTaken = taken.length >= Persona.values.length;
-    final picked = await showModalBottomSheet<Persona>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          child: Column(
-            children: [
-              Headline(l10n.changePersona, eyebrow: l10n.eyebrowEvening),
-              const SizedBox(height: 6),
-              Body(l10n.personaHint, muted: true),
-              const SizedBox(height: 16),
-              // The shelf of figures (task 012).
-              Wrap(
-                spacing: 6,
-                runSpacing: 18,
-                alignment: WrapAlignment.center,
-                children: [
-                  for (final p in Persona.values)
-                    _PersonaChoice(
-                      persona: p,
-                      selected: p == view.yourSeat.persona,
-                      takenBy: allTaken ? null : taken[p],
-                      onTap: () => Navigator.pop(context, p),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (picked != null) session.send(PersonaIntent(picked));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final persona = session.view!.yourSeat.persona;
-    return Panel(
-      child: Row(
-        children: [
-          TurningFigure(asset: personaAsset(persona), height: 96),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.youAppearAs,
-                  style: const TextStyle(color: Palette.moon200),
-                ),
-                Text(
-                  l10n.persona(persona),
-                  style: const TextStyle(
-                    fontFamily: displayFont,
-                    fontSize: 26,
-                    color: Palette.moon100,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                SecondaryButton(
-                  label: l10n.changePersona,
-                  expand: false,
-                  onPressed: () => _pick(context),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// One figure on the shelf, standing on its little wooden stand: lit when
-/// it is yours, in shadow with its player's name when someone else has it.
-class _PersonaChoice extends StatelessWidget {
-  const _PersonaChoice({
-    required this.persona,
-    required this.selected,
-    required this.onTap,
-    this.takenBy,
-  });
-
-  final Persona persona;
-  final bool selected;
-  final String? takenBy;
-  final VoidCallback onTap;
-
-  static const _shadow = ColorFilter.matrix([
-    0.18, 0, 0, 0, 8, //
-    0, 0.18, 0, 0, 12, //
-    0, 0, 0.22, 0, 24, //
-    0, 0, 0, 1, 0,
-  ]);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final free = takenBy == null;
-    Widget figure = Figure(asset: personaAsset(persona), height: 104);
-    if (!free) figure = ColorFiltered(colorFilter: _shadow, child: figure);
-    return Semantics(
-      button: free,
-      selected: selected,
-      label: [l10n.persona(persona), ?takenBy].join(', '),
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: free ? onTap : null,
-        child: SizedBox(
-          width: 100,
-          child: Column(
-            children: [
-              Stack(
-                alignment: Alignment.bottomCenter,
-                clipBehavior: Clip.none,
-                children: [
-                  if (selected)
-                    // The spotlight on your own figure.
-                    Positioned(
-                      bottom: -6,
-                      child: Container(
-                        width: 120,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            center: const Alignment(0, 0.4),
-                            colors: [
-                              Palette.stageLanternTop.withValues(alpha: 0.5),
-                              Palette.stageLanternTop.withValues(alpha: 0),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: figure,
-                  ),
-                  // The wooden stand.
-                  Container(
-                    width: 70,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(
-                        Radius.elliptical(35, 6),
-                      ),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF8A5A34), Color(0xFF4A2E18)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.5),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (selected)
-                    const Positioned(
-                      right: 6,
-                      top: 0,
-                      child: Icon(
-                        Icons.check_circle_rounded,
-                        color: Palette.stageLanternTop,
-                        size: 24,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                l10n.persona(persona),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: TextStyle(
-                  fontFamily: displayFont,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  color: free ? Palette.stageIvory : Palette.stageIvorySoft,
-                ),
-              ),
-              if (takenBy case final name?)
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: Palette.stageBrassLight,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _Invite extends StatefulWidget {
   const _Invite({
     required this.link,
@@ -1161,18 +992,95 @@ class _Invite extends StatefulWidget {
 class _InviteState extends State<_Invite> {
   bool _opening = false;
 
-  Future<void> _show() async {
+  /// Folded by default: the table fills up through "Join a room" on the
+  /// same Wi-Fi; the code (and with it the server) only when asked for.
+  bool _open = false;
+
+  Future<void> _unfold() async {
+    setState(() => _open = true);
+    final show = widget.onShowCode;
+    if (show == null) return;
     setState(() => _opening = true);
     try {
-      await widget.onShowCode!();
+      await show();
     } finally {
       if (mounted) setState(() => _opening = false);
     }
   }
 
+  Future<void> _explain() {
+    final l10n = AppLocalizations.of(context);
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.inviteInfoTitle),
+        content: Text(l10n.inviteInfo),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.privacyOk),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 240),
+        child: _open
+            ? KeyedSubtree(key: const ValueKey('open'), child: _code(l10n))
+            : Panel(
+                key: const ValueKey('folded'),
+                padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: _unfold,
+                        style: TextButton.styleFrom(
+                          alignment: Alignment.centerLeft,
+                          foregroundColor: Palette.stageLanternTop,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                        ),
+                        icon: const Icon(Icons.qr_code_2_rounded),
+                        label: Text(
+                          l10n.inviteOpen,
+                          style: const TextStyle(
+                            fontFamily: displayFont,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.inviteInfoTitle,
+                      onPressed: _explain,
+                      icon: const Icon(
+                        Icons.info_outline_rounded,
+                        color: Palette.moon200,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+
+  /// The code itself, on paper: the QR code, the Wi-Fi-only choice and
+  /// the technical details.
+  Widget _code(AppLocalizations l10n) {
     final link = widget.link;
     final qr = widget.qr;
     final local = widget.onLocalCode;
@@ -1180,55 +1088,72 @@ class _InviteState extends State<_Invite> {
         ? null
         : TextButton(
             onPressed: local,
+            style: TextButton.styleFrom(foregroundColor: Palette.ink),
             child: Text(
               l10n.inviteLocalCode,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Palette.inkSoft, fontSize: 13),
+              style: const TextStyle(fontSize: 13),
             ),
           );
-    if (widget.onShowCode != null) {
-      // Players on the same Wi-Fi find the room by themselves; the code
-      // (and with it the server) only when someone needs it.
-      return Panel(
-        paper: true,
-        child: Column(
-          children: [
-            Headline(l10n.inviteTitle),
-            const SizedBox(height: 8),
-            Body(l10n.inviteWifiFirst),
-            const SizedBox(height: 14),
-            SecondaryButton(
-              label: l10n.inviteShowCode,
-              onPressed: _opening ? null : _show,
-            ),
-            ?localButton,
-          ],
-        ),
-      );
-    }
+    final waiting = widget.onShowCode != null;
     return Panel(
       paper: true,
       child: Column(
         children: [
-          Headline(l10n.inviteTitle),
-          const SizedBox(height: 8),
-          Body(widget.browserCanJoin ? l10n.inviteHintWeb : l10n.inviteHint),
-          const SizedBox(height: 14),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(Radii.s),
-              border: Border.all(color: Palette.inkSoft, width: 2),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: QrImageView(
-                data: qr,
-                size: 210,
-                semanticsLabel: l10n.inviteHint,
+          Row(
+            children: [
+              const SizedBox(width: 40),
+              Expanded(
+                child: Text(
+                  l10n.inviteTitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: displayFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 22,
+                    color: Palette.ink,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: l10n.inviteFold,
+                onPressed: () => setState(() => _open = false),
+                icon: const Icon(Icons.expand_less_rounded, color: Palette.ink),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.browserCanJoin ? l10n.inviteHintWeb : l10n.inviteHint,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Palette.inkSoft, fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          if (waiting)
+            SizedBox(
+              height: 230,
+              child: Center(
+                child: _opening
+                    ? const CircularProgressIndicator(color: Palette.inkSoft)
+                    : const SizedBox.shrink(),
+              ),
+            )
+          else
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(Radii.s),
+                border: Border.all(color: Palette.inkSoft, width: 2),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: QrImageView(
+                  data: qr,
+                  size: 210,
+                  semanticsLabel: l10n.inviteHint,
+                ),
               ),
             ),
-          ),
           // The technical bits only for those who want them.
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

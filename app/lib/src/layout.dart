@@ -55,12 +55,17 @@ class StageScroll extends StatelessWidget {
     required this.child,
     this.maxWidth = 560,
     this.horizontal = 20,
+    this.center = false,
     super.key,
   });
 
   final Widget child;
   final double maxWidth;
   final double horizontal;
+
+  /// Short content stands in the middle of the height instead of at the
+  /// top (the columns on a computer).
+  final bool center;
 
   /// How far content fades before it reaches the edge.
   static const double fade = 28;
@@ -107,7 +112,7 @@ class StageScroll extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: viewport),
                 child: Align(
-                  alignment: Alignment.topCenter,
+                  alignment: center ? Alignment.center : Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     child: ColumnSpace(height: viewport, child: child),

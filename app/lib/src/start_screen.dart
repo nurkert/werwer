@@ -483,15 +483,21 @@ class _StartScreenState extends State<StartScreen> {
                     child: StageScroll(
                       maxWidth: 620,
                       horizontal: 32,
+                      center: true,
                       child: Column(children: stage),
                     ),
                   ),
+                  // The form on its own plaque, level with the title.
                   Expanded(
                     flex: 4,
                     child: StageScroll(
                       maxWidth: 420,
                       horizontal: 32,
-                      child: Column(children: form),
+                      center: true,
+                      child: Panel(
+                        padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+                        child: Column(children: form),
+                      ),
                     ),
                   ),
                 ],

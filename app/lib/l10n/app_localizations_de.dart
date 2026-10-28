@@ -410,6 +410,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get webAppGet => 'App holen';
 
   @override
+  String get inviteOpen => 'Mitspieler einladen';
+
+  @override
+  String get inviteFold => 'Einklappen';
+
+  @override
+  String get inviteInfoTitle => 'So kommen die anderen dazu';
+
+  @override
+  String get inviteInfo =>
+      'Im selben WLAN öffnen die anderen Whowolf und tippen auf „Raum beitreten“: Euer Raum erscheint dort von selbst, ganz ohne Code.\n\nFür alle anderen (anderes WLAN, mobile Daten, ohne App im Browser) gibt es den QR-Code. Erst wenn du ihn aufklappst, geht der Raum auf den Online-Server; Runden im WLAN bleiben dem Server unbekannt.';
+
+  @override
   String get seerVisionTitle => 'Deine Vision';
 
   @override
