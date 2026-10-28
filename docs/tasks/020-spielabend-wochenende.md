@@ -16,9 +16,9 @@ Wunsch des Eigentümers: Am Wochenende soll ein Spiel ohne Hänger laufen. Dafü
 
 ## 1. Erzähler zähmen (schneller Teil aus Task 018)
 
-- [ ] Ein Schalter in den Spieleinstellungen: wandernder Erzähler **aus / nur besondere Momente / immer**. Standard fürs Wochenende: *nur besondere Momente* (Intro, erster Tod, Spielende), sonst spricht die Stimme ohne Gang.
-- [ ] Kein Gang verlängert je eine Phase. Er wird gekürzt oder fällt aus, wenn die Zeit nicht reicht (Test).
-- [ ] Auf jedem Gerät ist oben das Stumm-Symbol gut sichtbar. Ein stummes Gerät wird beim Gang übersprungen, soweit das ohne Protokolländerung geht. Sonst kommt das in Task 018.
+- [x] (mit Task 018) Ein Schalter in den Spieleinstellungen: wandernder Erzähler **aus / nur besondere Momente / immer**. Standard fürs Wochenende: *nur besondere Momente* (Intro, erster Tod, Spielende), sonst spricht die Stimme ohne Gang.
+- [x] (mit Task 018) Kein Gang verlängert je eine Phase. Er wird gekürzt oder fällt aus, wenn die Zeit nicht reicht (Test).
+- [x] (mit Task 018) Auf jedem Gerät ist oben das Stumm-Symbol gut sichtbar. Ein stummes Gerät wird beim Gang übersprungen, soweit das ohne Protokolländerung geht. Sonst kommt das in Task 018.
 
 ## 2. Tempo: niemand wartet unnötig
 

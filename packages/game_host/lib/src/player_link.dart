@@ -172,6 +172,9 @@ class PlayerLink {
   /// In the lobby: who plays in a browser, without the app.
   List<PlayerId> inBrowser = const [];
 
+  /// Whose phones play no sound, as of this phase's start (the host's).
+  List<PlayerId> silent = const [];
+
   /// This player is in a browser (the host shows it in the lobby).
   final bool web;
 
@@ -444,6 +447,7 @@ class PlayerLink {
         isOwner = message.isOwner;
         pending = message.pending;
         inBrowser = message.inBrowser;
+        silent = message.silent;
         phaseStartedAtHostMs = message.phaseAt;
         introSkippedAtHostMs = message.introSkippedAt;
         final endsIn = message.phaseEndsInMs;

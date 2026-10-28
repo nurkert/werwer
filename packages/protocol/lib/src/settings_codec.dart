@@ -5,6 +5,8 @@ import 'package:protocol/src/reader.dart';
 /// less; see [GameSettings.validate]).
 const _maxSeconds = 3600;
 
+final _seatId = RegExp(r'^[a-z0-9]{1,16}$');
+
 /// Encodes [GameSettings] as JSON (times in whole seconds).
 Map<String, Object?> encodeSettings(GameSettings settings) => {
   'roles': [
@@ -20,7 +22,9 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'sheep': settings.sheepCounting,
   'trail': settings.wolfTrail,
   'atmosphere': settings.atmosphere,
-  'voice': settings.narratorVoice,
+  'narrator': settings.narratorMode.name,
+  'sound': settings.soundMode.name,
+  'soundSeats': [for (final seat in settings.soundSeats) seat.value],
   'doorSigns': settings.doorSigns,
   'nights': settings.nightMode.name,
   'voiceLang': settings.narratorLanguage.name,
@@ -51,7 +55,25 @@ GameSettings decodeSettings(JsonReader json) {
     sheepCounting: json.boolean('sheep'),
     wolfTrail: json.boolean('trail'),
     atmosphere: json.boolean('atmosphere'),
-    narratorVoice: json.boolean('voice'),
+    // A game saved before the narrator modes had a switch.
+    narratorMode:
+        json.maybeEnum('narrator', NarratorMode.values) ??
+        (json.maybeBoolean('voice') ?? false
+            ? NarratorMode.always
+            : NarratorMode.off),
+    soundMode: json.maybeEnum('sound', SoundMode.values) ?? SoundMode.everyone,
+    soundSeats: {
+      if (json.has('soundSeats'))
+        for (final id in json.strings(
+          'soundSeats',
+          max: maxPlayers,
+          maxLength: 16,
+        ))
+          if (_seatId.hasMatch(id))
+            PlayerId(id)
+          else
+            throw const ProtocolError('bad seat'),
+    },
     doorSigns: json.boolean('doorSigns'),
     nightMode: json.enumValue('nights', NightMode.values),
     narratorLanguage: json.enumValue('voiceLang', NarratorLanguage.values),

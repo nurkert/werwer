@@ -161,6 +161,25 @@ void main() {
     expect(players[1].last!.isOwner, isFalse);
   });
 
+  test(
+    'silent phones show at once in the lobby, later only per phase',
+    () async {
+      final players = await table(4);
+      final quiet = players[2]..send(const SilentIntent(silent: true));
+      await settle();
+      for (final p in players) {
+        expect(p.last!.silent, [quiet.id], reason: p.id?.value);
+      }
+      await start(players);
+      expect(players.first.last!.silent, [quiet.id]);
+      // Unmuting in the middle of a phase changes nothing until the next.
+      quiet.send(const SilentIntent(silent: false));
+      players[1].send(const SilentIntent(silent: true));
+      await settle();
+      expect(players.first.last!.silent, [quiet.id]);
+    },
+  );
+
   test('who plays in a browser shows only in the lobby', () async {
     final owner = await join('Owner', owner: true);
     final web = Player(transport.connect())

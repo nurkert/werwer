@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
+import 'package:volume_controller/volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
@@ -64,6 +65,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   /// This phone stays silent (voice and sounds).
   bool _quiet = false;
+
+  /// The device's volume is at zero: it counts as silent too, so the
+  /// narrator does not walk into a phone nobody hears.
+  bool _volumeZero = false;
+
+  /// What the host was last told about this phone's silence.
+  bool? _toldSilent;
   PlayerView? _lastView;
   String? _narration;
 
@@ -100,6 +108,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     );
     // The host must stay awake: a locked host phone ends the game for all.
     unawaited(WakelockPlus.enable());
+    _watchVolume();
     session.addListener(_changed);
     WidgetsBinding.instance.addObserver(this);
   }
@@ -127,8 +136,75 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     if (mounted) setState(() {});
   }
 
+  /// Follows the device's volume where the platform tells it (not in the
+  /// browser; the iPhone's silent switch no app can read).
+  void _watchVolume() {
+    if (kIsWeb) return;
+    try {
+      VolumeController.instance
+        ..showSystemUI = false
+        ..addListener((volume) {
+          final zero = volume < 0.02;
+          if (zero == _volumeZero || !mounted) return;
+          setState(() => _volumeZero = zero);
+          _tellSilence();
+        });
+    } on Object {
+      // No volume on this platform: only the mute button counts.
+    }
+  }
+
+  /// Tells the host whether this phone plays sound, when that changed (or
+  /// the host does not know it, e.g. after a takeover).
+  void _tellSilence({bool force = false}) {
+    final silent = _quiet || _volumeZero;
+    if (!force && silent == _toldSilent) return;
+    if (session.send(SilentIntent(silent: silent))) _toldSilent = silent;
+  }
+
+  /// The phones that play the narrator and the shared sounds, in seat
+  /// order (the same list on every phone): the chosen seats, or all if
+  /// none of them is at the table any more, without the silent ones.
+  List<PlayerId> _speakers(PlayerView view) {
+    final seats = [for (final s in view.seats) s.id];
+    final settings = view.settings;
+    var chosen = settings.soundMode == SoundMode.chosen
+        ? [
+            for (final id in seats)
+              if (settings.soundSeats.contains(id)) id,
+          ]
+        : seats;
+    if (chosen.isEmpty) chosen = seats;
+    final silent = session.silent.toSet();
+    return [
+      for (final id in chosen)
+        if (!silent.contains(id)) id,
+    ];
+  }
+
+  /// When the narrator must be done, on this device's clock: the end of
+  /// the phase where every phone knows it from the settings (in the
+  /// called night only the called see the time, so none there).
+  int? _deadline(PlayerView view, int? startedAt) {
+    if (startedAt == null) return null;
+    final s = view.settings;
+    final limit = switch (view.phase) {
+      Phase.day => s.dayTime,
+      Phase.vote when view.runoff.isNotEmpty => s.voteTime ~/ 2,
+      Phase.vote => s.voteTime,
+      Phase.night when s.nightMode == NightMode.together => s.nightTime,
+      _ => null,
+    };
+    return limit == null ? null : startedAt + limit.inMilliseconds;
+  }
+
   @override
   void dispose() {
+    if (!kIsWeb) {
+      unawaited(
+        VolumeController.instance.removeListener().catchError((Object _) {}),
+      );
+    }
     WidgetsBinding.instance.removeObserver(this);
     session
       ..removeListener(_changed)
@@ -155,6 +231,18 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       final l10n = AppLocalizations.of(context);
       int? deathAt;
       final before = _lastView;
+      // A new host (or a new phase after a takeover) may not know whether
+      // this phone is silent: tell it again where it disagrees.
+      final silentHere = _quiet || _volumeZero;
+      final phaseChanged =
+          before == null ||
+          before.phase != view.phase ||
+          before.round != view.round;
+      _tellSilence(
+        force: phaseChanged && session.silent.contains(view.you) != silentHere,
+      );
+      final speakers = _speakers(view);
+      _atmosphere.speaker = speakers.contains(view.you);
       final line = narration(before, view, l10n);
       final spoken = spokenMoments(before, view);
       _lastView = view;
@@ -171,16 +259,17 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         // Recorded voice: it walks around the table, on every phone at
         // the same moment (just after the phase began, by the host's
         // clock).
+        final started = session.phaseStartedAtMs;
         final planned = walker.speak(
           moments: spoken,
           language: settings.narratorLanguage,
           round: view.round,
           startMs:
-              (session.phaseStartedAtMs ??
-                  DateTime.now().millisecondsSinceEpoch) +
+              (started ?? DateTime.now().millisecondsSinceEpoch) +
               narratorLeadIn(before, view),
-          seats: [for (final s in view.seats) s.id],
+          speakers: speakers,
           me: view.you,
+          deadlineMs: _deadline(view, started),
           facts: storyFacts(view),
         );
         _followIntro(planned);
@@ -230,12 +319,15 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     _skipSeen = skipped;
     if (!_introRunning) return;
     _followIntro(const []);
+    _walker?.stop();
+    // "The cards are dealt" is said only when the narrator says it all.
+    if (view.settings.narratorMode != NarratorMode.always) return;
     _walker?.speak(
       moments: const [(key: 'reveal', to: null)],
       language: view.settings.narratorLanguage,
       round: view.round,
       startMs: skipped + 600,
-      seats: [for (final s in view.seats) s.id],
+      speakers: _speakers(view),
       me: view.you,
       facts: storyFacts(view),
     );
@@ -303,7 +395,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                 semanticLabel: 'Whowolf',
               ),
               actions: [
-                if (_voice != null || (view?.settings.atmosphere ?? false))
+                // Always here: a silent phone also drops out of the walk.
+                if (view != null)
                   IconButton(
                     tooltip: _quiet ? l10n.unmute : l10n.mute,
                     icon: Icon(
@@ -320,6 +413,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                         _voice?.stop();
                         _walker?.stop();
                       }
+                      _tellSilence();
                     }),
                   ),
                 if (session.status != SessionStatus.ended)

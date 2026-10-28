@@ -158,6 +158,19 @@ class Atmosphere {
     if (value) _stop();
   }
 
+  /// Whether this phone is one of the table's speakers (see
+  /// `GameSettings.soundMode`). Only speakers play the shared moments and
+  /// the night; every phone keeps its own taps.
+  bool get speaker => _speaker;
+  bool _speaker = true;
+  set speaker(bool value) {
+    if (_speaker == value) return;
+    _speaker = value;
+    if (!value) _stop();
+  }
+
+  bool get _silent => _muted || !_speaker;
+
   /// Follows the game to [view]. With [phaseStartedAt] (this device's
   /// time the phase began, from the synced clock) the shared moments sound
   /// at the same instant on every phone, not just whenever each phone
@@ -169,7 +182,7 @@ class Atmosphere {
     final before = _last;
     _last = view;
     _phaseStart = phaseStartedAt;
-    final on = view.settings.atmosphere && !_muted;
+    final on = view.settings.atmosphere && !_silent;
     final night = view.phase == Phase.night;
     final wasNight = before?.phase == Phase.night;
     if (night && (!wasNight || before?.round != view.round)) {
@@ -187,7 +200,7 @@ class Atmosphere {
         if (on) _shared(const Duration(milliseconds: 1900), Sound.yawn);
       }
     }
-    if (before == null || _muted) return;
+    if (before == null || _silent) return;
     final phase = view.phase;
     final changed = before.phase != phase;
     if (phase == Phase.lobby && view.seats.length > before.seats.length) {
@@ -228,10 +241,10 @@ class Atmosphere {
   static int _alive(PlayerView view) =>
       view.seats.where((s) => s.isAlive).length;
 
-  /// A shared moment: on every phone that is not muted, whatever the
+  /// A shared moment: on every speaker that is not muted, whatever the
   /// atmosphere setting, [at] after the phase began.
   void _moment(Duration at, Sound sound) {
-    if (!_muted) _shared(at, sound);
+    if (!_silent) _shared(at, sound);
   }
 
   /// Plays [sound] [at] after the phase began, by the synced clock if

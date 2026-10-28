@@ -81,6 +81,9 @@ class _Session {
   /// Highest intent number applied for this session: each intent counts
   /// exactly once, however often it arrives.
   int lastSeq;
+
+  /// This player's phone plays no sound (muted or at zero volume).
+  bool silent = false;
 }
 
 class _Pending {
@@ -267,6 +270,16 @@ class GameHost {
 
   /// When the owner skipped the narrator's intro in this role reveal.
   int? _introSkippedAt;
+
+  /// The silent phones as of the start of this phase: the narrator's walk
+  /// is planned from them, and a change in the middle of a night must not
+  /// show (the lobby shows changes at once).
+  Set<PlayerId> _silentAtPhase = const {};
+
+  Set<PlayerId> get _silentNow => {
+    for (final s in _sessions.values)
+      if (s.silent) s.player,
+  };
   bool _closed = false;
 
   /// Counts every broadcast state, so players drop states that arrive late.
@@ -807,6 +820,11 @@ class GameHost {
           }
           _introSkippedAt = _clock();
           _broadcast();
+        case SilentIntent(:final silent):
+          // Only ever this player's own phone, from their own session.
+          if (session.silent == silent) return;
+          session.silent = silent;
+          if (_state.phase == Phase.lobby) _broadcast();
         case KickIntent(:final player):
           _ownerOnly(session);
           if (player == me) throw const RuleViolation(Violation.invalidTarget);
@@ -872,6 +890,7 @@ class GameHost {
         before.nightStep != _state.nightStep ||
         before.runoff.isEmpty != _state.runoff.isEmpty) {
       if (before.phase != _state.phase) _introSkippedAt = null;
+      _silentAtPhase = _silentNow;
       _schedulePhaseTimer();
     } else if (_state.phase == Phase.night &&
         timeLimit(before) != timeLimit(_state)) {
@@ -949,6 +968,9 @@ class GameHost {
                   if (s.link?.web ?? false) s.player,
               ]
             : const [],
+        silent: [
+          ...(_state.phase == Phase.lobby ? _silentNow : _silentAtPhase),
+        ],
         pending: session.owner
             ? [
                 for (final p in _pending.values)

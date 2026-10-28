@@ -110,6 +110,18 @@ void main() {
       },
     );
 
+    test('a phone that is not a speaker plays no shared sound, but keeps '
+        'its own taps', () {
+      final a = atmosphere()
+        ..speaker = false
+        ..update(_view(Phase.night, 1))
+        ..update(_view(Phase.day, 1));
+      fireAll();
+      expect(ear.heard, isEmpty);
+      a.own(Sound.tap);
+      expect(ear.heard, [Sound.tap]);
+    });
+
     test('a death the narrator names sounds in the pause before it', () {
       final waits = <(Duration, Sound)>[];
       final ear = _Ear();

@@ -207,6 +207,9 @@ class GameSession extends ChangeNotifier {
   /// In the lobby: who plays in a browser, without the app.
   List<PlayerId> get inBrowser => _link.inBrowser;
 
+  /// Whose phones play no sound (as of this phase's start).
+  List<PlayerId> get silent => _link.silent;
+
   /// The newest view of the game (kept while the host is away).
   PlayerView? get view => _link.view;
 

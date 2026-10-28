@@ -1352,6 +1352,96 @@ abstract class AppLocalizations {
   /// **'Seer sees the role (otherwise only the side)'**
   String get settingsSeerRole;
 
+  /// No description provided for @settingsSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator & sound'**
+  String get settingsSound;
+
+  /// No description provided for @settingsNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator'**
+  String get settingsNarrator;
+
+  /// No description provided for @narratorOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get narratorOff;
+
+  /// No description provided for @narratorMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'Big moments'**
+  String get narratorMoments;
+
+  /// No description provided for @narratorAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get narratorAlways;
+
+  /// No description provided for @narratorOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The story is told on the screens only.'**
+  String get narratorOffHint;
+
+  /// No description provided for @narratorMomentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice tells what matters: nightfall, the news in the morning, the vote and the end. The screens show the rest.'**
+  String get narratorMomentsHint;
+
+  /// No description provided for @narratorAlwaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice tells every line.'**
+  String get narratorAlwaysHint;
+
+  /// No description provided for @settingsSoundWhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound plays on'**
+  String get settingsSoundWhere;
+
+  /// No description provided for @soundEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get soundEveryone;
+
+  /// No description provided for @soundMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Only me'**
+  String get soundMe;
+
+  /// No description provided for @soundGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'A group'**
+  String get soundGroup;
+
+  /// No description provided for @soundOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One'**
+  String get soundOne;
+
+  /// No description provided for @soundEveryoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice walks across all phones. Muted ones are skipped.'**
+  String get soundEveryoneHint;
+
+  /// No description provided for @soundChosenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice and the shared sounds play only on these phones. Everyone else hears only their own taps.'**
+  String get soundChosenHint;
+
   /// No description provided for @settingsExtras.
   ///
   /// In en, this message translates to:

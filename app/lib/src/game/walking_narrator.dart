@@ -98,9 +98,10 @@ class _AudioClipPlayer implements ClipPlayer {
 /// device's clock) and how the voice walks meanwhile.
 typedef Planned = ({String key, Clip clip, int at, NarratorWalk walk});
 
-/// The narrator walking around the table: every phone plays its part of
-/// the same walk at the same time (the clocks are in step with the host's),
-/// louder while the voice is at its seat, quiet otherwise.
+/// The narrator walking around the table: every phone that plays sound
+/// plays its part of the same walk at the same time (the clocks are in
+/// step with the host's), louder while the voice is at its seat, quiet
+/// otherwise.
 class WalkingNarrator {
   WalkingNarrator({
     required this.bank,
@@ -145,17 +146,20 @@ class WalkingNarrator {
   /// Whether this phone stays silent.
   bool muted = false;
 
-  /// Says [moments], starting at [startMs] (this device's clock), as heard
-  /// from [me]'s seat at a table of [seats] in their order (the same list
-  /// on every phone). Stops whatever was still being said. Returns the
-  /// plan, also when this phone is muted, so the screen can follow it.
+  /// Says [moments], starting at [startMs] (this device's clock), on the
+  /// [speakers] (the phones that play sound, in seat order: the same list
+  /// on every phone); this phone plays its part if [me] is one of them.
+  /// Nothing runs past [deadlineMs] (the end of the phase). Stops whatever
+  /// was still being said. Returns the plan, also when this phone is
+  /// silent, so the screen can follow it.
   List<Planned> speak({
     required List<Spoken> moments,
     required NarratorLanguage language,
     required int round,
     required int startMs,
-    required List<PlayerId> seats,
+    required List<PlayerId> speakers,
     required PlayerId me,
+    int? deadlineMs,
     Set<String> facts = const {},
   }) {
     stop();
@@ -164,10 +168,11 @@ class WalkingNarrator {
       language: language,
       round: round,
       startMs: startMs,
-      seats: seats,
+      speakers: speakers,
+      deadlineMs: deadlineMs,
       facts: facts,
     );
-    final mine = seats.indexOf(me);
+    final mine = speakers.indexOf(me);
     if (muted || mine < 0) return planned;
     for (final p in planned) {
       if (p.walk.activeFor(mine, p.clip.ms).isNotEmpty) {
@@ -177,20 +182,22 @@ class WalkingNarrator {
     return planned;
   }
 
-  /// When each of [moments] is said and how the voice walks: the same on
-  /// every phone.
+  /// When each of [moments] is said and how the voice walks over the
+  /// [speakers]: the same on every phone. A moment that would not end by
+  /// [deadlineMs] is left out, and so is everything after it.
   List<Planned> plan({
     required List<Spoken> moments,
     required NarratorLanguage language,
     required int round,
     required int startMs,
-    required List<PlayerId> seats,
+    required List<PlayerId> speakers,
+    int? deadlineMs,
     Set<String> facts = const {},
   }) {
     final planned = <Planned>[];
-    if (seats.isEmpty) return planned;
+    if (speakers.isEmpty) return planned;
     var at = startMs;
-    double? position;
+    int? position;
     final said = <String, int>{};
     for (final moment in moments) {
       final variants = bank.variants(language, moment.key, facts: facts);
@@ -204,24 +211,24 @@ class WalkingNarrator {
             count: variants.length,
             occurrence: occurrence,
           )];
-      final target = moment.to == null ? -1 : seats.indexOf(moment.to!);
-      final walk = position == null
-          ? NarratorWalk.forMoment(
-              seats: seats.length,
-              room: room,
-              round: round,
-              line: moment.key,
-              to: target < 0 ? null : target,
-            )
-          : NarratorWalk(
-              seats: seats.length,
-              start: position.round() % seats.length,
-              to: target < 0 ? null : target,
-            );
-      if (planned.isNotEmpty) at += gap(planned.last.key, moment.key);
-      planned.add((key: moment.key, clip: clip, at: at, walk: walk));
-      position = walk.positionAt(clip.ms);
-      at += clip.ms;
+      final begins = planned.isEmpty
+          ? at
+          : at + gap(planned.last.key, moment.key);
+      if (deadlineMs != null && begins + clip.ms > deadlineMs) break;
+      final target = moment.to == null ? -1 : speakers.indexOf(moment.to!);
+      final walk = NarratorWalk.plan(
+        seats: speakers.length,
+        room: room,
+        round: round,
+        line: moment.key,
+        lengthMs: clip.ms,
+        occurrence: occurrence,
+        start: position,
+        to: target < 0 ? null : target,
+      );
+      planned.add((key: moment.key, clip: clip, at: begins, walk: walk));
+      position = walk.end;
+      at = begins + clip.ms;
     }
     return planned;
   }

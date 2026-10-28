@@ -1,6 +1,6 @@
 # Task 018 – Wo der Ton spielt: Erzähler, Stummschalten, Klang-Modi
 
-**Status:** Konzept abgestimmt (2026-10-28), in Arbeit
+**Status:** umgesetzt (2026-10-28), offen ist die Prüfung am Tisch mit echten Geräten
 **Bezug:** [Task 010](010-wandernder-erzaehler.md) (wandernder Erzähler), [NIGHT_SOUNDS](../NIGHT_SOUNDS.md), [GAME_DESIGN](../GAME_DESIGN.md), Entscheidung vom 2026-10-26 „Wandernder Erzähler ohne neues Protokoll“
 
 ## Ausgangslage
@@ -101,3 +101,25 @@ Klang gehört wie Erzählerstimme und Atmosphäre zu den Einstellungen der Runde
 ## Sicherheit
 
 Noch zu füllen im Konzept. Mindestens: Der Host prüft, dass nur der Spielleiter Klang-Modus und Auswahl ändert. Der Stumm-Zustand kommt nur aus der eigenen Sitzung (nie für andere Spieler setzbar) und wird beim Host in Größe und Rate begrenzt. Über den Ton gehen keine Spielgeheimnisse nach außen.
+
+## Umsetzung (2026-10-28)
+
+- [x] `GameSettings.narratorMode` (aus / große Momente / alles, Standard große Momente), `soundMode` und `soundSeats`; Schnellwahl und Erkennung der Stufen lassen Sprache und Klang-Plätze in Ruhe (`withTableOf`). Alte Spielstände mit `voice` werden gelesen.
+- [x] Filter „große Momente“ in `spokenMoments` (`isStoryMoment`), die klassische Nacht ruft weiter jede Rolle (Test).
+- [x] **Gang-Algorithmus** in `narrator_walk.dart`:
+  - Gangarten: schlendern und eilen (in beide Richtungen, eigenes Tempo), Zickzack quer über den Tisch, Sprünge zu einem Platz mindestens ein Drittel des Tisches entfernt, stehen (an einem eigenen Platz, nicht dort, wo der letzte Satz endete), hingehen.
+  - Auswahl nach der Stimmung des Satzes (ruhig, angespannt, Nachricht, Ruf, Finale) mit Würfeln aus Raumcode, Runde, Satz und Wiederholung (Park–Miller auf `stableHash`, im Browser und in der App gleich).
+  - Lange Sätze wechseln einmal die Gangart.
+  - Zu einer Person geht er nur bei öffentlichem Schicksal und dann in etwa der Hälfte der Fälle.
+- [x] **Überblendung:** Das nächste Handy wird lauter, bevor das letzte leiser wird. In jedem Moment spielt eines mit mindestens 95 % (Test über alle Sätze, Tischgrößen 2 bis 12 und mehrere Räume), nie zwei auf halber Lautstärke, nie drei zugleich.
+- [x] Der Erzähler geht nur über die **Lautsprecher** (gewählte Plätze ohne stumme; ist keiner der gewählten mehr da, alle). Kein Satz läuft über das Phasenende hinaus, wo alle das Ende kennen (Tag, Abstimmung, Whowolf-Nacht). In der klassischen Nacht kennen nur die Gerufenen die Zeit, dort gibt es keine Grenze, damit alle Handys denselben Plan haben.
+- [x] Gong, Hahn, Gähnen und Nachtgeräusche nur auf Lautsprechern, eigene Tipp-Klänge überall (`Atmosphere.speaker`, Test).
+- [x] **Stumm teilen:** Stumm-Knopf immer oben, `SilentIntent` (Protokoll 9) aus der eigenen Sitzung. Der Host gibt `StateMessage.silent` vom Phasenbeginn weiter, in der Lobby sofort (Test). Nach einer Übernahme meldet die App ihren Zustand erneut.
+- [x] **Automatisch stumm:** Lautstärke null zählt als stumm (`volume_controller`, nicht im Browser).
+- [x] Einstellungen: Abschnitt „Erzähler & Ton“ mit Erzähler-Stufen, Sprache und „Ton spielt auf: Allen / Nur mir / Gruppe / Einem“ mit Platzauswahl.
+- [ ] Am Tisch prüfen: wie der Gang klingt (Tempo, Sprünge), eine Bluetooth-Box bei „Einem“, Lautstärke null auf iPhone und Android.
+
+### Sicherheit
+
+- Stumm-Zustand nur aus der eigenen Sitzung (`SilentIntent` hat kein Ziel), ein Wechsel mitten in einer Phase wird erst mit der nächsten sichtbar (Test in `host_test.dart`). Klang-Modus und Plätze ändert nur der Spielleiter (wie alle Einstellungen), höchstens `maxPlayers` Plätze mit gültigen IDs (Codec).
+- Der Gang hängt nur an öffentlichen Werten. Der Test „every phone plans the same walk“ prüft gleiche Pläne. Rufe in der klassischen Nacht stehen an einem gewürfelten Platz, unabhängig davon, wer gerufen wird.

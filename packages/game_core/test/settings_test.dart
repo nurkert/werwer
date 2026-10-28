@@ -11,21 +11,33 @@ void main() {
       for (final preset in Preset.values) {
         expect(preset.settings.preset, preset);
         expect(
-          preset.settings
-              .copyWith(narratorVoice: !preset.settings.narratorVoice)
-              .preset,
+          preset.settings.copyWith(narratorMode: NarratorMode.always).preset,
           isNull,
+        );
+        // Where sound plays is the table's choice, not part of a preset.
+        expect(
+          preset.settings
+              .copyWith(
+                soundMode: SoundMode.chosen,
+                soundSeats: {const PlayerId('p1')},
+              )
+              .preset,
+          preset,
         );
         preset.settings.validate();
       }
       expect(const GameSettings().preset, isNull);
+      expect(
+        const GameSettings().narratorMode,
+        NarratorMode.moments,
+        reason: 'the narrator tells the big moments unless switched off',
+      );
       expect(
         Preset.classic.settings
             .copyWith(
               sheepCounting: true,
               atmosphere: true,
               doorSigns: true,
-              narratorVoice: false,
               nightMode: NightMode.together,
             )
             .preset,

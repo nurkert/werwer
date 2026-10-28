@@ -1,3 +1,4 @@
+import 'package:game_core/src/model.dart' show PlayerId;
 import 'package:game_core/src/role.dart';
 import 'package:game_core/src/violation.dart';
 import 'package:meta/meta.dart';
@@ -67,6 +68,30 @@ enum NarratorLanguage {
   en,
 }
 
+/// How much the narrator says aloud (the screens always show the text).
+enum NarratorMode {
+  /// Text only.
+  off,
+
+  /// The moments that carry the story: the intro, nightfall (and in the
+  /// called night falling asleep and every call), the news in the morning,
+  /// the vote and its result, the hunter and the end.
+  moments,
+
+  /// Every line of the script.
+  always,
+}
+
+/// Which phones play the narrator and the shared sounds.
+enum SoundMode {
+  /// Every phone at the table.
+  everyone,
+
+  /// Only the seats in [GameSettings.soundSeats] (the game leader's phone,
+  /// a group, or one player with a speaker).
+  chosen,
+}
+
 /// Options the host picks in the lobby; everyone at the table sees them.
 ///
 /// Everything Whowolf adds to the classic card game is optional, so a table
@@ -89,7 +114,9 @@ class GameSettings {
     this.sheepCounting = true,
     this.wolfTrail = false,
     this.atmosphere = false,
-    this.narratorVoice = false,
+    this.narratorMode = NarratorMode.moments,
+    this.soundMode = SoundMode.everyone,
+    this.soundSeats = const {},
     this.doorSigns = false,
     this.nightMode = NightMode.together,
     this.narratorLanguage = NarratorLanguage.de,
@@ -130,10 +157,18 @@ class GameSettings {
   /// Whether the night soundscape and the morning yawn play.
   final bool atmosphere;
 
-  /// Whether the narrator speaks aloud (otherwise text only). Off unless
-  /// the host turns it on: the system voices are no pleasure to hear yet;
-  /// recorded lines come later.
-  final bool narratorVoice;
+  /// How much the narrator says aloud.
+  final NarratorMode narratorMode;
+
+  /// Whether the narrator speaks aloud at all.
+  bool get narratorVoice => narratorMode != NarratorMode.off;
+
+  /// Which phones play sound.
+  final SoundMode soundMode;
+
+  /// The seats that play sound with [SoundMode.chosen] (at most
+  /// [maxPlayers]). Not a rule: seats that left simply do not count.
+  final Set<PlayerId> soundSeats;
 
   /// Whether door signs are in play: every night each living player gets a
   /// secret sign on their door, and the werewolves may once per night guess
@@ -161,18 +196,26 @@ class GameSettings {
   bool get doorSignsInPlay => doorSigns && nightMode == NightMode.together;
 
   /// The preset these settings are exactly, if any.
-  /// The narrator's language is the table's, not part of a preset.
+  /// The narrator's language and where sound plays are the table's, not
+  /// part of a preset.
   Preset? get preset => Preset.values
-      .where(
-        (p) => p.settings.copyWith(narratorLanguage: narratorLanguage) == this,
-      )
+      .where((p) => p.settings.withTableOf(this) == this)
       .firstOrNull;
+
+  /// These settings with the table's own choices from [other]: the
+  /// narrator's language and where sound plays (a preset keeps them).
+  GameSettings withTableOf(GameSettings other) => copyWith(
+    narratorLanguage: other.narratorLanguage,
+    soundMode: other.soundMode,
+    soundSeats: other.soundSeats,
+  );
 
   /// Throws a [RuleViolation] unless every value is within its bounds.
   void validate() {
     final wolves = werewolves;
     if (!specialRoles.containsAll(roles) ||
-        (wolves != null && (wolves < 1 || wolves > maxWerewolves))) {
+        (wolves != null && (wolves < 1 || wolves > maxWerewolves)) ||
+        soundSeats.length > maxPlayers) {
       throw const RuleViolation(Violation.invalidRoles);
     }
     bool within(Duration d, ({Duration min, Duration max}) range) =>
@@ -216,7 +259,9 @@ class GameSettings {
     bool? sheepCounting,
     bool? wolfTrail,
     bool? atmosphere,
-    bool? narratorVoice,
+    NarratorMode? narratorMode,
+    SoundMode? soundMode,
+    Set<PlayerId>? soundSeats,
     bool? doorSigns,
     NightMode? nightMode,
     NarratorLanguage? narratorLanguage,
@@ -233,7 +278,9 @@ class GameSettings {
     sheepCounting: sheepCounting ?? this.sheepCounting,
     wolfTrail: wolfTrail ?? this.wolfTrail,
     atmosphere: atmosphere ?? this.atmosphere,
-    narratorVoice: narratorVoice ?? this.narratorVoice,
+    narratorMode: narratorMode ?? this.narratorMode,
+    soundMode: soundMode ?? this.soundMode,
+    soundSeats: soundSeats ?? this.soundSeats,
     doorSigns: doorSigns ?? this.doorSigns,
     nightMode: nightMode ?? this.nightMode,
     narratorLanguage: narratorLanguage ?? this.narratorLanguage,
@@ -255,7 +302,10 @@ class GameSettings {
       other.sheepCounting == sheepCounting &&
       other.wolfTrail == wolfTrail &&
       other.atmosphere == atmosphere &&
-      other.narratorVoice == narratorVoice &&
+      other.narratorMode == narratorMode &&
+      other.soundMode == soundMode &&
+      other.soundSeats.length == soundSeats.length &&
+      other.soundSeats.containsAll(soundSeats) &&
       other.doorSigns == doorSigns &&
       other.nightMode == nightMode &&
       other.narratorLanguage == narratorLanguage &&
@@ -274,7 +324,9 @@ class GameSettings {
     sheepCounting,
     wolfTrail,
     atmosphere,
-    narratorVoice,
+    narratorMode,
+    soundMode,
+    Object.hashAllUnordered(soundSeats),
     doorSigns,
     nightMode,
     narratorLanguage,
@@ -293,7 +345,6 @@ enum Preset {
     GameSettings(
       roles: {Role.seer, Role.witch, Role.hunter},
       sheepCounting: false,
-      narratorVoice: true,
       nightMode: NightMode.called,
     ),
   ),

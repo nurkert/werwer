@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 8;
+const protocolVersion = 9;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -166,6 +166,7 @@ sealed class ClientMessage {
       ),
       'endDiscussion' => const EndDiscussionIntent(),
       'skipIntro' => const SkipIntroIntent(),
+      'silent' => SilentIntent(silent: json.boolean('on')),
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
@@ -403,6 +404,22 @@ final class SkipIntroIntent extends ClientMessage {
   String get _type => 'skipIntro';
 }
 
+/// My phone plays no sound (muted, or its volume is at zero): the
+/// narrator and the shared sounds skip it. Never about anyone else.
+final class SilentIntent extends ClientMessage {
+  /// Creates the message.
+  const SilentIntent({required this.silent});
+
+  /// Whether this phone is silent.
+  final bool silent;
+
+  @override
+  String get _type => 'silent';
+
+  @override
+  Map<String, Object?> get _fields => {'on': silent};
+}
+
 /// Room owner: remove a player from the lobby.
 final class KickIntent extends ClientMessage {
   /// Creates the message.
@@ -602,6 +619,18 @@ sealed class HostMessage {
                   _playerIds.hasMatch(id)
                       ? PlayerId(id)
                       : throw const ProtocolError('bad id in "web"'),
+              ]
+            : const [],
+        silent: json.has('silent')
+            ? [
+                for (final id in json.strings(
+                  'silent',
+                  max: maxPlayers,
+                  maxLength: 16,
+                ))
+                  _playerIds.hasMatch(id)
+                      ? PlayerId(id)
+                      : throw const ProtocolError('bad id in "silent"'),
               ]
             : const [],
         pending: [
@@ -868,10 +897,17 @@ final class StateMessage extends HostMessage {
     this.introSkippedAt,
     this.pending = const [],
     this.inBrowser = const [],
+    this.silent = const [],
   });
 
   /// In the lobby: who is playing in a browser, without the app.
   final List<PlayerId> inBrowser;
+
+  /// Whose phones play no sound, as of the start of this phase (in the
+  /// lobby: right now), so the narrator walks past them. Muting has
+  /// nothing to do with a role, and a change in the middle of a night
+  /// shows only with the next phase.
+  final List<PlayerId> silent;
 
   /// When the room owner skipped the narrator's intro, on the host's
   /// clock (milliseconds); only during the role reveal.
@@ -909,6 +945,7 @@ final class StateMessage extends HostMessage {
     'phaseAt': ?phaseAt,
     'skippedAt': ?introSkippedAt,
     if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],
+    if (silent.isNotEmpty) 'silent': [for (final p in silent) p.value],
     'pending': [
       for (final p in pending)
         {

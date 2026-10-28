@@ -10,6 +10,38 @@ typedef Spoken = ({String key, PlayerId? to});
 /// sees, so all phones say the same; and the narrator only ever walks to
 /// someone whose fate is public (the dead, the voted out, the hunter).
 List<Spoken> spokenMoments(PlayerView? before, PlayerView after) {
+  final all = _allMoments(before, after);
+  return switch (after.settings.narratorMode) {
+    NarratorMode.off => const [],
+    NarratorMode.always => all,
+    NarratorMode.moments => [
+      for (final m in all)
+        if (isStoryMoment(m.key)) m,
+    ],
+  };
+}
+
+/// Whether the line [key] carries the story, so the narrator says it in
+/// [NarratorMode.moments]: the intro, nightfall, falling asleep and every
+/// call of the called night (or nobody could play with closed eyes), the
+/// news in the morning, the vote and its result, the hunter and the end.
+/// The rest (the cards are dealt, discuss, the runoff, grief, a dead
+/// player's role) the screens show.
+bool isStoryMoment(String key) =>
+    key == 'intro' ||
+    key.startsWith('night_') ||
+    key == 'sleep' ||
+    key.startsWith('wake_') ||
+    key.startsWith('morning') ||
+    key.startsWith('died_') ||
+    key == 'voted_out' ||
+    key == 'vote_tie' ||
+    key == 'vote' ||
+    key == 'vote_late' ||
+    key == 'hunter' ||
+    key.startsWith('win_');
+
+List<Spoken> _allMoments(PlayerView? before, PlayerView after) {
   final called = after.settings.nightMode == NightMode.called;
   Spoken say(String key, [PlayerId? to]) => (key: key, to: to);
   final samePhase =

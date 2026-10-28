@@ -774,6 +774,55 @@ class AppLocalizationsDe extends AppLocalizations {
       'Seherin sieht die Rolle (sonst nur das Lager)';
 
   @override
+  String get settingsSound => 'Erzähler & Ton';
+
+  @override
+  String get settingsNarrator => 'Erzähler';
+
+  @override
+  String get narratorOff => 'Aus';
+
+  @override
+  String get narratorMoments => 'Große Momente';
+
+  @override
+  String get narratorAlways => 'Alles';
+
+  @override
+  String get narratorOffHint =>
+      'Die Geschichte steht nur auf den Bildschirmen.';
+
+  @override
+  String get narratorMomentsHint =>
+      'Die Stimme erzählt das Wichtige: Nachtbeginn, die Nachricht am Morgen, die Abstimmung und das Ende. Den Rest zeigen die Bildschirme.';
+
+  @override
+  String get narratorAlwaysHint => 'Die Stimme erzählt jeden Satz.';
+
+  @override
+  String get settingsSoundWhere => 'Ton spielt auf';
+
+  @override
+  String get soundEveryone => 'Allen';
+
+  @override
+  String get soundMe => 'Nur mir';
+
+  @override
+  String get soundGroup => 'Gruppe';
+
+  @override
+  String get soundOne => 'Einem';
+
+  @override
+  String get soundEveryoneHint =>
+      'Die Stimme wandert über alle Handys. Wer stumm ist, wird übersprungen.';
+
+  @override
+  String get soundChosenHint =>
+      'Stimme und gemeinsame Klänge spielen nur auf diesen Handys. Alle anderen hören nur ihre eigenen Tipp-Klänge.';
+
+  @override
   String get settingsExtras => 'Whowolf-Extras';
 
   @override

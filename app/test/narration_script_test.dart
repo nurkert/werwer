@@ -13,7 +13,10 @@ void main() {
     int round, {
     NightStep step = NightStep.hunt,
     List<DeathView> deaths = const [],
-    GameSettings settings = const GameSettings(),
+    // Every line, unless a test asks for fewer.
+    GameSettings settings = const GameSettings(
+      narratorMode: NarratorMode.always,
+    ),
     Faction? winner,
     PlayerId? shooter,
     List<PlayerId> runoff = const [],
@@ -35,8 +38,54 @@ void main() {
     shooter: shooter,
     runoff: runoff,
   );
-  final classic = Preset.classic.settings;
+  final classic = Preset.classic.settings.copyWith(
+    narratorMode: NarratorMode.always,
+  );
   List<String> keys(List<Spoken> spoken) => [for (final s in spoken) s.key];
+
+  test('with big moments only, the narrator leaves the small lines to the '
+      'screens; switched off it says nothing', () {
+    const moments = GameSettings();
+    const night1 = DeathView(
+      player: bo,
+      round: 1,
+      cause: DeathCause.night,
+      role: Role.seer,
+    );
+    final morning = view(
+      Phase.day,
+      1,
+      deaths: const [night1],
+      settings: moments,
+    );
+    final said = keys(
+      spokenMoments(view(Phase.night, 1, settings: moments), morning),
+    );
+    expect(said, contains('died_one'));
+    expect(said.where((k) => k.startsWith('morning')), hasLength(1));
+    expect(said, isNot(contains('discuss')));
+    expect(said, isNot(contains('role_seer')));
+    expect(
+      keys(spokenMoments(null, view(Phase.roleReveal, 0, settings: moments))),
+      ['intro'],
+    );
+    // The called night still calls every role.
+    final called = moments.copyWith(nightMode: NightMode.called);
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.night, 1, settings: called),
+          view(Phase.night, 1, step: NightStep.inspect, settings: called),
+        ),
+      ),
+      ['sleep', 'wake_seer'],
+    );
+    const off = GameSettings(narratorMode: NarratorMode.off);
+    expect(
+      spokenMoments(null, view(Phase.roleReveal, 0, settings: off)),
+      isEmpty,
+    );
+  });
 
   test('the classic night: the first night, then one role after another', () {
     final first = spokenMoments(

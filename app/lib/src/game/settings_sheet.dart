@@ -50,6 +50,8 @@ class GameSettingsPanel extends StatelessWidget {
       return _SettingsBody(
         settings: view.settings,
         players: view.seats.length,
+        seats: view.seats,
+        you: view.you,
         onChanged: (settings) => session.send(SettingsIntent(settings)),
       );
     },
@@ -61,10 +63,16 @@ class _SettingsBody extends StatelessWidget {
     required this.settings,
     required this.players,
     required this.onChanged,
+    this.seats = const [],
+    this.you,
   });
 
   final GameSettings settings;
   final int players;
+
+  /// Who sits at the table (to pick where sound plays) and this player.
+  final List<SeatView> seats;
+  final PlayerId? you;
   final void Function(GameSettings) onChanged;
 
   @override
@@ -91,11 +99,7 @@ class _SettingsBody extends StatelessWidget {
                       ? l10n.quickClassicHint
                       : l10n.quickWhowolfHint,
                   selected: s.preset == preset,
-                  onTap: () => onChanged(
-                    preset.settings.copyWith(
-                      narratorLanguage: s.narratorLanguage,
-                    ),
-                  ),
+                  onTap: () => onChanged(preset.settings.withTableOf(s)),
                 ),
               ),
             ],
@@ -172,15 +176,6 @@ class _SettingsBody extends StatelessWidget {
         onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
       ),
       _Section(l10n.settingsNight),
-      _Choice<NarratorLanguage>(
-        label: l10n.settingsNarratorLanguage,
-        segments: const [
-          ButtonSegment(value: NarratorLanguage.de, label: Text('Deutsch')),
-          ButtonSegment(value: NarratorLanguage.en, label: Text('English')),
-        ],
-        selected: s.narratorLanguage,
-        onChanged: (v) => onChanged(s.copyWith(narratorLanguage: v)),
-      ),
       _Switch(
         label: l10n.settingsNightCalled,
         hint: s.nightMode == NightMode.called
@@ -255,11 +250,42 @@ class _SettingsBody extends StatelessWidget {
         value: s.wolfTrail,
         onChanged: (v) => onChanged(s.copyWith(wolfTrail: v)),
       ),
-      _Switch(
-        label: l10n.settingsVoice,
-        value: s.narratorVoice,
-        onChanged: (v) => onChanged(s.copyWith(narratorVoice: v)),
+      _Section(l10n.settingsSound),
+      _Choice<NarratorMode>(
+        label: l10n.settingsNarrator,
+        segments: [
+          ButtonSegment(value: NarratorMode.off, label: Text(l10n.narratorOff)),
+          ButtonSegment(
+            value: NarratorMode.moments,
+            label: Text(l10n.narratorMoments),
+          ),
+          ButtonSegment(
+            value: NarratorMode.always,
+            label: Text(l10n.narratorAlways),
+          ),
+        ],
+        selected: s.narratorMode,
+        onChanged: (v) => onChanged(s.copyWith(narratorMode: v)),
       ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Body(switch (s.narratorMode) {
+          NarratorMode.off => l10n.narratorOffHint,
+          NarratorMode.moments => l10n.narratorMomentsHint,
+          NarratorMode.always => l10n.narratorAlwaysHint,
+        }, muted: true),
+      ),
+      if (s.narratorVoice)
+        _Choice<NarratorLanguage>(
+          label: l10n.settingsNarratorLanguage,
+          segments: const [
+            ButtonSegment(value: NarratorLanguage.de, label: Text('Deutsch')),
+            ButtonSegment(value: NarratorLanguage.en, label: Text('English')),
+          ],
+          selected: s.narratorLanguage,
+          onChanged: (v) => onChanged(s.copyWith(narratorLanguage: v)),
+        ),
+      _SoundPlaces(settings: s, seats: seats, you: you, onChanged: onChanged),
     ];
     // Each section on its own plaque, so it reads on any stage set; the
     // quick picks are plaques already. With room for it (tablet, desktop)
@@ -792,4 +818,116 @@ class _Choice<T> extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Where the narrator and the shared sounds play: every phone, only the
+/// game leader's, a group, or one player's (e.g. with a speaker).
+enum _Places { everyone, me, group, one }
+
+class _SoundPlaces extends StatelessWidget {
+  const _SoundPlaces({
+    required this.settings,
+    required this.seats,
+    required this.you,
+    required this.onChanged,
+  });
+
+  final GameSettings settings;
+  final List<SeatView> seats;
+  final PlayerId? you;
+  final void Function(GameSettings) onChanged;
+
+  _Places get _places {
+    final chosen = settings.soundSeats;
+    if (settings.soundMode == SoundMode.everyone || chosen.isEmpty) {
+      return _Places.everyone;
+    }
+    if (chosen.length == 1) {
+      return chosen.single == you ? _Places.me : _Places.one;
+    }
+    return _Places.group;
+  }
+
+  void _set(SoundMode mode, Set<PlayerId> seats) =>
+      onChanged(settings.copyWith(soundMode: mode, soundSeats: seats));
+
+  void _pick(_Places places) {
+    final me = you;
+    final ids = [for (final s in seats) s.id];
+    switch (places) {
+      case _Places.everyone:
+        _set(SoundMode.everyone, const {});
+      case _Places.me:
+        if (me != null) _set(SoundMode.chosen, {me});
+      case _Places.group:
+        // Starts with everyone; the leader takes out who should be quiet.
+        _set(SoundMode.chosen, ids.toSet());
+      case _Places.one:
+        final other = ids.where((id) => id != me).firstOrNull ?? me;
+        if (other != null) _set(SoundMode.chosen, {other});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final places = _places;
+    final chosen = settings.soundSeats;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Choice<_Places>(
+          label: l10n.settingsSoundWhere,
+          segments: [
+            ButtonSegment(
+              value: _Places.everyone,
+              label: Text(l10n.soundEveryone),
+            ),
+            ButtonSegment(value: _Places.me, label: Text(l10n.soundMe)),
+            ButtonSegment(value: _Places.group, label: Text(l10n.soundGroup)),
+            ButtonSegment(value: _Places.one, label: Text(l10n.soundOne)),
+          ],
+          selected: places,
+          onChanged: _pick,
+        ),
+        if (places == _Places.group || places == _Places.one)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 8),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final seat in seats)
+                  FilterChip(
+                    label: Text(seat.name),
+                    selected: chosen.contains(seat.id),
+                    showCheckmark: false,
+                    avatar: Icon(
+                      chosen.contains(seat.id)
+                          ? Icons.volume_up_rounded
+                          : Icons.volume_off_outlined,
+                      size: 18,
+                    ),
+                    onSelected: (on) {
+                      if (places == _Places.one) {
+                        _set(SoundMode.chosen, {seat.id});
+                      } else if (on) {
+                        _set(SoundMode.chosen, {...chosen, seat.id});
+                      } else if (chosen.length > 1) {
+                        _set(SoundMode.chosen, {...chosen}..remove(seat.id));
+                      }
+                    },
+                  ),
+              ],
+            ),
+          ),
+        Body(
+          places == _Places.everyone
+              ? l10n.soundEveryoneHint
+              : l10n.soundChosenHint,
+          muted: true,
+        ),
+      ],
+    );
+  }
 }

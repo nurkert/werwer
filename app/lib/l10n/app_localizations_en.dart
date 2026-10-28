@@ -764,6 +764,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSeerRole => 'Seer sees the role (otherwise only the side)';
 
   @override
+  String get settingsSound => 'Narrator & sound';
+
+  @override
+  String get settingsNarrator => 'Narrator';
+
+  @override
+  String get narratorOff => 'Off';
+
+  @override
+  String get narratorMoments => 'Big moments';
+
+  @override
+  String get narratorAlways => 'Everything';
+
+  @override
+  String get narratorOffHint => 'The story is told on the screens only.';
+
+  @override
+  String get narratorMomentsHint =>
+      'The voice tells what matters: nightfall, the news in the morning, the vote and the end. The screens show the rest.';
+
+  @override
+  String get narratorAlwaysHint => 'The voice tells every line.';
+
+  @override
+  String get settingsSoundWhere => 'Sound plays on';
+
+  @override
+  String get soundEveryone => 'Everyone';
+
+  @override
+  String get soundMe => 'Only me';
+
+  @override
+  String get soundGroup => 'A group';
+
+  @override
+  String get soundOne => 'One';
+
+  @override
+  String get soundEveryoneHint =>
+      'The voice walks across all phones. Muted ones are skipped.';
+
+  @override
+  String get soundChosenHint =>
+      'The voice and the shared sounds play only on these phones. Everyone else hears only their own taps.';
+
+  @override
   String get settingsExtras => 'Whowolf extras';
 
   @override

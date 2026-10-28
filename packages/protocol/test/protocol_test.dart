@@ -58,7 +58,7 @@ void main() {
         isNull,
       );
       expect(
-        () => ClientMessage.parse('{"v":8,"type":"confirm","seq":0}'),
+        () => ClientMessage.parse('{"v":9,"type":"confirm","seq":0}'),
         throwsA(isA<ProtocolError>()),
       );
     });
@@ -69,21 +69,21 @@ void main() {
         'null',
         '[]',
         '{',
-        '{"v":8}',
-        '{"v":9,"type":"start"}',
-        '{"v":8,"type":"dance"}',
+        '{"v":9}',
+        '{"v":10,"type":"start"}',
+        '{"v":9,"type":"dance"}',
         '{"v":"1","type":"start"}',
-        '{"v":8,"type":"night"}',
-        '{"v":8,"type":"night","target":"p3"}',
-        '{"v":8,"type":"night","targets":5}',
-        '{"v":8,"type":"night","targets":[5]}',
-        '{"v":8,"type":"night","targets":["P3"]}',
-        '{"v":8,"type":"night","targets":["../etc"]}',
-        '{"v":8,"type":"night","targets":["p1","p2","p3"]}',
+        '{"v":9,"type":"night"}',
+        '{"v":9,"type":"night","target":"p3"}',
+        '{"v":9,"type":"night","targets":5}',
+        '{"v":9,"type":"night","targets":[5]}',
+        '{"v":9,"type":"night","targets":["P3"]}',
+        '{"v":9,"type":"night","targets":["../etc"]}',
+        '{"v":9,"type":"night","targets":["p1","p2","p3"]}',
         '{"v":2,"type":"night","targets":["p1"]}',
-        '{"v":8,"type":"shoot","target":"P1"}',
-        '{"v":8,"type":"settings"}',
-        '{"v":8,"type":"settings","settings":{}}',
+        '{"v":9,"type":"shoot","target":"P1"}',
+        '{"v":9,"type":"settings"}',
+        '{"v":9,"type":"settings","settings":{}}',
         jsonEncode({
           'v': protocolVersion,
           'type': 'settings',
@@ -110,10 +110,10 @@ void main() {
           'type': 'settings',
           'settings': {...encodeSettings(const GameSettings()), 'sheep': 1},
         }),
-        '{"v":8,"type":"hello","name":"Ada","room":"12a4"}',
-        '{"v":8,"type":"hello","name":"Ada","room":"12345"}',
-        '{"v":8,"type":"hello","name":"Ada","room":"1234","token":"short"}',
-        '{"v":8,"type":"hello","name":"${'x' * 100}","room":"1234"}',
+        '{"v":9,"type":"hello","name":"Ada","room":"12a4"}',
+        '{"v":9,"type":"hello","name":"Ada","room":"12345"}',
+        '{"v":9,"type":"hello","name":"Ada","room":"1234","token":"short"}',
+        '{"v":9,"type":"hello","name":"${'x' * 100}","room":"1234"}',
         jsonEncode({'v': protocolVersion, 'type': 'hello', 'name': 'x' * 2000}),
       ];
       for (final raw in bad) {
@@ -287,10 +287,10 @@ void main() {
 
     test('invalid host messages are refused', () {
       for (final raw in [
-        '{"v":8,"type":"welcome","token":"x","you":"p1"}',
-        '{"v":8,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
-        '{"v":8,"type":"bye","reason":"whatever"}',
-        '{"v":8,"type":"state","owner":true}',
+        '{"v":9,"type":"welcome","token":"x","you":"p1"}',
+        '{"v":9,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
+        '{"v":9,"type":"bye","reason":"whatever"}',
+        '{"v":9,"type":"state","owner":true}',
       ]) {
         expect(() => HostMessage.parse(raw), throwsA(isA<ProtocolError>()));
       }

@@ -32,6 +32,15 @@ class _Player implements ClipPlayer {
 
 void main() {
   const seats = [PlayerId('a'), PlayerId('b'), PlayerId('c'), PlayerId('d')];
+
+  /// Where the walk of [line] begins at this table (the first line said).
+  int startOf(String line, {int ms = 4000}) => NarratorWalk.plan(
+    seats: seats.length,
+    room: '4711',
+    round: 1,
+    line: line,
+    lengthMs: ms,
+  ).start;
   const bank = VoiceBank({
     'de': {
       'discuss': [(file: 'de/discuss_1_de.mp3', ms: 4000, only: <String>{})],
@@ -79,19 +88,14 @@ void main() {
   }
 
   test('the phone where the walk begins plays, at the shared moment', () async {
-    final start = NarratorWalk.forMoment(
-      seats: 4,
-      room: '4711',
-      round: 1,
-      line: 'discuss',
-    ).start;
+    final start = startOf('discuss');
     final t = table();
     t.narrator.speak(
       moments: const [(key: 'discuss', to: null)],
       language: NarratorLanguage.de,
       round: 1,
       startMs: 1000,
-      seats: seats,
+      speakers: seats,
       me: seats[start],
     );
     await Future<void>.delayed(Duration.zero);
@@ -101,31 +105,74 @@ void main() {
     expect(t.players.single.started, isTrue);
     expect(t.players.single.asset, 'voice/de/discuss_1_de.mp3');
     t.run(6000);
-    final volumes = t.players.single.volumes;
-    expect(volumes.first, 1);
-    // The voice walks on: it fades out here before the clip ends.
-    expect(volumes.last, lessThan(1));
+    expect(t.players.single.volumes.first, 1);
     expect(t.players.single.stopped, isTrue);
   });
 
   test('a phone the voice never reaches plays nothing at all', () async {
-    final start = NarratorWalk.forMoment(
-      seats: 4,
+    const eight = [
+      PlayerId('a'),
+      PlayerId('b'),
+      PlayerId('c'),
+      PlayerId('d'),
+      PlayerId('e'),
+      PlayerId('f'),
+      PlayerId('g'),
+      PlayerId('h'),
+    ];
+    final walk = NarratorWalk.plan(
+      seats: eight.length,
       room: '4711',
       round: 1,
       line: 'vote',
-    ).start;
+      lengthMs: 2000,
+    );
+    final idle = [
+      for (var s = 0; s < eight.length; s++)
+        if (walk.activeFor(s, 2000).isEmpty) s,
+    ];
+    expect(idle, isNotEmpty);
     final t = table();
     t.narrator.speak(
       moments: const [(key: 'vote', to: null)],
       language: NarratorLanguage.de,
       round: 1,
       startMs: 500,
-      seats: seats,
-      me: seats[(start + 2) % 4],
+      speakers: eight,
+      me: eight[idle.first],
     );
     t.run(5000);
     expect(t.players, isEmpty);
+  });
+
+  test('a phone that is not a speaker never plays the voice', () {
+    final t = table();
+    t.narrator.speak(
+      moments: const [(key: 'discuss', to: null)],
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 0,
+      speakers: const [PlayerId('a')],
+      me: const PlayerId('b'),
+    );
+    t.run(9000);
+    expect(t.players, isEmpty);
+  });
+
+  test('nothing runs past the end of the phase', () {
+    final t = table();
+    final planned = t.narrator.plan(
+      moments: const [
+        (key: 'vote', to: null),
+        (key: 'discuss', to: null),
+      ],
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 0,
+      speakers: seats,
+      deadlineMs: 3000,
+    );
+    expect(planned.map((p) => p.key), ['vote']);
   });
 
   test('pauses like one speaker: short within a thought, long between '
@@ -152,7 +199,7 @@ void main() {
         language: NarratorLanguage.de,
         round: 1,
         startMs: 0,
-        seats: seats,
+        speakers: seats,
       ))
         p.at,
     ];
@@ -184,12 +231,7 @@ void main() {
   });
 
   test('a moment that should have begun already stays silent', () {
-    final start = NarratorWalk.forMoment(
-      seats: 4,
-      room: '4711',
-      round: 1,
-      line: 'discuss',
-    ).start;
+    final start = startOf('discuss');
     final t = table();
     t.run(5000);
     final planned = t.narrator.speak(
@@ -197,7 +239,7 @@ void main() {
       language: NarratorLanguage.de,
       round: 1,
       startMs: 4000,
-      seats: seats,
+      speakers: seats,
       me: seats[start],
     );
     expect(planned.single.at, 4000);
@@ -213,7 +255,7 @@ void main() {
       language: NarratorLanguage.en,
       round: 1,
       startMs: 0,
-      seats: seats,
+      speakers: seats,
       me: seats.first,
     );
     t.run(9000);
@@ -228,7 +270,7 @@ void main() {
       language: NarratorLanguage.de,
       round: 1,
       startMs: 0,
-      seats: seats,
+      speakers: seats,
       me: seats.first,
     );
     expect(t.players, isEmpty);
