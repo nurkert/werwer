@@ -5,6 +5,23 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.6 – 2026-10-28
+
+0.1.5 was tagged but not published (the Linux build lacked ALSA for the
+volume watch). This release carries all of 0.1.5 and:
+
+### Added
+- The seer's vision: the looked-at player's figure turns around large in
+  the costume of what they are, with name and role, then stays as a small
+  card to see again.
+- Time to close your eyes: at the start of each night step every phone
+  shows the same moon for a few seconds before any task appears.
+
+### Changed
+- Too many roles for a small table no longer block the start: the last
+  special roles stay out (cupid, hunter, witch, then the seer), and the
+  lobby says which; they come back when more people join.
+
 ## 0.1.5 – 2026-10-28
 
 Every device at the table needs this version (protocol 9).
@@ -30,8 +47,6 @@ Every device at the table needs this version (protocol 9).
   a group, or one player (e.g. with a speaker).
 - A shared mute: muted phones, and phones with the volume at zero, drop
   out of the narrator's walk from the next phase on.
-- The seer's vision: the looked-at player's figure turns around large in
-  the costume of what they are, with name and role.
 - Browser players are marked in the lobby.
 
 ### Changed
