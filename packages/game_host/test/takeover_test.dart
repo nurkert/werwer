@@ -327,6 +327,15 @@ class Bots {
               send('night', NightIntent.of(const []));
             case NightAbility.link:
               send('night', NightIntent.of([v.you, pick()]));
+            case NightAbility.protect:
+              send(
+                'night',
+                NightIntent(
+                  v.seats
+                      .firstWhere((s) => s.isAlive && s.id != v.guardedBefore)
+                      .id,
+                ),
+              );
             case NightAbility.inspect || NightAbility.decoy:
               send('night', NightIntent(pick()));
             case null:

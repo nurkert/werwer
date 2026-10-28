@@ -8,6 +8,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 Every device at the table needs this version (protocol 12).
 
 ### Added
+- A new role, the protector: each night he shields one person from the
+  werewolves (himself too, never the same one twice in a row).
 - Quiet mode at the table: on Android the app switches "do not disturb"
   on for the game (after you allow it) and back afterwards; elsewhere it
   explains how.

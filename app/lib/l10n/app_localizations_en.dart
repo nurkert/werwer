@@ -229,6 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nightInspect => 'Whose soul do you look into?';
 
   @override
+  String get nightProtect => 'Whom do you shield tonight?';
+
+  @override
   String get nightDecoy => 'Whom do you trust the least?';
 
   @override
@@ -300,6 +303,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String chroniclePoison(String witch, String name) {
     return '$witch poisoned $name.';
+  }
+
+  @override
+  String chronicleProtect(String protector, String name) {
+    return '$protector shielded $name.';
   }
 
   @override
@@ -851,6 +859,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleCupid => 'Cupid';
 
   @override
+  String get roleProtector => 'Protector';
+
+  @override
   String get roleWitchText =>
       'You have one healing potion and one poison, each for one use. At night you see whom the werewolves take, and decide after them.';
 
@@ -861,6 +872,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get roleCupidText =>
       'In the first night you bind two people as lovers. If one of them dies, so does the other.';
+
+  @override
+  String get roleProtectorText =>
+      'Each night you shield one person from the werewolves, yourself too, but never the same one two nights in a row.';
 
   @override
   String get factionLovers => 'Lovers';
@@ -1298,6 +1313,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get narrateStepBrew =>
       'The witch wakes up. She sees who is to die tonight and reaches for her potions.';
+
+  @override
+  String get narrateStepProtect =>
+      'The protector wakes up and chooses whom to shield tonight.';
 
   @override
   String get narrateStepSleep => 'Eyes closed again.';

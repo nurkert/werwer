@@ -175,7 +175,7 @@ void main() {
     test('the game deals them, fitted to the table; explicit roles that '
         'do not fit are refused', () {
       final state = apply(
-        lobby(6, settings: Preset.fullStage.settings),
+        lobby(7, settings: Preset.fullStage.settings),
         StartGame(random: Random(4)),
       ).state;
       expect(

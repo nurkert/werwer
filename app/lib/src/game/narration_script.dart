@@ -203,6 +203,7 @@ String _wake(NightStep step) => switch (step) {
   NightStep.hunt => 'wake_wolves',
   NightStep.inspect => 'wake_seer',
   NightStep.brew => 'wake_witch',
+  NightStep.protect => 'wake_protector',
 };
 
 /// Which of a moment's [count] recorded variants to play: the same on every

@@ -49,6 +49,7 @@ import seherin from '../../../../app/assets/figures/seherin.webp';
 import hexe from '../../../../app/assets/figures/hexe.webp';
 import jaeger from '../../../../app/assets/figures/jaeger.webp';
 import amor from '../../../../app/assets/figures/amor.webp';
+import beschuetzer from '../../../../app/assets/figures/beschuetzer.webp';
 import dorfbewohner from '../../../../app/assets/figures/dorfbewohner.webp';
 import magd from '../../../../app/assets/figures/magd.webp';
 import baeckerin from '../../../../app/assets/figures/poses/baeckerin_3.webp';
@@ -83,6 +84,7 @@ const roles = [
   { id: 'witch', img: hexe, side: t.cast.village },
   { id: 'hunter', img: jaeger, side: t.cast.village },
   { id: 'cupid', img: amor, side: t.cast.village },
+  { id: 'protector', img: beschuetzer, side: t.cast.village },
 ] as const;
 const ensemble = import.meta.glob<{ default: ImageMetadata }>('../../../../app/assets/figures/poses/*_2.webp', {
   eager: true,

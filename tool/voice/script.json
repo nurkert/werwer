@@ -188,6 +188,25 @@
    ]
   },
   {
+   "key": "wake_protector",
+   "when": "Classic night: the protector is called, before the werewolves.",
+   "direction": "Calm, steady, a quiet guardian.",
+   "de": [
+    "Der Beschützer erwacht und hält seine schützende Hand über einen Menschen.",
+    "Der Beschützer öffnet die Augen. Wen bewahrt er heute Nacht vor den Wölfen?",
+    "Der Beschützer ist wach. Einer im Dorf soll diese Nacht sicher schlafen.",
+    "Der Beschützer erwacht und stellt sich vor eine Tür.",
+    "Der Beschützer öffnet die Augen und wacht über jemanden, nur nicht über denselben wie gestern."
+   ],
+   "en": [
+    "The protector wakes up and holds a guarding hand over someone.",
+    "The protector opens his eyes. Whom will he keep from the wolves tonight?",
+    "The protector is awake. Someone in the village shall sleep safely tonight.",
+    "The protector wakes up and stands before a door.",
+    "The protector opens his eyes and watches over someone, just not the same one as last night."
+   ]
+  },
+  {
    "key": "wake_wolves",
    "when": "Classic night: the werewolves are called.",
    "direction": "Low and close, a touch of menace.",
@@ -613,6 +632,25 @@
     "With that, the village has lost its Cupid.",
     "Here sat Cupid. The love they created lives on.",
     "Cupid is no longer among you."
+   ]
+  },
+  {
+   "key": "role_protector",
+   "when": "After a death, when roles are revealed.",
+   "direction": "Quiet, respectful.",
+   "de": [
+    "An diesem Platz saß der Beschützer.",
+    "Das war der Beschützer. Wer wacht jetzt über das Dorf?",
+    "Damit hat das Dorf seinen Beschützer verloren.",
+    "Hier saß der Beschützer. Nächte lang hielt er die Wölfe fern.",
+    "Der Beschützer ist nicht mehr unter euch."
+   ],
+   "en": [
+    "At this seat sat the protector.",
+    "That was the protector. Who watches over the village now?",
+    "With that, the village has lost its protector.",
+    "Here sat the protector. For nights he kept the wolves away.",
+    "The protector is no longer among you."
    ]
   },
   {

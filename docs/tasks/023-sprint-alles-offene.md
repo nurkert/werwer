@@ -97,7 +97,7 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
   - Freiwillig, jederzeit abschaltbar und nur auf dem eigenen Gerät.
   - **Sicherheit:** Die Berechtigung für „Nicht stören“ (Android `ACCESS_NOTIFICATION_POLICY`) ist neu. Die App fragt nur bei Bedarf und stellt den alten Zustand am Ende wieder her. Datenschutzerklärung prüfen.
 - [ ] **F2 Bürgermeister** (optionale Rolle bzw. Einstellung): Am ersten Tag wählt das Dorf einen Bürgermeister. Seine Stimme zählt doppelt, oder er entscheidet bei Gleichstand (das klärt das Konzept). Stirbt er, bestimmt er einen Nachfolger. Alle Regeln liegen nur in `game_core`, die Texte sind eigene. Tests spielen ganze Partien.
-- [ ] **F3 Beschützer** (neue Rolle): Er schützt jede Nacht eine Person vor den Werwölfen, nicht zweimal hintereinander dieselbe. Regeln in `game_core`, eigener Name und Text.
+- [x] **F3 Beschützer** (neue Rolle): Er schützt jede Nacht eine Person vor den Werwölfen, nicht zweimal hintereinander dieselbe. Regeln in `game_core`, eigener Name und Text. (erledigt: Regeln, Protokoll, Host, App, Website; Tests `protector_test.dart`; offen: Aufnahmen für `wake_protector` und `role_protector` (im Skript, `recording_*.md`), Kostüme je Persona)
   - **Wartet auf neue Sprachaufnahmen des Eigentümers** (Weck- und Schlafsatz des Beschützers, eventuell Sätze für den Bürgermeister). Ich bereite die Satzliste vor, den ElevenLabs-Schlüssel setzt nur der Eigentümer.
   - Bis die Aufnahmen da sind, läuft die Rolle mit Text.
 - [ ] **F4 Erzählersätze für F2 und F3** ins Skript und ins Manifest, sobald die Aufnahmen da sind.

@@ -19,6 +19,7 @@ String figureAsset(Role role) => switch (role) {
   Role.witch => 'assets/figures/hexe.webp',
   Role.hunter => 'assets/figures/jaeger.webp',
   Role.cupid => 'assets/figures/amor.webp',
+  Role.protector => 'assets/figures/beschuetzer.webp',
 };
 
 /// The file name of each persona's figure (`assets/figures/<name>.webp`).
@@ -72,9 +73,12 @@ String personaAsset(Persona persona) =>
 
 /// The persona in the costume of [role]: the baker as a werewolf, the smith
 /// as the seer. Villagers wear their everyday clothes.
-String personaRoleAsset(Persona persona, Role role) => role == Role.villager
-    ? personaAsset(persona)
-    : 'assets/figures/roles/${_personaFiles[persona]}_${role.name}.webp';
+/// The protector has no costumes per persona yet: his own figure.
+String personaRoleAsset(Persona persona, Role role) => switch (role) {
+  Role.villager => personaAsset(persona),
+  Role.protector => figureAsset(role),
+  _ => 'assets/figures/roles/${_personaFiles[persona]}_${role.name}.webp',
+};
 
 /// Figures for decoration (start screen), all facing right.
 const castAssets = [

@@ -115,6 +115,19 @@ final class SeerInspect extends GameAction {
   final PlayerId target;
 }
 
+/// The protector shields [target] from the werewolves tonight (himself
+/// too, but nobody two nights in a row).
+final class ProtectorGuard extends GameAction {
+  /// Creates the action.
+  const ProtectorGuard(this.protector, this.target);
+
+  /// The protector.
+  final PlayerId protector;
+
+  /// Who is shielded.
+  final PlayerId target;
+}
+
 /// Cupid links two players as lovers in the first night (himself included,
 /// if he likes).
 final class CupidLink extends GameAction {

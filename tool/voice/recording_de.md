@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (de)
 
-194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+204 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -45,6 +45,11 @@
 | `wake_cupid_3_de.mp3` | Amor ist wach und sucht sich zwei Menschen aus, die von nun an zusammengehören. | Soft, almost tender. |
 | `wake_cupid_4_de.mp3` | Amor erwacht. Heute Nacht wird sich jemand verlieben. | Soft, almost tender. |
 | `wake_cupid_5_de.mp3` | Amor öffnet die Augen und spannt seinen kleinen Bogen. | Soft, almost tender. |
+| `wake_protector_1_de.mp3` | Der Beschützer erwacht und hält seine schützende Hand über einen Menschen. | Calm, steady, a quiet guardian. |
+| `wake_protector_2_de.mp3` | Der Beschützer öffnet die Augen. Wen bewahrt er heute Nacht vor den Wölfen? | Calm, steady, a quiet guardian. |
+| `wake_protector_3_de.mp3` | Der Beschützer ist wach. Einer im Dorf soll diese Nacht sicher schlafen. | Calm, steady, a quiet guardian. |
+| `wake_protector_4_de.mp3` | Der Beschützer erwacht und stellt sich vor eine Tür. | Calm, steady, a quiet guardian. |
+| `wake_protector_5_de.mp3` | Der Beschützer öffnet die Augen und wacht über jemanden, nur nicht über denselben wie gestern. | Calm, steady, a quiet guardian. |
 | `wake_wolves_1_de.mp3` | Die Werwölfe erwachen und suchen sich ein Opfer. | Low and close, a touch of menace. |
 | `wake_wolves_2_de.mp3` | Die Werwölfe öffnen die Augen. Sie haben Hunger. | Low and close, a touch of menace. |
 | `wake_wolves_3_de.mp3` | Jetzt erwachen die Werwölfe. Lautlos einigen sie sich auf ein Opfer. | Low and close, a touch of menace. |
@@ -132,6 +137,11 @@
 | `role_cupid_3_de.mp3` | Damit hat das Dorf seinen Amor verloren. | Soft. |
 | `role_cupid_4_de.mp3` | Hier saß Amor. Die Liebe, die er gestiftet hat, bleibt bestehen. | Soft. |
 | `role_cupid_5_de.mp3` | Amor ist nicht mehr unter euch. | Soft. |
+| `role_protector_1_de.mp3` | An diesem Platz saß der Beschützer. | Quiet, respectful. |
+| `role_protector_2_de.mp3` | Das war der Beschützer. Wer wacht jetzt über das Dorf? | Quiet, respectful. |
+| `role_protector_3_de.mp3` | Damit hat das Dorf seinen Beschützer verloren. | Quiet, respectful. |
+| `role_protector_4_de.mp3` | Hier saß der Beschützer. Nächte lang hielt er die Wölfe fern. | Quiet, respectful. |
+| `role_protector_5_de.mp3` | Der Beschützer ist nicht mehr unter euch. | Quiet, respectful. |
 | `discuss_1_de.mp3` | Jetzt redet miteinander. Wer gehört zu den Werwölfen? | Energetic, stirring it up. |
 | `discuss_2_de.mp3` | Jetzt redet miteinander. Wer ist der Werwolf? | Energetic, stirring it up. |
 | `discuss_3_de.mp3` | Ihr habt das Wort. Wer war es? | Energetic, stirring it up. |

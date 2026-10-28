@@ -255,6 +255,14 @@ class Bot {
                   poison[random.nextInt(poison.length)].id,
               ]),
             );
+          case NightAbility.protect:
+            final shield = [
+              for (final s in v.seats)
+                if (s.isAlive && s.id != v.guardedBefore) s.id,
+            ];
+            if (shield.isNotEmpty) {
+              send(key, NightIntent(shield[random.nextInt(shield.length)]));
+            }
           case NightAbility.inspect || NightAbility.decoy:
             send(key, NightIntent(pick()));
           case null:

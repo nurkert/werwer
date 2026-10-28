@@ -102,6 +102,9 @@ enum NightStep {
 
   /// Called night: the seer looks at someone.
   inspect,
+
+  /// Called night, before the werewolves: the protector shields someone.
+  protect,
 }
 
 /// The witch's potions, each good for one use per game.
@@ -153,6 +156,10 @@ enum ChronicleKind {
   /// Cupid linked `actor`'s pick: the lovers are `target` and the other
   /// entry of the pair (only in a view of the ended game).
   link,
+
+  /// The protector shielded `target` tonight (only in a view of the ended
+  /// game).
+  protect,
 }
 
 /// One line of the game's chronicle, told to everyone when the game is
@@ -221,6 +228,8 @@ class GameState {
     Map<PlayerId, List<PlayerId>> nightChoices = const {},
     this.nightVictim,
     this.packMark,
+    this.guarded,
+    this.lastGuarded,
     List<PlayerId> lovers = const [],
     Set<Potion> potionsUsed = const {},
     this.shooter,
@@ -290,6 +299,17 @@ class GameState {
 
   /// Tonight's door sign attempt of the werewolves, if they made one.
   final DoorMark? packMark;
+
+  /// Whom the protector shields tonight, fixed when the pick counts.
+  final PlayerId? guarded;
+
+  /// Whom the protector shielded last night (not again tonight).
+  final PlayerId? lastGuarded;
+
+  /// Tonight's victim as far as it matters: `null` if the protector
+  /// shields them (the witch then sees nobody to save).
+  PlayerId? get unguardedVictim =>
+      nightVictim != null && nightVictim == guarded ? null : nightVictim;
 
   /// The two players cupid linked, or empty.
   final List<PlayerId> lovers;
@@ -362,8 +382,9 @@ class GameState {
 
   /// Returns a copy with the given fields replaced.
   ///
-  /// The nullable fields [nightVictim], [packMark], [shooter] and
-  /// [afterShot] are replaced whenever they are passed, also by `null`.
+  /// The nullable fields [nightVictim], [packMark], [guarded],
+  /// [lastGuarded], [shooter] and [afterShot] are replaced whenever they
+  /// are passed, also by `null`.
   GameState copyWith({
     List<Player>? players,
     Phase? phase,
@@ -374,6 +395,8 @@ class GameState {
     Map<PlayerId, List<PlayerId>>? nightChoices,
     Object? nightVictim = _keep,
     Object? packMark = _keep,
+    Object? guarded = _keep,
+    Object? lastGuarded = _keep,
     List<PlayerId>? lovers,
     Set<Potion>? potionsUsed,
     Object? shooter = _keep,
@@ -402,6 +425,10 @@ class GameState {
     packMark: identical(packMark, _keep)
         ? this.packMark
         : packMark as DoorMark?,
+    guarded: identical(guarded, _keep) ? this.guarded : guarded as PlayerId?,
+    lastGuarded: identical(lastGuarded, _keep)
+        ? this.lastGuarded
+        : lastGuarded as PlayerId?,
     lovers: lovers ?? this.lovers,
     potionsUsed: potionsUsed ?? this.potionsUsed,
     shooter: identical(shooter, _keep) ? this.shooter : shooter as PlayerId?,

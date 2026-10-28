@@ -21,6 +21,7 @@ extension RoleText on AppLocalizations {
     Role.witch => roleWitch,
     Role.hunter => roleHunter,
     Role.cupid => roleCupid,
+    Role.protector => roleProtector,
   };
 
   String roleText(Role role) => switch (role) {
@@ -30,6 +31,7 @@ extension RoleText on AppLocalizations {
     Role.witch => roleWitchText,
     Role.hunter => roleHunterText,
     Role.cupid => roleCupidText,
+    Role.protector => roleProtectorText,
   };
 
   String persona(Persona persona) => switch (persona) {
