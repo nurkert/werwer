@@ -995,7 +995,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get privacyNotice =>
-      'Whowolf hat keine Konten, keine Werbung und kein Tracking. Am Tisch gehen die Spieldaten Ende-zu-Ende verschlüsselt nur zwischen euren Geräten hin und her. Damit auch Spieler ohne gemeinsames WLAN mitmachen können, verbindet sich das Gastgeber-Gerät mit dem Server play.whowolf.de; der leitet nur Verschlüsseltes weiter und sieht dabei, wie jeder Server, die IP-Adressen. In den Einstellungen kannst du ihn abschalten.';
+      'Whowolf hat keine Konten, keine Werbung und kein Tracking. Am Tisch gehen die Spieldaten Ende-zu-Ende verschlüsselt nur zwischen euren Geräten hin und her. Damit auch Spieler ohne gemeinsames WLAN mitmachen können, verbindet sich das Gastgeber-Gerät mit dem Server play.whowolf.de, aber erst wenn es den QR-Code zeigt oder kein WLAN hat; der leitet nur Verschlüsseltes weiter und sieht dabei, wie jeder Server, die IP-Adressen. In den Einstellungen kannst du ihn abschalten.';
 
   @override
   String get privacyRead => 'Datenschutz lesen';
@@ -1040,7 +1040,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get privacyTitle => 'Datenschutz in der App';
 
   @override
-  String get privacyUpdated => 'Stand: 27. Oktober 2026';
+  String get privacyUpdated => 'Stand: 28. Oktober 2026';
 
   @override
   String get privacySummaryTitle => 'Das Wichtigste';
@@ -1061,7 +1061,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get privacyServer =>
-      'Damit Spieler ohne gemeinsames WLAN mitspielen können, verbindet sich das Gastgeber-Gerät mit play.whowolf.de, betrieben vom Projektverantwortlichen (siehe Impressum auf whowolf.de). Der Server steht in Deutschland bei der ZAP-Hosting GmbH (Münster). Der Server leitet nur Ende-zu-Ende verschlüsselte Daten weiter und kann weder Namen noch Rollen noch Spielzüge lesen. Er verarbeitet dabei zwangsläufig die IP-Adressen der verbundenen Geräte, nur im Arbeitsspeicher und nur solange die Verbindung besteht, um Nachrichten weiterzuleiten und Missbrauch zu begrenzen; gespeichert oder protokolliert werden sie nicht. Rechtsgrundlage ist unser berechtigtes Interesse, das gewünschte Spiel bereitzustellen und den Server zu schützen (Art. 6 Abs. 1 lit. f DSGVO). In den Einstellungen kannst du den Server abschalten oder einen eigenen eintragen; dann ist dessen Betreiber verantwortlich.';
+      'Damit Spieler ohne gemeinsames WLAN mitspielen können, verbindet sich das Gastgeber-Gerät mit play.whowolf.de, standardmäßig erst wenn es den QR-Code zeigt oder kein WLAN hat (Runden im WLAN bleiben dem Server unbekannt), betrieben vom Projektverantwortlichen (siehe Impressum auf whowolf.de). Der Server steht in Deutschland bei der ZAP-Hosting GmbH (Münster). Der Server leitet nur Ende-zu-Ende verschlüsselte Daten weiter und kann weder Namen noch Rollen noch Spielzüge lesen. Er verarbeitet dabei zwangsläufig die IP-Adressen der verbundenen Geräte, nur im Arbeitsspeicher und nur solange die Verbindung besteht, um Nachrichten weiterzuleiten und Missbrauch zu begrenzen; gespeichert oder protokolliert werden sie nicht. Rechtsgrundlage ist unser berechtigtes Interesse, das gewünschte Spiel bereitzustellen und den Server zu schützen (Art. 6 Abs. 1 lit. f DSGVO). In den Einstellungen kannst du den Server abschalten oder einen eigenen eintragen; dann ist dessen Betreiber verantwortlich.';
 
   @override
   String get privacyDeviceTitle => 'Auf deinem Gerät';

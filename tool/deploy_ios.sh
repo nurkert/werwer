@@ -6,6 +6,8 @@
 #   Default: --profile. Signing comes from app/ios/Flutter/Signing.xcconfig (git-ignored):
 #     DEVELOPMENT_TEAM = <your team id>
 #     CODE_SIGN_STYLE = Automatic
+#   With a paid Apple Developer account, also (QR codes open the app):
+#     CODE_SIGN_ENTITLEMENTS = Runner/AppLinks.entitlements
 set -euo pipefail
 cd "$(dirname "$0")/../app"
 

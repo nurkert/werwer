@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Opt-in: a room QR code from play.whowolf.de, scanned with the iPhone's
+  camera, opens the installed app (Universal Links) instead of the browser.
+  Needs a paid Apple Developer account; a personal team cannot sign it.
+  Switch it on in the git-ignored ios/Flutter/Signing.xcconfig:
+    CODE_SIGN_ENTITLEMENTS = Runner/AppLinks.entitlements
+  The server needs APPLE_APP_ID (server/bin/server.dart).
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:play.whowolf.de</string>
+	</array>
+</dict>
+</plist>

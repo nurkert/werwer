@@ -92,9 +92,12 @@ Future<void> playSession(
 /// Joining: scan the host's QR code, or type the address (same Wi-Fi) or the
 /// online code (through the relay server) plus the room code.
 class JoinScreen extends StatefulWidget {
-  const JoinScreen({required this.name, super.key});
+  const JoinScreen({required this.name, this.link, super.key});
 
   final String name;
+
+  /// A room link that opened the app: asked about right away, like a scan.
+  final JoinLink? link;
 
   @override
   State<JoinScreen> createState() => _JoinScreenState();
@@ -111,6 +114,11 @@ class _JoinScreenState extends State<JoinScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.link case final link?) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_offer(link));
+      });
+    }
     // Most tables share the first three parts of the address: prefill them.
     unawaited(
       privateAddresses().then((addresses) {
@@ -136,6 +144,12 @@ class _JoinScreenState extends State<JoinScreen> {
       MaterialPageRoute(builder: (_) => const ScanScreen()),
     );
     if (link == null || !mounted) return;
+    await _offer(link);
+  }
+
+  /// Asks before joining the room of a scanned or opened [link], then
+  /// joins.
+  Future<void> _offer(JoinLink link) async {
     final l10n = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,

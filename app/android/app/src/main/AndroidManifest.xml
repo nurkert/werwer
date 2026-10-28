@@ -42,6 +42,18 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- A room QR code from play.whowolf.de, scanned with the camera,
+                 opens the app (App Link). Verified against the server's
+                 assetlinks.json (ANDROID_CERT_SHA256), so it takes the
+                 release signing key; until then Android asks or opens the
+                 browser. The app asks before joining, like after a scan. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="play.whowolf.de"
+                      android:pathPattern="/v/.*/join"/>
+            </intent-filter>
         </activity>
         <!-- The host's foreground service (flutter_foreground_task; the name
              must stay). Stops when the app is swiped away. -->

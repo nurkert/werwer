@@ -12,6 +12,7 @@ import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/join_screen.dart';
 import 'package:whowolf/src/layout.dart';
+import 'package:whowolf/src/net/app_links.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
@@ -62,6 +63,19 @@ class _StartScreenState extends State<StartScreen> {
       }),
     );
     _name.addListener(_keepName);
+    incomingLink.addListener(_linked);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _linked());
+  }
+
+  /// A room link opened the app: with a name, straight to the question
+  /// whether to join; without one, it waits until the player taps join.
+  void _linked() {
+    if (incomingLink.value == null || !mounted) return;
+    if (_name.text.trim().isEmpty) {
+      setState(() => _error = AppLocalizations.of(context).nameRequired);
+      return;
+    }
+    unawaited(_join());
   }
 
   void _keepName() => unawaited(const Store().setName(_name.text.trim()));
@@ -227,6 +241,7 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   void dispose() {
+    incomingLink.removeListener(_linked);
     _finder.dispose();
     _name
       ..removeListener(_keepName)
@@ -283,9 +298,13 @@ class _StartScreenState extends State<StartScreen> {
   Future<void> _join() async {
     final name = _checkedName();
     if (name == null) return;
+    final link = incomingLink.value;
+    incomingLink.value = null;
     await Navigator.push(
       context,
-      MaterialPageRoute<void>(builder: (_) => JoinScreen(name: name)),
+      MaterialPageRoute<void>(
+        builder: (_) => JoinScreen(name: name, link: link),
+      ),
     );
   }
 
