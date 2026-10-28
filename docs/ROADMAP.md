@@ -230,7 +230,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit Abschluss durch Release 0.2.0 und eine Generalprobe.
 
-- [ ] **A – Kleine Fehler, klare Bildschirme:**
+- [x] **A – Kleine Fehler, klare Bildschirme:**
   - keine IP-Adresse im Beitrittsdialog
   - Versions-Meldung statt Timeout
   - Ablenkungstext ohne „erledigt“
@@ -246,16 +246,16 @@ Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit
   - Zeiten automatisch passend
   - Ausfälle je Rolle geprüft
   - Barrierefreiheit
-- [ ] **B – Rollen bedienen:**
+- [x] **B – Rollen bedienen:**
   - Wölfe können ihre Wahl ändern („Das Rudel ist wach“)
   - Hexe mit den Tränken als Hauptaktion
   - Bestätigungsschritt für Seherin, Abstimmung und Jäger
   - eigene Rolle per Halten ansehen
-- [ ] **C – Desktop:**
+- [x] **C – Desktop:**
   - Einstellungen von der Wisch-Seite ins Zahnrad
   - Ausrichtungsregeln in allen Ansichten
-- [ ] **D – Schneller Wiederbeitritt** ohne neue Bestätigung (gespeicherte Raumschlüssel, mit Sicherheitsnotiz)
-- [ ] **E – Der Erzähler gleitet:**
+- [x] **D – Schneller Wiederbeitritt** ohne neue Bestätigung (gespeicherte Raumschlüssel, mit Sicherheitsnotiz)
+- [x] **E – Der Erzähler gleitet:**
   - Aufnahmen an Pausen teilen
   - Abspiel-Engine (Prototyp mit `flutter_soloud`)
   - Gleiten mit Raumanteil und Tiefpass
@@ -263,11 +263,12 @@ Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit
   - nachts ein fester Platz
   - Täuschungswege
   - Einstellung „Bühne“
-- [ ] **F – Neue Inhalte:**
+- [x] **F – Neue Inhalte:**
   - Ruhemodus am Tisch (6d)
   - Bürgermeister
   - Beschützer (wartet auf Sprachaufnahmen des Eigentümers)
-- [ ] **G – Abschluss:** Release 0.2.0, Generalprobe am Tisch
+- [x] **G1 – Release 0.2.0** (2026-10-28)
+- [ ] **G2 – Generalprobe am Tisch** mit echten Geräten (mit dem Eigentümer)
 
 Parallel laufen [Task 021](tasks/021-nahtlos-fehlertolerant.md) (Fehlertoleranz, eigener Agent) und [Task 022](tasks/022-code-beitritt.md) (Beitritt per Code auf play.whowolf.de).
 

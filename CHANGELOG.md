@@ -5,7 +5,24 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
-Every device at the table needs this version (protocol 12).
+## 0.2.0 – 2026-10-28
+
+Every device at the table needs this version (protocol 15).
+
+### Stability
+- Every phase change is agreed a moment ahead: all phones switch at the
+  same instant, also one whose connection drops just then, and narrator
+  and shared sounds start together.
+- Nothing confirmed is lost when the host fails and another phone takes
+  over; times stay as agreed (absolute in the host's time), and a pause
+  by the game leader survives a restart or takeover.
+- Never two hosts moving the same game on: a cut-off host freezes until
+  its successor or witness is back, a host that lost only them claims the
+  room anew.
+- False room announcements on the Wi-Fi come to nothing; only the real
+  host passes the handshake.
+- The narrator plans over the phones that are really there and audible;
+  if one drops out, the others take over the rest.
 
 ### Added
 - A mayor (setting): by day the village openly elects one whenever there

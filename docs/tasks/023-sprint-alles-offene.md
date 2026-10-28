@@ -1,6 +1,6 @@
 # Task 023 – Sprint: alles Offene bis 0.2.0
 
-**Status:** offen (2026-10-28), Ziel: alles in diesem Sprint, Abschluss mit Release 0.2.0 und einer Generalprobe am Tisch
+**Status:** A bis F und G1 erledigt (2026-10-28), offen: G2 Generalprobe sowie die Aufnahmen für den Beschützer, Ziel: alles in diesem Sprint, Abschluss mit Release 0.2.0 und einer Generalprobe am Tisch
 **Bezug:** [Task 018](018-klang-modi.md) (Klang), [Task 020](020-spielabend-wochenende.md) (Spielabend), [Task 021](021-nahtlos-fehlertolerant.md) (Fehlertoleranz, eigener Agent), [Task 022](022-code-beitritt.md) (Beitritt per Code, läuft), [ROADMAP](../ROADMAP.md) 6d, [SECURITY_DESIGN](../SECURITY_DESIGN.md)
 
 Wunsch des Eigentümers (2026-10-28): Alles, was offen ist, auch was nur am Rand erwähnt oder für später vorgemerkt wurde, kommt in diesen Sprint und wird Schritt für Schritt abgearbeitet.
@@ -104,5 +104,5 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
 
 ## G – Abschluss
 
-- [ ] **G1 Release 0.2.0.** CHANGELOG, Web-App-Build in `server/webapps.lock`, alle Geräte auf Protokoll 12.
+- [x] **G1 Release 0.2.0.** CHANGELOG, Web-App-Build in `server/webapps.lock`, alle Geräte auf Protokoll 12. (erledigt: v0.2.0 am 2026-10-28, Protokoll 15)
 - [ ] **G2 Generalprobe am Tisch** mit echten Geräten: iPhone, Android, Mac, ein Browser über play.whowolf.de und einer im WLAN, einer über den Code aus Task 022. Dabei werden auch die offenen Geräteprüfungen aus Task 017, 018 und 019 abgehakt.
