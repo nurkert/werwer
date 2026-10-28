@@ -254,6 +254,38 @@ void main() {
       },
     );
 
+    test('after a death the talk starts once the last words are over', () {
+      const roles = [
+        Role.werewolf,
+        Role.villager,
+        Role.villager,
+        Role.villager,
+      ];
+      final day = playNight(night(roles), {0: 3}).state;
+      expect(day.phase, Phase.day);
+      expect(timeLimit(day), const GameSettings().dayTime + lastWordsTime);
+      final quiet = apply(night(roles), const PhaseTimeout()).state;
+      expect(quiet.phase, Phase.day);
+      expect(timeLimit(quiet), const GameSettings().dayTime);
+    });
+
+    test("Whowolf's hunt never ends right on the last pick", () {
+      const roles = [
+        Role.werewolf,
+        Role.villager,
+        Role.villager,
+        Role.villager,
+      ];
+      var state = night(roles);
+      for (final p in state.alive) {
+        final other = state.alive.firstWhere((o) => o.id != p.id).id;
+        state = apply(state, nightAction(state, p.id, [other])).state;
+      }
+      expect(state.phase, Phase.night, reason: 'all picked, still night');
+      expect(timeLimit(state), togetherHuntTime);
+      expect(apply(state, const PhaseTimeout()).state.phase, Phase.day);
+    });
+
     test('the phase times come from the settings', () {
       final settings = const GameSettings().copyWith(
         nightTime: const Duration(seconds: 45),

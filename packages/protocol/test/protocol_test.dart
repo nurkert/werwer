@@ -196,6 +196,11 @@ void main() {
         final waiting = alive.where(
           (p) => !state.nightChoices.containsKey(p.id),
         );
+        // Whowolf's hunt with every pick in ends by its time.
+        if (state.phase == Phase.night && waiting.isEmpty) {
+          state = apply(state, const PhaseTimeout()).state;
+          continue;
+        }
         final actor = state.phase == Phase.night
             ? waiting.first
             : alive[random.nextInt(alive.length)];

@@ -472,6 +472,7 @@ void main() {
         final target = p.id == wolf.id ? villager.id : wolf.id;
         state = apply(state, nightAction(state, p.id, [target])).state;
       }
+      state = huntOver(state);
       expect(state.phase, Phase.day);
       expect(state.deaths.single.player, villager.id);
       // Day 1: everyone but the wolf votes for the wolf.

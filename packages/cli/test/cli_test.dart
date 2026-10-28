@@ -24,6 +24,13 @@ void main() {
       settings: const GameSettings(),
       roomCode: '2580',
       random: Random(11),
+      // Real timers, but Whowolf's fixed hunt time passes at once.
+      startTimer: (after, callback) => Timer(
+        after > const Duration(seconds: 6) && after <= togetherHuntTime
+            ? const Duration(milliseconds: 20)
+            : after,
+        callback,
+      ).cancel,
     )..serve(SecureTransport(lan, keys));
     final logs = {
       for (final n in ['Ada', 'Bo', 'Cem']) n: StringBuffer(),

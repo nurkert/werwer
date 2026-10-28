@@ -332,6 +332,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readyToVote => 'We\'re ready';
 
   @override
+  String get readyTalkOn => 'Talk on after all';
+
+  @override
   String get readyUndo => 'Keep talking';
 
   @override

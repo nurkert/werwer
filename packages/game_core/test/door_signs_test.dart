@@ -35,7 +35,7 @@ GameState hunt(GameState state, int victim) {
         : [pick];
     current = apply(current, nightAction(current, p.id, picks)).state;
   }
-  return current;
+  return huntOver(current);
 }
 
 /// [sign] with its first symbol changed.

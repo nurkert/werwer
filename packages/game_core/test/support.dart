@@ -61,7 +61,8 @@ GameUpdate playNight(
   while (current.phase == Phase.night && current.round == round) {
     final step = current.nightStep;
     final called = current.settings.nightMode == NightMode.called;
-    if (called && !calledStepPending(current)) {
+    if ((called && !calledStepPending(current)) ||
+        (!called && step == NightStep.hunt && everyonePicked(current))) {
       final update = apply(current, const PhaseTimeout());
       events.addAll(update.events);
       current = update.state;
@@ -209,3 +210,13 @@ void expectNoLeaks(GameState state) {
     }
   }
 }
+
+/// Whowolf's hunt ends by its time once everyone has picked: lets that
+/// time run out (anything else is returned as it is).
+GameState huntOver(GameState state) =>
+    state.phase == Phase.night &&
+        state.nightStep == NightStep.hunt &&
+        state.settings.nightMode != NightMode.called &&
+        everyonePicked(state)
+    ? apply(state, const PhaseTimeout()).state
+    : state;

@@ -620,6 +620,12 @@ abstract class AppLocalizations {
   /// **'We\'re ready'**
   String get readyToVote;
 
+  /// No description provided for @readyTalkOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk on after all'**
+  String get readyTalkOn;
+
   /// No description provided for @readyUndo.
   ///
   /// In en, this message translates to:

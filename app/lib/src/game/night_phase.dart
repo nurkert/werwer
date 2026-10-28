@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
-import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/door_sign.dart';
 import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/narrator.dart';
@@ -263,9 +262,17 @@ class _NightPhaseState extends State<NightPhase> {
           ],
           Body(l10n.nightHint, muted: true),
         ],
+        ..._leader(),
       ],
     );
   }
+
+  /// The game leader may pause the night too; everyone sees the same note.
+  List<Widget> _leader() => [
+    if (session.paused) const PausedNote(),
+    if (session.isOwner)
+      LeaderBar(session: session, canEnd: false, canExtend: false),
+  ];
 
   /// The night everyone knows: eyes closed, unless the narrator calls you.
   Widget _calledNight(PlayerView view, AppLocalizations l10n) {
@@ -301,6 +308,7 @@ class _NightPhaseState extends State<NightPhase> {
           Body(l10n.nightAwakeNow(awakeIn(view.nightStep, l10n))),
           Body(l10n.nightEyesClosedHint, muted: true),
         ],
+        ..._leader(),
       ],
     );
   }

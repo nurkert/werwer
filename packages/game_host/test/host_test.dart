@@ -246,6 +246,10 @@ void main() {
       p.send(NightIntent(wolf.id!));
     }
     await settle();
+    // Everyone picked: the hunt still runs its fixed time.
+    expect(players.first.view.phase, Phase.night);
+    timers.fire(togetherHuntTime);
+    await settle();
     expect(players.first.view.phase, Phase.day);
     return players;
   }
@@ -268,6 +272,31 @@ void main() {
     expect(players.first.view.phase, Phase.vote);
     expect(players.first.last!.ready, isEmpty);
   });
+
+  test(
+    'talking on during the warning gives the discussion its time back',
+    () async {
+      final players = await toDay();
+      final living = players.where((p) => p.view.yourSeat.isAlive).toList();
+      for (final p in living.take(3)) {
+        p.send(const ReadyIntent(ready: true));
+      }
+      await settle();
+      expect(timers.pending.any((t) => t.$1 == GameHost.voteWarning), isTrue);
+
+      living[0].send(const ReadyIntent(ready: false));
+      await settle();
+      expect(timers.pending.any((t) => t.$1 == GameHost.voteWarning), isFalse);
+      expect(
+        timers.pending.any((t) => t.$1 > GameHost.voteWarning),
+        isTrue,
+        reason: 'the discussion runs on with the time it had left',
+      );
+      timers.fire(GameHost.voteWarning);
+      await settle();
+      expect(players.first.view.phase, Phase.day);
+    },
+  );
 
   test('the dead cannot say they are ready', () async {
     final players = await toDay();
@@ -409,6 +438,8 @@ void main() {
     for (final p in others) {
       p.send(NightIntent(wolf.id!));
     }
+    await settle();
+    timers.fire(togetherHuntTime);
     await settle();
     expect(wolf.view.phase, Phase.day);
     expect(victim.view.yourSeat.isAlive, isFalse);

@@ -418,6 +418,7 @@ class _StartScreenState extends State<StartScreen> {
             const SizedBox(height: 12),
             PrimaryButton(
               label: l10n.createRoom,
+              icon: null,
               onPressed: _busy ? null : _open,
             ),
             const SizedBox(height: 12),

@@ -45,7 +45,7 @@ class DayPhase extends StatelessWidget {
         ),
         LastNews(view: view),
         CoupleNote(view: view),
-        if (session.paused) const _PausedNote(),
+        if (session.paused) const PausedNote(),
         if (voteSoon)
           Panel(highlight: true, child: Body(l10n.voteSoon))
         else if (ready.isNotEmpty)
@@ -59,8 +59,16 @@ class DayPhase extends StatelessWidget {
             icon: imReady ? Icons.undo_rounded : Icons.how_to_vote_rounded,
             selected: imReady,
             onPressed: () => session.send(ReadyIntent(ready: !imReady)),
+          )
+        // During the warning, whoever was ready can still ask to talk on;
+        // without a majority the discussion goes on with its time.
+        else if (view.yourSeat.isAlive && imReady)
+          SecondaryButton(
+            label: l10n.readyTalkOn,
+            icon: Icons.record_voice_over_rounded,
+            onPressed: () => session.send(const ReadyIntent(ready: false)),
           ),
-        if (session.isOwner) _LeaderBar(session: session, canEnd: false),
+        if (session.isOwner) LeaderBar(session: session, canEnd: false),
         if (sheep) Aside(child: Headline(l10n.sleepTitle, size: 28)),
         Aside(
           child: TableCircle(
@@ -139,6 +147,9 @@ class HunterPhase extends StatelessWidget {
             view: view,
             onTap: (seat) => session.send(ShootIntent(seat.id)),
           ),
+        if (session.paused) const PausedNote(),
+        if (session.isOwner)
+          LeaderBar(session: session, canEnd: false, canExtend: false),
       ],
     );
   }
@@ -169,7 +180,7 @@ class VotePhase extends StatelessWidget {
         else
           Headline(l10n.voteQuestion, eyebrow: l10n.eyebrowVote),
         CoupleNote(view: view),
-        if (session.paused) const _PausedNote(),
+        if (session.paused) const PausedNote(),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
         else ...[
@@ -210,15 +221,16 @@ class VotePhase extends StatelessWidget {
             ),
           ),
         Body(l10n.waitingFor(view.waitingFor), muted: true),
-        if (session.isOwner) _LeaderBar(session: session, canEnd: true),
+        if (session.isOwner) LeaderBar(session: session, canEnd: true),
       ],
     );
   }
 }
 
 /// The clock stands still: the game leader paused it.
-class _PausedNote extends StatelessWidget {
-  const _PausedNote();
+/// "The game leader paused", the same on every screen.
+class PausedNote extends StatelessWidget {
+  const PausedNote({super.key});
 
   @override
   Widget build(BuildContext context) => Panel(
@@ -235,11 +247,20 @@ class _PausedNote extends StatelessWidget {
 
 /// The game leader's clock: pause or go on, thirty seconds more, and in
 /// the vote end it now.
-class _LeaderBar extends StatelessWidget {
-  const _LeaderBar({required this.session, required this.canEnd});
+class LeaderBar extends StatelessWidget {
+  const LeaderBar({
+    required this.session,
+    required this.canEnd,
+    this.canExtend = true,
+    super.key,
+  });
 
   final GameSession session;
   final bool canEnd;
+
+  /// Thirty seconds more: only for the talk (a night's or a shot's length
+  /// must tell nobody anything).
+  final bool canExtend;
 
   @override
   Widget build(BuildContext context) {
@@ -260,11 +281,12 @@ class _LeaderBar extends StatelessWidget {
             ),
             label: Text(paused ? l10n.leaderResume : l10n.leaderPause),
           ),
-          TextButton.icon(
-            onPressed: paused ? null : () => send(LeaderAction.extend),
-            icon: const Icon(Icons.more_time_rounded),
-            label: Text(l10n.leaderExtend),
-          ),
+          if (canExtend)
+            TextButton.icon(
+              onPressed: paused ? null : () => send(LeaderAction.extend),
+              icon: const Icon(Icons.more_time_rounded),
+              label: Text(l10n.leaderExtend),
+            ),
           if (canEnd)
             TextButton.icon(
               onPressed: () async {

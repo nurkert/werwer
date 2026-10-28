@@ -24,7 +24,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nameLabel => 'Dein Name';
 
   @override
-  String get createRoom => 'Raum eröffnen';
+  String get createRoom => 'Raum öffnen';
 
   @override
   String get joinRoom => 'Raum beitreten';
@@ -334,6 +334,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readyToVote => 'Wir sind so weit';
+
+  @override
+  String get readyTalkOn => 'Doch noch reden';
 
   @override
   String get readyUndo => 'Doch noch reden';

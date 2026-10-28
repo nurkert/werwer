@@ -153,6 +153,7 @@
   "readyCount": "{ready} of {alive} are ready.",
   "@readyCount": {"placeholders": {"ready": {"type": "int"}, "alive": {"type": "int"}}},
   "readyToVote": "We're ready",
+  "readyTalkOn": "Talk on after all",
   "readyUndo": "Keep talking",
   "offlineBadge": "not connected",
   "pausedByLeader": "The game leader paused. The clock stands still.",

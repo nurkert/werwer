@@ -315,6 +315,10 @@ class GameHost {
   /// Most of the living are ready: the vote follows shortly.
   bool _voteSoon = false;
 
+  /// The discussion time that was left when the vote warning cut it short,
+  /// and when (host clock), so talking on can give it back.
+  ({int left, int at})? _beforeWarning;
+
   /// The game leader paused the clock with this much left.
   int? _pausedLeft;
 
@@ -1019,7 +1023,24 @@ class GameHost {
       _voteSoon = true;
       final left = _phaseLeft();
       if (left == null || left > voteWarning.inMilliseconds) {
+        _beforeWarning = left == null ? null : (left: left, at: _clock());
         _schedulePhaseTimer(remaining: voteWarning, sameStep: true);
+      }
+    } else if (_voteSoon && _ready.length * 2 <= alive) {
+      // Someone wants to talk on after all: the warning is off, and the
+      // discussion gets back the time it had left.
+      _voteSoon = false;
+      final before = _beforeWarning;
+      _beforeWarning = null;
+      if (before != null && _pausedLeft == null) {
+        final spent = _clock() - before.at;
+        _schedulePhaseTimer(
+          remaining: Duration(
+            milliseconds: max(voteWarning.inMilliseconds, before.left - spent),
+          ),
+          sameStep: true,
+          beyondLimit: true,
+        );
       }
     }
     _broadcast();
@@ -1107,6 +1128,7 @@ class GameHost {
       if (before.phase != _state.phase) _introSkippedAt = null;
       _silentAtPhase = _silentNow;
       _ready.clear();
+      _beforeWarning = null;
       _voteSoon = false;
       _pausedLeft = null;
       _extended = Duration.zero;

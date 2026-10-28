@@ -276,9 +276,6 @@ class _Chapter extends StatelessWidget {
   );
 }
 
-/// How long the dead have for their last words.
-const lastWordsTime = Duration(seconds: 7);
-
 /// Closes the last words on screen, if any (a new death, or the end).
 void closeLastWords() => _LastWordsState._current?._close();
 

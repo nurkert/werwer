@@ -319,6 +319,15 @@ void main() {
             .id;
     r.online[seat]!.send(NightIntent(pick));
     await settle();
+    // Whowolf's hunt ends by its time once everyone has picked.
+    final now = r.host.state;
+    if (now.phase == Phase.night &&
+        now.nightStep == NightStep.hunt &&
+        now.settings.nightMode != NightMode.called &&
+        everyonePicked(now)) {
+      timers.fire(togetherHuntTime);
+      await settle();
+    }
   }
 
   test('a player who missed the night timer comes back to the day '

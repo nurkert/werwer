@@ -17,7 +17,7 @@ void main() {
   testWidgets('shows the test version stamp in German', (tester) async {
     await tester.pumpWidget(host(const Locale('de')));
     expect(find.text('Testversion · 0.0.1'), findsOneWidget);
-    expect(find.text('Raum eröffnen'), findsOneWidget);
+    expect(find.text('Raum öffnen'), findsOneWidget);
     expect(find.bySemanticsLabel('Whowolf'), findsOneWidget);
   });
 

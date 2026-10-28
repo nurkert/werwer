@@ -91,17 +91,42 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
   // living role's look the same from outside.
   Phase.night when _called(state) && !calledStepPending(state) =>
     calledStepTime,
+  // Whowolf's hunt with every pick in: over after a fixed time from its
+  // start, the same in every night, so a quick pack shows nowhere.
+  Phase.night
+      when !_called(state) &&
+          state.nightStep == NightStep.hunt &&
+          everyonePicked(state) =>
+    togetherHuntTime < state.settings.nightTime
+        ? togetherHuntTime
+        : state.settings.nightTime,
   Phase.night => switch (state.nightStep) {
     NightStep.hunt => state.settings.nightTime,
     NightStep.brew || NightStep.link || NightStep.inspect => brewTime,
   },
-  Phase.day => state.settings.dayTime,
+  // The night's dead speak their last words first: the talk starts after.
+  Phase.day =>
+    state.settings.dayTime +
+        (state.deaths.any((d) => d.round == state.round)
+            ? lastWordsTime
+            : Duration.zero),
   // A runoff is between few, and everyone has heard the arguments.
   Phase.vote when state.runoff.isNotEmpty => state.settings.voteTime ~/ 2,
   Phase.vote => state.settings.voteTime,
   Phase.hunterShot => shotTime,
   Phase.lobby || Phase.roleReveal || Phase.ended => null,
 };
+
+/// How long Whowolf's hunt lasts at least, counted from its start, once
+/// everyone has picked (or as long as the night, if that is shorter).
+const togetherHuntTime = Duration(seconds: 25);
+
+/// Whether every living player has made a pick in the current night step.
+bool everyonePicked(GameState state) =>
+    state.alive.every((p) => state.nightChoices.containsKey(p.id));
+
+/// How long the dead have for their last words, on every screen alike.
+const lastWordsTime = Duration(seconds: 7);
 
 /// How long a called step lasts at least, counted from its start, once
 /// nobody is left to decide (or from the start, if its role is dead): as
@@ -432,10 +457,12 @@ GameUpdate _night(
   next = next.copyWith(
     nightChoices: {...state.nightChoices, actor.id: targetIds},
   );
-  // Whowolf's night: the step ends once everyone has picked. A called step
-  // ends by its time (see timeLimit), so its length tells nobody anything.
+  // Whowolf's night: a step ends once everyone has picked, the hunt not
+  // before [togetherHuntTime] (see timeLimit). A called step ends by its
+  // time, so its length tells nobody anything.
   if (!_called(next) &&
-      next.alive.every((p) => next.nightChoices.containsKey(p.id))) {
+      next.nightStep != NightStep.hunt &&
+      everyonePicked(next)) {
     final ended = _endStep(next);
     return GameUpdate(ended.state, [...events, ...ended.events]);
   }

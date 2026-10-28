@@ -168,11 +168,22 @@ class Table {
   CustodyConfig get custody =>
       CustodyConfig(sealer: sealer, room: (snapshot) => snapshot);
 
+  /// Real timers, but Whowolf's fixed hunt time (and the rest of it after
+  /// a takeover) passes at once: the bots' table must not wait for it.
+  static void Function() quickHunt(Duration after, void Function() callback) =>
+      Timer(
+        after > const Duration(seconds: 6) && after <= togetherHuntTime
+            ? const Duration(milliseconds: 20)
+            : after,
+        callback,
+      ).cancel;
+
   void open(int players) {
     host = GameHost(
       settings: const GameSettings(),
       roomCode: code,
       random: Random(1),
+      startTimer: quickHunt,
     )..custody = custody;
     hosts.add(host);
     final transport = MemoryTransport();
@@ -201,6 +212,7 @@ class Table {
       takeOver: true,
       newOwner: newOwner,
       oldClockAhead: oldClockAhead,
+      startTimer: quickHunt,
     )..custody = custody;
     hosts.add(next);
     final transport = MemoryTransport();

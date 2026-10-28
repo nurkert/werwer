@@ -25,10 +25,14 @@ void main() {
         final other = state.alive.firstWhere((o) => o.id != p.id).id;
         next = apply(next, nightAction(next, p.id, [other])).state;
       }
-      return apply(
-        next,
-        victim == null ? const PhaseTimeout() : WerewolfVote(id(0), id(victim)),
-      ).state;
+      return huntOver(
+        apply(
+          next,
+          victim == null
+              ? const PhaseTimeout()
+              : WerewolfVote(id(0), id(victim)),
+        ).state,
+      );
     }
 
     test('she decides after the werewolves, and only she sees the victim', () {

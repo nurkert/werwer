@@ -15,6 +15,11 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- "Open a room" without the arrow.
+- Whowolf's hunt lasts at least 25 seconds, so a quick pack shows nowhere.
+- The talk starts after the last words, not during them.
+- "Talk on after all" during the vote warning.
+- The game leader can pause at night and during the hunter's shot too.
 - Night screens without a task read "All quiet" instead of "done".
 - Cards that cannot be chosen in a runoff carry a small lock.
 - Ending the vote early asks once more.
