@@ -239,7 +239,15 @@ const download = latest ? path('download', lang) : repoUrl;
           hide: '-28%',
           repeat: 5,
           // The ropes of two lengths meet in an iron ring on a chain from above.
-          joint: { src: garlandHook, h: 'calc(1.4 * clamp(84px, 15vh, 180px))', y: 'calc(-0.7 * clamp(84px, 15vh, 180px))', seamless: true },
+          // Measured on the pictures: the hook is 0.54 as wide as tall, its rope
+          // ends sit at 0.56 of its height, the garland's rope at 0.057.
+          joint: {
+            src: garlandHook,
+            h: 'calc(1.4 * clamp(84px, 15vh, 180px))',
+            y: 'calc(-0.78 * clamp(84px, 15vh, 180px))',
+            gap: 'calc(0.56 * clamp(84px, 15vh, 180px))',
+            seamless: true,
+          },
         },
         { src: fence, at: 'left', h: '22', inset: '6vw', hide: '10%', wide: true, mirror: true },
         { src: house, at: 'left', h: '80', hide: '55%', hidePhone: '74%', mirror: true },
@@ -403,7 +411,15 @@ const download = latest ? path('download', lang) : repoUrl;
           hide: '-28%',
           repeat: 5,
           // The ropes of two lengths meet in an iron ring on a chain from above.
-          joint: { src: garlandHook, h: 'calc(1.4 * clamp(84px, 15vh, 180px))', y: 'calc(-0.7 * clamp(84px, 15vh, 180px))', seamless: true },
+          // Measured on the pictures: the hook is 0.54 as wide as tall, its rope
+          // ends sit at 0.56 of its height, the garland's rope at 0.057.
+          joint: {
+            src: garlandHook,
+            h: 'calc(1.4 * clamp(84px, 15vh, 180px))',
+            y: 'calc(-0.78 * clamp(84px, 15vh, 180px))',
+            gap: 'calc(0.56 * clamp(84px, 15vh, 180px))',
+            seamless: true,
+          },
         },
         { src: lamppost, at: 'left', h: '52', hide: '30%', hidePhone: '60%' },
         { src: stall, at: 'right', h: '56', hide: '45%', hidePhone: '66%' },

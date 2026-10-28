@@ -27,7 +27,7 @@ export interface ScenePiece {
   repeat?: number;
   /** Top pieces: hung over each seam between two lengths (a hook, a tassel); `seamless`
       lengths join end to end instead of overlapping under it. */
-  joint?: { src: ImageMetadata; h: string; y?: string; seamless?: boolean };
+  joint?: { src: ImageMetadata; h: string; y?: string; seamless?: boolean; gap?: string };
 }
 
 interface Props {
@@ -98,7 +98,7 @@ const loading = first ? 'eager' : 'lazy';
       >
         {Array.from({ length: piece.at === 'top' ? (piece.repeat ?? 1) : 1 }, (_, n) => [
           n > 0 && piece.joint && (
-            <span class="piece__joint" style={`--joint-h: ${piece.joint.h}; --joint-y: ${piece.joint.y ?? '0px'}`}>
+            <span class="piece__joint" style={`--joint-h: ${piece.joint.h}; --joint-y: ${piece.joint.y ?? '0px'}; --joint-gap: ${piece.joint.gap ?? '0px'}`}>
               <Picture
                 src={piece.joint.src}
                 alt=""

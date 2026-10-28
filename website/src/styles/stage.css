@@ -593,8 +593,14 @@ body.has-backdrop .site-footer {
 .piece--top:has(.piece__joint):not(.piece--seamless) .piece__frame ~ .piece__frame {
   margin-left: -3%;
 }
+/* Seamless lengths leave room for the joint between them: its ropes reach
+   to their ends. */
 .piece--seamless .piece__joint {
+  width: var(--joint-gap);
   margin: 0;
+}
+.piece--seamless .piece__joint img {
+  left: 50%;
 }
 /* A knot or tassel over the seam of two lengths: no width of its own,
    centred on the overlap. */
