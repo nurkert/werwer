@@ -28,6 +28,11 @@ twice in a row) and lets the voice walk around the table
 4. **Encode:** `python3 tool/voice/encode.py de` trims, normalises and writes
    `app/assets/voice/<lang>/` plus `manifest.json` (lengths for the walk and
    the facts a line needs). It takes only verified files.
+   It also writes each clip's inner pauses (at least 250 ms) into the
+   manifest; the walking narrator changes phones only there.
+   `python3 tool/voice/pauses.py` adds them to an existing manifest
+   without re-encoding; `VOICE_SOURCE=…` reads the raw recordings
+   from another checkout.
 
 **Writing lines:** every variant is a short, complete sentence that is
 true whenever it is said, players are spoken of gender-neutrally, and at

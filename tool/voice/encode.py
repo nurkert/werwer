@@ -8,12 +8,17 @@ against their current line.
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
+from pauses import find_pauses
+
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / "design/source/voice"
+# The raw recordings stay local; VOICE_SOURCE reads them from elsewhere
+# (another checkout of the repository).
+SOURCE = Path(os.environ.get("VOICE_SOURCE", ROOT / "design/source/voice"))
 APP = ROOT / "app/assets/voice"
 SCRIPT = ROOT / "tool/voice/script.json"
 
@@ -58,19 +63,25 @@ def main() -> None:
                     print(f"skipped {name}: not verified against the script (verify.py)")
                     continue
                 target = APP / lang / f"{name}.mp3"
-                # Trim silence at both ends (keep 80 ms), even loudness,
-                # a soft fade, mono, small.
+                # Trim silence at both ends (keep 80 ms), no rumble below
+                # the voice (it only muddies two phones playing at once),
+                # even loudness, a soft fade, mono, small.
                 subprocess.run(
                     ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(raw),
                      "-af",
                      "silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.08,"
                      "areverse,silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.08,areverse,"
-                     "loudnorm=I=-18:TP=-1.5:LRA=9,afade=t=in:d=0.01",
+                     "highpass=f=200,loudnorm=I=-20:TP=-1.5:LRA=9,afade=t=in:d=0.01",
                      "-ac", "1", "-ar", "44100", "-codec:a", "libmp3lame", "-q:a", "4",
                      "-map_metadata", "-1", str(target)],
                     check=True,
                 )
-                clip = {"file": f"{lang}/{name}.mp3", "ms": duration_ms(target)}
+                ms = duration_ms(target)
+                clip = {"file": f"{lang}/{name}.mp3", "ms": ms}
+                # Where the voice may change phones unheard (pauses.py).
+                pauses = find_pauses(target, ms)
+                if pauses:
+                    clip["pauses"] = pauses
                 variant = moment[lang][n - 1]
                 if isinstance(variant, dict) and variant.get("if"):
                     clip["if"] = variant["if"]
