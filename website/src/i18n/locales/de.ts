@@ -147,6 +147,7 @@ const de = {
       { state: 'done', title: '0.1.1: Jedes Gerät', text: 'Am selben Tag: Die App passt sich Handy, Tablet und Desktop an, hat Pappe in der Oberfläche, neue wortlose Klänge und eine abschaltbare Erzählstimme. Fällt das Handy des Gastgebers weg, übernimmt in Sekunden ein anderes. Und die App kennt den offiziellen Relay-Server play.whowolf.de, der bald online geht.' },
       { state: 'done', title: '0.1.2: Die klassische Nacht', text: 'Seit dem 27. Oktober: Alle schließen die Augen, der Erzähler ruft die Rollen einzeln auf, mit eingesprochener Stimme, die um den Tisch wandert. Dazu Klänge im Gleichtakt auf allen Handys, Mitspielen im Browser im selben WLAN und ein Datenschutzhinweis.' },
       { state: 'done', title: '0.1.3: Die Bühne', text: 'Seit dem 27. Oktober ist jeder Moment des Abends ein gemaltes Bühnenbild bei Mondlicht, mit Pappkulissen, Figuren in Dorf-Posen und einem Vorhang zwischen den Phasen. Dazu Geister: Wer tot ist, darf zuschauen. Und bei Gleichstand gibt es eine Stichwahl.' },
+      { state: 'done', title: '0.1.4: Die lebendige Bühne', text: 'Seit dem 28. Oktober glühen und flackern die Fenster, Sterne funkeln, der See wogt und Glühwürmchen ziehen umher. „So geht’s“ erklärt eine Runde in acht kleinen Szenen, und der Spielleiter wählt Klassisch oder Whowolf mit einem Tipp.' },
       { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
     ],
     roadmap: 'Zur Roadmap',

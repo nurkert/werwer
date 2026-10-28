@@ -148,6 +148,7 @@ const en: Copy = {
       { state: 'done', title: '0.1.1: Every device', text: 'Same day: the app fits phones, tablets and desktops, has cardboard in its interface, new wordless sounds and a narrator voice you can turn off. If the host’s phone goes away, another one takes over within seconds. And the app knows the official relay server play.whowolf.de, which goes live soon.' },
       { state: 'done', title: '0.1.2: The classic night', text: 'Since 27 October: everyone closes their eyes and the narrator calls the roles one by one, with a recorded voice that walks around the table. Plus sounds in step on every phone, joining in the browser on the same Wi-Fi, and a privacy notice.' },
       { state: 'done', title: '0.1.3: The stage', text: 'Since 27 October, every moment of the evening is a painted stage set by moonlight, with cardboard scenery, figures in village poses and a curtain between the phases. Plus ghosts, so the dead can watch, and a runoff when the vote is tied.' },
+      { state: 'done', title: '0.1.4: The living stage', text: 'Since 28 October the windows glow and waver, stars twinkle, the lake sways and fireflies drift. “How it works” explains a round in eight little scenes, and the host picks Classic or Whowolf in one tap.' },
       { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',

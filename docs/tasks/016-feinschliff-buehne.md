@@ -30,3 +30,7 @@ Rückmeldungen des Eigentümers vom Abend des 27. Oktober, gesammelt.
 ## Repo
 
 - [x] README neu: Banner aus der echten Startseite, neue App-Screens, Ensemble der zwanzig Figuren, Bauanleitung.
+
+## Release
+
+- [x] Patch-Release 0.1.4 (2026-10-28).

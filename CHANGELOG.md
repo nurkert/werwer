@@ -5,6 +5,36 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.4 – 2026-10-28
+
+### Added
+- The stage comes alive: windows glow and waver like candlelight, lanterns
+  flicker, painted stars twinkle with shooting stars now and then, the
+  lake's water sways with the village's reflections, cloud veils drift,
+  fireflies, moths, mist and embers in the scenes that have them. When
+  the system asks for reduced motion, the stage holds still.
+- "How it works" on the start screen explains a round in eight steps,
+  each a little scene of the village's figures: opening a room, the
+  secret role, the werewolves' night, seer and witch, the morning, the
+  talk, the vote and who wins.
+- The host's game settings start with two quick picks, Classic and
+  Whowolf; everything else stays right below to set by hand, in two
+  columns on tablets and desktops.
+
+### Changed
+- On phones the start screen is framed by a branch, a lantern and a
+  signpost with a cat instead of half-cut trees and houses; the theatre
+  hangs velvet swags with tassels, and its moon no longer sits behind the
+  headline.
+- The start title turns slowly and irregularly.
+- Switches, sliders and buttons in the settings match the stage, and the
+  roles fill even rows.
+- Subtitle: "The werewolf game for your table."
+
+### Fixed
+- A room you closed no longer shows up on your own start screen as one to
+  join.
+
 ## 0.1.3 – 2026-10-27
 
 ### Added

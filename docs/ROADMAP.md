@@ -209,7 +209,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ## 0.2.0 – Die Bühne
 
-**Erschienen als Patch-Release 0.1.3 (2026-10-27)** auf Wunsch des Eigentümers; die Nummer 0.2.0 bleibt für den nächsten größeren Schritt frei.
+**Erschienen als Patch-Release 0.1.3 (2026-10-27)** auf Wunsch des Eigentümers; die Nummer 0.2.0 bleibt für den nächsten größeren Schritt frei. **0.1.4 (2026-10-28):** die lebendige Bühne (Task 015), die bebilderte Anleitung und die Schnellwahl in den Einstellungen (Task 016).
 
 **Ziel:** Die App sieht aus wie das freigegebene Konzept: jeder Moment ein Bühnenbild bei Mondlicht, Pappfiguren in 3D, eine ruhige, hochwertige Bedienung. Plan und Bildschirm-Katalog in [Task 012](tasks/012-buehnenbild-neu.md).
 
