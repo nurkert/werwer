@@ -351,6 +351,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaderExtend => '+30 s';
 
   @override
+  String get leaderEndAsk =>
+      'End it now? Whoever has not voted yet cannot do so any more.';
+
+  @override
+  String get notChoosable => 'Cannot be chosen';
+
+  @override
   String get leaderEnd => 'End the vote';
 
   @override
@@ -1054,7 +1061,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presetBasic => 'Basic game';
 
   @override
-  String get nightTaskDone => 'Your night task is done.';
+  String get nightTaskDone => 'All quiet. Eyes closed until the village wakes.';
 
   @override
   String get nightTaskShow => 'Show';

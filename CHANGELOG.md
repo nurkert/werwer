@@ -12,6 +12,9 @@ Every device at the table needs this version (protocol 12).
   eyes needs (falling asleep, who wakes, the village waking up).
 
 ### Changed
+- Night screens without a task read "All quiet" instead of "done".
+- Cards that cannot be chosen in a runoff carry a small lock.
+- Ending the vote early asks once more.
 - A player whose app speaks another version than the host's is told
   which one is newer instead of waiting for a timeout.
 - The join dialog says "Over your Wi-Fi" instead of showing an address.

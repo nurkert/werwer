@@ -267,7 +267,26 @@ class _LeaderBar extends StatelessWidget {
           ),
           if (canEnd)
             TextButton.icon(
-              onPressed: () => send(LeaderAction.end),
+              onPressed: () async {
+                // One stray tap must not end everyone's vote.
+                final sure = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(l10n.leaderEndAsk),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(l10n.cancel),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(l10n.leaderEnd),
+                      ),
+                    ],
+                  ),
+                );
+                if (sure ?? false) send(LeaderAction.end);
+              },
               icon: const Icon(Icons.stop_circle_outlined),
               label: Text(l10n.leaderEnd),
             ),

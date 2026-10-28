@@ -159,6 +159,8 @@
   "leaderPause": "Pause",
   "leaderResume": "Go on",
   "leaderExtend": "+30 s",
+  "leaderEndAsk": "End it now? Whoever has not voted yet cannot do so any more.",
+  "notChoosable": "Cannot be chosen",
   "leaderEnd": "End the vote",
   "timesForTable": "Suited to {count} players",
   "@timesForTable": {"placeholders": {"count": {"type": "int"}}},
@@ -601,7 +603,7 @@
     }
   },
   "presetBasic": "Basic game",
-  "nightTaskDone": "Your night task is done.",
+  "nightTaskDone": "All quiet. Eyes closed until the village wakes.",
   "nightTaskShow": "Show",
   "nightTaskHide": "Fold away",
   "nightNothingToDo": "Nothing else to do tonight: count sheep until the morning.",

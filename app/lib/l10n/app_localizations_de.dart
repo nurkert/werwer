@@ -354,6 +354,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get leaderExtend => '+30 s';
 
   @override
+  String get leaderEndAsk =>
+      'Jetzt beenden? Wer noch nicht abgestimmt hat, kann es dann nicht mehr.';
+
+  @override
+  String get notChoosable => 'Nicht wählbar';
+
+  @override
   String get leaderEnd => 'Abstimmung beenden';
 
   @override
@@ -1064,7 +1071,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get presetBasic => 'Grundspiel';
 
   @override
-  String get nightTaskDone => 'Deine Nachtaufgabe ist erledigt.';
+  String get nightTaskDone => 'Alles ruhig. Augen zu, bis das Dorf erwacht.';
 
   @override
   String get nightTaskShow => 'Ansehen';

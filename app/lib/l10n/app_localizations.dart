@@ -656,6 +656,18 @@ abstract class AppLocalizations {
   /// **'+30 s'**
   String get leaderExtend;
 
+  /// No description provided for @leaderEndAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'End it now? Whoever has not voted yet cannot do so any more.'**
+  String get leaderEndAsk;
+
+  /// No description provided for @notChoosable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be chosen'**
+  String get notChoosable;
+
   /// No description provided for @leaderEnd.
   ///
   /// In en, this message translates to:
@@ -1841,7 +1853,7 @@ abstract class AppLocalizations {
   /// No description provided for @nightTaskDone.
   ///
   /// In en, this message translates to:
-  /// **'Your night task is done.'**
+  /// **'All quiet. Eyes closed until the village wakes.'**
   String get nightTaskDone;
 
   /// No description provided for @nightTaskShow.

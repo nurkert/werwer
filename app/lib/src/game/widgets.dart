@@ -467,8 +467,40 @@ class SeatGrid extends StatelessWidget {
                   trailing: trailing?.call(seat),
                 );
                 // Alive but out of this choice (outside a runoff): dimmed.
+                // A small lock says why it cannot be tapped.
                 return onTap != null && !tappable && seat.isAlive
-                    ? Opacity(opacity: 0.45, child: card)
+                    ? Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Opacity(opacity: 0.45, child: card),
+                          Positioned(
+                            right: -6,
+                            top: -6,
+                            child: Semantics(
+                              label: l10n.notChoosable,
+                              child: Container(
+                                width: 26,
+                                height: 26,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Palette.stagePlaque,
+                                  border: Border.fromBorderSide(
+                                    BorderSide(
+                                      color: Palette.stageBrass,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.lock_rounded,
+                                  size: 15,
+                                  color: Palette.stageIvorySoft,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                     : card;
               }(),
           ],
