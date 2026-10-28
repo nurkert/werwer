@@ -15,6 +15,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- The quick picks in the lobby settings keep their title on one line
+  (the tick sits on the corner) and centre their text.
 - "Open a room" without the arrow.
 - Whowolf's hunt lasts at least 25 seconds, so a quick pack shows nowhere.
 - The talk starts after the last words, not during them.

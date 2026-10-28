@@ -43,19 +43,26 @@ class QuickPick extends StatelessWidget {
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Panel(
-        paper: selected,
-        highlight: selected,
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-        child: Column(
-          children: [
-            Row(
+      // The tick sits on the corner, so the title keeps the whole width
+      // (no "Klassisch" broken onto two lines); the content stands in the
+      // middle of the box, however tall its neighbour makes it.
+      child: Stack(
+        clipBehavior: Clip.none,
+        // The row's height reaches the panel, so its content can centre.
+        fit: StackFit.passthrough,
+        children: [
+          Panel(
+            paper: selected,
+            highlight: selected,
+            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Flexible(
+                FittedBox(
+                  fit: BoxFit.scaleDown,
                   child: Text(
                     title,
-                    textAlign: TextAlign.center,
+                    maxLines: 1,
                     style: TextStyle(
                       fontFamily: displayFont,
                       fontSize: 22,
@@ -63,28 +70,42 @@ class QuickPick extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (selected) ...[
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: Palette.forest700,
-                    size: 22,
+                const SizedBox(height: 4),
+                Text(
+                  hint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    height: 1.35,
+                    color: selected ? Palette.inkSoft : Palette.moon200,
                   ),
-                ],
+                ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              hint,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.5,
-                height: 1.35,
-                color: selected ? Palette.inkSoft : Palette.moon200,
+          ),
+          if (selected)
+            const Positioned(
+              right: -6,
+              top: -6,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Palette.stagePlaque,
+                  border: Border.fromBorderSide(
+                    BorderSide(color: Palette.stageLanternTop, width: 2),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(3),
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 17,
+                    color: Palette.stageLanternTop,
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     ),
   );
