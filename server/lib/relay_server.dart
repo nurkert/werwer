@@ -13,6 +13,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:protocol/protocol.dart';
+import 'package:whowolf_server/web_apps.dart';
 
 /// Limits of a relay server.
 class RelayConfig {
@@ -25,6 +26,10 @@ class RelayConfig {
     this.maxConnectionsPerAddress = 32,
     this.maxUpgradesPerMinute = 60,
     this.trustProxy = false,
+    this.maxRequestsPerMinute = 600,
+    this.publicHost,
+    this.appleAppId,
+    this.androidCertSha256,
   });
 
   /// Most rooms open at once.
@@ -58,6 +63,25 @@ class RelayConfig {
   /// `X-Forwarded-For`, which the proxy sets. Never enable it otherwise,
   /// or anyone could claim any address.
   final bool trustProxy;
+
+  /// Most plain HTTP requests (the web app's files) one address may make
+  /// per minute. A page load is a few dozen files, most cached after the
+  /// first time. 0 turns it off.
+  final int maxRequestsPerMinute;
+
+  /// The host name players reach this server under (`play.whowolf.de`):
+  /// the web app's pages may open WebSockets to it. Without it they rely on
+  /// `'self'`.
+  final String? publicHost;
+
+  /// `<team id>.<bundle id>` of the iOS app, so a QR code for this server
+  /// opens the app where it is installed (Universal Links). Never in the
+  /// repository; set on the server.
+  final String? appleAppId;
+
+  /// SHA-256 fingerprint of the Android app's signing key (`AA:BB:…`), for
+  /// Android App Links.
+  final List<String>? androidCertSha256;
 }
 
 /// How many bytes a connection may send: a bucket that fills up at [rate]
@@ -131,7 +155,7 @@ class _Meter {
 }
 
 class RelayServer {
-  RelayServer._(this._server, this.config, this._random);
+  RelayServer._(this._server, this.config, this._random, this.webApps);
 
   /// Starts listening on [address]:[port].
   static Future<RelayServer> start({
@@ -139,12 +163,18 @@ class RelayServer {
     int port = 8080,
     RelayConfig config = const RelayConfig(),
     Random? random,
+    WebApps? webApps,
   }) async {
     final server = await HttpServer.bind(address, port);
     server
       ..idleTimeout = const Duration(seconds: 30)
       ..serverHeader = null;
-    final relay = RelayServer._(server, config, random ?? Random.secure());
+    final relay = RelayServer._(
+      server,
+      config,
+      random ?? Random.secure(),
+      webApps ?? WebApps.none(),
+    );
     server.listen(relay._handle, onError: (Object _) {});
     return relay;
   }
@@ -153,6 +183,12 @@ class RelayServer {
   final RelayConfig config;
   final Random _random;
   final _rooms = <String, _Room>{};
+
+  /// The web app this relay serves (none by default).
+  final WebApps webApps;
+
+  /// Recent plain HTTP requests per address.
+  final _requests = <String, List<int>>{};
 
   /// Open sockets per address, and when each address last upgraded.
   final _open = <String, int>{};
@@ -187,8 +223,22 @@ class RelayServer {
       await request.response.close();
       return;
     }
+    if (WebApps.owns(path) || path.startsWith('/.well-known/')) {
+      final address = _clientAddress(request);
+      if (!_mayRequest(address)) {
+        request.response.statusCode = HttpStatus.tooManyRequests;
+        await request.response.close();
+        return;
+      }
+      if (path.startsWith('/.well-known/')) return _wellKnown(request, path);
+      final host = config.publicHost;
+      return webApps.serve(request, host == null ? '' : 'wss://$host');
+    }
     final joinMatch = RegExp(r'^/join/([a-z0-9]+)$').firstMatch(path);
-    final isHost = path == '/host';
+    // Browsers always send an Origin with a WebSocket, the app never: no
+    // web page, not even a foreign one, can open rooms from a visitor's
+    // browser. Browsers only join.
+    final isHost = path == '/host' && request.headers.value('origin') == null;
     if ((!isHost && joinMatch == null) ||
         !WebSocketTransformer.isUpgradeRequest(request)) {
       request.response.statusCode = HttpStatus.notFound;
@@ -233,6 +283,64 @@ class RelayServer {
     } else {
       _joinRoom(room!, socket);
     }
+  }
+
+  /// One more plain request for [address], within its rate.
+  bool _mayRequest(String? address) {
+    final perMinute = config.maxRequestsPerMinute;
+    if (perMinute <= 0) return true;
+    final now = _clock.elapsedMilliseconds;
+    if (_requests.length > 10000) {
+      _requests.removeWhere((_, at) => at.isEmpty || now - at.last > 60000);
+    }
+    final recent = _requests.putIfAbsent(address ?? '', () => [])
+      ..removeWhere((at) => now - at > 60000);
+    if (recent.length >= perMinute) return false;
+    recent.add(now);
+    return true;
+  }
+
+  /// The files that tie this server's QR codes to the app (Universal Links,
+  /// App Links), built only from the server's own configuration, never
+  /// from the request.
+  Future<void> _wellKnown(HttpRequest request, String path) async {
+    final response = request.response;
+    final apple = config.appleAppId;
+    final android = config.androidCertSha256;
+    final body = switch (path) {
+      '/.well-known/apple-app-site-association' when apple != null => {
+        'applinks': {
+          'details': [
+            {
+              'appIDs': [apple],
+              'components': [
+                {'/': '/v/*/*/join', 'comment': 'A room to join'},
+              ],
+            },
+          ],
+        },
+      },
+      '/.well-known/assetlinks.json' when android != null => [
+        {
+          'relation': ['delegate_permission/common.handle_all_urls'],
+          'target': {
+            'namespace': 'android_app',
+            'package_name': 'de.whowolf.app',
+            'sha256_cert_fingerprints': android,
+          },
+        },
+      ],
+      _ => null,
+    };
+    if (body == null || request.method != 'GET') {
+      response.statusCode = HttpStatus.notFound;
+    } else {
+      response
+        ..headers.contentType = ContentType.json
+        ..headers.set('X-Content-Type-Options', 'nosniff')
+        ..write(jsonEncode(body));
+    }
+    await response.close();
   }
 
   /// The client's address: the socket's, or behind a trusted proxy the

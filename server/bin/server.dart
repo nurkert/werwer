@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:whowolf_server/relay_server.dart';
+import 'package:whowolf_server/web_apps.dart';
 
 /// Configuration comes from the environment (see deploy/docker-compose.yml):
 /// `PORT` (8080), `MAX_ROOMS` (200), `MAX_ROOMS_PER_ADDRESS` (4, 0 = off),
@@ -9,6 +10,12 @@ import 'package:whowolf_server/relay_server.dart';
 /// (32), `MAX_UPGRADES_PER_MINUTE` (60) and `TRUST_PROXY` (`1` only behind
 /// a reverse proxy that is the sole way in; the client address then comes
 /// from `X-Forwarded-For`).
+///
+/// The web app for players without the app is opt-in: `WEB_APP_DIR` (the
+/// builds in the image are under `/webapps`), `PUBLIC_HOST` (the name
+/// players reach the server under), `MAX_REQUESTS_PER_MINUTE` (600). To let
+/// QR codes open the installed app: `APPLE_APP_ID` (`TEAMID.de.whowolf.app`)
+/// and `ANDROID_CERT_SHA256` (fingerprints, comma-separated).
 ///
 /// `server healthcheck` asks the running server for `/health` and exits with
 /// 0 or 1 (the container image has no shell or curl).
@@ -32,7 +39,34 @@ Future<void> main(List<String> args) async {
     }
   }
 
+  String? text(String name, RegExp valid) {
+    final value = Platform.environment[name]?.trim() ?? '';
+    if (value.isEmpty) return null;
+    if (!valid.hasMatch(value)) {
+      stderr.writeln('$name is not valid, ignored');
+      return null;
+    }
+    return value;
+  }
+
+  final dir = Platform.environment['WEB_APP_DIR'] ?? '';
+  final webApps = dir.isEmpty
+      ? WebApps.none()
+      : await WebApps.load(Directory(dir));
+  if (dir.isNotEmpty) {
+    stdout.writeln(
+      'Web app: ${webApps.builds.join(', ')} '
+      '(${webApps.bytes ~/ 1024} KiB in memory)',
+    );
+  }
+  final fingerprints = text(
+    'ANDROID_CERT_SHA256',
+    RegExp(
+      r'^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,[0-9A-F]{2}(:[0-9A-F]{2}){31})*$',
+    ),
+  );
   final relay = await RelayServer.start(
+    webApps: webApps,
     port: env('PORT', 8080),
     config: RelayConfig(
       maxRooms: env('MAX_ROOMS', 200),
@@ -42,6 +76,16 @@ Future<void> main(List<String> args) async {
       maxConnectionsPerAddress: env('MAX_CONNECTIONS_PER_ADDRESS', 32),
       maxUpgradesPerMinute: env('MAX_UPGRADES_PER_MINUTE', 60),
       trustProxy: Platform.environment['TRUST_PROXY'] == '1',
+      maxRequestsPerMinute: env('MAX_REQUESTS_PER_MINUTE', 600),
+      publicHost: text(
+        'PUBLIC_HOST',
+        RegExp(r'^[a-z0-9.-]{1,253}(:[0-9]{1,5})?$'),
+      ),
+      appleAppId: text(
+        'APPLE_APP_ID',
+        RegExp(r'^[A-Z0-9]{10}\.[a-z0-9.]{1,100}$'),
+      ),
+      androidCertSha256: fingerprints?.split(','),
     ),
   );
   stdout.writeln('Whowolf relay listening on port ${relay.port}');

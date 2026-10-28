@@ -9,3 +9,4 @@ export 'src/relay.dart';
 export 'src/settings_codec.dart';
 export 'src/state_codec.dart';
 export 'src/view_codec.dart';
+export 'src/web_page.dart';

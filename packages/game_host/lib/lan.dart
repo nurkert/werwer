@@ -10,7 +10,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:game_host/src/transport.dart';
-import 'package:protocol/protocol.dart' show hostSocketPath;
+import 'package:protocol/protocol.dart'
+    show hostSocketPath, isWebAppPath, webAppHeaders;
 
 /// Port the host tries first; if it is taken, the system picks one.
 const defaultPort = 47470;
@@ -36,8 +37,6 @@ class SiteFile {
 /// Looks up a file of the web app by its path (no leading slash; `''` is
 /// the page itself). `null` if there is no such file.
 typedef Site = Future<SiteFile?> Function(String path);
-
-final _sitePath = RegExp(r'^[A-Za-z0-9_.\-]+(/[A-Za-z0-9_.\-]+)*$');
 
 /// Accepts WebSocket connections from the local network and, with a
 /// [Site], serves the web app to browsers there (players join without
@@ -113,9 +112,7 @@ class LanTransport implements Transport {
       path = path.substring(1);
       final valid =
           (method == 'GET' || method == 'HEAD') &&
-          path.length <= 200 &&
-          (path.isEmpty || _sitePath.hasMatch(path)) &&
-          !path.split('/').any((part) => part.startsWith('.'));
+          (path.isEmpty || isWebAppPath(path));
       final file = valid ? await site(path) : null;
       if (file == null) {
         response.statusCode = valid
@@ -126,25 +123,14 @@ class LanTransport implements Transport {
       }
       final host = request.headers.host;
       final port = request.headers.port;
-      final self = host == null ? '' : ' ws://$host:$port';
+      final self = host == null ? '' : 'ws://$host:$port';
       final accepts =
           request.headers.value(HttpHeaders.acceptEncodingHeader) ?? '';
       var bytes = file.bytes;
       final headers = response.headers
         ..contentType = ContentType.parse(file.contentType)
-        ..set(HttpHeaders.cacheControlHeader, 'no-cache')
-        ..set('X-Content-Type-Options', 'nosniff')
-        ..set('X-Frame-Options', 'DENY')
-        ..set('Referrer-Policy', 'no-referrer')
-        ..set('Cross-Origin-Opener-Policy', 'same-origin')
-        ..set(
-          'Content-Security-Policy',
-          "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; "
-              "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
-              "font-src 'self' data:; worker-src 'self' blob:; "
-              "connect-src 'self'$self; frame-ancestors 'none'; "
-              "base-uri 'none'; form-action 'none'",
-        );
+        ..set(HttpHeaders.cacheControlHeader, 'no-cache');
+      webAppHeaders(self).forEach(headers.set);
       if (file.gzip) {
         if (accepts.contains('gzip')) {
           headers.set(HttpHeaders.contentEncodingHeader, 'gzip');

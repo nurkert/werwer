@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:game_host/lan.dart';
+import 'package:protocol/protocol.dart' show webAppType;
 
 /// The web app this host serves to browsers on the local network, if this
 /// build carries it (see `tool/build_webapp.sh`); `null` otherwise.
@@ -14,33 +15,9 @@ Future<Site?> bundledWebApp() async {
 
 const _folder = 'assets/webapp';
 
-/// Media types by file ending; anything else is not served.
-const _types = {
-  'html': 'text/html; charset=utf-8',
-  'js': 'text/javascript; charset=utf-8',
-  'css': 'text/css; charset=utf-8',
-  'json': 'application/json',
-  'wasm': 'application/wasm',
-  'png': 'image/png',
-  'webp': 'image/webp',
-  'mp3': 'audio/mpeg',
-  'otf': 'font/otf',
-  'ttf': 'font/ttf',
-  'frag': 'application/octet-stream',
-  'bin': 'application/octet-stream',
-  'txt': 'text/plain; charset=utf-8',
-};
-
-String? _type(String path) {
-  final name = path.split('/').last;
-  if (name == 'NOTICES') return _types['txt'];
-  final dot = name.lastIndexOf('.');
-  return dot < 0 ? null : _types[name.substring(dot + 1)];
-}
-
 Future<SiteFile?> _file(String path) async {
   final file = path.isEmpty ? 'index.html' : path;
-  final type = _type(file);
+  final type = webAppType(file);
   if (type == null) return null;
   // The web build itself, flattened and mostly compressed.
   final flat = '$_folder/${file.replaceAll('/', '__')}';
