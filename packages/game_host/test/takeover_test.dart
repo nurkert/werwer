@@ -684,10 +684,12 @@ void main() {
   });
 
   group('never two hosts moving the same game on', () {
-    // The host stops well before successor and witness can take over.
+    // The host stops well before successor and witness can take over
+    // (they notice a hanging link after 2 s, then wait 300 ms), with room
+    // for a few late pings on a busy test machine.
     const leased = HostConfig(
       switchLead: Duration(milliseconds: 100),
-      leaseTime: Duration(milliseconds: 200),
+      leaseTime: Duration(milliseconds: 600),
     );
 
     Future<void> startLeased(int players) async {
