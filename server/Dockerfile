@@ -1,6 +1,6 @@
 # Whowolf relay server. Build from the repository root:
 #   docker build -f server/Dockerfile -t whowolf-relay .
-FROM dart:3.12.2 AS build
+FROM dart:3.13.6 AS build
 WORKDIR /src
 
 # Resolve dependencies first (cached unless a pubspec changes). The Flutter
