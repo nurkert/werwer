@@ -16,6 +16,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- On a computer the gear opens all of the app's settings, like the
+  page to the right on a phone.
 - Picks are confirmed: every night card, the vote and the hunter's shot
   first select, then a button sends. The witch's potions are her main
   action, "brew nothing" the quiet one.

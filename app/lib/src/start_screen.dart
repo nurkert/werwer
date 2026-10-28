@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart' show NarratorLanguage;
-import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart' show appVersion;
 import 'package:whowolf/src/app_settings.dart';
@@ -173,84 +172,42 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 
-  Future<void> _settings() async {
-    const store = Store();
-    final field = TextEditingController(text: await store.customServer());
-    var off = await store.relayOff();
-    if (!mounted) return;
-    final l10n = AppLocalizations.of(context);
-    String? error;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialog) => AlertDialog(
-          title: Text(l10n.settings),
-          content: Column(
+  /// On a computer the settings are behind the gear: the same as the
+  /// phone's page to the right.
+  Future<void> _settings() => showDialog<void>(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Palette.stagePlaque,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560, maxHeight: 720),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: off,
-                onChanged: (v) => setDialog(() => off = v),
-                title: Text(l10n.relayOff),
-                subtitle: off ? Text(l10n.relayOffHint) : null,
-              ),
-              if (!off) ...[
-                TextField(
-                  controller: field,
-                  autocorrect: false,
-                  keyboardType: TextInputType.url,
-                  onChanged: (_) => setDialog(() {}),
-                  decoration: InputDecoration(
-                    labelText: l10n.relayServer,
-                    hintText: 'wss://relay.example.org',
-                    errorText: error,
+              Row(
+                children: [
+                  Expanded(
+                    child: Headline(
+                      AppLocalizations.of(context).pageSettings,
+                      size: 30,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  field.text.trim().isEmpty
-                      ? l10n.relayServerHelp
-                      : l10n.relayCustomHint,
-                  style: const TextStyle(fontSize: 13),
-                ),
-              ],
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => showPrivacy(context),
-                  child: Text(l10n.privacy),
-                ),
+                  IconButton(
+                    tooltip: MaterialLocalizations.of(context).closeButtonLabel,
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
+              const SizedBox(height: 12),
+              AppSettings(version: widget.version),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final text = field.text.trim();
-                // Switched off, the address does not matter (and its error
-                // would sit in a hidden field).
-                if (!off && text.isNotEmpty && parseRelayServer(text) == null) {
-                  setDialog(() => error = l10n.invalidServer);
-                  return;
-                }
-                await store.setCustomServer(text);
-                await store.setRelayOff(off: off);
-                if (context.mounted) Navigator.pop(context);
-              },
-              child: Text(l10n.save),
-            ),
-          ],
         ),
       ),
-    );
-    field.dispose();
-  }
+    ),
+  );
 
   @override
   void dispose() {

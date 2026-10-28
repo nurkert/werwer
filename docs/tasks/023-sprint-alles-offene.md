@@ -53,7 +53,7 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 
 ## C – Desktop
 
-- [ ] **C1 Die Einstellungen von der Wisch-Seite kommen ins Zahnrad.** Auf dem Handy liegen sie rechts auf einer Wisch-Seite. Auf dem Desktop öffnet das Zahnrad oben dieselben Einstellungen, in der Lobby und im Spiel.
+- [x] **C1 Die Einstellungen von der Wisch-Seite kommen ins Zahnrad.** Auf dem Handy liegen sie rechts auf einer Wisch-Seite. Auf dem Desktop öffnet das Zahnrad oben dieselben Einstellungen, in der Lobby und im Spiel. (erledigt: das Zahnrad am Startbildschirm öffnet jetzt dieselben `AppSettings` wie die Handy-Seite statt des alten Server-Dialogs; die Spieleinstellungen der Lobby sind am Desktop eine eigene Seite mit Pfeilen)
 - [ ] **C2 Die Ausrichtungsregeln gelten für alle Desktop-Ansichten:**
   - Spalten stehen auf dem Bühnenboden.
   - Die Aktion steht mittig darunter.
