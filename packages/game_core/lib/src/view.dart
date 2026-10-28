@@ -122,7 +122,17 @@ class PlayerView {
     this.runoff = const [],
     this.yourGhostSight = GhostSight.off,
     this.ghost,
+    this.openVotes = const {},
+    this.chronicle = const [],
   });
+
+  /// With [GameSettings.openVotes]: the votes cast so far in the current
+  /// vote, for everyone (`null` abstains).
+  final Map<PlayerId, PlayerId?> openVotes;
+
+  /// Once the game is over: everything that happened, oldest first. With
+  /// [GameSettings.openVotes] the votes are in it from the start.
+  final List<ChronicleEntry> chronicle;
 
   /// The viewer.
   final PlayerId you;
@@ -326,7 +336,75 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     runoff: state.runoff,
     yourGhostSight: sight,
     ghost: sight == GhostSight.everything ? _ghostView(state) : null,
+    openVotes: state.settings.openVotes && state.phase == Phase.vote
+        ? state.votes
+        : const {},
+    chronicle: chronicleFor(state),
   );
+}
+
+/// What the chronicle may tell everyone now: all of it once the game is
+/// over (with the seer's looks and cupid's pair), before that only the
+/// votes, and those only with open voting.
+List<ChronicleEntry> chronicleFor(GameState state) {
+  if (state.phase != Phase.ended) {
+    return state.settings.openVotes
+        ? [
+            for (final e in state.chronicle)
+              if (e.kind == ChronicleKind.vote) e,
+          ]
+        : const [];
+  }
+  final cupid = state.players
+      .where((p) => p.role == Role.cupid)
+      .firstOrNull
+      ?.id;
+  final all = [
+    if (state.lovers case [final a, final b]) ...[
+      ChronicleEntry(
+        round: 1,
+        kind: ChronicleKind.link,
+        actor: cupid,
+        target: a,
+      ),
+      ChronicleEntry(
+        round: 1,
+        kind: ChronicleKind.link,
+        actor: cupid,
+        target: b,
+      ),
+    ],
+    for (final MapEntry(key: seer, value: results) in state.seerResults.entries)
+      for (final r in results)
+        ChronicleEntry(
+          round: r.round,
+          kind: ChronicleKind.look,
+          actor: seer,
+          target: r.target,
+        ),
+    ...state.chronicle,
+  ];
+  // Night by night in the night's order, then the day's votes; the same
+  // kind keeps its order (e.g. the votes as they were cast).
+  const order = [
+    ChronicleKind.link,
+    ChronicleKind.hunt,
+    ChronicleKind.look,
+    ChronicleKind.heal,
+    ChronicleKind.poison,
+    ChronicleKind.vote,
+  ];
+  final indexed = all.indexed.toList()
+    ..sort((x, y) {
+      final (i, a) = x;
+      final (j, b) = y;
+      return a.round != b.round
+          ? a.round.compareTo(b.round)
+          : a.kind != b.kind
+          ? order.indexOf(a.kind).compareTo(order.indexOf(b.kind))
+          : i.compareTo(j);
+    });
+  return [for (final (_, e) in indexed) e];
 }
 
 GhostView _ghostView(GameState state) => GhostView(

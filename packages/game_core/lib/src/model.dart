@@ -132,6 +132,58 @@ class Death {
   final DeathCause cause;
 }
 
+/// What a [ChronicleEntry] records.
+enum ChronicleKind {
+  /// The werewolves' pick for the night (`target` null: they did not
+  /// agree).
+  hunt,
+
+  /// The witch saved the werewolves' victim.
+  heal,
+
+  /// The witch poisoned someone.
+  poison,
+
+  /// One vote of the day (`target` null: an abstention).
+  vote,
+
+  /// The seer looked at `target` (only in a view of the ended game).
+  look,
+
+  /// Cupid linked `actor`'s pick: the lovers are `target` and the other
+  /// entry of the pair (only in a view of the ended game).
+  link,
+}
+
+/// One line of the game's chronicle, told to everyone when the game is
+/// over (the votes earlier with open voting). The seer's looks and the
+/// lovers are kept elsewhere already.
+class ChronicleEntry {
+  /// Creates an entry.
+  const ChronicleEntry({
+    required this.round,
+    required this.kind,
+    this.actor,
+    this.target,
+    this.runoff = false,
+  });
+
+  /// In which round (night and the day after share it).
+  final int round;
+
+  /// What happened.
+  final ChronicleKind kind;
+
+  /// Who did it (the witch, the voter), if one player did.
+  final PlayerId? actor;
+
+  /// To whom.
+  final PlayerId? target;
+
+  /// For a vote: it was the runoff.
+  final bool runoff;
+}
+
 /// What the seer learnt about a player.
 class SeerResult {
   /// Creates a seer result.
@@ -177,6 +229,7 @@ class GameState {
     List<PlayerId> runoff = const [],
     Map<PlayerId, List<SeerResult>> seerResults = const {},
     List<Death> deaths = const [],
+    List<ChronicleEntry> chronicle = const [],
     Map<PlayerId, int> sheep = const {},
     Map<PlayerId, int> lastNightSheep = const {},
     Map<PlayerId, int> dreams = const {},
@@ -197,7 +250,8 @@ class GameState {
        votes = Map.unmodifiable(votes),
        runoff = List.unmodifiable(runoff),
        seerResults = Map.unmodifiable(seerResults),
-       deaths = List.unmodifiable(deaths);
+       deaths = List.unmodifiable(deaths),
+       chronicle = List.unmodifiable(chronicle);
 
   /// An empty lobby.
   factory GameState.lobby({GameSettings settings = const GameSettings()}) =>
@@ -263,6 +317,10 @@ class GameState {
   /// All deaths so far, oldest first.
   final List<Death> deaths;
 
+  /// What happened at night and in the votes, oldest first (see
+  /// [ChronicleEntry]); secret until the game is over.
+  final List<ChronicleEntry> chronicle;
+
   /// Sheep each player has counted so far tonight (secret until morning).
   final Map<PlayerId, int> sheep;
 
@@ -324,6 +382,7 @@ class GameState {
     List<PlayerId>? runoff,
     Map<PlayerId, List<SeerResult>>? seerResults,
     List<Death>? deaths,
+    List<ChronicleEntry>? chronicle,
     Map<PlayerId, int>? sheep,
     Map<PlayerId, int>? lastNightSheep,
     Map<PlayerId, int>? dreams,
@@ -353,6 +412,7 @@ class GameState {
     runoff: runoff ?? this.runoff,
     seerResults: seerResults ?? this.seerResults,
     deaths: deaths ?? this.deaths,
+    chronicle: chronicle ?? this.chronicle,
     sheep: sheep ?? this.sheep,
     lastNightSheep: lastNightSheep ?? this.lastNightSheep,
     dreams: dreams ?? this.dreams,

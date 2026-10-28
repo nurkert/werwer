@@ -10,6 +10,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
+import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/help.dart';
@@ -1503,6 +1504,9 @@ class DayPhase extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
     final sheep = view.settings.sheepInPlay && view.lastNightSheep.isNotEmpty;
+    final yesterday = view.settings.openVotes
+        ? votesOf(view, view.round - 1)
+        : const <PlayerId, PlayerId?>{};
     return PhaseBody(
       action: session.isOwner
           ? PrimaryButton(
@@ -1532,6 +1536,15 @@ class DayPhase extends StatelessWidget {
             },
           ),
         ),
+        // With open voting: how yesterday's vote went, to talk about.
+        if (yesterday.isNotEmpty)
+          Aside(
+            child: VotesPanel(
+              view: view,
+              votes: yesterday,
+              title: l10n.votesYesterday,
+            ),
+          ),
         if (!session.isOwner) Body(l10n.ownerStartsVote, muted: true),
       ],
     );
@@ -1646,6 +1659,15 @@ class VotePhase extends StatelessWidget {
               vote == null ? l10n.abstained : l10n.votedFor(view.nameOf(vote)),
             ),
         ],
+        // Open voting: everyone sees the votes as they come in.
+        if (view.openVotes.isNotEmpty)
+          Aside(
+            child: VotesPanel(
+              view: view,
+              votes: view.openVotes,
+              title: l10n.votesLive,
+            ),
+          ),
         Body(l10n.waitingFor(view.waitingFor), muted: true),
       ],
     );
@@ -1699,6 +1721,7 @@ class EndedPhase extends StatelessWidget {
             },
           ),
         ),
+        if (view.chronicle.isNotEmpty) Aside(child: ChroniclePanel(view: view)),
         TextButton(onPressed: onLeave, child: Text(l10n.leave)),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:game_core/game_core.dart';
+import 'package:protocol/src/chronicle_codec.dart';
 import 'package:protocol/src/reader.dart';
 import 'package:protocol/src/settings_codec.dart';
 
@@ -76,6 +77,12 @@ Map<String, Object?> encodeView(PlayerView view) => {
   'runoff': [for (final p in view.runoff) p.value],
   'ghostSight': view.yourGhostSight.name,
   'ghost': ?_encodeGhost(view.ghost),
+  if (view.openVotes.isNotEmpty)
+    'openVotes': [
+      for (final MapEntry(:key, :value) in view.openVotes.entries)
+        {'player': key.value, 'target': ?value?.value},
+    ],
+  if (view.chronicle.isNotEmpty) 'chronicle': encodeChronicle(view.chronicle),
 };
 
 Map<String, Object?>? _encodeGhost(GhostView? ghost) => ghost == null
@@ -213,6 +220,12 @@ PlayerView decodeView(JsonReader json) => PlayerView(
   yourGhostSight:
       json.maybeEnum('ghostSight', GhostSight.values) ?? GhostSight.off,
   ghost: _decodeGhost(json),
+  openVotes: {
+    if (json.has('openVotes'))
+      for (final v in json.objects('openVotes', max: maxPlayers))
+        _pid(v, 'player'): _maybePid(v, 'target'),
+  },
+  chronicle: decodeChronicle(json, 'chronicle'),
 );
 
 List<PlayerId> _couple(List<PlayerId> ids) => ids.isEmpty || ids.length == 2

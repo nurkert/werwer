@@ -476,6 +476,120 @@ abstract class AppLocalizations {
   /// **'Close your eyes for a moment and hold your phone close: the night begins in a second.'**
   String get eyesClosingTogether;
 
+  /// No description provided for @settingsOpenVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voting'**
+  String get settingsOpenVotes;
+
+  /// No description provided for @settingsOpenVotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone sees who votes for whom as it happens, and again the next day.'**
+  String get settingsOpenVotesHint;
+
+  /// No description provided for @votesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {voters}'**
+  String votesFor(String name, String voters);
+
+  /// No description provided for @votesAbstained.
+  ///
+  /// In en, this message translates to:
+  /// **'Abstained: {names}'**
+  String votesAbstained(String names);
+
+  /// No description provided for @votesLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Who votes for whom'**
+  String get votesLive;
+
+  /// No description provided for @votesYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'How yesterday\'s vote went'**
+  String get votesYesterday;
+
+  /// No description provided for @chronicleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What really happened'**
+  String get chronicleTitle;
+
+  /// No description provided for @chronicleNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night {round}'**
+  String chronicleNight(int round);
+
+  /// No description provided for @chronicleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {round}'**
+  String chronicleDay(int round);
+
+  /// No description provided for @chronicleHunt.
+  ///
+  /// In en, this message translates to:
+  /// **'The werewolves chose {name}.'**
+  String chronicleHunt(String name);
+
+  /// No description provided for @chronicleHuntNone.
+  ///
+  /// In en, this message translates to:
+  /// **'The werewolves did not agree.'**
+  String get chronicleHuntNone;
+
+  /// No description provided for @chronicleLook.
+  ///
+  /// In en, this message translates to:
+  /// **'{seer} looked into {name}\'s soul.'**
+  String chronicleLook(String seer, String name);
+
+  /// No description provided for @chronicleHeal.
+  ///
+  /// In en, this message translates to:
+  /// **'{witch} saved {name} with the healing potion.'**
+  String chronicleHeal(String witch, String name);
+
+  /// No description provided for @chroniclePoison.
+  ///
+  /// In en, this message translates to:
+  /// **'{witch} poisoned {name}.'**
+  String chroniclePoison(String witch, String name);
+
+  /// No description provided for @chronicleLink.
+  ///
+  /// In en, this message translates to:
+  /// **'{cupid} linked {a} and {b}.'**
+  String chronicleLink(String cupid, String a, String b);
+
+  /// No description provided for @lastWordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last words'**
+  String get lastWordsTitle;
+
+  /// No description provided for @lastWordsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last words'**
+  String get lastWordsYou;
+
+  /// No description provided for @lastWordsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen: only the one who just left speaks now.'**
+  String get lastWordsHint;
+
+  /// No description provided for @lastWordsYouHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the village one more thing, the clock is running.'**
+  String get lastWordsYouHint;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

@@ -684,7 +684,33 @@ GameUpdate _resolveNight(GameState state) {
   final counted = state.settings.sheepInPlay
       ? {for (final p in state.alive) p.id: state.sheep[p.id] ?? 0}
       : const <PlayerId, int>{};
+  final witch = state.players
+      .where((p) => p.role == Role.witch)
+      .firstOrNull
+      ?.id;
   final cleared = state.copyWith(
+    chronicle: [
+      ...state.chronicle,
+      ChronicleEntry(
+        round: state.round,
+        kind: ChronicleKind.hunt,
+        target: victim,
+      ),
+      if (healed)
+        ChronicleEntry(
+          round: state.round,
+          kind: ChronicleKind.heal,
+          actor: witch,
+          target: victim,
+        ),
+      if (poisoned != null)
+        ChronicleEntry(
+          round: state.round,
+          kind: ChronicleKind.poison,
+          actor: witch,
+          target: poisoned,
+        ),
+    ],
     nightStep: NightStep.hunt,
     nightChoices: const {},
     nightVictim: null,
@@ -868,7 +894,22 @@ GameUpdate _castVote(GameState state, CastVote action) {
 GameUpdate _resolveVote(GameState state) {
   final cast = state.votes.values.whereType<PlayerId>().toList();
   final leaders = _leaders(state, cast);
-  final cleared = state.copyWith(votes: const {}, runoff: const []);
+  final cleared = state.copyWith(
+    votes: const {},
+    runoff: const [],
+    chronicle: [
+      ...state.chronicle,
+      for (final p in state.alive)
+        if (state.votes.containsKey(p.id))
+          ChronicleEntry(
+            round: state.round,
+            kind: ChronicleKind.vote,
+            actor: p.id,
+            target: state.votes[p.id],
+            runoff: state.runoff.isNotEmpty,
+          ),
+    ],
+  );
   if (leaders.length > 1 &&
       state.runoff.isEmpty &&
       state.settings.tieRule == TieRule.runoff) {

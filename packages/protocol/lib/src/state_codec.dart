@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:game_core/game_core.dart';
+import 'package:protocol/src/chronicle_codec.dart';
 import 'package:protocol/src/reader.dart';
 import 'package:protocol/src/settings_codec.dart';
 
@@ -88,6 +89,7 @@ Map<String, Object?> encodeState(GameState state) => {
     for (final d in state.deaths)
       {'player': d.player.value, 'round': d.round, 'cause': d.cause.name},
   ],
+  'chronicle': encodeChronicle(state.chronicle),
   'sheep': _pairs(state.sheep),
   'lastNightSheep': _pairs(state.lastNightSheep),
   'dreams': _pairs(state.dreams),
@@ -166,6 +168,8 @@ GameState decodeState(JsonReader json) {
           cause: d.enumValue('cause', DeathCause.values),
         ),
     ],
+    // Missing in a game saved before the chronicle: an empty one.
+    chronicle: decodeChronicle(json, 'chronicle'),
     sheep: _readPairs(json, 'sheep'),
     lastNightSheep: _readPairs(json, 'lastNightSheep'),
     dreams: _readPairs(json, 'dreams'),

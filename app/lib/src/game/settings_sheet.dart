@@ -211,6 +211,12 @@ class _SettingsBody extends StatelessWidget {
           s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
         ),
       ),
+      _Switch(
+        label: l10n.settingsOpenVotes,
+        hint: s.openVotes ? l10n.settingsOpenVotesHint : null,
+        value: s.openVotes,
+        onChanged: (v) => onChanged(s.copyWith(openVotes: v)),
+      ),
       _Choice<GhostSight>(
         label: l10n.settingsGhosts,
         segments: [

@@ -11,9 +11,11 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
+import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/narrator.dart';
+import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -73,6 +75,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   /// What the host was last told about this phone's silence.
   bool? _toldSilent;
+
+  /// Deaths whose last words were given already (or were before this
+  /// screen came), so each death has its moment once.
+  final _mourned = <(PlayerId, int)>{};
   PlayerView? _lastView;
   String? _narration;
 
@@ -293,10 +299,40 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         phaseStartedAt: session.phaseStartedAtMs,
         deathAt: deathAt,
       );
+      _lastWords(before, view);
       if (view.phase != Phase.roleReveal) _followIntro(const []);
       _followSkip(view);
     }
     setState(() {});
+  }
+
+  /// Whoever just died stands in the spotlight for a few seconds, on
+  /// every phone at once (deaths are public). Not when the game is over
+  /// (the curtain call follows), and not for the hunter still aiming.
+  void _lastWords(PlayerView? before, PlayerView view) {
+    // The game is over: the curtain call, not last words.
+    if (view.phase == Phase.ended) closeLastWords();
+    final fresh = [
+      for (final d in freshDeaths(view))
+        if (_mourned.add((d.player, d.round))) d,
+    ];
+    if (before == null ||
+        fresh.isEmpty ||
+        view.phase == Phase.ended ||
+        view.phase == Phase.lobby ||
+        (view.phase == Phase.hunterShot && view.shooter == view.you)) {
+      return;
+    }
+    final dead = [
+      for (final d in fresh)
+        ?view.seats.where((s) => s.id == d.player).firstOrNull,
+    ];
+    if (dead.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(showLastWords(context, dead: dead, you: view.you));
+      }
+    });
   }
 
   /// The roles wait while the intro is told (on every phone alike, from

@@ -179,6 +179,19 @@ void expectNoLeaks(GameState state) {
     if (!isWolf || !viewer.isAlive) {
       expect(view.packMark, isNull, reason: '${viewer.id} sees the mark');
     }
+    // The chronicle: nothing of the night before the end; votes only with
+    // open voting, and the live votes only then.
+    if (!over) {
+      expect(
+        view.chronicle.where((e) => e.kind != ChronicleKind.vote),
+        isEmpty,
+        reason: '${viewer.id} reads the chronicle',
+      );
+      if (!state.settings.openVotes) {
+        expect(view.chronicle, isEmpty);
+        expect(view.openVotes, isEmpty);
+      }
+    }
     // Own choices only.
     expect(view.yourNightTargets, state.nightChoices[viewer.id] ?? []);
     expect(view.yourVote, state.votes[viewer.id]);

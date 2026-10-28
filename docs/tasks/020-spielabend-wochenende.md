@@ -37,6 +37,13 @@ Wunsch des Eigentümers: Am Wochenende soll ein Spiel ohne Hänger laufen. Dafü
 - [ ] **Platz an ein anderes Gerät übergeben:** Der Spielleiter tippt auf den Platz und wählt „An anderes Gerät geben“. Es erscheint ein einmaliger QR-Code nur für diesen Platz. Das neue Gerät scannt ihn und sitzt mit Rolle und Stand am Platz, das alte Token wird ungültig.
 - [ ] Fehlt jemand in seiner Aktion (nachts, Abstimmung), läuft die Phase nach Zeit weiter wie bisher. Prüfen, dass das in jeder Phase und Rolle stimmt (Jäger, Hexe, Amor, Seherin).
 
+## 3b. Mehr Spiel, schnell gebaut (Wunsch des Eigentümers, 2026-10-28)
+
+- [x] **Chronik am Spielende:** `GameState.chronicle` hält die Wahl der Wölfe, Heiltrank und Gift und jede Stimme fest. `chronicleFor` gibt sie erst bei `Phase.ended` heraus, ergänzt um die Blicke der Seherin und Amors Paar, Nacht für Nacht in der Reihenfolge der Nacht. Die App zeigt sie unter dem Vorhang („Was wirklich geschah“). Der Leak-Test in `support.dart` prüft, dass vorher nichts davon in einer Sicht steht.
+- [x] **Offene Abstimmung** (`GameSettings.openVotes`, Standard aus): Alle sehen live, wer wen wählt (`PlayerView.openVotes`), und am Tag darauf „So wurde gestern abgestimmt“.
+- [x] **Letzte Worte:** Wer stirbt, steht 7 Sekunden groß auf allen Bildschirmen, mit Countdown (Wunsch: 5 bis höchstens 10 s). Das läuft nur in der App, aus der öffentlichen Todesnachricht. Nach einer Abstimmung wartet die Nacht mit ihrem ersten Schritt so lange länger. Nicht beim Spielende und nicht für den Jäger, der gerade zielt.
+- Protokoll Version 10 (Einstellung, Sicht, Spielstand). Tests: `chronicle_test.dart`, `chronicle_codec_test.dart`.
+
 ## 4. Generalprobe (ganz zum Schluss, vor Freitag)
 
 - [ ] Eine komplette Runde mit **5–7 echten Geräten**, gemischt: iPhone als Host, weitere iPhones, Android, mindestens ein Browser im WLAN und einer über mobile Daten (Task 017).

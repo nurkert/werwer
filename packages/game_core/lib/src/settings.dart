@@ -122,6 +122,7 @@ class GameSettings {
     this.narratorLanguage = NarratorLanguage.de,
     this.ghosts = GhostSight.everything,
     this.tieRule = TieRule.runoff,
+    this.openVotes = false,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -187,6 +188,10 @@ class GameSettings {
 
   /// How a tied vote ends.
   final TieRule tieRule;
+
+  /// Whether everyone sees who votes for whom, as it happens (like raising
+  /// hands), and the day after how the last vote went.
+  final bool openVotes;
 
   /// Whether sheep are counted: they need the phones in hand at night, so
   /// not when the narrator calls the roles.
@@ -293,6 +298,7 @@ class GameSettings {
     NarratorLanguage? narratorLanguage,
     GhostSight? ghosts,
     TieRule? tieRule,
+    bool? openVotes,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -312,6 +318,7 @@ class GameSettings {
     narratorLanguage: narratorLanguage ?? this.narratorLanguage,
     ghosts: ghosts ?? this.ghosts,
     tieRule: tieRule ?? this.tieRule,
+    openVotes: openVotes ?? this.openVotes,
   );
 
   @override
@@ -336,7 +343,8 @@ class GameSettings {
       other.nightMode == nightMode &&
       other.narratorLanguage == narratorLanguage &&
       other.ghosts == ghosts &&
-      other.tieRule == tieRule;
+      other.tieRule == tieRule &&
+      other.openVotes == openVotes;
 
   @override
   int get hashCode => Object.hash(
@@ -358,6 +366,7 @@ class GameSettings {
     narratorLanguage,
     ghosts,
     tieRule,
+    openVotes,
   );
 }
 

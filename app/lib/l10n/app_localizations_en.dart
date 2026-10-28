@@ -236,6 +236,83 @@ class AppLocalizationsEn extends AppLocalizations {
       'Close your eyes for a moment and hold your phone close: the night begins in a second.';
 
   @override
+  String get settingsOpenVotes => 'Open voting';
+
+  @override
+  String get settingsOpenVotesHint =>
+      'Everyone sees who votes for whom as it happens, and again the next day.';
+
+  @override
+  String votesFor(String name, String voters) {
+    return '$name: $voters';
+  }
+
+  @override
+  String votesAbstained(String names) {
+    return 'Abstained: $names';
+  }
+
+  @override
+  String get votesLive => 'Who votes for whom';
+
+  @override
+  String get votesYesterday => 'How yesterday\'s vote went';
+
+  @override
+  String get chronicleTitle => 'What really happened';
+
+  @override
+  String chronicleNight(int round) {
+    return 'Night $round';
+  }
+
+  @override
+  String chronicleDay(int round) {
+    return 'Day $round';
+  }
+
+  @override
+  String chronicleHunt(String name) {
+    return 'The werewolves chose $name.';
+  }
+
+  @override
+  String get chronicleHuntNone => 'The werewolves did not agree.';
+
+  @override
+  String chronicleLook(String seer, String name) {
+    return '$seer looked into $name\'s soul.';
+  }
+
+  @override
+  String chronicleHeal(String witch, String name) {
+    return '$witch saved $name with the healing potion.';
+  }
+
+  @override
+  String chroniclePoison(String witch, String name) {
+    return '$witch poisoned $name.';
+  }
+
+  @override
+  String chronicleLink(String cupid, String a, String b) {
+    return '$cupid linked $a and $b.';
+  }
+
+  @override
+  String get lastWordsTitle => 'Last words';
+
+  @override
+  String get lastWordsYou => 'Your last words';
+
+  @override
+  String get lastWordsHint => 'Listen: only the one who just left speaks now.';
+
+  @override
+  String get lastWordsYouHint =>
+      'Tell the village one more thing, the clock is running.';
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

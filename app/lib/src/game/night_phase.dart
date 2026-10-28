@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/door_sign.dart';
 import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/narrator.dart';
+import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/phases.dart';
 import 'package:whowolf/src/game/seer_vision.dart';
 import 'package:whowolf/src/game/sheep.dart';
@@ -172,8 +174,12 @@ class _NightPhaseState extends State<NightPhase> {
   bool _holding(PlayerView view) {
     final started = session.phaseStartedAtMs;
     if (started == null) return false;
+    // After a vote, the one voted out has their last words first.
+    final lastWords = freshDeaths(view).any((d) => d.cause == DeathCause.vote)
+        ? lastWordsTime.inMilliseconds
+        : 0;
     final hold = _isFirstStep(view)
-        ? 6000
+        ? 6000 + lastWords
         : view.settings.nightMode == NightMode.called
         ? 4000
         : 3000;
