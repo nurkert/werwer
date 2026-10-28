@@ -25,6 +25,13 @@ class NightPhase extends StatefulWidget {
 
   final GameSession session;
 
+  /// This device's clock in milliseconds; screenshot tests move it past
+  /// the moment of closing the eyes.
+  @visibleForTesting
+  static int Function() clock = _now;
+
+  static int _now() => DateTime.now().millisecondsSinceEpoch;
+
   @override
   State<NightPhase> createState() => _NightPhaseState();
 }
@@ -33,6 +40,10 @@ class _NightPhaseState extends State<NightPhase> {
   final _random = Random();
   late final Timer _report;
   Timer? _decoy;
+
+  /// Ends the moment at a step's start in which every phone shows the same
+  /// closed eyes (see [_holding]).
+  Timer? _holdEnd;
 
   /// The step everything below belongs to; a new step starts fresh.
   (int, NightStep)? _step;
@@ -66,6 +77,7 @@ class _NightPhaseState extends State<NightPhase> {
 
   @override
   void dispose() {
+    _holdEnd?.cancel();
     _decoy?.cancel();
     _report.cancel();
     super.dispose();
@@ -89,6 +101,8 @@ class _NightPhaseState extends State<NightPhase> {
         _sentSheep = 0;
       }
       _step = step;
+      _holdEnd?.cancel();
+      _holdEnd = null;
       _decoy?.cancel();
       _decoy = null;
       _pair.clear();
@@ -150,10 +164,39 @@ class _NightPhaseState extends State<NightPhase> {
     });
   }
 
+  /// Whether this step's first moments still belong to closing the eyes:
+  /// for a few seconds every phone shows the same thing, so whoever is
+  /// still looking around does not see a neighbour's screen light up with
+  /// a werewolf's task. The same time on every phone, from the step's
+  /// shared start, whatever the role.
+  bool _holding(PlayerView view) {
+    final started = session.phaseStartedAtMs;
+    if (started == null) return false;
+    final hold = _isFirstStep(view)
+        ? 6000
+        : view.settings.nightMode == NightMode.called
+        ? 4000
+        : 3000;
+    final left = started + hold - NightPhase.clock();
+    if (left <= 0) return false;
+    _holdEnd ??= Timer(Duration(milliseconds: left), () {
+      _holdEnd = null;
+      if (mounted) setState(() {});
+    });
+    return true;
+  }
+
+  static bool _isFirstStep(PlayerView view) {
+    final cupidFirst =
+        view.round == 1 && view.settings.roles.contains(Role.cupid);
+    return view.nightStep == (cupidFirst ? NightStep.link : NightStep.hunt);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = session.view!;
+    final holding = _holding(view);
     if (view.settings.nightMode == NightMode.called) {
       return _calledNight(view, l10n);
     }
@@ -165,7 +208,10 @@ class _NightPhaseState extends State<NightPhase> {
         CoupleNote(view: view),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
-        else ...[
+        else if (holding) ...[
+          _NightMoon(session: session),
+          Body(l10n.eyesClosingTogether),
+        ] else ...[
           // Everyone's own sign, big: a reason for every player, not just
           // the werewolves, to keep their screen to themselves.
           if (view.yourDoorSign case final sign?) DoorSignPanel(sign: sign),
@@ -214,7 +260,7 @@ class _NightPhaseState extends State<NightPhase> {
         view.round == 1 && view.settings.roles.contains(Role.cupid);
     final first =
         view.nightStep == (cupidFirst ? NightStep.link : NightStep.hunt);
-    final awake = task != null && !view.youActed;
+    final awake = task != null && !view.youActed && !_holding(view);
     return PhaseBody(
       children: [
         if (awake)

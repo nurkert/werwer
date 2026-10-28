@@ -232,6 +232,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get eyesClosingTogether =>
+      'Close your eyes for a moment and hold your phone close: the night begins in a second.';
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

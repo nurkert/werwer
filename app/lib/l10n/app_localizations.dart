@@ -470,6 +470,12 @@ abstract class AppLocalizations {
   /// **'You picked {name}.'**
   String picked(String name);
 
+  /// No description provided for @eyesClosingTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Close your eyes for a moment and hold your phone close: the night begins in a second.'**
+  String get eyesClosingTogether;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

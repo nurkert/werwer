@@ -20,6 +20,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
+import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/walking_narrator.dart';
 import 'package:whowolf/src/net/game_session.dart';
@@ -301,6 +302,8 @@ class _Table {
 
 void main() {
   setUpAll(() async {
+    // The shots show the night's tasks, past the moment of closing eyes.
+    NightPhase.clock = () => DateTime.now().millisecondsSinceEpoch + 60000;
     if (_out == null) return;
     // Real time, before any widget asks for it inside the fake clock.
     await Grain.load();
