@@ -336,6 +336,17 @@ class _NightPhaseState extends State<NightPhase> {
         ),
       );
     }
+    final show = TextButton(
+      onPressed: () => setState(() => _open = true),
+      child: Text(l10n.nightTaskShow),
+    );
+    // With the system's large text the button goes below the line, so the
+    // line keeps its width.
+    if (MediaQuery.textScalerOf(context).scale(14) > 21) {
+      return Panel(
+        child: Column(children: [Body(l10n.nightTaskDone), show]),
+      );
+    }
     return Panel(
       padding: const EdgeInsets.fromLTRB(16, 6, 6, 6),
       child: Row(
@@ -343,10 +354,7 @@ class _NightPhaseState extends State<NightPhase> {
           const Icon(Icons.check_circle_rounded, color: Palette.lantern400),
           const SizedBox(width: 10),
           Expanded(child: Body(l10n.nightTaskDone)),
-          TextButton(
-            onPressed: () => setState(() => _open = true),
-            child: Text(l10n.nightTaskShow),
-          ),
+          show,
         ],
       ),
     );

@@ -201,6 +201,8 @@ class _Table {
         settings: const GameSettings(),
         roomCode: '1234',
         random: Random(seed),
+        // Phases switch at once: the shots need no lead ahead of them.
+        config: const HostConfig(switchLead: Duration.zero),
         startTimer: (_, _) => () {},
       ) {
     host.serve(lan);

@@ -12,6 +12,7 @@ import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
+import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// Your own figure in the lobby, and the sheet to pick another one.
@@ -396,8 +397,8 @@ class _FigureCard extends StatelessWidget {
       selected: selected,
       label: [l10n.persona(persona), ?takenBy].join(', '),
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      child: Tappable(
+        radius: Radii.m,
         onTap: free
             ? () {
                 unawaited(HapticFeedback.selectionClick());

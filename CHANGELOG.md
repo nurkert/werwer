@@ -15,6 +15,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- Cards, quick picks and role switches work with the keyboard (Tab,
+  Enter, Space) and show a focus ring; large system text fits.
 - Phase times follow the number of players in the lobby until the game
   leader sets them; picking a preset keeps them.
 - At night every phone first shows the same lit card with a question,

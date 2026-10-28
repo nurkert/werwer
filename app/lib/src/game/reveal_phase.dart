@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/phase_body.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
 
 class RevealPhase extends StatefulWidget {
@@ -97,8 +98,7 @@ class _RevealPhaseState extends State<RevealPhase> {
         : Semantics(
             button: true,
             label: _shown ? l10n.role(role) : l10n.revealTap,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: Tappable(
               onTap: turn,
               child: child,
             ),

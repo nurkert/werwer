@@ -4,6 +4,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/settings_sheet.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The controls the game settings are built from (task 004): sections,
@@ -40,8 +41,7 @@ class QuickPick extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     selected: selected,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    child: Tappable(
       onTap: onTap,
       // The tick sits on the corner, so the title keeps the whole width
       // (no "Klassisch" broken onto two lines); the content stands in the
@@ -130,7 +130,7 @@ class RoleToggle extends StatelessWidget {
     return Semantics(
       toggled: on,
       label: l10n.role(role),
-      child: GestureDetector(
+      child: Tappable(
         onTap: onTap,
         child: AnimatedOpacity(
           opacity: on ? 1 : 0.45,

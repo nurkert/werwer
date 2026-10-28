@@ -5,6 +5,7 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
+import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// A player as a card to choose (task 012): the persona's upper body on a
@@ -114,8 +115,8 @@ class PuppetCard extends StatelessWidget {
         offset: selected ? const Offset(0, -0.035) : Offset.zero,
         duration: reduce ? Duration.zero : const Duration(milliseconds: 220),
         curve: Curves.easeOutBack,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        child: Tappable(
+          radius: Radii.m,
           onTap: onTap,
           child: SizedBox(
             width: width,

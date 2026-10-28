@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:whowolf/src/stage/pan.dart';
+import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// One page of [StagePages]: its name for the dots and what it shows.
@@ -405,8 +406,8 @@ class _Dots extends StatelessWidget {
               selected: page.round() == i,
               label: label,
               excludeSemantics: true,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
+              child: Tappable(
+                radius: 999,
                 onTap: () => onTap(i),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
