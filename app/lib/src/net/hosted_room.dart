@@ -13,6 +13,7 @@ import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/invite_code.dart';
 import 'package:whowolf/src/net/keep_alive.dart';
+import 'package:whowolf/src/net/on_demand_relay.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/web_app.dart';
 
@@ -35,6 +36,7 @@ class HostedRoom {
     required this.relayFailed,
     required this.keptAlive,
     required this._relayServer,
+    required this._relayGate,
     required this._webAppBuild,
     required this._serverHasBuild,
   });
@@ -167,8 +169,12 @@ class HostedRoom {
       };
     // Without Wi-Fi nobody can reach this room but through the server.
     final offline = (await privateAddresses()).isEmpty;
-    final relay = relayServer != null && (online || offline)
-        ? await _openRelay(relayServer, host, roomKeys)
+    final gate = OnDemandRelay<RelayTransport>(
+      () async =>
+          relayServer == null ? null : _openRelay(relayServer, host, roomKeys),
+    );
+    final relay = OnDemandRelay.rightAway(always: online, offline: offline)
+        ? await gate.open()
         : null;
     // Others see the room under "Join a room" without typing anything.
     final announcer = RoomAnnouncer();
@@ -191,9 +197,13 @@ class HostedRoom {
       relay,
       await _linkFor(code, roomKeys, lan, relay),
       announcer,
-      relayFailed: relayServer != null && (online || offline) && relay == null,
+      relayFailed:
+          relayServer != null &&
+          OnDemandRelay.rightAway(always: online, offline: offline) &&
+          relay == null,
       keptAlive: keptAlive,
       relayServer: relayServer,
+      relayGate: gate,
       webAppBuild: webAppBuild,
       serverHasBuild: relay != null && await _serves(relayServer!, webAppBuild),
     ).._webApp = site;
@@ -247,13 +257,14 @@ class HostedRoom {
     if (_relay != null) return true;
     final server = _relayServer;
     if (server == null || _closed) return false;
-    final relay = await _openRelay(server, host, _keys);
+    final relay = await _relayGate.open();
     relayFailed = relay == null;
     if (relay == null) return false;
     if (_closed) {
       await relay.close();
       return false;
     }
+    if (_relay == relay) return true;
     _relay = relay;
     _link = await _linkFor(roomCode, _keys, _lan, relay);
     _serverHasBuild = await _serves(server, _webAppBuild);
@@ -288,6 +299,7 @@ class HostedRoom {
   final HostKeys _keys;
   final String _hostName;
   final Uri? _relayServer;
+  final OnDemandRelay<RelayTransport> _relayGate;
   final String? _webAppBuild;
   RelayTransport? _relay;
   bool _serverHasBuild;
