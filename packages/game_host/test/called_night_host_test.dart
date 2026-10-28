@@ -78,5 +78,24 @@ void main() {
     expect(host.state.nightStep, NightStep.hunt);
     final due = timers.map((t) => t.$1).reduce(min);
     expect(due, 1000000 + calledStepTime.inMilliseconds);
+
+    // The seer's step: she looks late, after the step's least time, and
+    // still has her moment to take in the vision before eyes close.
+    timers.firstWhere((t) => t.$1 == due).$2();
+    timers.removeWhere((t) => t.$1 == due);
+    await settle();
+    await settle();
+    expect(host.state.nightStep, NightStep.inspect);
+    final seer = links.firstWhere((l) => l.view!.yourRole == Role.seer);
+    now += 20000;
+    final look = seer.view!.seats.firstWhere(
+      (s) => s.isAlive && s.id != seer.view!.you,
+    );
+    seer.send(NightIntent(look.id));
+    await settle();
+    await settle();
+    expect(host.state.nightStep, NightStep.inspect);
+    final ends = timers.map((t) => t.$1).reduce(max);
+    expect(ends, now + GameHost.seerLookTime.inMilliseconds);
   });
 }

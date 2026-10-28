@@ -32,6 +32,11 @@ class NightPhase extends StatefulWidget {
   @visibleForTesting
   static int Function() clock = _now;
 
+  /// When the narrator calls the current step's role (this device's
+  /// clock), from the narration plan, which is the same on every phone:
+  /// the tasks open a moment after the call begins, not before.
+  static final callAt = ValueNotifier<int?>(null);
+
   static int _now() => DateTime.now().millisecondsSinceEpoch;
 
   @override
@@ -183,7 +188,14 @@ class _NightPhaseState extends State<NightPhase> {
         : view.settings.nightMode == NightMode.called
         ? 4000
         : 3000;
-    final left = started + hold - NightPhase.clock();
+    // With the narrator calling the roles: until shortly after the call
+    // began (never longer than 15 s into the step).
+    final call = NightPhase.callAt.value;
+    var until = started + hold;
+    if (call != null && call >= started && call - started < 15000) {
+      until = max(until, call + 1500);
+    }
+    final left = until - NightPhase.clock();
     if (left <= 0) return false;
     _holdEnd ??= Timer(Duration(milliseconds: left), () {
       _holdEnd = null;

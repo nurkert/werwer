@@ -286,6 +286,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
           facts: storyFacts(view),
         );
         _followIntro(planned);
+        // When the role of this night step is called: its tasks open then.
+        NightPhase.callAt.value = view.phase == Phase.night
+            ? planned.where((p) => p.key.startsWith('wake_')).firstOrNull?.at
+            : null;
         final named = planned
             .where(
               (p) => deathMoments.contains(p.key) || p.key.startsWith('role_'),

@@ -290,6 +290,13 @@ class GameHost {
   /// How much the leader added to this phase already.
   Duration _extended = Duration.zero;
 
+  /// How long a called night step goes on after its last pick, so the
+  /// picker sees the result (the pack's choice standing).
+  static const lastPickTime = Duration(seconds: 3);
+
+  /// The same for the seer: time to take in her vision.
+  static const seerLookTime = Duration(seconds: 7);
+
   /// How long the table hears "the vote is coming" before it does.
   static const voteWarning = Duration(seconds: 5);
 
@@ -1065,8 +1072,16 @@ class GameHost {
       final limit = timeLimit(_state);
       if (limit != null) {
         final left = _phaseStartedAt + limit.inMilliseconds - _clock();
+        // Whoever just decided still gets a moment to see what came of it
+        // (the seer her vision) before eyes close: the step never ends
+        // right on the last pick.
+        final settle = _state.nightStep == NightStep.inspect
+            ? seerLookTime
+            : lastPickTime;
         _schedulePhaseTimer(
-          remaining: Duration(milliseconds: left < 0 ? 0 : left),
+          remaining: Duration(
+            milliseconds: max(left, settle.inMilliseconds),
+          ),
           sameStep: true,
         );
       }
