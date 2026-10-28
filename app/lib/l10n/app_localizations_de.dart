@@ -334,6 +334,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scanInvalid => 'Das ist kein Whowolf-Raumcode.';
 
   @override
+  String get scanHint => 'Oder scannt diesen Code mit der Whowolf-App:';
+
+  @override
+  String get scanLight => 'Licht';
+
+  @override
   String joinConfirmTitle(String room) {
     return 'Raum $room beitreten?';
   }
@@ -382,9 +388,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get invalidServer =>
       'Die Adresse muss mit ws:// oder wss:// beginnen.';
-
-  @override
-  String get scanHint => 'Oder scannt diesen Code mit der Whowolf-App:';
 
   @override
   String get relayFailed => 'Online-Server nicht erreichbar: nur WLAN.';

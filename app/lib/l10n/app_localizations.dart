@@ -632,6 +632,18 @@ abstract class AppLocalizations {
   /// **'That is not a Whowolf room code.'**
   String get scanInvalid;
 
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or scan this code with the Whowolf app:'**
+  String get scanHint;
+
+  /// No description provided for @scanLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get scanLight;
+
   /// No description provided for @joinConfirmTitle.
   ///
   /// In en, this message translates to:
@@ -709,12 +721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use an address starting with ws:// or wss://.'**
   String get invalidServer;
-
-  /// No description provided for @scanHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Or scan this code with the Whowolf app:'**
-  String get scanHint;
 
   /// No description provided for @relayFailed.
   ///

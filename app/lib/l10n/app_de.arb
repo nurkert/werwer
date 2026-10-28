@@ -89,6 +89,8 @@
   "scanQr": "QR-Code scannen",
   "scanTitle": "Raumcode scannen",
   "scanInvalid": "Das ist kein Whowolf-Raumcode.",
+  "scanHint": "Halte die Kamera auf den Code am Tisch.",
+  "scanLight": "Licht",
   "joinConfirmTitle": "Raum {room} beitreten?",
   "joinConfirmLan": "Im WLAN: {address}",
   "joinConfirmOnline": "Online über {server}",

@@ -204,6 +204,8 @@
   "scanQr": "Scan QR code",
   "scanTitle": "Scan the room code",
   "scanInvalid": "That is not a Whowolf room code.",
+  "scanHint": "Point the camera at the code at the table.",
+  "scanLight": "Light",
   "joinConfirmTitle": "Join room {room}?",
   "@joinConfirmTitle": {
     "placeholders": {
