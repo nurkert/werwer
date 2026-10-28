@@ -254,6 +254,10 @@ class PlayerLink {
   /// Why the link ended, if the host said so.
   ByeReason? byeReason;
 
+  /// The host's protocol version, if it said it speaks another one (then
+  /// [byeReason] is [ByeReason.version]).
+  int? hostVersion;
+
   /// How many times the room changed hands, as far as this link knows. A
   /// host with a smaller epoch is out of date and not joined.
   int get epoch => _epoch;
@@ -383,6 +387,12 @@ class PlayerLink {
     try {
       message = HostMessage.parse(raw);
     } on ProtocolError {
+      // The host speaks another version: no use waiting for it.
+      final theirs = parseVersionNotice(raw);
+      if (theirs != null && theirs != protocolVersion) {
+        hostVersion = theirs;
+        _end(ByeReason.version);
+      }
       return;
     }
     // Until the code is confirmed, the host's answers wait: a welcome,

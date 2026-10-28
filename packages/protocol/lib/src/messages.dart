@@ -114,9 +114,34 @@ const int maxCustody = 48 * 1024;
 /// Largest room epoch (takeovers in one room).
 const int maxEpoch = 1 << 20;
 
+/// A message in another version of the format than this one.
+class VersionMismatch extends ProtocolError {
+  /// Creates the error for a message in version [theirs].
+  const VersionMismatch(this.theirs) : super('unsupported version');
+
+  /// The version the message was in.
+  final int theirs;
+}
+
 void _expectVersion(JsonReader json) {
-  if (json.integer('v') != protocolVersion) {
-    throw const ProtocolError('unsupported version');
+  final version = json.integer('v', max: 1 << 16);
+  if (version != protocolVersion) throw VersionMismatch(version);
+}
+
+/// The one message every version from 12 on understands: "I speak version
+/// [protocolVersion]". A host sends it to a player in another version and
+/// closes, so the player can say why instead of waiting for a timeout.
+String encodeVersionNotice() =>
+    jsonEncode({'v': protocolVersion, 'type': 'version'});
+
+/// The version in a version notice, or `null` if [raw] is not exactly one.
+int? parseVersionNotice(String raw) {
+  try {
+    final json = JsonReader.decode(raw, maxBytes: 64);
+    if (json.string('type', max: 16) != 'version') return null;
+    return json.integer('v', max: 1 << 16);
+  } on ProtocolError {
+    return null;
   }
 }
 
@@ -648,6 +673,10 @@ enum ByeReason {
 
   /// The connection broke the rules (too many or bad messages).
   misbehaved,
+
+  /// Host and player speak different versions of the protocol (never
+  /// sent: the player ends with it after a version notice).
+  version,
 }
 
 /// Something the host sends to a player.

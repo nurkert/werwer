@@ -230,6 +230,18 @@ abstract class AppLocalizations {
   /// **'The host closed the room.'**
   String get byeClosed;
 
+  /// No description provided for @byeVersionNewer.
+  ///
+  /// In en, this message translates to:
+  /// **'The game leader has a newer version of Whowolf. Update your Whowolf, then it fits.'**
+  String get byeVersionNewer;
+
+  /// No description provided for @byeVersionOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'The game leader has an older version of Whowolf. Everyone at the table needs the same version: they should update Whowolf.'**
+  String get byeVersionOlder;
+
   /// No description provided for @byeMisbehaved.
   ///
   /// In en, this message translates to:
@@ -968,11 +980,11 @@ abstract class AppLocalizations {
   /// **'Join room {room}?'**
   String joinConfirmTitle(String room);
 
-  /// No description provided for @joinConfirmLan.
+  /// No description provided for @joinConfirmWifi.
   ///
   /// In en, this message translates to:
-  /// **'In the Wi-Fi: {address}'**
-  String joinConfirmLan(String address);
+  /// **'Over your Wi-Fi'**
+  String get joinConfirmWifi;
 
   /// No description provided for @joinConfirmOnline.
   ///

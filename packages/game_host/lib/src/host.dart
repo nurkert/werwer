@@ -638,6 +638,18 @@ class GameHost {
     final int? seq;
     try {
       (:message, :seq) = ClientMessage.parseNumbered(raw);
+    } on VersionMismatch {
+      // A player in another version: say which one we speak, so it can
+      // tell its user, and let it go.
+      if (link.session == null) {
+        link.connection.send(encodeVersionNotice());
+        return _drop(link);
+      }
+      link.badMessages++;
+      if (link.badMessages > config.maxBadMessages) {
+        _bye(link, ByeReason.misbehaved);
+      }
+      return;
     } on ProtocolError {
       link.badMessages++;
       if (link.badMessages > config.maxBadMessages) {

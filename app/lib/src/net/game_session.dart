@@ -192,6 +192,9 @@ class GameSession extends ChangeNotifier {
   /// Why the host ended the session; `null` if it just could not be reached.
   ByeReason? get byeReason => _link.byeReason;
 
+  /// The host's protocol version when it speaks another one.
+  int? get hostVersion => _link.hostVersion;
+
   /// Joined without the QR code's secret: waiting for the host's check.
   bool get waitingForHost => _link.waitingForHost;
 

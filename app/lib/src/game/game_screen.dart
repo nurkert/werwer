@@ -510,7 +510,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                   child: KeyedSubtree(
                     key: ValueKey(_screenKey(view)),
                     child: session.status == SessionStatus.ended
-                        ? _Ended(reason: session.byeReason)
+                        ? _Ended(
+                            reason: session.byeReason,
+                            hostVersion: session.hostVersion,
+                          )
                         : session.nameRefused
                         ? _Rename(session: session)
                         : (session.waitingForHost ||
@@ -743,9 +746,12 @@ class _RenameState extends State<_Rename> {
 }
 
 class _Ended extends StatelessWidget {
-  const _Ended({required this.reason});
+  const _Ended({required this.reason, this.hostVersion});
 
   final ByeReason? reason;
+
+  /// The host's protocol version, when it speaks another one.
+  final int? hostVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -760,6 +766,10 @@ class _Ended extends StatelessWidget {
       ByeReason.replaced => l10n.byeReplaced,
       ByeReason.closed => l10n.byeClosed,
       ByeReason.misbehaved => l10n.byeMisbehaved,
+      ByeReason.version =>
+        (hostVersion ?? 0) > protocolVersion
+            ? l10n.byeVersionNewer
+            : l10n.byeVersionOlder,
       null => l10n.connectFailed,
     };
     return PhaseBody(

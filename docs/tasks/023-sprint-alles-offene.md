@@ -22,8 +22,10 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 
 ## A – Kleine Fehler, klare Bildschirme
 
-- [ ] **A1 Keine IP-Adresse im Beitrittsdialog.** Der Dialog zeigt die IP des Hosts. Das ist verwirrend und unnötig: Er soll nur den Raumnamen und den Spielleiter zeigen. Die Adresse steht nur unter „Verbindungsdetails“.
-- [ ] **A2 Versions-Meldung statt Timeout** auf der Browser-Beitrittsseite. Passt die Protokollversion der Seite nicht zum Host, steht da klar „Dein Spielleiter hat eine andere Version“ mit einem Hinweis, was zu tun ist. Es läuft nicht in einen Timeout „Gastgeber nicht erreichbar“. Das gilt ebenso in der App. Test: Hello mit falscher Version, dann eine sichtbare Meldung.
+- [x] **A1 Keine IP-Adresse im Beitrittsdialog.** (erledigt: „Über euer WLAN“ statt der Adresse) Der Dialog zeigt die IP des Hosts. Das ist verwirrend und unnötig: Er soll nur den Raumnamen und den Spielleiter zeigen. Die Adresse steht nur unter „Verbindungsdetails“.
+- [x] **A2 Versions-Meldung statt Timeout** auf der Browser-Beitrittsseite. Passt die Protokollversion der Seite nicht zum Host, steht da klar „Dein Spielleiter hat eine andere Version“ mit einem Hinweis, was zu tun ist. Es läuft nicht in einen Timeout „Gastgeber nicht erreichbar“. Das gilt ebenso in der App. Test: Hello mit falscher Version, dann eine sichtbare Meldung.
+  - Erledigt: `VersionMismatch` und eine Versionsnachricht `{"v":…,"type":"version"}`, die ab Version 12 jede Version versteht. Der Host schickt sie und trennt, der Spieler endet mit `ByeReason.version` („Der Spielleiter hat eine neuere/ältere Version“). Tests in `player_link_test.dart`.
+  - **Sicherheit:** Die Nachricht enthält nur die Versionsnummer, ist auf 64 Byte begrenzt und wird streng geprüft. Ein Angreifer dazwischen könnte sie fälschen und damit die Verbindung beenden. Das kann er aber ohnehin (er kappt sie einfach). Es gehen keine Daten und kein Zustand über.
 - [ ] **A3 Ablenkungstext „erledigt“ verständlich machen.** Wer nachts keine Aufgabe hat, sieht heute einen Ablenkungstext mit „erledigt“, das verwirrt. Er braucht einen Text, der für alle gleich aussieht und nichts behauptet (Anti-Tell).
 - [ ] **A4 Traumpunkte nur mit Schafen.** Traumpunkte erscheinen nur, wenn das Schäfchenzählen an ist.
 - [ ] **A5 Schloss auf den gesperrten Karten der Stichwahl.** Wer nicht in der Stichwahl steht, bekommt ein kleines Schloss, nicht nur eine graue Karte.

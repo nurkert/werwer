@@ -80,6 +80,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get byeClosed => 'The host closed the room.';
 
   @override
+  String get byeVersionNewer =>
+      'The game leader has a newer version of Whowolf. Update your Whowolf, then it fits.';
+
+  @override
+  String get byeVersionOlder =>
+      'The game leader has an older version of Whowolf. Everyone at the table needs the same version: they should update Whowolf.';
+
+  @override
   String get byeMisbehaved => 'The connection was ended.';
 
   @override
@@ -537,9 +545,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String joinConfirmLan(String address) {
-    return 'In the Wi-Fi: $address';
-  }
+  String get joinConfirmWifi => 'Over your Wi-Fi';
 
   @override
   String joinConfirmOnline(String server) {

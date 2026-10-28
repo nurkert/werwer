@@ -51,15 +51,21 @@ void main() {
       expect(back.view!.seats, hasLength(1));
       back.close();
 
-      // A page of another protocol version is never seated: the host does
-      // not answer its hello, but does answer this version's right after.
+      // A page of another protocol version is never seated: the host tells
+      // it which version it speaks and lets it go; this version's page is
+      // seated right after.
+      final old = await dialBrowser(url);
+      final notices = <String>[];
+      final gone = Completer<void>();
+      old.messages.listen(notices.add, onDone: gone.complete);
+      final hello = const Hello(name: 'Old', room: '1357', web: true).encode();
+      old.send(hello.replaceFirst('"v":$protocolVersion', '"v":7'));
+      await gone.future.timeout(const Duration(seconds: 5));
+      expect(notices.map(parseVersionNotice), [protocolVersion]);
+
       final raw = await dialBrowser(url);
       final answers = <HostMessage>[];
       raw.messages.listen((m) => answers.add(HostMessage.parse(m)));
-      final hello = const Hello(name: 'Old', room: '1357', web: true).encode();
-      raw.send(hello.replaceFirst('"v":$protocolVersion', '"v":7'));
-      await Future<void>.delayed(const Duration(milliseconds: 600));
-      expect(answers, isEmpty);
       raw.send(hello);
       await Future<void>.delayed(const Duration(milliseconds: 600));
       expect(answers.whereType<Welcome>(), hasLength(1));

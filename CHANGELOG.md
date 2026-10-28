@@ -12,6 +12,9 @@ Every device at the table needs this version (protocol 12).
   eyes needs (falling asleep, who wakes, the village waking up).
 
 ### Changed
+- A player whose app speaks another version than the host's is told
+  which one is newer instead of waiting for a timeout.
+- The join dialog says "Over your Wi-Fi" instead of showing an address.
 - Let in without the QR code: once the host admits you, one big
   "They match, let’s go" finishes the symbol check.
 - The invitation says plainly when the code works in the app only.

@@ -207,4 +207,52 @@ void main() {
     expect(ada.needsCodeConfirmation, isTrue);
     ada.close();
   });
+
+  test(
+    'a player in another version is told which one the host speaks',
+    () async {
+      final raw = open.connect();
+      final got = <String>[];
+      final done = Completer<void>();
+      raw.messages.listen(got.add, onDone: done.complete);
+      raw.send(
+        '{"v":${protocolVersion - 1},"type":"hello",'
+        '"name":"Ada","room":"1234"}',
+      );
+      await done.future.timeout(const Duration(seconds: 2));
+      expect(got, [encodeVersionNotice()]);
+      expect(parseVersionNotice(got.single), protocolVersion);
+    },
+  );
+
+  test('a host in another version ends the link with a clear reason', () async {
+    final fake = MemoryTransport();
+    fake.connections.listen((c) {
+      unawaited(
+        c.messages.first.then(
+          (_) => c.send('{"v":${protocolVersion + 1},"type":"version"}'),
+        ),
+      );
+    });
+    final ada = PlayerLink(
+      name: 'Ada',
+      roomCode: '1234',
+      dial: () async => fake.connect(),
+      startTimer: timers.start,
+      random: Random(1),
+    );
+    await settle();
+    await settle();
+    expect(ada.status, LinkStatus.ended);
+    expect(ada.byeReason, ByeReason.version);
+    expect(ada.hostVersion, protocolVersion + 1);
+  });
+
+  test('a version notice is strict', () {
+    expect(parseVersionNotice('{"v":3,"type":"version"}'), 3);
+    expect(parseVersionNotice('{"v":3,"type":"bye"}'), isNull);
+    expect(parseVersionNotice('{"v":"3","type":"version"}'), isNull);
+    expect(parseVersionNotice('x' * 100), isNull);
+    expect(parseVersionNotice('[]'), isNull);
+  });
 }

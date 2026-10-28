@@ -161,8 +161,9 @@ class _JoinScreenState extends State<JoinScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (link.lan != null)
-              Text(l10n.joinConfirmLan(link.lan.toString())),
+            // Where it connects, in words: the address itself helps
+            // nobody at the table.
+            if (link.lan != null) Text(l10n.joinConfirmWifi),
             if (link.server != null)
               Text(l10n.joinConfirmOnline(link.server!.host)),
           ],

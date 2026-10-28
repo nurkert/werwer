@@ -29,6 +29,8 @@
   "byeLeft": "You left the room.",
   "byeReplaced": "You joined again from another device.",
   "byeClosed": "The host closed the room.",
+  "byeVersionNewer": "The game leader has a newer version of Whowolf. Update your Whowolf, then it fits.",
+  "byeVersionOlder": "The game leader has an older version of Whowolf. Everyone at the table needs the same version: they should update Whowolf.",
   "byeMisbehaved": "The connection was ended.",
   "byeLost": "The connection to the host is lost.",
   "backToStart": "Back to start",
@@ -282,14 +284,7 @@
       }
     }
   },
-  "joinConfirmLan": "In the Wi-Fi: {address}",
-  "@joinConfirmLan": {
-    "placeholders": {
-      "address": {
-        "type": "String"
-      }
-    }
-  },
+  "joinConfirmWifi": "Over your Wi-Fi",
   "joinConfirmOnline": "Online via {server}",
   "@joinConfirmOnline": {
     "placeholders": {
