@@ -38,6 +38,30 @@ server opens no webhook or other endpoint for this; it asks.
 
 Forks set `WHOWOLF_IMAGE` and `WHOWOLF_REPO` in the service's environment.
 
+## The web app for players without the app
+
+With `WEB_APP_DIR: /webapps` (set in `docker-compose.yml`) the relay also
+serves the web app, so someone who scans a room's QR code with the camera
+and has no app plays in the browser, also without the table's Wi-Fi. The
+image carries every build listed in `server/webapps.lock` plus the release
+it was built with, each checked against its checksum and this repository's
+build attestation. Everything is read into memory once at start (about
+40 MB for the first build, identical files shared between builds,
+`WEB_APP_MAX_MB` caps it) and served with long caching, so a page load is a
+handful of map lookups and almost all later visits are `304`s.
+
+Players trust whoever serves the page: a modified page could read the room
+key. Switch it off by removing `WEB_APP_DIR` if you do not want that role;
+the app then still works through your relay, browsers only on the Wi-Fi.
+
+To let a QR code open the installed app instead of the browser, add to
+`domain.env` (never to the repository):
+
+```
+APPLE_APP_ID=<TEAMID>.de.whowolf.app
+ANDROID_CERT_SHA256=<AA:BB:… fingerprint of the release signing key>
+```
+
 ## Limits
 
 The relay protects itself and the machine:

@@ -13,8 +13,16 @@ services:
   relay:
     image: ${RELAY_IMAGE:?run ./update.sh, it sets the verified image}
     restart: unless-stopped
+    # RELAY_DOMAIN names the server for the web app's pages; APPLE_APP_ID and
+    # ANDROID_CERT_SHA256, if set there, let QR codes open the app.
+    env_file: [domain.env]
     environment:
       TRUST_PROXY: "1"
+      # The web app for players without the app, from the image (opt-in;
+      # remove this line to only forward messages).
+      WEB_APP_DIR: /webapps
+      WEB_APP_MAX_MB: "160"
+      MAX_REQUESTS_PER_MINUTE: "600"
       MAX_ROOMS: "300"
       MAX_ROOMS_PER_ADDRESS: "4"
       MAX_PEERS: "24"

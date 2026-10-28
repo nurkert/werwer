@@ -93,7 +93,8 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 
 ### Phase 4 – Abschluss
 
-- [ ] SECURITY_DESIGN, Datenschutz (Website und App: Betreiber als Verantwortlicher für die Auslieferung der Seite), Docs für Spieler (Mindestanforderungen: aktueller Browser, Ton an, Bildschirm an; „am Tisch, nicht aus der Ferne“) und für Server-Betreiber (`server/deploy/README.md`).
+- [x] SECURITY_DESIGN (neuer Abschnitt „Die Web-App vom Server“), Datenschutz in App und Website (Server nur bei Bedarf, Auslieferung der Seite, Speicher im Browser), Betreiber-Doku und `docker-compose.yml` (`server/deploy/README.md`: `WEB_APP_DIR`, Speichergrenze, App-Links aus `domain.env`).
+- [ ] Docs für Spieler auf whowolf.de: Mindestanforderungen im Browser (aktueller Browser, Ton an, Bildschirm an) und „am Tisch, nicht aus der Ferne“.
 - [ ] **Voraussetzungen beim Eigentümer:** Universal Links unter iOS brauchen den Apple Developer Account (fehlt noch, siehe 2026-10-26). App Links unter Android brauchen den Release-Schlüssel (Vorabversionen sind mit dem Debug-Schlüssel signiert). Bis dahin öffnet der QR-Code mit der Kamera immer den Browser, und mit dem Scanner in der App geht es wie heute.
 - [ ] Auf echten Geräten: iPhone als Host; iOS Safari und Android Chrome über mobile Daten im Browser, eines im WLAN im Browser. Ton, Wake Lock, Neuladen, Host kurz im Hintergrund.
 

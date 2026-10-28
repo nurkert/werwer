@@ -13,7 +13,8 @@ import 'package:whowolf_server/web_apps.dart';
 ///
 /// The web app for players without the app is opt-in: `WEB_APP_DIR` (the
 /// builds in the image are under `/webapps`), `PUBLIC_HOST` (the name
-/// players reach the server under), `MAX_REQUESTS_PER_MINUTE` (600). To let
+/// players reach the server under, else `RELAY_DOMAIN`), `WEB_APP_MAX_MB`
+/// (160, held in memory), `MAX_REQUESTS_PER_MINUTE` (600). To let
 /// QR codes open the installed app: `APPLE_APP_ID` (`TEAMID.de.whowolf.app`)
 /// and `ANDROID_CERT_SHA256` (fingerprints, comma-separated).
 ///
@@ -52,7 +53,10 @@ Future<void> main(List<String> args) async {
   final dir = Platform.environment['WEB_APP_DIR'] ?? '';
   final webApps = dir.isEmpty
       ? WebApps.none()
-      : await WebApps.load(Directory(dir));
+      : await WebApps.load(
+          Directory(dir),
+          maxBytes: env('WEB_APP_MAX_MB', 160) << 20,
+        );
   if (dir.isNotEmpty) {
     stdout.writeln(
       'Web app: ${webApps.builds.join(', ')} '
@@ -78,7 +82,9 @@ Future<void> main(List<String> args) async {
       trustProxy: Platform.environment['TRUST_PROXY'] == '1',
       maxRequestsPerMinute: env('MAX_REQUESTS_PER_MINUTE', 600),
       publicHost: text(
-        'PUBLIC_HOST',
+        Platform.environment['PUBLIC_HOST'] == null
+            ? 'RELAY_DOMAIN'
+            : 'PUBLIC_HOST',
         RegExp(r'^[a-z0-9.-]{1,253}(:[0-9]{1,5})?$'),
       ),
       appleAppId: text(
