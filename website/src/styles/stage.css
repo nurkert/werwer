@@ -602,6 +602,27 @@ body.has-backdrop .site-footer {
 .piece--seamless .piece__joint img {
   left: 50%;
 }
+/* The hook's lantern glows like the garland's (its centre sits at 82 %
+   of the hook's height). */
+.piece--seamless .piece__joint::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(var(--joint-y) + 0.82 * var(--joint-h));
+  width: calc(1.1 * var(--joint-h));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 226 160 / 0.7), rgb(255 186 90 / 0.34) 20%, rgb(255 170 80 / 0.1) 50%, rgb(255 160 70 / 0));
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: flame 2.3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .piece--seamless .piece__joint::after {
+    animation: none;
+  }
+}
 /* A knot or tassel over the seam of two lengths: no width of its own,
    centred on the overlap. */
 .piece__joint {
