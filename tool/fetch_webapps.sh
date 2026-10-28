@@ -43,7 +43,8 @@ fetch() { # <protocol> <build> <sha256 or empty>
   else
     gh release download "v$build" --repo "$repo" --pattern "$file" --dir "$work" --clobber
   fi
-  if [[ -n "$sum" ]] && ! echo "$sum  $work/$file" | sha256sum -c --quiet 2>/dev/null; then
+  # Compared by hand: macOS' sha256sum has no --quiet and no -c from stdin.
+  if [[ -n "$sum" && "$(sha256sum "$work/$file" | cut -d' ' -f1)" != "$sum" ]]; then
     echo "error: $file does not match its checksum in $lock" >&2
     exit 1
   fi
