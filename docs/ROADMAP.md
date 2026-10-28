@@ -225,6 +225,53 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 ---
 
+## Sprint bis 0.2.0 ([Task 023](tasks/023-sprint-alles-offene.md), ab 2026-10-28)
+
+Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit Abschluss durch Release 0.2.0 und eine Generalprobe.
+
+- [ ] **A – Kleine Fehler, klare Bildschirme:**
+  - keine IP-Adresse im Beitrittsdialog
+  - Versions-Meldung statt Timeout
+  - Ablenkungstext ohne „erledigt“
+  - Traumpunkte nur mit Schafen
+  - Schloss auf gesperrten Karten der Stichwahl
+  - Rückfrage bei „Abstimmung beenden“
+  - „Doch noch reden“ während der Warnung
+  - Diskussionsuhr erst nach den letzten Worten
+  - Pause auch nachts und beim Jäger
+  - Whowolf-Nacht mindestens 25 s
+  - gleich helle Aufgabenfelder
+  - gleicher Bildschirm für Dorfbewohner in der Whowolf-Nacht
+  - Zeiten automatisch passend
+  - Ausfälle je Rolle geprüft
+  - Barrierefreiheit
+- [ ] **B – Rollen bedienen:**
+  - Wölfe können ihre Wahl ändern („Das Rudel ist wach“)
+  - Hexe mit den Tränken als Hauptaktion
+  - Bestätigungsschritt für Seherin, Abstimmung und Jäger
+  - eigene Rolle per Halten ansehen
+- [ ] **C – Desktop:**
+  - Einstellungen von der Wisch-Seite ins Zahnrad
+  - Ausrichtungsregeln in allen Ansichten
+- [ ] **D – Schneller Wiederbeitritt** ohne neue Bestätigung (gespeicherte Raumschlüssel, mit Sicherheitsnotiz)
+- [ ] **E – Der Erzähler gleitet:**
+  - Aufnahmen an Pausen teilen
+  - Abspiel-Engine (Prototyp mit `flutter_soloud`)
+  - Gleiten mit Raumanteil und Tiefpass
+  - Schritte zwischen den Sätzen
+  - nachts ein fester Platz
+  - Täuschungswege
+  - Einstellung „Bühne“
+- [ ] **F – Neue Inhalte:**
+  - Ruhemodus am Tisch (6d)
+  - Bürgermeister
+  - Beschützer (wartet auf Sprachaufnahmen des Eigentümers)
+- [ ] **G – Abschluss:** Release 0.2.0, Generalprobe am Tisch
+
+Parallel laufen [Task 021](tasks/021-nahtlos-fehlertolerant.md) (Fehlertoleranz, eigener Agent) und [Task 022](tasks/022-code-beitritt.md) (Beitritt per Code auf play.whowolf.de).
+
+---
+
 ## Nach dem MVP
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.
@@ -243,7 +290,7 @@ Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet
 6a. ~~**Fehler: geschlossene Räume im Hauptmenü**~~ ([Task 019](tasks/019-geschlossene-raeume.md), gemeldet und behoben 2026-10-28, Geräteprüfung offen): Ein geschlossener Raum steht weiter unter „Raum beitreten“. Der Schnellbeitritt soll nur Räume zeigen, deren Host wirklich antwortet.
 6c. **Reibungsloser Spielabend ([Task 020](tasks/020-spielabend-wochenende.md), geplant 2026-10-28):** wandernder Erzähler schaltbar (Standard: nur besondere Momente), früher weiter, wenn alle fertig sind, Spielleiter-Knöpfe (Pause, verlängern, beenden), Zeiten pro Spielerzahl, Fehlende tagsüber sichtbar, Platz an ein anderes Gerät übergeben, Generalprobe vor Freitag.
 6b. ~~**Wo der Ton spielt**~~ ([Task 018](tasks/018-klang-modi.md), umgesetzt 2026-10-28, Prüfung am Tisch offen): Der wandernde Erzähler läuft heute immer, besonders nachts, und dauert zu lange; er wird gründlich überdacht (wann, wie lange, nur besondere Momente). Stummschalter oben, stumme Geräte fallen automatisch aus dem Kreis (wenn möglich auch bei erkannt leisem oder ausgeschaltetem Ton). Klang-Modi für den Spielleiter: alle Handys, nur bei mir, nur eine Gruppe, nur ein Spieler (z. B. mit Bluetooth-Box). Zuerst ein Konzept, abgestimmt mit dem Eigentümer.
-6d. **Ruhemodus am Tisch (Idee des Eigentümers, 2026-10-28):** Das Handy soll im Spiel keine Ablenkung sein: keine Mitteilungen anderer Apps während der Runde. Apps dürfen „Nicht stören“/Fokus auf iOS nicht selbst einschalten; die App kann aber beim Beitritt freundlich dazu anleiten (iOS: Fokus „Spieleabend“ per Kurzbefehl-Automation beim Öffnen von Whowolf, Geführter Zugriff; Android: „Nicht stören“ mit Erlaubnis des Nutzers direkt aus der App schaltbar, sonst Bildschirm anheften). Zuerst ein kurzes Konzept.
+6d. **Ruhemodus am Tisch (Idee des Eigentümers, 2026-10-28, im Sprint: [Task 023](tasks/023-sprint-alles-offene.md) F1):** Das Handy soll im Spiel keine Ablenkung sein: keine Mitteilungen anderer Apps während der Runde. Apps dürfen „Nicht stören“/Fokus auf iOS nicht selbst einschalten; die App kann aber beim Beitritt freundlich dazu anleiten (iOS: Fokus „Spieleabend“ per Kurzbefehl-Automation beim Öffnen von Whowolf, Geführter Zugriff; Android: „Nicht stören“ mit Erlaubnis des Nutzers direkt aus der App schaltbar, sonst Bildschirm anheften). Zuerst ein kurzes Konzept.
 7. **Design & Atmosphäre:** Rollen-Artwork, Stimmen, Musik, Stimmungen, Animationen.
 8. **Stores:** Google Play (25 $ einmalig) und App Store, Datenschutzerklärung, Store-Einträge.
 9. **Server (ganz zum Schluss):**
