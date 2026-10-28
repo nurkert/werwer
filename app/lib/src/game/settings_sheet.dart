@@ -109,10 +109,7 @@ class _SettingsBody extends StatelessWidget {
             : Stamp(l10n.settingsName(s), size: 16),
       ),
       _Section(l10n.settingsRoles),
-      Wrap(
-        spacing: 8,
-        runSpacing: 10,
-        alignment: WrapAlignment.center,
+      _BalancedGrid(
         children: [
           for (final role in specialRoles)
             _RoleToggle(
@@ -432,7 +429,7 @@ class _RoleToggle extends StatelessWidget {
           opacity: on ? 1 : 0.45,
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
-            width: 78,
+            width: _BalancedGrid.cell,
             child: Column(
               children: [
                 RoleFigure(role: role, height: 92),
@@ -456,6 +453,47 @@ class _RoleToggle extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Cells in even rows: as many columns as fit, then spread so no row is
+/// left with a straggler (four roles: one row of four, or two by two on a
+/// phone; five: three and two).
+class _BalancedGrid extends StatelessWidget {
+  const _BalancedGrid({required this.children});
+
+  final List<Widget> children;
+
+  /// The width one cell needs.
+  static const double cell = 78;
+  static const double _gap = 12;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final n = children.length;
+      if (n == 0) return const SizedBox.shrink();
+      final fit = ((box.maxWidth + _gap) / (cell + _gap)).floor().clamp(1, n);
+      final rows = (n / fit).ceil();
+      final columns = (n / rows).ceil();
+      return Column(
+        children: [
+          for (var r = 0; r < rows; r++) ...[
+            if (r > 0) const SizedBox(height: 14),
+            Row(
+              children: [
+                for (var c = 0; c < columns; c++)
+                  Expanded(
+                    child: r * columns + c < n
+                        ? Center(child: children[r * columns + c])
+                        : const SizedBox.shrink(),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      );
+    },
+  );
 }
 
 class _Stepper extends StatelessWidget {

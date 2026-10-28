@@ -32,7 +32,6 @@ import stall from '../../../../app/assets/stage/scenery/stall.webp';
 import curtain from '../../../../app/assets/stage/scenery/curtain.webp';
 import swag from '../../../../app/assets/stage/scenery/swag.webp';
 import tassel from '../../../../app/assets/stage/scenery/tassel.webp';
-import knot from '../../assets/scenery/knot.webp';
 import apple from '../../../../app/assets/stage/scenery/apple.webp';
 import hay from '../../../../app/assets/stage/scenery/hay.webp';
 import branch from '../../../../app/assets/stage/scenery/branch.webp';
@@ -104,8 +103,8 @@ const download = latest ? path('download', lang) : repoUrl;
       moon={{ kind: 'full', x: '47%', y: '3.5%', size: 'clamp(56px, 8vmin, 100px)' }}
       pieces={[
         { src: stall, at: 'right', h: '46', inset: '8vw', hide: '10%', wide: true },
-        { src: lamppost, at: 'left', h: '48', inset: '3vw', hide: '30%', wide: true },
         { src: oak, at: 'left', h: '82', hide: '62%', hidePhone: '66%' },
+        { src: lamppost, at: 'left', h: '40', inset: '2.5vw', hide: '18%', wide: true },
         { src: house, at: 'right', h: '84', hide: '52%', hidePhone: '70%' },
       ]}
     >
@@ -232,7 +231,7 @@ const download = latest ? path('download', lang) : repoUrl;
       labelledby="cast-title"
       moon={{ kind: 'crescent', x: '76%', y: '4%', size: 'clamp(64px, 11vmin, 130px)' }}
       pieces={[
-        { src: garland, at: 'top', h: 'clamp(110px, 20vh, 230px)', hide: '28%', repeat: 4, joint: { src: knot, h: 'clamp(54px, 9.5vh, 112px)', y: '6%' } },
+        { src: garland, at: 'top', h: 'clamp(84px, 15vh, 180px)', hide: '6%', repeat: 5 },
         { src: fence, at: 'left', h: '22', inset: '6vw', hide: '10%', wide: true, mirror: true },
         { src: house, at: 'left', h: '80', hide: '55%', hidePhone: '74%', mirror: true },
         { src: stall, at: 'right', h: '58', hide: '45%', hidePhone: '66%' },
@@ -388,7 +387,7 @@ const download = latest ? path('download', lang) : repoUrl;
       labelledby="ticket-title"
       moon={{ kind: 'sun', x: '46%', y: '3%', size: 'clamp(64px, 11vmin, 130px)' }}
       pieces={[
-        { src: garland, at: 'top', h: 'clamp(110px, 20vh, 230px)', hide: '28%', repeat: 4, joint: { src: knot, h: 'clamp(54px, 9.5vh, 112px)', y: '6%' } },
+        { src: garland, at: 'top', h: 'clamp(84px, 15vh, 180px)', hide: '6%', repeat: 5 },
         { src: lamppost, at: 'left', h: '52', hide: '30%', hidePhone: '60%' },
         { src: stall, at: 'right', h: '56', hide: '45%', hidePhone: '66%' },
       ]}

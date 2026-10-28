@@ -288,13 +288,18 @@ class SceneLife {
       let a =
         life.flames || lantern
           ? 0.78 + 0.1 * Math.sin(t * 7.3 + ph) + 0.07 * Math.sin(t * 11.1 + ph * 1.7) + 0.05 * Math.sin(t * 17.3 + ph * 3)
-          : 0.62 + 0.24 * Math.sin(t * 0.8 + ph) + 0.12 * Math.sin(t * 2.1 + ph * 2.1);
+          : // A window: it breathes slowly and wavers a little, like a candle inside.
+            0.66 + 0.18 * Math.sin(t * 0.7 + ph) + 0.08 * Math.sin(t * 1.9 + ph * 2.1) + 0.06 * Math.sin(t * 5.1 + ph * 3.3) + 0.04 * Math.sin(t * 8.3 + ph * 1.3);
       if (i === blink && (t / 6) % 1 < 0.05) a *= 0.15;
       const strength = (0.5 + 0.5 * s) * lift;
       const core = Math.max(18, r * pw * 8) * (0.92 + 0.12 * a) * (phone ? 1.25 : 1);
       const [px, py] = at(x, y);
+      // A warm core, a halo swaying a little in the night air, a wide bloom that breathes.
+      const sx = Math.sin(t * 1.3 + ph) * core * 0.07;
+      const sy = Math.sin(t * 0.9 + ph * 1.7) * core * 0.05;
       stamp(glow, px, py, core, 0.85 * a * strength);
-      stamp(glow, px, py, core * 3.2, 0.2 * a * strength);
+      stamp(glow, px + sx, py + sy, core * 1.9, 0.34 * a * strength);
+      stamp(glow, px + 2 * sx, py + 2 * sy, core * (3.3 + 0.4 * Math.sin(t * 0.9 + ph)), 0.24 * a * strength);
       if (lantern) stamp(glow, px, py, r * pw * 18, 0.24 * a);
     });
 

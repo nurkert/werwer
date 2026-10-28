@@ -298,10 +298,7 @@ img.scene__set {
   max-width: none;
   flex: none;
 }
-/* Lengths side by side overlap a little at their seams. */
-.piece--top picture + picture img {
-  margin-left: -3%;
-}
+
 /* Wide windows only. */
 .piece--wide {
   display: none;
@@ -556,6 +553,11 @@ body.has-backdrop .site-footer {
   }
 }
 
+/* The words start below what hangs from the top: a garland, or a valance
+   of swags (a top piece with joints) a little lower. */
+.scene:has(.piece--top) .scene__content {
+  padding-top: max(48px, 4.5vw);
+}
 /* The words start below a valance of swags (a top piece with joints). */
 .scene:has(.piece--top .piece__joint) .scene__content {
   padding-top: max(96px, 10vw);
@@ -586,7 +588,9 @@ body.has-backdrop .site-footer {
   height: auto;
   flex: none;
 }
-.piece--top .piece__frame ~ .piece__frame {
+/* Lengths with a tassel over the seam overlap a little under it; lengths
+   made to join (the garland) meet end to end. */
+.piece--top:has(.piece__joint) .piece__frame ~ .piece__frame {
   margin-left: -3%;
 }
 /* A knot or tassel over the seam of two lengths: no width of its own,

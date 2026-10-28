@@ -574,23 +574,42 @@ class LifePainter extends CustomPainter {
               0.07 * sin(t * 11.1 + ph * 1.7) +
               0.05 * sin(t * 17.3 + ph * 3);
         } else {
-          a = 0.62 + 0.24 * sin(t * 0.8 + ph) + 0.12 * sin(t * 2.1 + ph * 2.1);
+          // A window: it breathes slowly and wavers a little, like a
+          // candle or a fire inside.
+          a =
+              0.66 +
+              0.18 * sin(t * 0.7 + ph) +
+              0.08 * sin(t * 1.9 + ph * 2.1) +
+              0.06 * sin(t * 5.1 + ph * 3.3) +
+              0.04 * sin(t * 8.3 + ph * 1.3);
         }
         if (i == blink && (t / 6) % 1 < 0.05) a *= 0.15;
         final strength = 0.5 + 0.5 * s;
         final core = max(18, rad * w * 8) * (0.92 + 0.12 * a);
-        // A warm core on the window and a wide, faint bloom around it.
+        // A warm core on the window, a halo that sways a little in the
+        // night air and a wide, faint bloom that breathes.
+        final p = at(x, y);
+        final sway = Offset(
+          sin(t * 1.3 + ph) * core * 0.07,
+          sin(t * 0.9 + ph * 1.7) * core * 0.05,
+        );
         _stamp(
           _Sprite.glow,
-          at(x, y),
+          p,
           core,
           life.tint.withValues(alpha: (0.85 * a * strength).clamp(0, 1)),
         );
         _stamp(
           _Sprite.glow,
-          at(x, y),
-          core * 3.2,
-          life.tint.withValues(alpha: (0.2 * a * strength).clamp(0, 1)),
+          p + sway,
+          core * 1.9,
+          life.tint.withValues(alpha: (0.34 * a * strength).clamp(0, 1)),
+        );
+        _stamp(
+          _Sprite.glow,
+          p + sway * 2,
+          core * (3.3 + 0.4 * sin(t * 0.9 + ph)),
+          life.tint.withValues(alpha: (0.24 * a * strength).clamp(0, 1)),
         );
         if (lantern) {
           // A pool of light around a lantern.

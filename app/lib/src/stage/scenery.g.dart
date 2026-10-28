@@ -8,7 +8,7 @@ const sceneryAspects = <String, double>{
   'branch': 0.655,
   'curtain': 0.6664,
   'fence': 1.1466,
-  'garland': 3.8043,
+  'garland': 4.8408,
   'hay': 0.6279,
   'house': 0.6321,
   'lamppost': 0.4514,

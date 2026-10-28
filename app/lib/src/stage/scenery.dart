@@ -134,7 +134,7 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
     _p('signpost', Edge.right, size: 0.44, reach: 0.78, until: _phone),
   ],
   Scene.dusk || Scene.finale => [
-    _p('garland', Edge.top, size: 1, reach: 0.6, depth: 6),
+    _p('garland', Edge.top, size: 0.8, reach: 0.95, depth: 6),
     _p(
       'lamppost',
       Edge.right,
@@ -226,7 +226,7 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
     _p('pines', Edge.right, size: 0.82, reach: 0.45, mirror: true),
   ],
   Scene.finaleLovers => [
-    _p('garland', Edge.top, size: 1, reach: 0.6, depth: 6),
+    _p('garland', Edge.top, size: 0.8, reach: 0.95, depth: 6),
     _p('apple', Edge.left, size: 0.7, reach: 0.5),
     _p('birch', Edge.right, size: 0.62, mirror: true),
   ],
