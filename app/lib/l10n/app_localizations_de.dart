@@ -403,6 +403,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handoverDone => 'Fertig';
 
   @override
+  String get webAppHint =>
+      'Mit der App läuft es runder: Ton, der Bildschirm bleibt an, und du kommst leichter zurück.';
+
+  @override
+  String get webAppGet => 'App holen';
+
+  @override
   String get seerVisionTitle => 'Deine Vision';
 
   @override

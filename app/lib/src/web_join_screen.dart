@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:protocol/protocol.dart';
 import 'package:secure_channel/secure_channel.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/figures.dart';
@@ -11,6 +15,7 @@ import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/browser_socket_stub.dart'
     if (dart.library.js_interop) 'package:whowolf/src/net/browser_socket.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/net/update_check.dart' show downloadPage;
 import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -25,6 +30,18 @@ class WebJoinScreen extends StatefulWidget {
 }
 
 class _WebJoinScreenState extends State<WebJoinScreen> {
+  /// The note that the app does more was closed.
+  bool _appHintClosed = false;
+
+  /// Where a phone gets the app, if it is a phone that can: the download
+  /// page for Android for now (later its store), nothing yet on iOS (until
+  /// TestFlight or the App Store) or on a computer.
+  static Uri? _appStore() => switch (defaultTargetPlatform) {
+    TargetPlatform.android => androidAppUrl,
+    TargetPlatform.iOS => iosAppUrl,
+    _ => null,
+  };
+
   // Read once; the address bar forgets it. After a reload (phones throw
   // away background tabs) this tab's kept game brings it back; a second
   // scan of the same room finds it too, with the session token: the player
@@ -118,6 +135,15 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
             const SizedBox(height: 16),
             Headline(l10n.webJoinTitle, size: 30),
             const SizedBox(height: 10),
+            if (_appStore() case final store? when !_appHintClosed) ...[
+              _AppHint(
+                onGet: () => unawaited(
+                  launchUrl(store, mode: LaunchMode.externalApplication),
+                ),
+                onClose: () => setState(() => _appHintClosed = true),
+              ),
+              const SizedBox(height: 14),
+            ],
             if (link == null)
               Body(l10n.webJoinNoLink)
             else if (_token != null) ...[
@@ -181,6 +207,42 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Where Android phones get the app (the store's page once there is one).
+final Uri androidAppUrl = downloadPage;
+
+/// Where iPhones get the app: none until TestFlight or the App Store.
+const Uri? iosAppUrl = null;
+
+/// A small note on the join page: the app does more (sound, the screen
+/// stays on, coming back is easier). One can close it and play on here.
+class _AppHint extends StatelessWidget {
+  const _AppHint({required this.onGet, required this.onClose});
+
+  final VoidCallback onGet;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Panel(
+      padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
+      child: Row(
+        children: [
+          const Icon(Icons.install_mobile_rounded, color: Palette.lantern400),
+          const SizedBox(width: 12),
+          Expanded(child: Body(l10n.webAppHint)),
+          TextButton(onPressed: onGet, child: Text(l10n.webAppGet)),
+          IconButton(
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+            onPressed: onClose,
+            icon: const Icon(Icons.close_rounded, size: 20),
+          ),
+        ],
       ),
     );
   }

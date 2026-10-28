@@ -734,6 +734,18 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get handoverDone;
 
+  /// No description provided for @webAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The app runs smoother: sound, the screen stays on, and coming back is easier.'**
+  String get webAppHint;
+
+  /// No description provided for @webAppGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the app'**
+  String get webAppGet;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

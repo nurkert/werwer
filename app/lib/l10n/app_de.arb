@@ -106,6 +106,8 @@
   "handoverTitle": "Platz von {name}",
   "handoverHint": "Auf dem neuen Gerät mit der Whowolf-App scannen. Der Code gilt einmal und nur kurz; das alte Gerät von {name} wird abgemeldet.",
   "handoverDone": "Fertig",
+  "webAppHint": "Mit der App läuft es runder: Ton, der Bildschirm bleibt an, und du kommst leichter zurück.",
+  "webAppGet": "App holen",
   "seerVisionTitle": "Deine Vision",
   "seerVisionClose": "Tippen zum Schließen",
   "seerSeeAgain": "Nochmal ansehen",

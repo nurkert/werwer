@@ -400,6 +400,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handoverDone => 'Done';
 
   @override
+  String get webAppHint =>
+      'The app runs smoother: sound, the screen stays on, and coming back is easier.';
+
+  @override
+  String get webAppGet => 'Get the app';
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

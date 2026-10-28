@@ -177,6 +177,8 @@
   "handoverHint": "Scan it on the new device with the Whowolf app. The code works once and only briefly; {name}'s old device is signed out.",
   "@handoverHint": {"placeholders": {"name": {"type": "String"}}},
   "handoverDone": "Done",
+  "webAppHint": "The app runs smoother: sound, the screen stays on, and coming back is easier.",
+  "webAppGet": "Get the app",
   "seerVisionTitle": "Your vision",
   "seerVisionClose": "Tap to close",
   "seerSeeAgain": "See again",
