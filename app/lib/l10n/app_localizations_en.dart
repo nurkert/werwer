@@ -1559,6 +1559,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get eyebrowPackAwake => 'The pack is awake';
+
+  @override
   String get eyebrowAwake => 'Only you are awake';
 
   @override

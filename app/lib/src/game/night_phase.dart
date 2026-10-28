@@ -285,11 +285,15 @@ class _NightPhaseState extends State<NightPhase> {
         view.round == 1 && view.settings.roles.contains(Role.cupid);
     final first =
         view.nightStep == (cupidFirst ? NightStep.link : NightStep.hunt);
-    final awake = task != null && !view.youActed && !_holding(view);
+    final awake = task != null && _deciding(view) && !_holding(view);
+    final pack = view.yourNightTask == NightAbility.hunt && _wolves(view) > 1;
     return PhaseBody(
       children: [
         if (awake)
-          Headline(l10n.nightYourTurn, eyebrow: l10n.eyebrowAwake)
+          Headline(
+            l10n.nightYourTurn,
+            eyebrow: pack ? l10n.eyebrowPackAwake : l10n.eyebrowAwake,
+          )
         else
           Headline(
             l10n.eyesClosedTitle,
@@ -318,9 +322,28 @@ class _NightPhaseState extends State<NightPhase> {
   /// that reads the same for every role, unfolded only on request.
   bool _open = false;
 
+  /// The living werewolves, as a werewolf sees them.
+  static int _wolves(PlayerView view) =>
+      view.seats.where((s) => s.isAlive && s.role == Role.werewolf).length;
+
+  /// Whether there is still something to decide: a werewolf may change the
+  /// pick until the whole pack names the same prey; everyone else decides
+  /// once.
+  static bool _deciding(PlayerView view) {
+    if (view.yourNightTask != NightAbility.hunt) return !view.youActed;
+    final wolves = [
+      for (final s in view.seats)
+        if (s.isAlive && s.role == Role.werewolf) s.id,
+    ];
+    final picks = {for (final w in wolves) view.packChoices[w]};
+    return wolves.isEmpty
+        ? !view.youActed
+        : picks.length != 1 || picks.single == null;
+  }
+
   Widget _taskCard(PlayerView view, AppLocalizations l10n) {
     final task = _task(view, l10n);
-    final pending = task != null && !view.youActed;
+    final pending = task != null && _deciding(view);
     if (pending || _open) {
       return Panel(
         highlight: pending,

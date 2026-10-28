@@ -2708,6 +2708,12 @@ abstract class AppLocalizations {
   /// **'Night {round}'**
   String eyebrowNight(String round);
 
+  /// No description provided for @eyebrowPackAwake.
+  ///
+  /// In en, this message translates to:
+  /// **'The pack is awake'**
+  String get eyebrowPackAwake;
+
   /// No description provided for @eyebrowAwake.
   ///
   /// In en, this message translates to:

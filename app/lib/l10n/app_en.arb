@@ -848,6 +848,7 @@
       }
     }
   },
+  "eyebrowPackAwake": "The pack is awake",
   "eyebrowAwake": "Only you are awake",
   "eyebrowDay": "Day {round}",
   "@eyebrowDay": {

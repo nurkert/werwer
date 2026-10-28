@@ -15,6 +15,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- Werewolves keep their choice open until the whole pack names the same
+  prey; the called night says "The pack is awake".
 - Cards, quick picks and role switches work with the keyboard (Tab,
   Enter, Space) and show a focus ring; large system text fits.
 - Phase times follow the number of players in the lobby until the game

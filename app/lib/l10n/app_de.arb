@@ -452,6 +452,7 @@
   "eyebrowEvening": "Spielabend",
   "eyebrowYourRole": "Nur für dich",
   "eyebrowNight": "Nacht {round}",
+  "eyebrowPackAwake": "Das Rudel ist wach",
   "eyebrowAwake": "Nur du bist wach",
   "eyebrowDay": "Tag {round}",
   "eyebrowVote": "Die Abstimmung",
