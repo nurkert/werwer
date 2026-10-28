@@ -5,6 +5,55 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.5 – 2026-10-28
+
+Every device at the table needs this version (protocol 9).
+
+### Added
+- Play in the browser without the Wi-Fi: whoever sits at the table but
+  is not on the Wi-Fi (guest or hotel networks, no Wi-Fi at all) scans
+  the code with the camera and plays over mobile data through the
+  server, which serves the web app. One QR code for everyone: with the
+  app it opens the app, without it the browser.
+- The server only when needed: a room goes online only when the host
+  shows the QR code; players on the same Wi-Fi find it without the
+  server. Settings: on demand, always ready, never.
+- The narrator tells the story with modes: off, big moments (the
+  default: nightfall, the morning's news, the vote and the end; in the
+  classic night it still calls every role) or everything.
+- The narrator walks like a storyteller: slowly or quickly round the
+  table, back and forth across it, leaping to far seats, standing still,
+  and only sometimes walking to someone whose fate is already public.
+  Planned from public values only, so it never gives anyone away; while
+  the voice moves on, one phone always plays almost at full volume.
+- Sound on the phones the table picks: everyone, only the game leader,
+  a group, or one player (e.g. with a speaker).
+- A shared mute: muted phones, and phones with the volume at zero, drop
+  out of the narrator's walk from the next phase on.
+- The seer's vision: the looked-at player's figure turns around large in
+  the costume of what they are, with name and role.
+- Browser players are marked in the lobby.
+
+### Changed
+- The in-app scanner is framed like the stage.
+
+### Fixed
+- Under "Join a room" only rooms whose host really answers show up; a
+  closed room disappears on every device, and a tap on one that just
+  closed says so instead of waiting.
+- Players let in without the QR code can come back after a dropped
+  connection.
+- Leaving a room no longer leaves its stars over the start screen.
+
+### Security
+- The relay and the host phone guard every connection on the raw
+  socket: a message is capped over all its fragments, an unfinished one
+  times out, and a peer that stops reading is dropped. A malformed
+  request can no longer stop the relay. Found in an independent review.
+- Compressed web app files are never unpacked on request; every plain
+  request counts against the per-address limit; Caddy drops slow
+  headers.
+
 ## 0.1.4 – 2026-10-28
 
 ### Added
