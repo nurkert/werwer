@@ -135,12 +135,6 @@ const jsonLd = {
     }
 
     {(<header class:list={['site-header', { 'site-header--overlay': overlay, 'site-header--mobile-only': bare }]}>
-      <p class="beta-strip">
-        <span class="beta-strip__stamp">{t.status.badge}</span>
-        <span class="beta-strip__long">{t.status.line}</span>
-        <span class="beta-strip__short">{t.status.short}</span>
-        <a href={`${repoUrl}/issues`}>{t.status.report}</a>
-      </p>
       <div class="site-header__inner">
         {
           overlay ? (
@@ -225,6 +219,16 @@ const jsonLd = {
         </nav>
       </div>
     </footer>
+
+    <aside class="beta-strip" data-beta aria-label={t.status.badge}>
+      <span class="beta-strip__stamp">{t.status.badge}</span>
+      <span class="beta-strip__long">{t.status.line}</span>
+      <span class="beta-strip__short">{t.status.short}</span>
+      <a href={`${repoUrl}/issues`}>{t.status.report}</a>
+      <button class="beta-strip__close" type="button" data-beta-close aria-label={t.nav.close}>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg>
+      </button>
+    </aside>
 
     <div class="consent" data-consent hidden role="region" aria-label={t.consent.title}>
       <Picture class="consent__seal" src={emblem} alt="" formats={['avif', 'webp']} widths={[96, 192]} sizes="56px" />
@@ -372,31 +376,49 @@ const jsonLd = {
   .site-header--mobile-only {
     display: none;
   }
-  /* Developer beta: always on top of every page, part of the header so it
-     stays visible on the overlay hero and while scrolling. */
+  /* Developer beta: a slip pinned to the foot of the window, above the
+     page, until it is closed (remembered on this device). */
   .beta-strip {
+    position: fixed;
+    z-index: 70;
+    left: 1.25rem;
+    bottom: 1.25rem;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.4rem 0.9rem;
+    max-width: min(100% - 2.5rem, 44rem);
     margin: 0;
-    padding: 0.35rem var(--gutter);
-    background: repeating-linear-gradient(
-      -45deg,
-      var(--lantern-400) 0 14px,
-      var(--lantern-300) 14px 28px
-    );
-    color: var(--night-950);
+    padding: 0.5rem 0.4rem 0.5rem 0.9rem;
+    border-radius: 0.8rem;
+    background: rgb(20 17 15 / 0.94);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 200 120 / 0.28),
+      0 0.8rem 2rem rgb(0 0 0 / 0.5);
+    color: #efe2c4;
     font-size: 0.85rem;
-    font-weight: 600;
-    line-height: 1.3;
-    text-align: center;
+    font-weight: 500;
+    line-height: 1.35;
+    animation: beta-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+  }
+  .beta-strip[hidden] {
+    display: none;
+  }
+  /* Beside the privacy notice in the right corner, never under it. */
+  :global(body:has(.consent:not([hidden]))) .beta-strip {
+    max-width: min(100% - 30rem, 44rem);
+  }
+  @keyframes beta-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
   }
   .beta-strip__stamp {
     flex: none;
-    padding: 0.05rem 0.5rem;
-    border: 2px solid currentColor;
+    padding: 0.1rem 0.5rem;
     border-radius: 4px;
+    background: repeating-linear-gradient(-45deg, var(--lantern-400) 0 10px, var(--lantern-300) 10px 20px);
+    color: var(--night-950);
     font-family: var(--font-display);
     font-weight: 400;
     letter-spacing: 0.02em;
@@ -405,32 +427,56 @@ const jsonLd = {
   }
   .beta-strip a {
     flex: none;
-    /* a 44px tap target without making the strip taller */
-    padding-block: 0.8rem;
-    margin-block: -0.8rem;
-    color: inherit;
+    color: var(--lantern-300);
+    font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 0.15em;
+  }
+  .beta-strip__close {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -0.4rem 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .beta-strip__close:hover,
+  .beta-strip__close:focus-visible {
+    background: rgb(255 255 255 / 0.1);
   }
   .beta-strip__short {
     display: none;
   }
-  @media (max-width: 720px) {
+  @media (max-width: 900px) {
+    .beta-strip {
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
+      max-width: none;
+    }
     .beta-strip__long {
       display: none;
     }
     .beta-strip__short {
       display: inline;
+      flex: 1;
+    }
+    /* The privacy notice comes first; the slip waits until it is read. */
+    :global(body:has(.consent:not([hidden]))) .beta-strip {
+      display: none;
     }
   }
-  /* On phones one calm line: the stamp says it, the link stays. */
-  @media (max-width: 520px) {
-    .beta-strip {
-      justify-content: space-between;
-      padding-block: 0.3rem;
-    }
+  @media (max-width: 420px) {
     .beta-strip__short {
       display: none;
+    }
+    .beta-strip a {
+      margin-left: auto;
     }
   }
   @media (max-width: 900px) {

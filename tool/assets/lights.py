@@ -47,6 +47,8 @@ PIECE_LIGHTS = {
     "lamppost": [(0.49, 0.25, 0.12, 1)],
     "oak": [(0.84, 0.5, 0.04, 0.9)],
     "reeds": [(0.86, 0.64, 0.06, 1)],
+    "signpost": [(0.3, 0.57, 0.09, 1)],
+    "knot": [(0.5, 0.73, 0.045, 1)],
     "garland": [(0.15, 0.53, 0.025, 1), (0.317, 0.72, 0.025, 1), (0.494, 0.82, 0.025, 1), (0.68, 0.72, 0.025, 1), (0.846, 0.53, 0.025, 1)],
 }
 
@@ -112,7 +114,7 @@ def sky_stars(v, rows, cols, line: float, rng, avoid):
     order = rng.permutation(len(xs))
     chosen = []
     grid = {}
-    cell = 0.024
+    cell = 0.0195
     for k in order:
         x, y = xs[k] / w, ys[k] / h
         # Dense high up, sparse near the horizon.
@@ -131,7 +133,7 @@ def sky_stars(v, rows, cols, line: float, rng, avoid):
             continue
         grid.setdefault((gx, gy), []).append((x, y))
         chosen.append((x, y))
-        if len(chosen) >= 170:
+        if len(chosen) >= 240:
             break
     out = []
     for x, y in chosen:
@@ -243,6 +245,8 @@ def preview(out_dir: Path):
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, d in data.items():
         src = (PIECES / f"{name.split('/')[1]}.webp") if "/" in name else SETS / f"{name}.webp"
+        if not src.exists():
+            src = Path("website/src/assets/scenery") / src.name
         img = Image.open(src).convert("RGBA")
         bg = Image.new("RGBA", img.size, (40, 40, 60, 255))
         bg.alpha_composite(img)

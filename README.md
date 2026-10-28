@@ -1,79 +1,79 @@
 <p align="center">
-  <a href="https://whowolf.de"><img src=".github/assets/wordmark.png" alt="Whowolf" width="420"></a>
+  <a href="https://whowolf.de"><img src=".github/assets/banner.jpg" alt="Whowolf: a moonlit cardboard village stage with the Whowolf wordmark, two phones showing the app, a maid and a werewolf puppet" width="100%"></a>
+</p>
+
+<h3 align="center">The werewolf game for your table, narrated by the app.</h3>
+
+<p align="center">
+  <a href="https://whowolf.de">Website</a> ·
+  <a href="https://github.com/nurkert/whowolf/releases">Download</a> ·
+  <a href="https://whowolf.de/docs/">Player guide</a> ·
+  <a href="docs/ROADMAP.md">Roadmap</a>
 </p>
 
 <p align="center">
-  <strong>Werewolf at the table. Everyone on their own phone. The app is the narrator.</strong><br>
-  <a href="https://whowolf.de">whowolf.de</a> · <a href="https://whowolf.de/docs/">Player guide</a> · <a href="https://github.com/nurkert/whowolf/releases">Download</a> · <a href="docs/ROADMAP.md">Roadmap</a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/downloads/nurkert/whowolf/total?label=downloads" alt="Downloads"></a>
-  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/v/release/nurkert/whowolf?include_prereleases&amp;label=release" alt="Latest release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/nurkert/whowolf" alt="License: Apache 2.0"></a>
-</p>
-
-<p align="center">
-  <a href="https://whowolf.de"><img src=".github/assets/website.jpg" alt="The whowolf.de landing page: a moonlit cardboard stage with a village, a castle, cardboard puppets and two phones" width="100%"></a>
+  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/v/release/nurkert/whowolf?include_prereleases&amp;label=release&amp;color=e8a33d" alt="Latest release"></a>
+  <a href="https://github.com/nurkert/whowolf/actions/workflows/ci.yml"><img src="https://github.com/nurkert/whowolf/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/nurkert/whowolf/releases"><img src="https://img.shields.io/github/downloads/nurkert/whowolf/total?label=downloads&amp;color=3b5b8c" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/nurkert/whowolf?color=6b8e4e" alt="License: Apache 2.0"></a>
 </p>
 
 > [!NOTE]
-> **Developer beta.** Whowolf is playable with friends in your own Wi-Fi, end-to-end encrypted, on iPhone, Android, Mac, Windows and Linux. Expect rough edges, give every device at the table the same version, and only play with people you trust until the independent security review is done.
+> **Developer beta.** Whowolf is playable on your own Wi-Fi, end-to-end encrypted, on Android, iPhone, Mac, Windows and Linux. Give every device at the table the same version, and until the independent security review is done, play with people you know.
 
-## The idea
+## How it plays
 
-Werewolf lives on secrets. Whowolf puts them where they belong: on each player's own phone. You still sit together, talk, accuse and lie face to face. The app hands out roles, runs the night, counts votes and never forgets a rule, so nobody has to sit out as game master.
+You sit together and play Werewolf the way you always have: you talk, accuse and lie to each other's faces. The difference is that everyone holds their own phone. It shows your role and, at night, your move. The app deals the roles, runs the night, counts the votes and knows every rule, so nobody has to sit out as game master.
 
-- **Everyone has a phone.** Scan the host's QR code and you're in. Your role appears on your screen only.
-- **Nobody gives themselves away.** At night every player taps something. While the wolves hunt, the villagers count sheep.
-- **Local first.** One phone hosts the game over your Wi-Fi. No server, no account, no ads, no tracking.
-- **Nothing breaks the evening.** Lost connections, a locked screen, even a host who closes the app: everyone simply carries on where they were.
+- **Your role stays on your phone.** One phone opens a room, the others scan its QR code. No account, no sign-up.
+- **Two kinds of night.** In the *classic* night everyone closes their eyes and a recorded narrator calls the roles one by one. In *Whowolf's* night everyone keeps their phone in hand and taps: while the wolves choose, the villagers count sheep, so nobody stands out.
+- **Local first.** One phone hosts the game over your Wi-Fi. Every connection is end-to-end encrypted with libsodium. No ads, no tracking.
+- **Built for a real evening.** A dropped connection, a locked screen, even a host who leaves: the game carries on and everyone returns to exactly where they were.
+- **A stage by moonlight.** Every phase is a painted cardboard stage set, with puppets, curtains and lanterns that flicker.
 
 <p align="center">
-  <img src=".github/assets/app-screens.jpg" alt="Five app screens: the lobby with the round table, a hidden role card, the werewolves' night pick above the sheep meadow, the witch's potions, and the morning with everyone's sheep" width="100%">
+  <img src=".github/assets/app-screens.jpg" alt="Five app screens on the cardboard stage: picking your figure, your secret role, the werewolves' pick at night, the classic night with eyes closed, and the witch's potions" width="100%">
 </p>
 
 ## The cast
 
 <p align="center">
-  <img src=".github/assets/cast.png" alt="The cast as cardboard puppets: werewolf, seer, villagers, witch, hunter, cupid and the roles planned for the wolf trail" width="100%">
+  <img src=".github/assets/cast.webp" alt="Twenty villagers as cardboard puppets: maid, farmer, baker, smith, fisher, miller, seamstress, minstrel, goose girl, beekeeper, innkeeper, shepherd, washerwoman, carpenter, spinner, cobbler, flower girl, mayor, grandmother and grandfather" width="100%">
 </p>
 
-Every role is a cardboard puppet with its own character. Playable now: werewolves, seer, witch, hunter, cupid (with the lovers) and villagers, from a plain **Classic** game like the card game to the **Full stage**. Everyone picks one of twenty ordinary villagers, ten women and ten men, and sees them turn around in their role's costume when the roles are dealt; three roles that exist only in Whowolf are on the programme.
+Everyone picks one of twenty villagers, ten women and ten men. The figure says nothing about your role: only when you look at your phone does it turn around, dressed as werewolf, seer, witch, hunter, cupid or plain villager. Start with werewolves and a seer, or switch on every role there is.
 
-## The wolf trail
+## Download
 
-<img src=".github/assets/wolf-trail.svg" alt="Diagram: a wolf sound plays on the phone of X, so a werewolf sits on X or close by" width="380" align="right">
+Get the latest build from the [releases](https://github.com/nurkert/whowolf/releases): an APK for Android, a ZIP for macOS, an installer for Windows and a `.deb` for Linux. The iPhone version follows via TestFlight. Every release is built by GitHub Actions from this repository, with SHA-256 checksums and build provenance. The builds are not signed by Apple or Microsoft yet; the release notes say how to open them.
 
-At night the phones on the table whisper: wind, crickets, an owl. And sometimes, one day, a quiet growl.
+## Build from source
 
-If a wolf sound comes from the phone of **X**, a werewolf sits close by: at most one seat away, up to three in big groups.
+You need Flutter 3.44.8 (Dart 3.12).
 
-Whoever hears it on their own phone learns a lot, but to everyone else *they* are now the suspect. Villagers want their volume up, werewolves would rather mute. Then, at dawn, every phone yawns.
-
-The first release plays the night sounds and the yawn; the growl itself comes after it.
-
-<br clear="right">
-
-## Platforms
-
-One Flutter codebase for iPhone, Android, Mac, Windows and Linux (`.deb`). Releases are built by CI with SHA-256 checksums and build provenance; the builds are not signed by Apple or Microsoft yet, see the release notes for how to open them.
+```bash
+flutter pub get        # resolves the whole workspace
+tool/check.sh          # what CI runs: format, analyze, tests
+cd app && flutter run  # on a device or desktop of your choice
+```
 
 ## Repository
 
 | Path | Content |
 |---|---|
-| `app/` | Flutter app |
-| `packages/` | Game rules and host logic in pure Dart |
-| `website/` | [whowolf.de](https://whowolf.de) (Astro) with the docs and download pages |
+| `app/` | The Flutter app for every platform |
+| `packages/game_core/` | The rules in pure Dart, shared and fully tested |
+| `packages/` | Host logic, protocol, the encrypted channel and a command-line client |
+| `server/` | Relay server for playing beyond one Wi-Fi (in progress) |
+| `website/` | [whowolf.de](https://whowolf.de) (Astro), with the player guide and downloads |
 | `design/` | Art direction, figures, prompts and credits |
-| `docs/` | Planning documents (German), published as the [docs](https://whowolf.de/docs/) |
-| `tool/` | Developer, release and asset scripts |
+| `docs/` | Vision, game design, architecture and security design (German) |
+| `tool/` | Check, release and asset scripts |
 
 ## Contributing and security
 
-Bug reports, ideas and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately as described in [SECURITY.md](SECURITY.md).
+Playing helps most: tell us what got stuck at your game night. Bug reports, ideas and pull requests are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-Code under the [Apache License 2.0](LICENSE). Artwork in `design/` is original to this project, see the [design credits](design/CREDITS.md).
+Code under the [Apache License 2.0](LICENSE). All artwork in `design/` was made for this project, see the [design credits](design/CREDITS.md).

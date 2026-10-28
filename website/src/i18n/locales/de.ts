@@ -2,9 +2,9 @@
 
 const de = {
   meta: {
-    title: 'Whowolf: Werwolf am Tisch, jeder mit seinem Handy',
+    title: 'Whowolf: das Werwolfspiel, das eure Handys erzählen',
     description:
-      'Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend, das gerade entsteht: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, die App ist der Erzähler.',
+      'Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, und die App erzählt.',
   },
   skip: 'Zum Inhalt springen',
   nav: { play: 'Spiel', cast: 'Rollen', sheep: 'Schäfchen', trail: 'Wolfsspur', docs: 'Anleitung', download: 'Download', menu: 'Menü', close: 'Schließen', language: 'Sprache' },
@@ -16,15 +16,15 @@ const de = {
   },
   eyebrows: { play: 'Das Spiel', evening: 'Ein Abend', night: 'Die Nacht', cast: 'Die Besetzung', trail: 'Die Wolfsspur', rules: 'Hinter der Bühne', finale: 'Vorhang auf' },
   hero: {
-    statement: 'Werwolf am Tisch. Jeder mit seinem Handy.',
-    sub: 'Die App erzählt. Niemand muss Spielleiter sein, Zettel braucht ihr keine, und nachts verrät euch kein Geräusch.',
+    statement: 'Das Werwolfspiel für euren Tisch, erzählt von der App.',
+    sub: 'Jeder spielt auf seinem eigenen Handy. Darum muss niemand als Spielleiter aussetzen, und Rollenkarten braucht ihr auch keine.',
     primary: 'Projekt verfolgen',
     secondary: 'So soll es werden',
   },
   playbill: {
     title: 'Ein Spieleabend ohne Spielleiter.',
     intro:
-      'Werwolf lebt von Geheimnissen. Bei Whowolf steckt jedes davon im Handy des Spielers, dem es gehört. So sitzen alle am Tisch und spielen mit, auch wer sonst die Nacht ansagen müsste.',
+      'Jede Rolle ist ein Geheimnis, und bei Whowolf liegt sie nur auf dem Handy des Spielers, dem sie gehört. Wer sonst die Nacht ansagen müsste, spielt diesmal mit.',
     pillars: [
       { icon: 'phone', title: 'Jeder hat sein Handy', text: 'QR-Code scannen, Namen eingeben, fertig. Deine Rolle siehst nur du.' },
       { icon: 'scroll', title: 'Die App erzählt', text: 'Sie führt durch Nacht und Tag, zählt Stimmen und vergisst keine Regel.' },
@@ -33,7 +33,7 @@ const de = {
   },
   evening: {
     title: 'Der Spielplan.',
-    intro: 'So soll ein Abend mit Whowolf ablaufen.',
+    intro: 'Ein Abend mit Whowolf in fünf Akten.',
     acts: [
       { icon: 'qr', act: 'Vorspiel', title: 'Raum öffnen', text: 'Ein Handy öffnet den Raum, alle anderen scannen den Code. Ein Konto oder Internet braucht dafür niemand.' },
       { icon: 'circle', act: 'Erster Akt', title: 'Platz nehmen', text: 'Die App zeigt den Tischkreis aus deiner Sicht. So stimmt die Sitzordnung sofort.' },
@@ -45,7 +45,7 @@ const de = {
   sheep: {
     title: 'Schäfchen zählen.',
     intro:
-      'In der Whowolf-Nacht haben alle ihr Handy in der Hand. Was machen die Dorfbewohner, während die Wölfe jagen? Sie zählen Schäfchen. So tippen alle, und niemand fällt auf. Probier es aus.',
+      'In der Whowolf-Nacht haben alle ihr Handy in der Hand. Während die Wölfe ihr Opfer wählen, zählen die Dorfbewohner Schäfchen. So tippen alle, und niemand fällt auf. Hier kannst du es ausprobieren.',
     rule: 'Tippe die weißen Schafe an. Die schwarzen lässt du besser springen.',
     score: 'Traumpunkte',
     best: 'Bester Traum',
@@ -130,15 +130,15 @@ const de = {
     items: [
       { title: 'Kein Konto', text: 'Öffnen und losspielen. Ihr meldet euch nirgends an und gebt weder E-Mail noch Telefonnummer her.' },
       { title: 'Keine Werbung', text: 'Auch kein Abo, keine Käufe in der App und keine Tracker, weder in der App noch auf dieser Seite.' },
-      { title: 'Am Tisch', text: 'Ein Handy ist die Bühne. Im WLAN bleibt eure Partie am Tisch, über den Relay-Server geht sie nur verschlüsselt.' },
-      { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt. Wer mitlauscht, hört nur Rauschen.' },
+      { title: 'Am Tisch', text: 'Ein Handy leitet das Spiel. Im eigenen WLAN verlässt nichts den Raum.' },
+      { title: 'Verschlüsselt', text: 'Jede Verbindung ist Ende-zu-Ende verschlüsselt, auch über den Relay-Server.' },
       { title: 'Open Source', text: 'Apache 2.0. Jeder kann reinschauen, mitbauen und selbst hosten.' },
       { title: 'Für alle Geräte', text: 'Android, iOS, macOS, Windows und Linux aus einer Codebasis.' },
     ],
   },
   progress: {
     title: 'Wo wir stehen.',
-    intro: 'Whowolf wird offen entwickelt. Hier steht, wie weit es gerade ist. Versprechen machen wir lieber keine.',
+    intro: 'Was fertig ist und was noch fehlt. Termine nennen wir keine.',
     done: 'Erschienen',
     now: 'In Arbeit',
     next: 'Noch offen',
@@ -171,7 +171,7 @@ const de = {
     ctaReleased: 'Jetzt herunterladen',
   },
   footer: {
-    tagline: 'Werwolf am Tisch. Ein Open-Source-Projekt, Apache 2.0.',
+    tagline: 'Ein Werwolfspiel für den Tisch. Open Source, Apache 2.0.',
     security: 'Sicherheit',
     imprint: 'Impressum',
     privacy: 'Datenschutz',

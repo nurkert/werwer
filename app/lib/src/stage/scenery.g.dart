@@ -17,6 +17,8 @@ const sceneryAspects = <String, double>{
   'pinebranch': 0.6671,
   'pines': 0.6229,
   'reeds': 0.73,
+  'signpost': 0.4014,
   'stall': 0.6614,
-  'valance': 3.1963,
+  'swag': 3.966,
+  'tassel': 0.2714,
 };

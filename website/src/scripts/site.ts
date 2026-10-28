@@ -40,6 +40,23 @@ document.documentElement.classList.add('js');
 })();
 
 
+// The developer beta slip: closed for good with its X. (It fades in late,
+// so hiding it here never shows a flash.)
+const betaSlip = document.querySelector<HTMLElement>('[data-beta]');
+try {
+  if (betaSlip && localStorage.getItem('whowolf-beta-closed') === '1') betaSlip.hidden = true;
+} catch {
+  /* storage blocked: the slip shows */
+}
+document.querySelector('[data-beta-close]')?.addEventListener('click', () => {
+  if (betaSlip) betaSlip.hidden = true;
+  try {
+    localStorage.setItem('whowolf-beta-closed', '1');
+  } catch {
+    /* storage blocked: the slip simply shows again next time */
+  }
+});
+
 // Reveal section parts as they enter, once. Content is visible without this script.
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const parts = document.querySelectorAll<HTMLElement>('[data-reveal]');

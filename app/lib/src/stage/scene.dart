@@ -80,8 +80,9 @@ SceneLook lookOf(Scene scene) => switch (scene) {
   Scene.theatre => (
     sky: const [Color(0xFF070F1E), Color(0xFF13243F), Color(0xFF243552)],
     moon: MoonPhase.full,
-    // High in the sky above the hills, never behind them.
-    moonAt: const Alignment(0.52, -0.6),
+    // Above the hills beside the figure, half behind the right curtain,
+    // never behind the headline.
+    moonAt: const Alignment(0.56, -0.3),
     stars: 0.6,
     horizon: const Color(0xFF0B1424),
     wings: const Color(0xFF4A1210),
@@ -364,7 +365,11 @@ Rect? moonRect(Scene scene, Size size) {
   // high in the middle, above the gap between them.
   final d =
       size.shortestSide *
-      (moon == MoonPhase.crescent ? 0.3 : 0.4) *
+      (moon == MoonPhase.crescent
+          ? 0.3
+          : scene == Scene.theatre
+          ? 0.28
+          : 0.4) *
       (wide ? 0.7 : 1);
   final at = wide ? const Alignment(-0.1, -0.92) : look.moonAt;
   return Rect.fromCenter(

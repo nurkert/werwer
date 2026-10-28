@@ -574,7 +574,7 @@ class LifePainter extends CustomPainter {
               0.07 * sin(t * 11.1 + ph * 1.7) +
               0.05 * sin(t * 17.3 + ph * 3);
         } else {
-          a = 0.62 + 0.24 * sin(t * 0.45 + ph) + 0.12 * sin(t * 1.3 + ph * 2.1);
+          a = 0.62 + 0.24 * sin(t * 0.8 + ph) + 0.12 * sin(t * 2.1 + ph * 2.1);
         }
         if (i == blink && (t / 6) % 1 < 0.05) a *= 0.15;
         final strength = 0.5 + 0.5 * s;
@@ -622,7 +622,7 @@ class LifePainter extends CustomPainter {
     if (data != null && sky) {
       for (final (i, l) in data.stars.indexed) {
         final (x, y, rad, s) = l;
-        _star(at(x, y), i, max(18, rad * w * 13), 0.5 + 0.5 * s, t);
+        _star(at(x, y), i, max(13, rad * w * 9), 0.5 + 0.5 * s, t);
       }
     }
 
@@ -657,14 +657,14 @@ class LifePainter extends CustomPainter {
         }
         final swell = 0.7 + 0.3 * sin(t * 0.3 + x * 6 + y * 4);
         final id = i + (seed * 1000).round();
-        if (m > 0.42) {
-          _star(p, id, 11 + 22 * m, (0.6 + 0.4 * m) * swell, t);
+        if (m > 0.55) {
+          _star(p, id, 6 + 13 * m, (0.6 + 0.4 * m) * swell, t);
         } else {
           final tw = 0.5 + 0.5 * sin(t * (0.5 + 1.6 * seed) + i);
           _stamp(
             _Sprite.glow,
             p,
-            4 + 12 * m + 2 * tw,
+            2.5 + 7 * m + 1.5 * tw,
             _starColour(id).withValues(
               alpha: ((0.3 + 1.2 * m) * (0.55 + 0.45 * tw) * swell).clamp(0, 1),
             ),

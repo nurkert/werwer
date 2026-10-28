@@ -50,8 +50,14 @@ typedef Piece = ({
   /// Shown only from this window width on: wide windows get more.
   double from,
 
+  /// Shown only below this window width: phones get slimmer pieces.
+  double until,
+
   /// Drawn mirrored, for the other side.
   bool mirror,
+
+  /// Top pieces: hung over every seam between two lengths (a tassel).
+  String? joint,
 });
 
 Piece _p(
@@ -63,7 +69,9 @@ Piece _p(
   double inset = 0,
   double lift = 0,
   double from = 0,
+  double until = double.infinity,
   bool mirror = false,
+  String? joint,
 }) => (
   name: name,
   edge: edge,
@@ -73,8 +81,13 @@ Piece _p(
   inset: inset,
   lift: lift,
   from: from,
+  until: until,
   mirror: mirror,
+  joint: joint,
 );
+
+/// Below this window width the village gets its slim phone pieces.
+const double _phone = 600;
 
 /// The scenery of each scene, back to front.
 List<Piece> sceneryOf(Scene scene) => switch (scene) {
@@ -106,8 +119,19 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
       depth: 11,
       from: 600,
     ),
-    _p('oak', Edge.left, size: 0.78, reach: 0.48),
-    _p('house', Edge.right, size: 0.8, reach: 0.45),
+    _p('oak', Edge.left, size: 0.78, reach: 0.48, from: _phone),
+    _p('house', Edge.right, size: 0.8, reach: 0.45, from: _phone),
+    // A phone's narrow edges: a branch from the top, slim pieces below.
+    _p(
+      'branch',
+      Edge.topLeft,
+      size: 0.3,
+      reach: 0.7,
+      depth: 10,
+      until: _phone,
+    ),
+    _p('lamppost', Edge.left, size: 0.36, reach: 0.62, until: _phone),
+    _p('signpost', Edge.right, size: 0.44, reach: 0.78, until: _phone),
   ],
   Scene.dusk || Scene.finale => [
     _p('garland', Edge.top, size: 1, reach: 0.6, depth: 6),
@@ -207,7 +231,6 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
     _p('birch', Edge.right, size: 0.62, mirror: true),
   ],
   Scene.theatre => [
-    _p('valance', Edge.top, size: 1, reach: 0.7, depth: 5),
     _p('curtain', Edge.hangLeft, size: 1.04, reach: 0.5, depth: 12),
     _p(
       'curtain',
@@ -217,6 +240,8 @@ List<Piece> sceneryOf(Scene scene) => switch (scene) {
       depth: 12,
       mirror: true,
     ),
+    // Swags of velvet in front of the curtains, a tassel over each seam.
+    _p('swag', Edge.top, size: 0.62, reach: 0.92, depth: 5, joint: 'tassel'),
   ],
   Scene.backstage || Scene.curtain => const [],
 };
@@ -282,7 +307,7 @@ class Scenery extends StatelessWidget {
         final children = <Widget>[];
         for (final piece in sceneryOf(scene)) {
           final aspect = sceneryAspects[piece.name];
-          if (aspect == null || w < piece.from) continue;
+          if (aspect == null || w < piece.from || w >= piece.until) continue;
           var edge = piece.edge;
           var mirror = piece.mirror;
           if (side != ScenerySide.whole) {
@@ -301,11 +326,12 @@ class Scenery extends StatelessWidget {
             final count = (run / segment).ceil();
             final height = segment / aspect;
             final start = (w - count * segment) / 2;
+            final top = -height * (1 - piece.reach);
             for (var i = 0; i < count; i++) {
               children.add(
                 Positioned(
                   left: start + i * segment,
-                  top: -height * (1 - piece.reach),
+                  top: top,
                   width: segment,
                   height: height,
                   child: TiltShift(
@@ -329,6 +355,29 @@ class Scenery extends StatelessWidget {
                 ),
               );
             }
+            final joint = piece.joint;
+            final jointAspect = sceneryAspects[joint];
+            if (joint != null && jointAspect != null) {
+              final jh = height * 1.25;
+              final jw = jh * jointAspect;
+              for (var i = 0; i <= count; i++) {
+                children.add(
+                  Positioned(
+                    left: start + i * segment - jw / 2,
+                    top: top - jh * 0.03,
+                    width: jw,
+                    height: jh,
+                    child: TiltShift(
+                      depth: piece.depth,
+                      child: CardboardPiece(
+                        asset: 'assets/stage/scenery/$joint.webp',
+                        tint: tint,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
             continue;
           }
           late final double width;
@@ -347,7 +396,11 @@ class Scenery extends StatelessWidget {
             case Edge.hangLeft || Edge.hangRight:
               height = h * piece.size;
               width = height * aspect;
-              final inside = min(width * piece.reach, w * 0.22);
+              // Curtains frame the stage, they never crowd it.
+              final inside = min(
+                width * piece.reach,
+                w * (w < 600 ? 0.17 : 0.15),
+              );
               left = edge == Edge.hangLeft ? inside - width : w - inside;
               top = -h * 0.02;
             case Edge.left || Edge.right:

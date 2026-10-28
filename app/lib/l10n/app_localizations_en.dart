@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get tagline => 'Werewolf at the table. Everyone on their own phone.';
+  String get tagline => 'The werewolf game for your table.';
 
   @override
   String devStamp(String version) {
@@ -704,6 +704,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Everything there is, with Cupid and the wolf trail.';
 
   @override
+  String get settingsQuick => 'Quick pick';
+
+  @override
+  String get quickClassicHint => 'Eyes closed, the narrator calls';
+
+  @override
+  String get quickWhowolfHint => 'Everyone taps, with sheep and door signs';
+
+  @override
+  String get settingsQuickHint => 'Everything below is yours to set.';
+
+  @override
   String get presetCustom => 'Your own mix';
 
   @override
@@ -1231,39 +1243,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howLink => 'How it works';
 
   @override
-  String get how1Title => 'Join';
+  String get how1Title => 'Open a room';
 
   @override
   String get how1Text =>
-      'Everyone scans the room code and is in. Each of you picks a figure.';
+      'One of you opens a room on their phone. The others scan the QR code and they are in. You sit together at the table, on the same Wi-Fi.';
 
   @override
-  String get how2Title => 'Look at your role';
+  String get how2Title => 'A secret role';
 
   @override
   String get how2Text =>
-      'Each of you gets a secret role. Werewolves know each other, nobody else knows anything.';
+      'Everyone picks a figure and gets a secret role. Most are villagers, a few are werewolves. Don’t show your phone to anyone.';
 
   @override
-  String get how3Title => 'Close your eyes';
+  String get how3Title => 'The night';
 
   @override
   String get how3Text =>
-      'At night everyone closes their eyes. The narrator wakes the roles one after another.';
+      'Everyone closes their eyes. The narrator wakes the werewolves: they see who else is in the pack and pick a victim on their phones.';
 
   @override
-  String get how4Title => 'Talk';
+  String get how4Title => 'Special roles';
 
   @override
   String get how4Text =>
-      'In the morning you find out who is gone. Then you argue: who could the werewolf be?';
+      'Then the seer wakes up and learns one player’s role. The witch can save someone once and poison someone once with her potions.';
 
   @override
-  String get how5Title => 'Vote';
+  String get how5Title => 'The morning';
 
   @override
   String get how5Text =>
-      'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.';
+      'Everyone opens their eyes, and the app tells you who was caught. Whoever is out stops talking but may watch.';
+
+  @override
+  String get how6Title => 'Talk';
+
+  @override
+  String get how6Text =>
+      'Now you argue: who acted suspicious? The werewolves play innocent and lie, the village tries to unmask them.';
+
+  @override
+  String get how7Title => 'Vote';
+
+  @override
+  String get how7Text =>
+      'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village. Then the next night falls.';
+
+  @override
+  String get how8Title => 'Who wins';
+
+  @override
+  String get how8Text =>
+      'The village wins as soon as every werewolf is found. The werewolves win once they are as many as everyone else.';
+
+  @override
+  String get howPhaseSetup => 'Setup';
+
+  @override
+  String get howPhaseNight => 'Night';
+
+  @override
+  String get howPhaseMorning => 'Morning';
+
+  @override
+  String get howPhaseDay => 'Day';
+
+  @override
+  String get howPhaseEnd => 'The end';
 
   @override
   String get howDone => 'Got it';

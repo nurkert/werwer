@@ -3,9 +3,9 @@ import type { Copy } from './de';
 
 const en: Copy = {
   meta: {
-    title: 'Whowolf: Werewolf at the table, everyone on their own phone',
+    title: 'Whowolf: the werewolf game your phones narrate',
     description:
-      'Whowolf is an open-source werewolf party game in the making: you sit together, everyone plays on their own phone, and the app is the narrator.',
+      'Whowolf is an open-source werewolf party game: you sit together, everyone plays on their own phone, and the app narrates.',
   },
   skip: 'Skip to content',
   nav: { play: 'Game', cast: 'Roles', sheep: 'Sheep', trail: 'Wolf trail', docs: 'Guide', download: 'Download', menu: 'Menu', close: 'Close', language: 'Language' },
@@ -17,15 +17,15 @@ const en: Copy = {
   },
   eyebrows: { play: 'The game', evening: 'An evening', night: 'The night', cast: 'The cast', trail: 'The wolf trail', rules: 'Backstage', finale: 'Curtain up' },
   hero: {
-    statement: 'Werewolf at the table. Everyone on their own phone.',
-    sub: 'The app tells the story. Nobody has to be game master, you need no paper slips, and no noise gives you away at night.',
+    statement: 'The werewolf game for your table, narrated by the app.',
+    sub: 'Everyone plays on their own phone, so nobody has to sit out as game master, and you need no role cards.',
     primary: 'Follow the project',
     secondary: 'How it will play',
   },
   playbill: {
     title: 'No game master needed.',
     intro:
-      'Werewolf lives on secrets. In Whowolf each one sits on the phone of the player it belongs to, so everyone stays at the table and plays, even whoever would otherwise call the night.',
+      'Every role is a secret, and in Whowolf it stays on the phone of the player it belongs to. Whoever would normally call the night gets to play this time.',
     pillars: [
       { icon: 'phone', title: 'Everyone has a phone', text: 'Scan the QR code, type your name, done. Only you see your role.' },
       { icon: 'scroll', title: 'The app narrates', text: 'It leads you through night and day, counts the votes and never forgets a rule.' },
@@ -34,7 +34,7 @@ const en: Copy = {
   },
   evening: {
     title: 'The programme.',
-    intro: 'This is how an evening with Whowolf is meant to go.',
+    intro: 'An evening with Whowolf, in five acts.',
     acts: [
       { icon: 'qr', act: 'Prologue', title: 'Open a room', text: 'One phone opens the room, everyone else scans the code. Nobody needs an account or internet for it.' },
       { icon: 'circle', act: 'Act one', title: 'Take your seats', text: 'The app shows the table circle from your point of view, so the seating is right at once.' },
@@ -46,7 +46,7 @@ const en: Copy = {
   sheep: {
     title: 'Counting sheep.',
     intro:
-      'In Whowolf’s night everyone keeps their phone in hand. What do the villagers do while the wolves are hunting? They count sheep. That way everyone taps, and nobody stands out. Give it a try.',
+      'In Whowolf’s night everyone keeps their phone in hand. While the wolves pick their victim, the villagers count sheep, so everyone is tapping and nobody stands out. You can try it here.',
     rule: 'Tap the white sheep. Better let the black ones jump.',
     score: 'Dream points',
     best: 'Best dream',
@@ -131,15 +131,15 @@ const en: Copy = {
     items: [
       { title: 'No account', text: 'Open it and play. You don’t sign up or hand over an e-mail address or phone number.' },
       { title: 'No ads', text: 'No subscription, in-app purchases or trackers either, in the app or on this site.' },
-      { title: 'At the table', text: 'One phone is the stage. In your Wi-Fi the game stays at the table; through the relay server it only travels encrypted.' },
-      { title: 'Encrypted', text: 'Every connection is end-to-end encrypted. Eavesdroppers only hear noise.' },
+      { title: 'At the table', text: 'One phone runs the game. On your own Wi-Fi nothing leaves the room.' },
+      { title: 'Encrypted', text: 'Every connection is end-to-end encrypted, the relay server included.' },
       { title: 'Open source', text: 'Apache 2.0. Anyone can look inside, contribute and self-host.' },
       { title: 'Every device', text: 'Android, iOS, macOS, Windows and Linux from one codebase.' },
     ],
   },
   progress: {
     title: 'Where we are.',
-    intro: 'Whowolf is built in the open. This is how far it has come. We would rather not make promises.',
+    intro: 'What is done and what is still missing. We don’t give dates.',
     done: 'Released',
     now: 'In progress',
     next: 'Still open',
@@ -172,7 +172,7 @@ const en: Copy = {
     ctaReleased: 'Download now',
   },
   footer: {
-    tagline: 'Werewolf at the table. An open-source project, Apache 2.0.',
+    tagline: 'A werewolf game for the table. Open source, Apache 2.0.',
     security: 'Security',
     imprint: 'Imprint',
     privacy: 'Privacy',

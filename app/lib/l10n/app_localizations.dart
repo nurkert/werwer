@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @tagline.
   ///
   /// In en, this message translates to:
-  /// **'Werewolf at the table. Everyone on their own phone.'**
+  /// **'The werewolf game for your table.'**
   String get tagline;
 
   /// No description provided for @devStamp.
@@ -1244,6 +1244,30 @@ abstract class AppLocalizations {
   /// **'Everything there is, with Cupid and the wolf trail.'**
   String get presetFullStageText;
 
+  /// No description provided for @settingsQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick pick'**
+  String get settingsQuick;
+
+  /// No description provided for @quickClassicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyes closed, the narrator calls'**
+  String get quickClassicHint;
+
+  /// No description provided for @quickWhowolfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone taps, with sheep and door signs'**
+  String get quickWhowolfHint;
+
+  /// No description provided for @settingsQuickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything below is yours to set.'**
+  String get settingsQuickHint;
+
   /// No description provided for @presetCustom.
   ///
   /// In en, this message translates to:
@@ -2177,62 +2201,128 @@ abstract class AppLocalizations {
   /// No description provided for @how1Title.
   ///
   /// In en, this message translates to:
-  /// **'Join'**
+  /// **'Open a room'**
   String get how1Title;
 
   /// No description provided for @how1Text.
   ///
   /// In en, this message translates to:
-  /// **'Everyone scans the room code and is in. Each of you picks a figure.'**
+  /// **'One of you opens a room on their phone. The others scan the QR code and they are in. You sit together at the table, on the same Wi-Fi.'**
   String get how1Text;
 
   /// No description provided for @how2Title.
   ///
   /// In en, this message translates to:
-  /// **'Look at your role'**
+  /// **'A secret role'**
   String get how2Title;
 
   /// No description provided for @how2Text.
   ///
   /// In en, this message translates to:
-  /// **'Each of you gets a secret role. Werewolves know each other, nobody else knows anything.'**
+  /// **'Everyone picks a figure and gets a secret role. Most are villagers, a few are werewolves. Don’t show your phone to anyone.'**
   String get how2Text;
 
   /// No description provided for @how3Title.
   ///
   /// In en, this message translates to:
-  /// **'Close your eyes'**
+  /// **'The night'**
   String get how3Title;
 
   /// No description provided for @how3Text.
   ///
   /// In en, this message translates to:
-  /// **'At night everyone closes their eyes. The narrator wakes the roles one after another.'**
+  /// **'Everyone closes their eyes. The narrator wakes the werewolves: they see who else is in the pack and pick a victim on their phones.'**
   String get how3Text;
 
   /// No description provided for @how4Title.
   ///
   /// In en, this message translates to:
-  /// **'Talk'**
+  /// **'Special roles'**
   String get how4Title;
 
   /// No description provided for @how4Text.
   ///
   /// In en, this message translates to:
-  /// **'In the morning you find out who is gone. Then you argue: who could the werewolf be?'**
+  /// **'Then the seer wakes up and learns one player’s role. The witch can save someone once and poison someone once with her potions.'**
   String get how4Text;
 
   /// No description provided for @how5Title.
   ///
   /// In en, this message translates to:
-  /// **'Vote'**
+  /// **'The morning'**
   String get how5Title;
 
   /// No description provided for @how5Text.
   ///
   /// In en, this message translates to:
-  /// **'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village.'**
+  /// **'Everyone opens their eyes, and the app tells you who was caught. Whoever is out stops talking but may watch.'**
   String get how5Text;
+
+  /// No description provided for @how6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk'**
+  String get how6Title;
+
+  /// No description provided for @how6Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Now you argue: who acted suspicious? The werewolves play innocent and lie, the village tries to unmask them.'**
+  String get how6Text;
+
+  /// No description provided for @how7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote'**
+  String get how7Title;
+
+  /// No description provided for @how7Text.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone votes in secret on their phone. Whoever gets the most votes leaves the village. Then the next night falls.'**
+  String get how7Text;
+
+  /// No description provided for @how8Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Who wins'**
+  String get how8Title;
+
+  /// No description provided for @how8Text.
+  ///
+  /// In en, this message translates to:
+  /// **'The village wins as soon as every werewolf is found. The werewolves win once they are as many as everyone else.'**
+  String get how8Text;
+
+  /// No description provided for @howPhaseSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get howPhaseSetup;
+
+  /// No description provided for @howPhaseNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get howPhaseNight;
+
+  /// No description provided for @howPhaseMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get howPhaseMorning;
+
+  /// No description provided for @howPhaseDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get howPhaseDay;
+
+  /// No description provided for @howPhaseEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'The end'**
+  String get howPhaseEnd;
 
   /// No description provided for @howDone.
   ///

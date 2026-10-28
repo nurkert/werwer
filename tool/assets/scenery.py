@@ -1,7 +1,11 @@
 """Turn generated scenery pieces (one cardboard cut-out per image) into the
 app's WebP files and write the table of their aspect ratios.
 
-Usage: python tool/assets/scenery.py design/sheets/scenery/*.png
+Usage: python tool/assets/scenery.py [--web] design/sheets/scenery/*.png
+
+With `--web` the pieces are only for the website (knots and tassels over
+the seams of its garlands and valance): they go to
+`website/src/assets/scenery/` and not into the app.
 
 A piece `design/sheets/scenery/<name>.png` becomes
 `design/source/scenery/<name>.png` (trimmed, transparent) and
@@ -22,6 +26,7 @@ from slice_sheet import clean_alpha
 
 SOURCE = Path("design/source/scenery")
 APP = Path("app/assets/stage/scenery")
+WEB = Path("website/src/assets/scenery")
 TABLE = Path("app/lib/src/stage/scenery.g.dart")
 LONG = 1400
 
@@ -58,9 +63,12 @@ def trim(rgba: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
+    args = sys.argv[1:]
+    web = args[:1] == ["--web"]
+    out = WEB if web else APP
     SOURCE.mkdir(parents=True, exist_ok=True)
-    APP.mkdir(parents=True, exist_ok=True)
-    for sheet in map(Path, sys.argv[1:]):
+    out.mkdir(parents=True, exist_ok=True)
+    for sheet in map(Path, args[1:] if web else args):
         rgba = np.array(Image.open(sheet).convert("RGBA"))
         rgba = cut_from_painted(rgba) if opaque_background(rgba) else clean_alpha(rgba)
         rgba = trim(rgba)
@@ -69,9 +77,11 @@ def main() -> None:
         scale = min(1.0, LONG / max(image.size))
         size = (round(image.width * scale), round(image.height * scale))
         image.resize(size, Image.LANCZOS).save(
-            APP / f"{sheet.stem}.webp", "WEBP", quality=86, method=6
+            out / f"{sheet.stem}.webp", "WEBP", quality=86, method=6
         )
         print(sheet.stem, size)
+    if web:
+        return
     entries = []
     for path in sorted(APP.glob("*.webp")):
         with Image.open(path) as image:

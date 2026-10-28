@@ -130,6 +130,24 @@ ThemeData buildTheme() {
         ),
       ),
     ),
+    // Times: a brass groove, lit as far as the lantern knob has gone.
+    sliderTheme: SliderThemeData(
+      trackHeight: 6,
+      activeTrackColor: Palette.stageLantern,
+      inactiveTrackColor: Palette.stageBrass.withValues(alpha: 0.35),
+      thumbColor: Palette.stageLanternTop,
+      overlayColor: Palette.stageLantern.withValues(alpha: 0.18),
+      activeTickMarkColor: Colors.transparent,
+      inactiveTickMarkColor: Colors.transparent,
+      valueIndicatorColor: Palette.stagePlaque,
+      valueIndicatorShape: const RoundedRectSliderValueIndicatorShape(),
+      valueIndicatorTextStyle: const TextStyle(
+        fontFamily: displayFont,
+        fontWeight: FontWeight.w700,
+        color: Palette.stageIvory,
+      ),
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 11),
+    ),
     snackBarTheme: const SnackBarThemeData(
       backgroundColor: Palette.paper,
       contentTextStyle: TextStyle(fontFamily: textFont, color: Palette.ink),

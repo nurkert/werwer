@@ -191,6 +191,15 @@ img.scene__set {
   box-shadow: 0 0 60px 18px color-mix(in srgb, var(--stage-moonlight) 30%, transparent);
   pointer-events: none;
 }
+/* The opening scene's moon on a phone: small in the empty top left
+   corner, clear of the wordmark and the menu button. */
+@media (max-width: 640px) {
+  .scene--first .scene__moon {
+    left: 7%;
+    top: 16px;
+    width: 46px;
+  }
+}
 .scene__moon--crescent {
   background: none;
   box-shadow: inset calc(var(--moon-size, 140px) * -0.22) calc(var(--moon-size, 140px) * -0.06) 0 0 var(--stage-moonlight);
@@ -547,40 +556,9 @@ body.has-backdrop .site-footer {
   }
 }
 
-/* One curtain valance from side to side, in front of the side curtains
-   (it comes later in the stack), its top hidden above the scene. */
-.piece--span {
-  left: 50%;
-  top: 0;
-  z-index: 2;
-  width: var(--span-w, 106vw);
-  height: auto;
-  transform: translate(-50%, calc(-1 * var(--hide, 38%)));
-}
-.piece--span img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.scene + .scene .piece--span {
-  top: var(--blend);
-}
-/* On a phone a wider cut, so the fringe frames the top boldly; the side
-   curtains stay narrow strips below it. */
-@media (max-width: 640px) {
-  .piece--span {
-    --span-w: 170vw;
-    transform: translate(-50%, calc(-1 * var(--hide-phone, 22%)));
-  }
-}
-/* The words start below the valance's fringe. */
-.scene:has(.piece--span) .scene__content {
-  padding-top: 9vw;
-}
-@media (max-width: 640px) {
-  .scene:has(.piece--span) .scene__content {
-    padding-top: 16vw;
-  }
+/* The words start below a valance of swags (a top piece with joints). */
+.scene:has(.piece--top .piece__joint) .scene__content {
+  padding-top: max(96px, 10vw);
 }
 
 /* ---- The life of the stage (task 015) ------------------------------- */
@@ -604,24 +582,41 @@ body.has-backdrop .site-footer {
   display: block;
   height: 100%;
 }
-.piece--top .piece__frame,
-.piece--span .piece__frame {
+.piece--top .piece__frame {
   height: auto;
   flex: none;
 }
-.piece--top .piece__frame + .piece__frame {
+.piece--top .piece__frame ~ .piece__frame {
   margin-left: -3%;
+}
+/* A knot or tassel over the seam of two lengths: no width of its own,
+   centred on the overlap. */
+.piece__joint {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 0;
+  margin: 0 1.5% 0 -1.5%;
+}
+.piece__joint img {
+  position: absolute;
+  left: 0;
+  top: var(--joint-y);
+  height: var(--joint-h);
+  width: auto;
+  max-width: none;
+  transform: translateX(-50%);
 }
 .piece--top picture + picture img {
   margin-left: 0;
 }
 .piece__light {
   position: absolute;
-  width: calc(var(--r) * 2200%);
+  width: calc(var(--r) * 1500%);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(255 226 160 / 0.95), rgb(255 186 90 / 0.55) 18%, rgb(255 170 80 / 0.2) 48%, rgb(255 160 70 / 0));
+  background: radial-gradient(closest-side, rgb(255 226 160 / 0.7), rgb(255 186 90 / 0.34) 20%, rgb(255 170 80 / 0.1) 50%, rgb(255 160 70 / 0));
   mix-blend-mode: screen;
   pointer-events: none;
   animation: flame 1.9s linear infinite;

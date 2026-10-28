@@ -9,7 +9,7 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get tagline => 'Werwolf am Tisch. Jeder mit seinem Handy.';
+  String get tagline => 'Das Werwolfspiel für euren Tisch.';
 
   @override
   String devStamp(String version) {
@@ -713,6 +713,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Alles, was es gibt, mit Amor und Wolfsspur.';
 
   @override
+  String get settingsQuick => 'Schnellwahl';
+
+  @override
+  String get quickClassicHint => 'Augen zu, der Erzähler ruft auf';
+
+  @override
+  String get quickWhowolfHint => 'Alle tippen, mit Schäfchen und Türzeichen';
+
+  @override
+  String get settingsQuickHint => 'Alles darunter stellst du selbst ein.';
+
+  @override
   String get presetCustom => 'Eigene Mischung';
 
   @override
@@ -1243,39 +1255,75 @@ class AppLocalizationsDe extends AppLocalizations {
   String get howLink => 'So geht\'s';
 
   @override
-  String get how1Title => 'Beitreten';
+  String get how1Title => 'Raum öffnen';
 
   @override
   String get how1Text =>
-      'Alle scannen den Raumcode und sind dabei. Jeder wählt sich eine Figur.';
+      'Einer öffnet auf seinem Handy einen Raum. Die anderen scannen den QR-Code und sind dabei. Ihr sitzt zusammen am Tisch, im selben WLAN.';
 
   @override
-  String get how2Title => 'Rolle ansehen';
+  String get how2Title => 'Geheime Rolle';
 
   @override
   String get how2Text =>
-      'Jeder bekommt eine geheime Rolle. Werwölfe kennen sich, alle anderen wissen nichts.';
+      'Jeder sucht sich eine Figur aus und bekommt eine geheime Rolle. Die meisten sind Dorfbewohner, ein paar sind Werwölfe. Zeig dein Handy niemandem.';
 
   @override
-  String get how3Title => 'Augen schließen';
+  String get how3Title => 'Die Nacht';
 
   @override
   String get how3Text =>
-      'Nachts schließen alle die Augen. Der Erzähler weckt die Rollen nacheinander.';
+      'Alle schließen die Augen. Der Erzähler weckt die Werwölfe: Sie sehen, wer noch zum Rudel gehört, und wählen auf dem Handy ein Opfer.';
 
   @override
-  String get how4Title => 'Gemeinsam reden';
+  String get how4Title => 'Besondere Rollen';
 
   @override
   String get how4Text =>
-      'Am Morgen erfahrt ihr, wer fehlt. Dann wird diskutiert: Wer könnte der Werwolf sein?';
+      'Danach wacht die Seherin auf und erfährt die Rolle eines Mitspielers. Die Hexe kann mit ihren Tränken einmal retten und einmal vergiften.';
 
   @override
-  String get how5Title => 'Abstimmen';
+  String get how5Title => 'Der Morgen';
 
   @override
   String get how5Text =>
-      'Alle stimmen geheim auf dem Handy ab. Wer die meisten Stimmen hat, verlässt das Dorf.';
+      'Alle öffnen die Augen, und die App verrät, wen es erwischt hat. Wer raus ist, redet nicht mehr mit, darf aber zuschauen.';
+
+  @override
+  String get how6Title => 'Reden';
+
+  @override
+  String get how6Text =>
+      'Jetzt wird diskutiert: Wer war verdächtig? Die Werwölfe tun harmlos und lügen, das Dorf versucht, sie zu entlarven.';
+
+  @override
+  String get how7Title => 'Abstimmen';
+
+  @override
+  String get how7Text =>
+      'Jeder stimmt geheim auf seinem Handy ab. Wer die meisten Stimmen hat, verlässt das Dorf. Dann kommt die nächste Nacht.';
+
+  @override
+  String get how8Title => 'Wer gewinnt';
+
+  @override
+  String get how8Text =>
+      'Das Dorf gewinnt, sobald alle Werwölfe gefunden sind. Die Werwölfe gewinnen, wenn sie so viele sind wie alle anderen.';
+
+  @override
+  String get howPhaseSetup => 'Vorbereitung';
+
+  @override
+  String get howPhaseNight => 'Nacht';
+
+  @override
+  String get howPhaseMorning => 'Morgen';
+
+  @override
+  String get howPhaseDay => 'Tag';
+
+  @override
+  String get howPhaseEnd => 'Ende';
 
   @override
   String get howDone => 'Verstanden';

@@ -74,18 +74,40 @@ class _SettingsBody extends StatelessWidget {
     final suggested = suggestedWerewolves(players.clamp(minPlayers, 99));
     final fits = s.rolesFor(players.clamp(minPlayers, 99)) != null;
     final children = [
-      for (final preset in Preset.values) ...[
-        _PresetCard(
-          preset: preset,
-          selected: s.preset == preset,
-          onTap: () => onChanged(
-            preset.settings.copyWith(narratorLanguage: s.narratorLanguage),
-          ),
+      _Section(l10n.settingsQuick),
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, preset) in const [
+              Preset.classic,
+              Preset.whowolf,
+            ].indexed) ...[
+              if (i > 0) const SizedBox(width: 10),
+              Expanded(
+                child: _QuickPick(
+                  title: l10n.preset(preset),
+                  hint: preset == Preset.classic
+                      ? l10n.quickClassicHint
+                      : l10n.quickWhowolfHint,
+                  selected: s.preset == preset,
+                  onTap: () => onChanged(
+                    preset.settings.copyWith(
+                      narratorLanguage: s.narratorLanguage,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
-        const SizedBox(height: 10),
-      ],
-      if (s.preset == null)
-        Center(child: Stamp(l10n.settingsName(s), size: 16)),
+      ),
+      const SizedBox(height: 12),
+      Center(
+        child: s.preset == Preset.classic || s.preset == Preset.whowolf
+            ? Body(l10n.settingsQuickHint, muted: true)
+            : Stamp(l10n.settingsName(s), size: 16),
+      ),
       _Section(l10n.settingsRoles),
       Wrap(
         spacing: 8,
@@ -153,24 +175,14 @@ class _SettingsBody extends StatelessWidget {
         onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
       ),
       _Section(l10n.settingsNight),
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              l10n.settingsNarratorLanguage,
-              style: const TextStyle(color: Palette.moon100),
-            ),
-          ),
-          SegmentedButton<NarratorLanguage>(
-            segments: const [
-              ButtonSegment(value: NarratorLanguage.de, label: Text('DE')),
-              ButtonSegment(value: NarratorLanguage.en, label: Text('EN')),
-            ],
-            selected: {s.narratorLanguage},
-            onSelectionChanged: (v) =>
-                onChanged(s.copyWith(narratorLanguage: v.first)),
-          ),
+      _Choice<NarratorLanguage>(
+        label: l10n.settingsNarratorLanguage,
+        segments: const [
+          ButtonSegment(value: NarratorLanguage.de, label: Text('Deutsch')),
+          ButtonSegment(value: NarratorLanguage.en, label: Text('English')),
         ],
+        selected: s.narratorLanguage,
+        onChanged: (v) => onChanged(s.copyWith(narratorLanguage: v)),
       ),
       _Switch(
         label: l10n.settingsNightCalled,
@@ -200,34 +212,21 @@ class _SettingsBody extends StatelessWidget {
           s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
         ),
       ),
-      const SizedBox(height: 8),
-      Row(
-        children: [
-          Expanded(
-            child: Text(
-              l10n.settingsGhosts,
-              style: const TextStyle(color: Palette.moon100),
-            ),
+      _Choice<GhostSight>(
+        label: l10n.settingsGhosts,
+        segments: [
+          ButtonSegment(value: GhostSight.off, label: Text(l10n.ghostsOff)),
+          ButtonSegment(
+            value: GhostSight.roles,
+            label: Text(l10n.ghostsRoles),
           ),
-          SegmentedButton<GhostSight>(
-            segments: [
-              ButtonSegment(
-                value: GhostSight.off,
-                label: Text(l10n.ghostsOff),
-              ),
-              ButtonSegment(
-                value: GhostSight.roles,
-                label: Text(l10n.ghostsRoles),
-              ),
-              ButtonSegment(
-                value: GhostSight.everything,
-                label: Text(l10n.ghostsEverything),
-              ),
-            ],
-            selected: {s.ghosts},
-            onSelectionChanged: (v) => onChanged(s.copyWith(ghosts: v.first)),
+          ButtonSegment(
+            value: GhostSight.everything,
+            label: Text(l10n.ghostsEverything),
           ),
         ],
+        selected: s.ghosts,
+        onChanged: (v) => onChanged(s.copyWith(ghosts: v)),
       ),
       if (s.ghosts != GhostSight.off)
         Padding(
@@ -266,26 +265,65 @@ class _SettingsBody extends StatelessWidget {
       ),
     ];
     // Each section on its own plaque, so it reads on any stage set; the
-    // presets before the first section are plaques already.
-    final groups = <List<Widget>>[[]];
+    // quick picks are plaques already. With room for it (tablet, desktop)
+    // the sections stand in two columns.
+    final groups = <List<Widget>>[];
     for (final child in children) {
       if (child is _Section) groups.add([child]);
       if (child is! _Section) groups.last.add(child);
     }
-    return Column(
+    Widget section(List<Widget> group, {bool plaque = true}) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ...groups.first,
-        for (final group in groups.skip(1)) ...[
-          group.first,
+        group.first,
+        if (plaque)
           Panel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: group.skip(1).toList(),
             ),
-          ),
-        ],
+          )
+        else
+          ...group.skip(1),
       ],
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        final quick = section(groups.first, plaque: false);
+        final rest = groups.skip(1).toList();
+        if (box.maxWidth < 720) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [quick, for (final g in rest) section(g)],
+          );
+        }
+        // Balanced by order: roles, wolves and times on the left, the
+        // night, the rules and the extras on the right.
+        final half = (rest.length / 2).ceil();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            quick,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final (i, part) in [
+                  rest.take(half),
+                  rest.skip(half),
+                ].indexed) ...[
+                  if (i > 0) const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [for (final g in part) section(g)],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -302,70 +340,72 @@ class _Section extends StatelessWidget {
   );
 }
 
-/// One preset as a playbill card: name, a line about it, a stamp if chosen.
-class _PresetCard extends StatelessWidget {
-  const _PresetCard({
-    required this.preset,
+/// A quick pick: a whole way of playing in one tap, a playbill when chosen.
+class _QuickPick extends StatelessWidget {
+  const _QuickPick({
+    required this.title,
+    required this.hint,
     required this.selected,
     required this.onTap,
   });
 
-  final Preset preset;
+  final String title;
+  final String hint;
   final bool selected;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Panel(
-          paper: selected,
-          highlight: selected,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.preset(preset),
-                      style: TextStyle(
-                        fontFamily: displayFont,
-                        fontSize: 24,
-                        color: selected ? Palette.ink : Palette.moon100,
-                      ),
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Panel(
+        paper: selected,
+        highlight: selected,
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: displayFont,
+                      fontSize: 22,
+                      color: selected ? Palette.ink : Palette.moon100,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.presetText(preset),
-                      style: TextStyle(
-                        fontSize: 14.5,
-                        height: 1.4,
-                        color: selected ? Palette.inkSoft : Palette.moon200,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              if (selected) ...[
-                const SizedBox(width: 10),
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: Palette.forest700,
-                  size: 28,
-                ),
+                if (selected) ...[
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: Palette.forest700,
+                    size: 22,
+                  ),
+                ],
               ],
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hint,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.35,
+                color: selected ? Palette.inkSoft : Palette.moon200,
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 /// A special role: its figure, its name, on or off.
@@ -437,10 +477,7 @@ class _Stepper extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      IconButton.outlined(
-        onPressed: onLess,
-        icon: const Icon(Icons.remove_rounded),
-      ),
+      _BrassButton(icon: Icons.remove_rounded, onTap: onLess),
       SizedBox(
         width: 150,
         child: Text(
@@ -453,10 +490,7 @@ class _Stepper extends StatelessWidget {
           ),
         ),
       ),
-      IconButton.outlined(
-        onPressed: onMore,
-        icon: const Icon(Icons.add_rounded),
-      ),
+      _BrassButton(icon: Icons.add_rounded, onTap: onMore),
       if (onReset != null)
         IconButton(
           onPressed: onReset,
@@ -554,14 +588,170 @@ class _Switch extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   @override
-  Widget build(BuildContext context) => SwitchListTile(
-    contentPadding: EdgeInsets.zero,
-    value: value,
-    onChanged: onChanged,
-    activeThumbColor: Palette.lantern400,
-    title: Text(label, style: const TextStyle(color: Palette.moon100)),
-    subtitle: hint == null
-        ? null
-        : Text(hint!, style: const TextStyle(color: Palette.moon200)),
+  Widget build(BuildContext context) => MergeSemantics(
+    child: Semantics(
+      toggled: value,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.s),
+        onTap: () => onChanged(!value),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Palette.moon100,
+                      ),
+                    ),
+                    if (hint != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        hint!,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          height: 1.35,
+                          color: Palette.moon200,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              _LanternToggle(on: value),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// The switch itself: a brass-edged slot, lit like a lantern when on.
+class _LanternToggle extends StatelessWidget {
+  const _LanternToggle({required this.on});
+
+  final bool on;
+
+  @override
+  Widget build(BuildContext context) {
+    const duration = Duration(milliseconds: 200);
+    return AnimatedContainer(
+      duration: duration,
+      curve: Curves.easeOut,
+      width: 54,
+      height: 32,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: on ? Palette.stageLanternTop : Palette.stageBrass,
+          width: 1.5,
+        ),
+        color: on
+            ? Palette.stageLantern
+            : Palette.night950.withValues(
+                alpha: 0.7,
+              ),
+        boxShadow: [
+          if (on)
+            BoxShadow(
+              color: Palette.stageLantern.withValues(alpha: 0.45),
+              blurRadius: 12,
+            ),
+        ],
+      ),
+      child: AnimatedAlign(
+        duration: duration,
+        curve: Curves.easeOut,
+        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          width: 23,
+          height: 23,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: on ? Palette.stageIvory : Palette.stageBrassLight,
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x66000000),
+                blurRadius: 3,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A round brass button (more, fewer).
+class _BrassButton extends StatelessWidget {
+  const _BrassButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Opacity(
+    opacity: onTap == null ? 0.4 : 1,
+    child: Material(
+      color: Palette.stagePlaque,
+      shape: const CircleBorder(
+        side: BorderSide(color: Palette.stageBrass, width: 1.5),
+      ),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 46,
+          height: 46,
+          child: Icon(icon, color: Palette.stageIvory),
+        ),
+      ),
+    ),
+  );
+}
+
+/// One of a few choices, its label above and the choices across the full
+/// width (they fit on a phone, they never squeeze the label).
+class _Choice<T> extends StatelessWidget {
+  const _Choice({
+    required this.label,
+    required this.segments,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final String label;
+  final List<ButtonSegment<T>> segments;
+  final T selected;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, color: Palette.moon100),
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<T>(
+          segments: segments,
+          selected: {selected},
+          showSelectedIcon: false,
+          onSelectionChanged: (v) => onChanged(v.first),
+        ),
+      ],
+    ),
   );
 }

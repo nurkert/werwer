@@ -304,15 +304,16 @@ class HostedRoom {
   Future<void> close({bool quietly = false}) async {
     if (_closed && quietly) return;
     _closed = true;
+    // A real close: the room is gone, also from this device's own search
+    // at once (a quiet close hands it to a successor, who announces it
+    // again).
+    if (!quietly) RoomFinder.closed(_keys.publicKey);
     try {
       await _reviving;
     } on Object {
       // A failed revive leaves nothing to clean up but the rest.
     }
     await _announcer.stop();
-    // A real close: the room is gone, also from this device's own search
-    // (a quiet close hands it to a successor, who announces it again).
-    if (!quietly) RoomFinder.closed(_keys.publicKey);
     await host.close(quietly: quietly);
     await KeepAlive.stop();
     await const RoomStore().clear();

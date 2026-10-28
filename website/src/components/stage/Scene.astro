@@ -10,7 +10,7 @@ import lightData from '../../data/lights.json';
 export interface ScenePiece {
   src: ImageMetadata;
   /** Where it stands. */
-  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top' | 'span' | 'hang-left' | 'hang-right';
+  at: 'left' | 'right' | 'top-left' | 'top-right' | 'top' | 'hang-left' | 'hang-right';
   /** Height in hundredths of the screen's height (top pieces: a CSS length). */
   h: string;
   /** How much of it hides beyond the edge (desktop / phone). */
@@ -23,6 +23,8 @@ export interface ScenePiece {
   wide?: boolean;
   /** Top pieces: how many lengths side by side, so it spans the width. */
   repeat?: number;
+  /** Top pieces: hung over each seam between two lengths (a knot, a tassel). */
+  joint?: { src: ImageMetadata; h: string; y?: string };
 }
 
 interface Props {
@@ -90,14 +92,28 @@ const loading = first ? 'eager' : 'lazy';
           .filter(Boolean)
           .join('; ')}
       >
-        {Array.from({ length: piece.at === 'top' ? (piece.repeat ?? 1) : 1 }, () => (
+        {Array.from({ length: piece.at === 'top' ? (piece.repeat ?? 1) : 1 }, (_, n) => [
+          n > 0 && piece.joint && (
+            <span class="piece__joint" style={`--joint-h: ${piece.joint.h}; --joint-y: ${piece.joint.y ?? '0px'}`}>
+              <Picture
+                src={piece.joint.src}
+                alt=""
+                formats={formats}
+                widths={[160, 320, 480]}
+                sizes="12vw"
+                quality={62}
+                loading={loading}
+                decoding="async"
+              />
+            </span>
+          ),
           <span class="piece__frame">
             <Picture
               src={piece.src}
               alt=""
               formats={formats}
-              widths={piece.at === 'top' || piece.at === 'span' ? [700, 1400] : [240, 400, 640]}
-              sizes={piece.at === 'span' ? '150vw' : piece.at === 'top' ? 'min(60vw, 900px)' : 'min(28vw, 360px)'}
+              widths={piece.at === 'top' ? [700, 1400] : piece.at.startsWith('hang') ? [400, 640, 933] : [240, 400, 640]}
+              sizes={piece.at === 'top' ? 'min(60vw, 900px)' : piece.at.startsWith('hang') ? '67svh' : 'min(28vw, 360px)'}
               quality={62}
               loading={loading}
               decoding="async"
@@ -108,8 +124,8 @@ const loading = first ? 'eager' : 'lazy';
                 style={`left: ${(piece.mirror ? 1 - x : x) * 100}%; top: ${y * 100}%; --r: ${r}; --i: ${i}`}
               />
             ))}
-          </span>
-        ))}
+          </span>,
+        ])}
       </div>
     ))
   }

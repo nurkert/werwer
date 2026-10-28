@@ -189,6 +189,9 @@ class SceneLife {
     const left = (W - pw) * 0.5;
     const top = (H - pw) * 0.8;
     const at = (x: number, y: number) => [left + x * pw, top + y * pw] as const;
+    // A phone shows the set small and from close up: its lights glow more.
+    const phone = W < 700;
+    const lift = phone ? 1.45 : 1;
     const stamp = (img: HTMLCanvasElement, x: number, y: number, width: number, alpha: number) => {
       if (alpha <= 0.01) return;
       const height = (width * img.height) / img.width;
@@ -274,7 +277,7 @@ class SceneLife {
     };
     lights.stars.forEach(([x, y, r, s], i) => {
       const [px, py] = at(x, y);
-      sparkle(px, py, i, Math.max(18, r * pw * 13), 0.5 + 0.5 * s);
+      sparkle(px, py, i, Math.max(13, r * pw * 9), 0.5 + 0.5 * s);
     });
 
     const glow = sprite('glow', warm);
@@ -285,10 +288,10 @@ class SceneLife {
       let a =
         life.flames || lantern
           ? 0.78 + 0.1 * Math.sin(t * 7.3 + ph) + 0.07 * Math.sin(t * 11.1 + ph * 1.7) + 0.05 * Math.sin(t * 17.3 + ph * 3)
-          : 0.62 + 0.24 * Math.sin(t * 0.45 + ph) + 0.12 * Math.sin(t * 1.3 + ph * 2.1);
+          : 0.62 + 0.24 * Math.sin(t * 0.8 + ph) + 0.12 * Math.sin(t * 2.1 + ph * 2.1);
       if (i === blink && (t / 6) % 1 < 0.05) a *= 0.15;
-      const strength = 0.5 + 0.5 * s;
-      const core = Math.max(18, r * pw * 8) * (0.92 + 0.12 * a);
+      const strength = (0.5 + 0.5 * s) * lift;
+      const core = Math.max(18, r * pw * 8) * (0.92 + 0.12 * a) * (phone ? 1.25 : 1);
       const [px, py] = at(x, y);
       stamp(glow, px, py, core, 0.85 * a * strength);
       stamp(glow, px, py, core * 3.2, 0.2 * a * strength);
@@ -318,11 +321,11 @@ class SceneLife {
       if (moon && Math.hypot(px - moon[0], py - moon[1]) < moon[2]) return;
       const swell = 0.7 + 0.3 * Math.sin(t * 0.3 + x * 6 + y * 4);
       const id = i + Math.round(seed * 1000);
-      if (m > 0.42) {
-        sparkle(px, py, id, 11 + 22 * m, (0.6 + 0.4 * m) * swell);
+      if (m > 0.55) {
+        sparkle(px, py, id, 6 + 13 * m, (0.6 + 0.4 * m) * swell);
       } else {
         const tw = 0.5 + 0.5 * Math.sin(t * (0.5 + 1.6 * seed) + i);
-        stamp(sprite('glow', starColour(id)), px, py, 4 + 12 * m + 2 * tw, (0.3 + 1.2 * m) * (0.55 + 0.45 * tw) * swell);
+        stamp(sprite('glow', starColour(id)), px, py, 2.5 + 7 * m + 1.5 * tw, (0.3 + 1.2 * m) * (0.55 + 0.45 * tw) * swell);
       }
     });
 

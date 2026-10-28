@@ -123,8 +123,12 @@ class NearbyRoom {
 /// Looks for rooms on the local network while it lives.
 class RoomFinder extends ChangeNotifier {
   RoomFinder() {
+    _live.add(this);
     unawaited(_start());
   }
+
+  /// Searches running now: a room closed here leaves all of them at once.
+  static final Set<RoomFinder> _live = {};
 
   BonsoirDiscovery? _discovery;
   StreamSubscription<BonsoirDiscoveryEvent>? _events;
@@ -140,7 +144,12 @@ class RoomFinder extends ChangeNotifier {
   static final Set<String> _closed = {};
 
   /// Marks a room this device closed, so no search shows it again.
-  static void closed(List<int> hostKey) => _closed.add(keyPrint(hostKey));
+  static void closed(List<int> hostKey) {
+    if (!_closed.add(keyPrint(hostKey))) return;
+    for (final finder in [..._live]) {
+      finder.notifyListeners();
+    }
+  }
 
   /// Rooms to join (without successors' entrances and rooms closed here).
   List<NearbyRoom> get rooms => _rooms.values
@@ -212,6 +221,7 @@ class RoomFinder extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _live.remove(this);
     unawaited(_events?.cancel());
     final discovery = _discovery;
     if (discovery != null) {

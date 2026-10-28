@@ -12,8 +12,8 @@ import seherin from '../../../../app/assets/figures/seherin.webp';
 import werwolf from '../../../../app/assets/figures/werwolf.webp';
 import deRole from '../../assets/screens/de-role.webp';
 import enRole from '../../assets/screens/en-role.webp';
-import deCalled from '../../assets/screens/de-called.webp';
-import enCalled from '../../assets/screens/en-called.webp';
+import deFigure from '../../assets/screens/de-figure.webp';
+import enFigure from '../../assets/screens/en-figure.webp';
 
 interface Props {
   lang: Lang;
@@ -92,7 +92,7 @@ const formats = ['avif', 'webp'] as const;
         }
       </div>
       <div class="dl-head__art" aria-hidden="true">
-        <div class="dl-phone dl-phone--back"><Picture src={lang === 'de' ? deCalled : enCalled} alt="" formats={formats} widths={[200, 400]} sizes="11rem" /></div>
+        <div class="dl-phone dl-phone--back"><Picture src={lang === 'de' ? deFigure : enFigure} alt="" formats={formats} widths={[200, 400]} sizes="11rem" /></div>
         <div class="dl-phone dl-phone--front"><Picture src={lang === 'de' ? deRole : enRole} alt="" formats={formats} widths={[240, 480]} sizes="13rem" /></div>
         <span class="puppet dl-head__seer"><Picture src={seherin} alt="" formats={formats} widths={[160, 320]} sizes="9rem" /></span>
         <span class="puppet dl-head__wolf" style="--delay: -3s"><Picture src={werwolf} alt="" formats={formats} widths={[180, 360]} sizes="10rem" /></span>
