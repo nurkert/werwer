@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
@@ -22,7 +24,11 @@ void main() {
     expect(QuietMode.switches, isFalse, reason: 'tests run on a computer');
     await tester.tap(find.text(l10n.quietHow));
     await tester.pumpAndSettle();
-    expect(find.textContaining(l10n.quietMac), findsOneWidget);
+    // The steps for the computer the test runs on (CI: Linux).
+    expect(
+      find.textContaining(Platform.isMacOS ? l10n.quietMac : l10n.quietOther),
+      findsOneWidget,
+    );
   });
 
   test('stopping without having started touches nothing', () async {
