@@ -53,35 +53,48 @@ class WebApps {
     for (final version in versions.whereType<Directory>()) {
       final protocol = version.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
       if (!RegExp(r'^[0-9]{1,4}$').hasMatch(protocol)) continue;
-      for (final build
-          in (await version.list().toList()).whereType<Directory>()) {
+      final List<FileSystemEntity> inVersion;
+      try {
+        inVersion = await version.list().toList();
+      } on FileSystemException catch (e) {
+        stderr.writeln('Web apps of protocol $protocol skipped: ${e.message}');
+        continue;
+      }
+      for (final build in inVersion.whereType<Directory>()) {
         final name = build.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
         if (!isWebAppBuild(name)) continue;
         final prefix = '$protocol/$name/';
         final found = <String, _File>{};
-        await for (final entry in build.list(recursive: true)) {
-          if (entry is! File) continue;
-          var path = entry.path
-              .substring(build.path.length)
-              .replaceAll(r'\', '/');
-          if (path.startsWith('/')) path = path.substring(1);
-          final gzip = path.endsWith('.gz');
-          if (gzip) path = path.substring(0, path.length - 3);
-          final type = webAppType(path);
-          if (type == null || !isWebAppPath(path)) continue;
-          if (await entry.length() > maxFileBytes) {
-            throw StateError('web app file too large: $prefix$path');
+        try {
+          await for (final entry in build.list(recursive: true)) {
+            if (entry is! File) continue;
+            var path = entry.path
+                .substring(build.path.length)
+                .replaceAll(r'\', '/');
+            if (path.startsWith('/')) path = path.substring(1);
+            final gzip = path.endsWith('.gz');
+            if (gzip) path = path.substring(0, path.length - 3);
+            final type = webAppType(path);
+            if (type == null || !isWebAppPath(path)) continue;
+            if (await entry.length() > maxFileBytes) {
+              throw StateError('web app file too large: $prefix$path');
+            }
+            final bytes = await entry.readAsBytes();
+            final digest = sha256.convert(bytes).toString().substring(0, 32);
+            final held = contents.putIfAbsent(digest, () {
+              total += bytes.length;
+              return bytes;
+            });
+            if (total > maxBytes) {
+              throw StateError('web apps exceed the limit at $prefix$path');
+            }
+            found[path] = _File(held, type, '"$digest"', gzip: gzip);
           }
-          final bytes = await entry.readAsBytes();
-          final digest = sha256.convert(bytes).toString().substring(0, 32);
-          final held = contents.putIfAbsent(digest, () {
-            total += bytes.length;
-            return bytes;
-          });
-          if (total > maxBytes) {
-            throw StateError('web apps exceed the limit at $prefix$path');
-          }
-          found[path] = _File(held, type, '"$digest"', gzip: gzip);
+        } on FileSystemException catch (e) {
+          // An unreadable build (wrong permissions in the image) is left
+          // out; the relay itself must start regardless.
+          stderr.writeln('Web app $prefix skipped: ${e.message}');
+          continue;
         }
         if (!found.containsKey('index.html')) continue;
         found.forEach((path, file) => files['$prefix$path'] = file);

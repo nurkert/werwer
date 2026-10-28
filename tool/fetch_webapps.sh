@@ -54,6 +54,9 @@ fetch() { # <protocol> <build> <sha256 or empty>
   fi
   mkdir -p "$out/$pv/$build"
   tar -xzf "$work/$file" -C "$out/$pv/$build" --no-same-owner --no-same-permissions
+  # The relay runs as an unprivileged user: every folder must be readable
+  # (archives up to 0.1.7 carry a 0700 root folder).
+  chmod -R u=rwX,go=rX "$out/$pv/$build"
   echo "  $pv/$build"
 }
 

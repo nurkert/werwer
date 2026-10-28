@@ -61,12 +61,18 @@ Future<void> _serve(List<String> args) async {
   }
 
   final dir = Platform.environment['WEB_APP_DIR'] ?? '';
-  final webApps = dir.isEmpty
-      ? WebApps.none()
-      : await WebApps.load(
-          Directory(dir),
-          maxBytes: env('WEB_APP_MAX_MB', 160) << 20,
-        );
+  // The web app is extra: whatever goes wrong loading it, the relay starts.
+  var webApps = WebApps.none();
+  if (dir.isNotEmpty) {
+    try {
+      webApps = await WebApps.load(
+        Directory(dir),
+        maxBytes: env('WEB_APP_MAX_MB', 160) << 20,
+      );
+    } on Object catch (e) {
+      stderr.writeln('Web app not served: ${e.runtimeType}');
+    }
+  }
   if (dir.isNotEmpty) {
     stdout.writeln(
       'Web app: ${webApps.builds.join(', ')} '

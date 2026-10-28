@@ -75,6 +75,16 @@ void main() {
     expect(apps.builds, ['7/0.2.0']);
   });
 
+  test('an unreadable build is skipped, the others still load', () async {
+    final locked = Directory('${root.path}/7/0.3.0');
+    await File('${locked.path}/index.html').create(recursive: true);
+    // Like an image whose build folder only root may read.
+    await Process.run('chmod', ['000', locked.path]);
+    addTearDown(() => Process.run('chmod', ['755', locked.path]));
+    final apps = await WebApps.load(root);
+    expect(apps.builds, ['7/0.2.0']);
+  });
+
   test('serves the page and its files with the page headers', () async {
     final page = await get('/v/7/0.2.0/join');
     expect(page.statusCode, 200);

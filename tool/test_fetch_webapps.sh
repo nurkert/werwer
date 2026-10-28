@@ -9,6 +9,8 @@ trap 'rm -rf "$work"' EXIT
 
 mkdir -p "$work/files" "$work/build"
 echo '<!DOCTYPE html>page' > "$work/build/index.html"
+# Like the archives up to 0.1.7: a root folder only its owner may read.
+chmod 700 "$work/build"
 tar -C "$work/build" -czf "$work/files/whowolf-1.0.0-webapp.tar.gz" .
 cp "$work/files/whowolf-1.0.0-webapp.tar.gz" "$work/files/whowolf-0.9.0-webapp.tar.gz"
 good=$(sha256sum "$work/files/whowolf-1.0.0-webapp.tar.gz" | cut -d' ' -f1)
@@ -28,6 +30,8 @@ if run "8 1.0.0 $bad"; then fail "a wrong checksum was accepted"; fi
 
 run "8 1.0.0 $good" || fail "a matching build was refused"
 [[ -f "$work/out/8/1.0.0/index.html" ]] || fail "a matching build was not unpacked"
+# The relay runs unprivileged: nothing may be unreadable for others.
+[[ -z "$(find "$work/out" ! -perm -o+r)" ]] || fail "an unpacked build is not readable by everyone"
 
 run "$(printf '8 0.9.0 %s\nretire 8 0.9.0' "$good")" || fail "a retired build broke the run"
 [[ -e "$work/out/8/0.9.0" ]] && fail "a retired build was unpacked"

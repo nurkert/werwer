@@ -5,6 +5,18 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.8 – 2026-10-28
+
+### Fixed
+- The relay image could not start with the web app switched on: the web
+  app's folders were readable only by root, and the relay runs
+  unprivileged. Builds are now packed and unpacked readable, the image
+  copies them so, and an unreadable build is skipped instead of stopping
+  the relay.
+
+### Added
+- On Android, the browser join page suggests the app (closable).
+
 ## 0.1.7 – 2026-10-28
 
 Every device at the table needs this version (protocol 11).

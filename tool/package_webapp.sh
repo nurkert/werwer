@@ -31,6 +31,9 @@ rm -rf "$stage/assets/assets/webapp"
 find "$stage" -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.wasm' \
   -o -name '*.json' -o -name '*.html' -o -name '*.css' -o -name '*.otf' \
   -o -name '*.ttf' -o -name NOTICES \) -exec gzip -9 -n {} \;
+# Readable by everyone: mktemp makes the stage 0700, and the relay runs as
+# an unprivileged user that must read every folder.
+chmod -R u=rwX,go=rX "$stage"
 tar --sort=name --owner=0 --group=0 --numeric-owner --mtime='@0' \
   -C "$stage" -cf - . | gzip -9 -n > "$out"
 echo "Web app $1: $(du -h "$out" | cut -f1) in $out"
