@@ -141,6 +141,13 @@ const formats = ['avif', 'webp'] as const;
                     <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
                   )}
                 </div>
+                {'apt' in info && (
+                  <div class="card__apt">
+                    <p class="card__steps-title">{info.apt.title}</p>
+                    <code>{info.apt.cmd}</code>
+                    <p class="card__apt-note">{info.apt.note}</p>
+                  </div>
+                )}
                 <div class="card__steps">
                   <p class="card__steps-title">{x.install}</p>
                   <ol>
@@ -560,6 +567,26 @@ const formats = ['avif', 'webp'] as const;
     color: var(--ink-soft);
     font-size: var(--step-small);
     font-weight: 600;
+  }
+  .card__apt {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: var(--space-3);
+  }
+  .card__apt code {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    background: rgb(38 26 18);
+    color: rgb(246 234 208);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .card__apt-note {
+    margin: 0;
+    font-size: var(--step-small);
+    opacity: 0.85;
   }
   .card__steps {
     margin-top: 0.2rem;

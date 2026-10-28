@@ -295,7 +295,15 @@ const de = {
       macos: { req: 'macOS 12 oder neuer, Apple Silicon oder Intel', steps: ['ZIP herunterladen und doppelklicken.', 'Whowolf in den Programme-Ordner ziehen.', 'Beim ersten Start: Rechtsklick → Öffnen (die Testversion ist noch nicht notarisiert).'] },
       android: { req: 'Android 7 oder neuer', steps: ['APK auf dem Handy herunterladen.', 'Installation aus dieser Quelle erlauben, wenn Android fragt.', 'Whowolf öffnen.'] },
       windows: { req: 'Windows 10 oder 11, 64 Bit', steps: ['ZIP herunterladen und entpacken.', 'whowolf.exe starten.', 'Bei der SmartScreen-Warnung: „Weitere Informationen“ → „Trotzdem ausführen“.'] },
-      linux: { req: 'Debian, Ubuntu oder verwandt, 64 Bit', steps: ['.deb herunterladen.', 'Im Terminal: sudo apt install ./whowolf-*.deb', 'Whowolf aus dem Startmenü öffnen.'] },
+      linux: {
+        req: 'Debian, Ubuntu oder verwandt, 64 Bit',
+        steps: ['.deb herunterladen.', 'Im Terminal: sudo apt install ./whowolf-*.deb', 'Whowolf aus dem Startmenü öffnen.'],
+        apt: {
+          title: 'Oder mit automatischen Updates',
+          cmd: 'curl -fsSL https://apt.nurkert.de/install/whowolf | sudo sh',
+          note: 'Richtet das signierte Paketarchiv apt.nurkert.de ein. Neue Versionen kommen danach mit jedem apt upgrade.',
+        },
+      },
     },
     verifyTitle: 'So prüfst du eine Datei',
     verifyText: 'Vergleiche die Prüfsumme deiner Datei mit der Liste SHA256SUMS.txt des Releases. Stimmen sie überein, ist die Datei unverändert.',

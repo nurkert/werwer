@@ -296,7 +296,15 @@ const en: Copy = {
       macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the test version is not notarized yet).'] },
       android: { req: 'Android 7 or later', steps: ['Download the APK on your phone.', 'Allow installs from this source when Android asks.', 'Open Whowolf.'] },
       windows: { req: 'Windows 10 or 11, 64-bit', steps: ['Download and unzip.', 'Run whowolf.exe.', 'On the SmartScreen warning: “More info” → “Run anyway”.'] },
-      linux: { req: 'Debian, Ubuntu or related, 64-bit', steps: ['Download the .deb.', 'In a terminal: sudo apt install ./whowolf-*.deb', 'Open Whowolf from your app menu.'] },
+      linux: {
+        req: 'Debian, Ubuntu or related, 64-bit',
+        steps: ['Download the .deb.', 'In a terminal: sudo apt install ./whowolf-*.deb', 'Open Whowolf from your app menu.'],
+        apt: {
+          title: 'Or with automatic updates',
+          cmd: 'curl -fsSL https://apt.nurkert.de/install/whowolf | sudo sh',
+          note: 'Sets up the signed package archive apt.nurkert.de. New versions then arrive with every apt upgrade.',
+        },
+      },
     },
     verifyTitle: 'How to verify a file',
     verifyText: 'Compare your file’s checksum with the release’s SHA256SUMS.txt. If they match, the file is unmodified.',
