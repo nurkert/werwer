@@ -19,6 +19,7 @@ import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/quiet_mode.dart';
 import 'package:whowolf/src/game/role_peek.dart';
 import 'package:whowolf/src/game/seat_handover.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -233,6 +234,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    // The game is over for this device: notifications as they were.
+    unawaited(QuietMode.stop());
     if (_volumeKnown) {
       unawaited(
         VolumeController.instance.removeListener().catchError((Object _) {}),

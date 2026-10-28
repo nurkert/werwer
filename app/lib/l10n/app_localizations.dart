@@ -1148,6 +1148,60 @@ abstract class AppLocalizations {
   /// **'Hold to see your role.'**
   String get rolePeekHint;
 
+  /// No description provided for @quietTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet mode'**
+  String get quietTitle;
+
+  /// No description provided for @quietText.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications from other apps during the game: no phone distracts anyone or lights up at the wrong moment.'**
+  String get quietText;
+
+  /// No description provided for @quietAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Whowolf “Do not disturb” in the settings, then tap again.'**
+  String get quietAllow;
+
+  /// No description provided for @quietHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How'**
+  String get quietHow;
+
+  /// No description provided for @quietIos1.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Shortcuts, then Automation, New Automation, App: Whowolf, “Is Opened” and “Is Closed”.'**
+  String get quietIos1;
+
+  /// No description provided for @quietIos2.
+  ///
+  /// In en, this message translates to:
+  /// **'As the action “Set Focus”: Do Not Disturb on when opened, off when closed. From then on it happens by itself.'**
+  String get quietIos2;
+
+  /// No description provided for @quietIos3.
+  ///
+  /// In en, this message translates to:
+  /// **'Just for tonight: open Control Centre, Focus, Do Not Disturb.'**
+  String get quietIos3;
+
+  /// No description provided for @quietMac.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Control Centre at the top right, then Focus and Do Not Disturb.'**
+  String get quietMac;
+
+  /// No description provided for @quietOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch on “Do not disturb” in your device’s quick settings.'**
+  String get quietOther;
+
   /// No description provided for @mute.
   ///
   /// In en, this message translates to:

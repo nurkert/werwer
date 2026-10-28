@@ -91,7 +91,7 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
 
 ## F – Neue Inhalte
 
-- [ ] **F1 Ruhemodus am Tisch** (ROADMAP 6d). Erst ein kurzes Konzept, dann ein Schritt beim Beitritt:
+- [x] **F1 Ruhemodus am Tisch** (ROADMAP 6d). Erst ein kurzes Konzept, dann ein Schritt beim Beitritt: (erledigt ohne neue Abhängigkeit: Karte „Ruhemodus“ in der Lobby; Android schaltet über einen eigenen Kanal `whowolf/quiet` „Nicht stören“ (nur Wichtiges) nach Erlaubnis und stellt beim Verlassen den alten Zustand her; iOS, macOS und andere bekommen eine Anleitung (Kurzbefehl-Automation, Fokus); Test `quiet_mode_test.dart`, Sicherheitsnotiz in SECURITY_DESIGN)
   - iOS: Anleitung für einen Fokus „Spieleabend“ per Kurzbefehl-Automation und für den geführten Zugriff.
   - Android: „Nicht stören“ direkt aus der App, nach der Erlaubnis des Nutzers, sonst Bildschirm anheften.
   - Freiwillig, jederzeit abschaltbar und nur auf dem eigenen Gerät.

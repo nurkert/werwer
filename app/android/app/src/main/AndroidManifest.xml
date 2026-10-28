@@ -15,6 +15,9 @@
     <!-- Android 13+: shows the quiet "room is open" notification of that
          service; asked once when opening a room, the service runs anyway. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Quiet mode at the table: "do not disturb" during a game, only after
+         the player allows it in the system settings; restored afterwards. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
     <application
         android:label="Whowolf"
         android:localeConfig="@xml/locales_config"

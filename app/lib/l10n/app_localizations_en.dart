@@ -645,6 +645,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rolePeekHint => 'Hold to see your role.';
 
   @override
+  String get quietTitle => 'Quiet mode';
+
+  @override
+  String get quietText =>
+      'No notifications from other apps during the game: no phone distracts anyone or lights up at the wrong moment.';
+
+  @override
+  String get quietAllow =>
+      'Allow Whowolf “Do not disturb” in the settings, then tap again.';
+
+  @override
+  String get quietHow => 'How';
+
+  @override
+  String get quietIos1 =>
+      'Open Shortcuts, then Automation, New Automation, App: Whowolf, “Is Opened” and “Is Closed”.';
+
+  @override
+  String get quietIos2 =>
+      'As the action “Set Focus”: Do Not Disturb on when opened, off when closed. From then on it happens by itself.';
+
+  @override
+  String get quietIos3 =>
+      'Just for tonight: open Control Centre, Focus, Do Not Disturb.';
+
+  @override
+  String get quietMac =>
+      'Open Control Centre at the top right, then Focus and Do Not Disturb.';
+
+  @override
+  String get quietOther =>
+      'Switch on “Do not disturb” in your device’s quick settings.';
+
+  @override
   String get mute => 'Narrator voice off';
 
   @override

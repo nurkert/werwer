@@ -184,6 +184,7 @@
   - die Kamera erst beim Scannen
   - „Lokales Netzwerk“ erst beim Erstellen bzw. Beitreten
   - kein Standort, keine Kontakte, kein Mikrofon
+  - „Nicht stören“ (Android `ACCESS_NOTIFICATION_POLICY`) nur für den Ruhemodus, nur wenn der Spieler ihn einschaltet und es in den Systemeinstellungen erlaubt; die App merkt sich den vorigen Zustand und stellt ihn beim Verlassen des Spiels wieder her (Task 023 F1). Sie liest dabei keine Mitteilungen.
 
 ### Lieferkette und Releases (A4)
 

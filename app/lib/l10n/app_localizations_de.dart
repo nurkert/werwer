@@ -650,6 +650,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get rolePeekHint => 'Gedrückt halten, um deine Rolle zu sehen.';
 
   @override
+  String get quietTitle => 'Ruhemodus';
+
+  @override
+  String get quietText =>
+      'Keine Mitteilungen anderer Apps während der Runde: kein Handy lenkt ab oder leuchtet im falschen Moment auf.';
+
+  @override
+  String get quietAllow =>
+      'Erlaube Whowolf „Nicht stören“ in den Einstellungen und tippe dann noch einmal.';
+
+  @override
+  String get quietHow => 'So geht’s';
+
+  @override
+  String get quietIos1 =>
+      'Öffne Kurzbefehle, dann Automation, Neue Automation, App: Whowolf, „Wird geöffnet“ und „Wird geschlossen“.';
+
+  @override
+  String get quietIos2 =>
+      'Als Aktion „Fokus festlegen“: beim Öffnen „Nicht stören“ an, beim Schließen aus. Dann geht es künftig von selbst.';
+
+  @override
+  String get quietIos3 =>
+      'Nur für heute: Kontrollzentrum öffnen, Fokus, Nicht stören.';
+
+  @override
+  String get quietMac =>
+      'Öffne das Kontrollzentrum oben rechts, dann Fokus und Nicht stören.';
+
+  @override
+  String get quietOther =>
+      'Schalte in den Schnelleinstellungen deines Geräts „Nicht stören“ ein.';
+
+  @override
   String get mute => 'Erzählerstimme aus';
 
   @override

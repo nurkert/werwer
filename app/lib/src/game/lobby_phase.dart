@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/lobby_figures.dart';
 import 'package:whowolf/src/game/lobby_invite.dart';
+import 'package:whowolf/src/game/quiet_mode.dart';
 import 'package:whowolf/src/game/settings_sheet.dart';
 import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -264,6 +265,8 @@ class _LobbyPhaseState extends State<LobbyPhase> {
         if (count < minPlayers) Body(l10n.needPlayers(minPlayers), muted: true),
       ] else
         Body(l10n.waitingForOwner, muted: true),
+      // This device's own quiet for the game (task 023 F1).
+      const QuietModeCard(),
     ];
     if (!StageLayout.of(context).twoColumns) {
       // Pages to swipe instead of one long scroll (task 012).

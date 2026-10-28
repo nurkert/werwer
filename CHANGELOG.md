@@ -8,6 +8,9 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 Every device at the table needs this version (protocol 12).
 
 ### Added
+- Quiet mode at the table: on Android the app switches "do not disturb"
+  on for the game (after you allow it) and back afterwards; elsewhere it
+  explains how.
 - Back in a room within a few hours without comparing symbols again: the
   device keeps the room's keys in its secure storage for six hours.
 - "My role": hold the button at the top to see your role, any time.
