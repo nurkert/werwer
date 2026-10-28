@@ -276,6 +276,10 @@ class _SettingsBody extends StatelessWidget {
         segments: [
           ButtonSegment(value: NarratorMode.off, label: Text(l10n.narratorOff)),
           ButtonSegment(
+            value: NarratorMode.essential,
+            label: Text(l10n.narratorEssential),
+          ),
+          ButtonSegment(
             value: NarratorMode.moments,
             label: Text(l10n.narratorMoments),
           ),
@@ -291,6 +295,7 @@ class _SettingsBody extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 4),
         child: Body(switch (s.narratorMode) {
           NarratorMode.off => l10n.narratorOffHint,
+          NarratorMode.essential => l10n.narratorEssentialHint,
           NarratorMode.moments => l10n.narratorMomentsHint,
           NarratorMode.always => l10n.narratorAlwaysHint,
         }, muted: true),

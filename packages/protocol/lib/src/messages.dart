@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 11;
+const protocolVersion = 12;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).

@@ -73,6 +73,10 @@ enum NarratorMode {
   /// Text only.
   off,
 
+  /// Only what a table with closed eyes needs: nightfall and falling
+  /// asleep, every call of the called night, and the village waking up.
+  essential,
+
   /// The moments that carry the story: the intro, nightfall (and in the
   /// called night falling asleep and every call), the news in the morning,
   /// the vote and its result, the hunter and the end.

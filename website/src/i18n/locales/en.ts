@@ -273,6 +273,8 @@ const en: Copy = {
     address: 'Address (in the Wi-Fi)',
     online: 'Online code',
     invalid: 'This link is incomplete. Ask to see the QR code at the table again.',
+    iosTitle: 'On an iPhone, you play in the browser',
+    iosText: 'There is no iPhone app in the App Store yet, and you do not need one. This code was meant for the app only: ask the game leader to show the code again once the server is ready or their device serves the page on the Wi-Fi. Then your camera opens the game right in the browser.',
     cta: 'Download the app',
     privacy: 'This page sends nothing anywhere: the details from the link stay in your browser.',
   },

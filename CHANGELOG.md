@@ -5,6 +5,19 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+Every device at the table needs this version (protocol 12).
+
+### Added
+- Narrator "Essentials": the voice only says what a table with closed
+  eyes needs (falling asleep, who wakes, the village waking up).
+
+### Changed
+- The invitation says plainly when the code works in the app only.
+- The invitation page on an iPhone explains how to play in the browser
+  instead of offering an app that is not in the App Store yet.
+- On the desktop, the page arrows sit in their own lane, centred beside
+  the content.
+
 ## 0.1.9 – 2026-10-28
 
 ### Fixed

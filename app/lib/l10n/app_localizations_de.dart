@@ -979,7 +979,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get narratorOff => 'Aus';
 
   @override
-  String get narratorMoments => 'Große Momente';
+  String get narratorEssential => 'Nötigstes';
+
+  @override
+  String get narratorEssentialHint =>
+      'Die Stimme sagt nur, was ihr mit geschlossenen Augen braucht: einschlafen, wer aufwacht, wer wieder einschläft und wann das Dorf erwacht.';
+
+  @override
+  String get narratorMoments => 'Momente';
 
   @override
   String get narratorAlways => 'Alles';
@@ -1401,6 +1408,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get inviteHintWeb =>
       'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
+
+  @override
+  String get inviteNoBrowser =>
+      'Im Browser kann gerade niemand beitreten: Der Server hat diese Version der App noch nicht, und die Seite im WLAN ist in den Einstellungen aus. Mit der App geht es immer.';
 
   @override
   String get inviteWifiFirst =>

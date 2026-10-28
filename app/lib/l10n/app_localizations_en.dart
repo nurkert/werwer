@@ -970,7 +970,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get narratorOff => 'Off';
 
   @override
-  String get narratorMoments => 'Big moments';
+  String get narratorEssential => 'Essentials';
+
+  @override
+  String get narratorEssentialHint =>
+      'The voice only says what you need with your eyes closed: falling asleep, who wakes up, who goes back to sleep and when the village wakes.';
+
+  @override
+  String get narratorMoments => 'Moments';
 
   @override
   String get narratorAlways => 'Everything';
@@ -1389,6 +1396,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inviteHintWeb =>
       'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.';
+
+  @override
+  String get inviteNoBrowser =>
+      'Nobody can join in the browser right now: the server does not have this version of the app yet, and serving the page on the Wi-Fi is off in the settings. The app always works.';
 
   @override
   String get inviteWifiFirst =>

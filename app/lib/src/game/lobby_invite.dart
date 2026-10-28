@@ -166,6 +166,20 @@ class _LobbyInviteState extends State<LobbyInvite> {
             textAlign: TextAlign.center,
             style: const TextStyle(color: Palette.inkSoft, fontSize: 14),
           ),
+          // Say plainly when the code is for the app only, so nobody at
+          // the table ends up on a page that asks them to get the app.
+          if (!widget.browserCanJoin && !waiting) ...[
+            const SizedBox(height: 6),
+            Text(
+              l10n.inviteNoBrowser,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Palette.curtain600,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           if (waiting)
             SizedBox(

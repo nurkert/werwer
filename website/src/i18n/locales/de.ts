@@ -272,6 +272,8 @@ const de = {
     address: 'Adresse (im WLAN)',
     online: 'Online-Code',
     invalid: 'Dieser Link ist unvollständig. Lass dir den QR-Code am Tisch noch einmal zeigen.',
+    iosTitle: 'Auf dem iPhone spielst du im Browser',
+    iosText: 'Für iPhone gibt es die App noch nicht im App Store, eine App brauchst du aber auch nicht. Dieser Code war nur für die App gedacht: Bitte den Spielleiter, den Code noch einmal zu zeigen, sobald der Server bereit ist oder er die Seite im WLAN anbietet. Dann öffnet die Kamera das Spiel direkt im Browser.',
     cta: 'App herunterladen',
     privacy: 'Diese Seite schickt nichts weiter: Die Angaben aus dem Link bleiben in deinem Browser.',
   },

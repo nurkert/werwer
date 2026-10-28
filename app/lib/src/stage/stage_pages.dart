@@ -130,7 +130,7 @@ class _StagePagesState extends State<StagePages> {
       child: IgnorePointer(
         ignoring: at + delta < 0 || at + delta >= widget.pages.length,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: _arrowMargin),
           child: Tooltip(
             message: label,
             child: Material(
@@ -142,8 +142,12 @@ class _StagePagesState extends State<StagePages> {
                 customBorder: const CircleBorder(),
                 onTap: () => _go(delta),
                 child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Icon(icon, color: Palette.stageLanternTop, size: 30),
+                  padding: const EdgeInsets.all(_arrowPadding),
+                  child: Icon(
+                    icon,
+                    color: Palette.stageLanternTop,
+                    size: _arrowIcon,
+                  ),
                 ),
               ),
             ),
@@ -162,20 +166,26 @@ class _StagePagesState extends State<StagePages> {
         child: Stack(
           children: [
             Positioned.fill(child: pages),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: arrow(
-                -1,
-                Icons.chevron_left_rounded,
-                at > 0 ? labels[at - 1] : '',
+            // In the middle of the page's content (below the top inset),
+            // in their own lane beside it.
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.paddingOf(context).top + 8,
               ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: arrow(
-                1,
-                Icons.chevron_right_rounded,
-                at + 1 < labels.length ? labels[at + 1] : '',
+              child: Row(
+                children: [
+                  arrow(
+                    -1,
+                    Icons.chevron_left_rounded,
+                    at > 0 ? labels[at - 1] : '',
+                  ),
+                  const Spacer(),
+                  arrow(
+                    1,
+                    Icons.chevron_right_rounded,
+                    at + 1 < labels.length ? labels[at + 1] : '',
+                  ),
+                ],
               ),
             ),
           ],
@@ -183,6 +193,16 @@ class _StagePagesState extends State<StagePages> {
       ),
     );
   }
+
+  /// The width each arrow keeps free beside the pages, so it never sits
+  /// on a page's edge.
+  static const _arrowIcon = 30.0;
+  static const _arrowPadding = 14.0;
+  static const _arrowMargin = 16.0;
+  static const double _arrowLane =
+      _arrowIcon + 2 * _arrowPadding + 2 * _arrowMargin;
+
+  bool get _hasArrows => widget.arrows && widget.pages.length > 1;
 
   @override
   Widget build(BuildContext context) {
@@ -223,17 +243,22 @@ class _StagePagesState extends State<StagePages> {
                     );
                   },
                   child: RepaintBoundary(
-                    child: widget.pages[i].child is ScrollingPage
-                        ? _ScrollPage(
-                            maxWidth: widget.maxWidth,
-                            top: insets.top + 8,
-                            child: widget.pages[i].child,
-                          )
-                        : _FitPage(
-                            maxWidth: widget.maxWidth,
-                            top: insets.top + 8,
-                            child: widget.pages[i].child,
-                          ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _hasArrows ? _arrowLane : 0,
+                      ),
+                      child: widget.pages[i].child is ScrollingPage
+                          ? _ScrollPage(
+                              maxWidth: widget.maxWidth,
+                              top: insets.top + 8,
+                              child: widget.pages[i].child,
+                            )
+                          : _FitPage(
+                              maxWidth: widget.maxWidth,
+                              top: insets.top + 8,
+                              child: widget.pages[i].child,
+                            ),
+                    ),
                   ),
                 ),
               ),

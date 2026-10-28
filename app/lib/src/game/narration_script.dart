@@ -14,12 +14,26 @@ List<Spoken> spokenMoments(PlayerView? before, PlayerView after) {
   return switch (after.settings.narratorMode) {
     NarratorMode.off => const [],
     NarratorMode.always => all,
+    NarratorMode.essential => [
+      for (final m in all)
+        if (isEssentialMoment(m.key)) m,
+    ],
     NarratorMode.moments => [
       for (final m in all)
         if (isStoryMoment(m.key)) m,
     ],
   };
 }
+
+/// Whether the line [key] is needed to play at all, so the narrator says
+/// it in [NarratorMode.essential]: nightfall, falling asleep, every call
+/// and the village waking up. Who died, the vote and the end the screens
+/// show.
+bool isEssentialMoment(String key) =>
+    key.startsWith('night_') ||
+    key == 'sleep' ||
+    key.startsWith('wake_') ||
+    key.startsWith('morning');
 
 /// Whether the line [key] carries the story, so the narrator says it in
 /// [NarratorMode.moments]: the intro, nightfall, falling asleep and every

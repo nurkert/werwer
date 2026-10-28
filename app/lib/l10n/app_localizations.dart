@@ -1688,10 +1688,22 @@ abstract class AppLocalizations {
   /// **'Off'**
   String get narratorOff;
 
+  /// No description provided for @narratorEssential.
+  ///
+  /// In en, this message translates to:
+  /// **'Essentials'**
+  String get narratorEssential;
+
+  /// No description provided for @narratorEssentialHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The voice only says what you need with your eyes closed: falling asleep, who wakes up, who goes back to sleep and when the village wakes.'**
+  String get narratorEssentialHint;
+
   /// No description provided for @narratorMoments.
   ///
   /// In en, this message translates to:
-  /// **'Big moments'**
+  /// **'Moments'**
   String get narratorMoments;
 
   /// No description provided for @narratorAlways.
@@ -2425,6 +2437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.'**
   String get inviteHintWeb;
+
+  /// No description provided for @inviteNoBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody can join in the browser right now: the server does not have this version of the app yet, and serving the page on the Wi-Fi is off in the settings. The app always works.'**
+  String get inviteNoBrowser;
 
   /// No description provided for @inviteWifiFirst.
   ///

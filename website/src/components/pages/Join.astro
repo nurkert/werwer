@@ -27,10 +27,16 @@ const formats = ['avif', 'webp'] as const;
       </div>
       <h1>{j.title}</h1>
       <p class="join__lead">{j.lead}</p>
-      <ol class="join__steps">
-        {j.steps.map((step) => <li>{step}</li>)}
-      </ol>
-      <a class="button button--primary" href={path('download', lang)}>{j.cta}</a>
+      <div data-join-app>
+        <ol class="join__steps">
+          {j.steps.map((step) => <li>{step}</li>)}
+        </ol>
+        <a class="button button--primary" href={path('download', lang)}>{j.cta}</a>
+      </div>
+      <div class="join__ios" data-join-ios hidden>
+        <h2>{j.iosTitle}</h2>
+        <p>{j.iosText}</p>
+      </div>
 
       <div class="join__codes" data-join-codes hidden>
         <p>{j.manual}</p>
@@ -76,7 +82,13 @@ const formats = ['avif', 'webp'] as const;
       row.hidden = false;
       row.querySelector('dd')!.textContent = value;
     };
-    if (valid) {
+    // There is no iPhone app to get yet: an iPhone (or an iPad, which says it is a Mac) is told
+    // how to play in the browser instead, and the codes for the app stay hidden.
+    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (ios) {
+      root.querySelector<HTMLElement>('[data-join-app]')!.hidden = true;
+      root.querySelector<HTMLElement>('[data-join-ios]')!.hidden = false;
+    } else if (valid) {
       show('room', room);
       show('lan', lan);
       show('relay', relay);
@@ -152,6 +164,19 @@ const formats = ['avif', 'webp'] as const;
     color: #f5aa42;
     font-weight: 800;
     font-size: 0.9rem;
+  }
+  .join__ios {
+    max-width: 30rem;
+    margin: var(--space-3) auto 0;
+  }
+  .join__ios h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+  .join__ios p {
+    margin-top: var(--space-2);
+    font-size: 1.05rem;
   }
   .join__codes {
     margin-top: var(--space-4);
