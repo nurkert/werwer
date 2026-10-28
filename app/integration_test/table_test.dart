@@ -1,3 +1,5 @@
+import 'dart:io';
+
 // Runs on a real device or desktop, e.g.
 //   flutter test integration_test -d macos
 // The room is announced and found over Bonjour, then the host player plays a
@@ -104,6 +106,45 @@ Future<void> until(
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('the server hears of a room only when the host shows the code', (
+    tester,
+  ) async {
+    // A stand-in relay that counts who comes and opens a room for them.
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    var hosts = 0;
+    server.listen((request) async {
+      if (request.uri.path != '/host') {
+        request.response.statusCode = HttpStatus.notFound;
+        await request.response.close();
+        return;
+      }
+      hosts++;
+      final socket = await WebSocketTransformer.upgrade(request);
+      socket.add(const RoomOpened('abcd2345').encode());
+    });
+    final room = await HostedRoom.open(
+      hostName: 'Ada',
+      relayServer: Uri.parse('ws://127.0.0.1:${server.port}'),
+      online: false,
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 300)),
+    );
+    // On the Wi-Fi the room is found without the server.
+    expect(hosts, 0);
+    expect(room.online, isFalse);
+    expect(room.link.relayRoom, isNull);
+
+    expect(await room.goOnline(), isTrue);
+    expect(hosts, 1);
+    expect(room.link.relayRoom, 'abcd2345');
+    // Once is enough.
+    expect(await room.goOnline(), isTrue);
+    expect(hosts, 1);
+    await room.close();
+    await server.close(force: true);
+  });
 
   testWidgets('a room is found over Bonjour', (tester) async {
     final room = await HostedRoom.open(hostName: 'Ada');

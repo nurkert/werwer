@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -16,8 +17,10 @@ import 'package:whowolf/src/net/web_app.dart';
 
 /// A room this device hosts: the game host with its LAN socket and, if a
 /// relay server is configured and reachable, a room on the relay for remote
-/// players. The host player's own app joins through [GameHost.connectOwner],
-/// like anyone else.
+/// players. By default the relay room only opens when the host shows the
+/// QR code ([goOnline]) or has no Wi-Fi, so the server learns nothing of
+/// games that stay on the local network. The host player's own app joins
+/// through [GameHost.connectOwner], like anyone else.
 class HostedRoom {
   HostedRoom._(
     this.host,
@@ -30,17 +33,28 @@ class HostedRoom {
     this._announcer, {
     required this.relayFailed,
     required this.keptAlive,
+    required this._relayServer,
+    required this._webAppBuild,
+    required this._serverHasBuild,
   });
 
   /// Opens a room on the local network and, with [relayServer], online.
   ///
   /// With [notice] (the notification text for a room code), Android keeps
   /// the room alive in the background with a foreground service.
+  ///
+  /// With [online] the room opens on the relay right away; otherwise only
+  /// without Wi-Fi or on [goOnline]. [serveWebApp] gives browsers on the
+  /// same Wi-Fi the web app; [webAppBuild] is this app's build, whose page
+  /// a relay that serves the web app has under `/v/<protocol>/<build>/`.
   static Future<HostedRoom> open({
     required String hostName,
     Uri? relayServer,
     String Function(String room)? notice,
     NarratorLanguage language = NarratorLanguage.de,
+    bool online = true,
+    bool serveWebApp = true,
+    String? webAppBuild,
   }) {
     final random = Random.secure();
     final code = List.generate(
@@ -58,6 +72,9 @@ class HostedRoom {
       hostName: hostName,
       relayServer: relayServer,
       notice: notice,
+      online: online,
+      serveWebApp: serveWebApp,
+      webAppBuild: webAppBuild,
     );
   }
 
@@ -119,6 +136,9 @@ class HostedRoom {
     required String hostName,
     Uri? relayServer,
     String Function(String room)? notice,
+    bool online = true,
+    bool serveWebApp = true,
+    String? webAppBuild,
   }) async {
     final code = host.roomCode;
     // Every remote connection is end-to-end encrypted; the QR code carries
@@ -128,7 +148,7 @@ class HostedRoom {
     // The default port first: players who lost the host reconnect to it.
     // With the web app in this build, phones without the app join in the
     // browser from the same address.
-    final site = await bundledWebApp();
+    final site = serveWebApp ? await bundledWebApp() : null;
     final lan = await LanTransport.bind(site: site);
     host.serve(SecureTransport(lan, roomKeys));
     const store = RoomStore();
@@ -144,15 +164,11 @@ class HostedRoom {
       ..onSnapshot = (snapshot) {
         unawaited(store.save(SavedRoom(snapshot, keysJson)));
       };
-    RelayTransport? relay;
-    if (relayServer != null) {
-      try {
-        relay = await RelayTransport.open(relayServer);
-        host.serve(SecureTransport(relay, roomKeys));
-      } on Object {
-        relay = null;
-      }
-    }
+    // Without Wi-Fi nobody can reach this room but through the server.
+    final offline = (await privateAddresses()).isEmpty;
+    final relay = relayServer != null && (online || offline)
+        ? await _openRelay(relayServer, host, roomKeys)
+        : null;
     // Others see the room under "Join a room" without typing anything.
     final announcer = RoomAnnouncer();
     await announcer.start(
@@ -174,10 +190,80 @@ class HostedRoom {
       relay,
       await _linkFor(code, roomKeys, lan, relay),
       announcer,
-      relayFailed: relayServer != null && relay == null,
+      relayFailed: relayServer != null && (online || offline) && relay == null,
       keptAlive: keptAlive,
+      relayServer: relayServer,
+      webAppBuild: webAppBuild,
+      serverHasBuild: relay != null && await _serves(relayServer!, webAppBuild),
     ).._webApp = site;
   }
+
+  static Future<RelayTransport?> _openRelay(
+    Uri server,
+    GameHost host,
+    HostKeys keys,
+  ) async {
+    try {
+      final relay = await RelayTransport.open(server);
+      host.serve(SecureTransport(relay, keys));
+      return relay;
+    } on Object {
+      return null;
+    }
+  }
+
+  /// Whether the relay [server] has the web app page of [build] for
+  /// browsers that join over the internet.
+  static Future<bool> _serves(Uri server, String? build) async {
+    if (build == null || server.scheme != 'wss' || !isWebAppBuild(build)) {
+      return false;
+    }
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 4);
+    try {
+      final request = await client.headUrl(
+        Uri(
+          scheme: 'https',
+          host: server.host,
+          port: server.hasPort ? server.port : null,
+          path: '/v/$protocolVersion/$build/join',
+        ),
+      );
+      final response = await request.close().timeout(
+        const Duration(seconds: 4),
+      );
+      await response.drain<void>();
+      return response.statusCode == HttpStatus.ok;
+    } on Object {
+      return false;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  /// Opens this room on the online server too, because the host shows the
+  /// QR code. Whether the room is online now.
+  Future<bool> goOnline() async {
+    if (_relay != null) return true;
+    final server = _relayServer;
+    if (server == null || _closed) return false;
+    final relay = await _openRelay(server, host, _keys);
+    relayFailed = relay == null;
+    if (relay == null) return false;
+    if (_closed) {
+      await relay.close();
+      return false;
+    }
+    _relay = relay;
+    _link = await _linkFor(roomCode, _keys, _lan, relay);
+    _serverHasBuild = await _serves(server, _webAppBuild);
+    return true;
+  }
+
+  /// Whether the room is open on the online server.
+  bool get online => _relay != null;
+
+  /// Whether the room could go online (a server is set).
+  bool get canGoOnline => _relayServer != null;
 
   static Future<JoinLink> _linkFor(
     String code,
@@ -200,7 +286,14 @@ class HostedRoom {
   final GameHost host;
   final HostKeys _keys;
   final String _hostName;
-  final RelayTransport? _relay;
+  final Uri? _relayServer;
+  final String? _webAppBuild;
+  RelayTransport? _relay;
+  bool _serverHasBuild;
+
+  /// The host chose the Wi-Fi code: the QR code stays on the local page even
+  /// when the server has the web app (a game without internet).
+  bool localOnly = false;
   LanTransport _lan;
 
   /// The port the players know; a dead server no longer reports it.
@@ -218,14 +311,26 @@ class HostedRoom {
   Site? get _site => _webApp;
   Site? _webApp;
 
-  /// What the QR code says: the host's own address when it serves the web
-  /// app (a phone without the app opens it in the browser and joins),
-  /// otherwise the usual link. The app reads both.
-  String get qrText =>
-      (_webApp == null ? null : _link.encodeLocal()) ?? _link.encode();
+  /// What the QR code says: the server's page for this build when the room
+  /// is online and the server has it; else the host's own address when it
+  /// serves the web app (a phone without the app opens it in the browser
+  /// and joins); otherwise the usual link. The app reads all of them.
+  String get qrText {
+    final build = _webAppBuild;
+    if (!localOnly && _serverHasBuild && build != null) {
+      // One code for everyone: the app opens it (or dials it from its own
+      // scanner), a camera without the app opens the server's page.
+      final page = _link.encodeOnServer(build);
+      if (page != null) return page;
+    }
+    return (_webApp == null ? null : _link.encodeLocal()) ?? _link.encode();
+  }
+
+  /// Whether a phone without the app can join with the QR code.
+  bool get browserCanJoin => qrText != _link.encode();
 
   /// A relay server was configured but could not be reached.
-  final bool relayFailed;
+  bool relayFailed;
 
   /// A foreground service keeps the room alive in the background (Android).
   /// Elsewhere the host must keep the app open.

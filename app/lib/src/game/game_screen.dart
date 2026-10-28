@@ -391,11 +391,34 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     return view?.phase.name ?? 'waiting';
   }
 
+  /// The host's QR code is still hidden: the room is not on the server
+  /// yet (players on the same Wi-Fi find it without the code). Showing it
+  /// opens the room there first.
+  Future<void> Function()? get _showCode {
+    final room = session.hosted;
+    if (room == null || room.online || room.localOnly) return null;
+    if (!room.canGoOnline) return null;
+    return () async {
+      await room.goOnline();
+      if (mounted) setState(() {});
+    };
+  }
+
+  /// The host wants the Wi-Fi code only (a game without internet).
+  void Function()? get _localCode {
+    final room = session.hosted;
+    if (room == null || room.localOnly) return null;
+    return () => setState(() => room.localOnly = true);
+  }
+
   Widget _phase(PlayerView view) => switch (view.phase) {
     Phase.lobby => LobbyPhase(
       session: session,
       link: session.hosted?.link,
       qr: session.hosted?.qrText,
+      browserCanJoin: session.hosted?.browserCanJoin ?? false,
+      onShowCode: _showCode,
+      onLocalCode: _localCode,
       relayFailed: session.hosted?.relayFailed ?? false,
       keepAppOpen: _mustStayOpen,
     ),

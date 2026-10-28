@@ -144,6 +144,9 @@ class LobbyPhase extends StatefulWidget {
     required this.session,
     this.link,
     this.qr,
+    this.browserCanJoin = false,
+    this.onShowCode,
+    this.onLocalCode,
     this.relayFailed = false,
     this.keepAppOpen = false,
     super.key,
@@ -156,6 +159,17 @@ class LobbyPhase extends StatefulWidget {
 
   /// The QR code's text (see `HostedRoom.qrText`).
   final String? qr;
+
+  /// A phone without the app can join with the QR code (in the browser).
+  final bool browserCanJoin;
+
+  /// Shows the QR code, opening the room on the server first; `null` once
+  /// the code is shown. Until then players on the same Wi-Fi find the room
+  /// without it, and the server learns nothing.
+  final Future<void> Function()? onShowCode;
+
+  /// Switches to the Wi-Fi code only (a game without internet).
+  final VoidCallback? onLocalCode;
   final bool relayFailed;
 
   /// This device hosts and the system may suspend the room in the
@@ -281,7 +295,13 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     ];
     final invite = [
       if (session.isOwner && link != null)
-        _Invite(link: link, qr: widget.qr ?? link.encode()),
+        _Invite(
+          link: link,
+          qr: widget.qr ?? link.encode(),
+          browserCanJoin: widget.browserCanJoin,
+          onShowCode: widget.onShowCode,
+          onLocalCode: widget.onLocalCode,
+        ),
       if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
       if (session.isOwner && widget.keepAppOpen)
         Body(l10n.keepAppOpenHint, muted: true),
@@ -1100,22 +1120,80 @@ class _PersonaChoice extends StatelessWidget {
   }
 }
 
-class _Invite extends StatelessWidget {
-  const _Invite({required this.link, required this.qr});
+class _Invite extends StatefulWidget {
+  const _Invite({
+    required this.link,
+    required this.qr,
+    this.browserCanJoin = false,
+    this.onShowCode,
+    this.onLocalCode,
+  });
 
   final JoinLink link;
   final String qr;
+  final bool browserCanJoin;
+  final Future<void> Function()? onShowCode;
+  final VoidCallback? onLocalCode;
+
+  @override
+  State<_Invite> createState() => _InviteState();
+}
+
+class _InviteState extends State<_Invite> {
+  bool _opening = false;
+
+  Future<void> _show() async {
+    setState(() => _opening = true);
+    try {
+      await widget.onShowCode!();
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final link = widget.link;
+    final qr = widget.qr;
+    final local = widget.onLocalCode;
+    final localButton = local == null
+        ? null
+        : TextButton(
+            onPressed: local,
+            child: Text(
+              l10n.inviteLocalCode,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Palette.inkSoft, fontSize: 13),
+            ),
+          );
+    if (widget.onShowCode != null) {
+      // Players on the same Wi-Fi find the room by themselves; the code
+      // (and with it the server) only when someone needs it.
+      return Panel(
+        paper: true,
+        child: Column(
+          children: [
+            Headline(l10n.inviteTitle),
+            const SizedBox(height: 8),
+            Body(l10n.inviteWifiFirst),
+            const SizedBox(height: 14),
+            SecondaryButton(
+              label: l10n.inviteShowCode,
+              onPressed: _opening ? null : _show,
+            ),
+            ?localButton,
+          ],
+        ),
+      );
+    }
     return Panel(
       paper: true,
       child: Column(
         children: [
           Headline(l10n.inviteTitle),
           const SizedBox(height: 8),
-          Body(qr.startsWith('http:') ? l10n.inviteHintWeb : l10n.inviteHint),
+          Body(widget.browserCanJoin ? l10n.inviteHintWeb : l10n.inviteHint),
           const SizedBox(height: 14),
           DecoratedBox(
             decoration: BoxDecoration(
@@ -1159,6 +1237,7 @@ class _Invite extends StatelessWidget {
                         _SmallLabel(l10n.onlineCode, link.relayRoom!),
                     ],
                   ),
+                  if (!qr.startsWith('http:')) ?localButton,
                 ],
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart' show NarratorLanguage;
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/app.dart' show appVersion;
 import 'package:whowolf/src/app_settings.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/help.dart';
@@ -249,9 +250,13 @@ class _StartScreenState extends State<StartScreen> {
     setState(() => _busy = true);
     final l10n = AppLocalizations.of(context);
     try {
+      const store = Store();
       final room = await HostedRoom.open(
         hostName: name,
-        relayServer: await const Store().relayServer(),
+        relayServer: await store.relayServer(),
+        online: await store.relayMode() == RelayMode.always,
+        serveWebApp: await store.serveWebApp(),
+        webAppBuild: appVersion,
         notice: l10n.roomOpenNotice,
         language: l10n.localeName == 'de'
             ? NarratorLanguage.de

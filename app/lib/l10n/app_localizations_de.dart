@@ -1008,6 +1008,28 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dann können nur Geräte im selben WLAN mitspielen, und nichts geht an einen Server.';
 
   @override
+  String get relayOnDemand => 'Server nur bei Bedarf';
+
+  @override
+  String get relayOnDemandHint =>
+      'Im WLAN findet man deinen Raum ohne Server. Erst wenn du den QR-Code zeigst, öffnet sich der Raum auch auf dem Server, damit jeder mitspielen kann, auch ohne WLAN oder ohne App.';
+
+  @override
+  String get relayAlways => 'Server immer bereit';
+
+  @override
+  String get relayAlwaysHint =>
+      'Dein Raum ist sofort auch auf dem Server, der QR-Code gilt von Anfang an für alle.';
+
+  @override
+  String get serveWebApp =>
+      'Browser-Spieler im WLAN laden die Seite von meinem Handy';
+
+  @override
+  String get serveWebAppHint =>
+      'Nur im selben WLAN, kostet also keine mobilen Daten. Aus: Ohne App kann dann nur jemand über den Server mitspielen.';
+
+  @override
   String get relayCustomHint =>
       'Bei einem eigenen Server ist dessen Betreiber für ihn verantwortlich und sieht die IP-Adressen der verbundenen Geräte.';
 
@@ -1123,6 +1145,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get inviteHintWeb =>
       'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
+
+  @override
+  String get inviteWifiFirst =>
+      'Im selben WLAN? Die anderen öffnen Whowolf und tippen auf „Raum beitreten“: Dein Raum erscheint dort von selbst.';
+
+  @override
+  String get inviteShowCode => 'QR-Code zeigen';
+
+  @override
+  String get inviteLocalCode =>
+      'Nur WLAN-Code, ohne Server (nicht in vielen Hotel- und Gäste-WLANs)';
 
   @override
   String get language => 'Sprache';

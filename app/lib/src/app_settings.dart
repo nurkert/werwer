@@ -28,8 +28,11 @@ class _AppSettingsState extends State<AppSettings> {
   static const _store = Store();
   final _server = TextEditingController();
   String _savedServer = '';
-  bool _relayOff = false;
+  RelayMode _mode = RelayMode.onDemand;
+  bool _serveWebApp = true;
   bool _loaded = false;
+
+  bool get _relayOff => _mode == RelayMode.never;
   String? _error;
   bool _justSaved = false;
 
@@ -41,11 +44,13 @@ class _AppSettingsState extends State<AppSettings> {
 
   Future<void> _load() async {
     final server = await _store.customServer() ?? '';
-    final off = await _store.relayOff();
+    final mode = await _store.relayMode();
+    final serve = await _store.serveWebApp();
     if (!mounted) return;
     setState(() {
       _server.text = _savedServer = server;
-      _relayOff = off;
+      _mode = mode;
+      _serveWebApp = serve;
       _loaded = true;
     });
   }
@@ -56,9 +61,15 @@ class _AppSettingsState extends State<AppSettings> {
     super.dispose();
   }
 
-  Future<void> _setRelayOff(bool off) async {
-    setState(() => _relayOff = off);
-    await _store.setRelayOff(off: off);
+  Future<void> _setMode(RelayMode? mode) async {
+    if (mode == null) return;
+    setState(() => _mode = mode);
+    await _store.setRelayMode(mode);
+  }
+
+  Future<void> _setServeWebApp(bool on) async {
+    setState(() => _serveWebApp = on);
+    await _store.setServeWebApp(on: on);
   }
 
   /// Stores the address once it parses (empty: the official server).
@@ -92,21 +103,57 @@ class _AppSettingsState extends State<AppSettings> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    RadioGroup<RelayMode>(
+                      groupValue: _mode,
+                      onChanged: _setMode,
+                      child: Column(
+                        children: [
+                          for (final (mode, title, hint) in [
+                            (
+                              RelayMode.onDemand,
+                              l10n.relayOnDemand,
+                              l10n.relayOnDemandHint,
+                            ),
+                            (
+                              RelayMode.always,
+                              l10n.relayAlways,
+                              l10n.relayAlwaysHint,
+                            ),
+                            (RelayMode.never, l10n.relayOff, l10n.relayOffHint),
+                          ])
+                            RadioListTile<RelayMode>(
+                              value: mode,
+                              contentPadding: EdgeInsets.zero,
+                              activeColor: Palette.lantern400,
+                              title: Text(
+                                title,
+                                style: const TextStyle(color: Palette.moon100),
+                              ),
+                              subtitle: _mode == mode
+                                  ? Text(
+                                      hint,
+                                      style: const TextStyle(
+                                        color: Palette.moon200,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      value: _relayOff,
-                      onChanged: _setRelayOff,
+                      value: _serveWebApp,
+                      onChanged: _setServeWebApp,
                       activeThumbColor: Palette.lantern400,
                       title: Text(
-                        l10n.relayOff,
+                        l10n.serveWebApp,
                         style: const TextStyle(color: Palette.moon100),
                       ),
-                      subtitle: _relayOff
-                          ? Text(
-                              l10n.relayOffHint,
-                              style: const TextStyle(color: Palette.moon200),
-                            )
-                          : null,
+                      subtitle: Text(
+                        l10n.serveWebAppHint,
+                        style: const TextStyle(color: Palette.moon200),
+                      ),
                     ),
                     if (!_relayOff) ...[
                       const SizedBox(height: 6),

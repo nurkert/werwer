@@ -12,6 +12,21 @@ const officialRelayServer = String.fromEnvironment(
   defaultValue: 'wss://play.whowolf.de',
 );
 
+/// When a host opens its room on the online server too. Players on the
+/// same Wi-Fi never need it, so by default it happens only when the host
+/// shows the QR code (or has no Wi-Fi): the server learns nothing of games
+/// that stay at home.
+enum RelayMode {
+  /// When the host shows the QR code, or right away without Wi-Fi.
+  onDemand,
+
+  /// Right away, so the QR code works for everyone from the start.
+  always,
+
+  /// Never: Wi-Fi only.
+  never,
+}
+
 /// How to get back into a game after the app was closed. Holds the session
 /// token, so it lives in the Keychain / Keystore only and is never logged.
 class ResumeInfo {
@@ -124,6 +139,38 @@ class Store {
 
   Future<void> setRelayOff({required bool off}) =>
       _setFlag(_relayOffKey, on: off);
+
+  static const _relayModeKey = 'relayMode';
+  static const _webAppOffKey = 'webAppOff';
+
+  /// When this device, as host, opens its room on the online server too.
+  Future<RelayMode> relayMode() async {
+    if (await relayOff()) return RelayMode.never;
+    try {
+      final raw = await _storage.read(key: _relayModeKey);
+      return raw == RelayMode.always.name
+          ? RelayMode.always
+          : RelayMode.onDemand;
+    } on Object {
+      return RelayMode.onDemand;
+    }
+  }
+
+  Future<void> setRelayMode(RelayMode mode) async {
+    await setRelayOff(off: mode == RelayMode.never);
+    try {
+      await _storage.write(key: _relayModeKey, value: mode.name);
+    } on Object {
+      // Not saved; the default stays.
+    }
+  }
+
+  /// Whether this device, as host, gives browsers on the same Wi-Fi the
+  /// web app (players without the app).
+  Future<bool> serveWebApp() async => !await _flag(_webAppOffKey);
+
+  Future<void> setServeWebApp({required bool on}) =>
+      _setFlag(_webAppOffKey, on: !on);
 
   /// Whether the short privacy notice was shown on this device.
   Future<bool> privacyNoticeSeen() => _flag(_noticeKey);

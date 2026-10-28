@@ -1766,6 +1766,42 @@ abstract class AppLocalizations {
   /// **'Then only devices in the same Wi-Fi can play, and nothing goes to a server.'**
   String get relayOffHint;
 
+  /// No description provided for @relayOnDemand.
+  ///
+  /// In en, this message translates to:
+  /// **'Server only when needed'**
+  String get relayOnDemand;
+
+  /// No description provided for @relayOnDemandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On the same Wi-Fi your room is found without the server. Only when you show the QR code does the room open on the server too, so anyone can join, even without Wi-Fi or the app.'**
+  String get relayOnDemandHint;
+
+  /// No description provided for @relayAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Server always ready'**
+  String get relayAlways;
+
+  /// No description provided for @relayAlwaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your room is on the server right away; the QR code works for everyone from the start.'**
+  String get relayAlwaysHint;
+
+  /// No description provided for @serveWebApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser players on my Wi-Fi load the page from my phone'**
+  String get serveWebApp;
+
+  /// No description provided for @serveWebAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on the same Wi-Fi, so it costs no mobile data. Off: without the app, people can only join through the server.'**
+  String get serveWebAppHint;
+
   /// No description provided for @relayCustomHint.
   ///
   /// In en, this message translates to:
@@ -1963,6 +1999,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.'**
   String get inviteHintWeb;
+
+  /// No description provided for @inviteWifiFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'On the same Wi-Fi? The others open Whowolf and tap “Join a room”: your room shows up there by itself.'**
+  String get inviteWifiFirst;
+
+  /// No description provided for @inviteShowCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR code'**
+  String get inviteShowCode;
+
+  /// No description provided for @inviteLocalCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi code only, no server (not in many hotel and guest networks)'**
+  String get inviteLocalCode;
 
   /// No description provided for @language.
   ///
