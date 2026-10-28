@@ -1916,6 +1916,30 @@ abstract class AppLocalizations {
   /// **'The app can do even more: whowolf.de'**
   String get webJoinApp;
 
+  /// No description provided for @webJoinBack.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a seat at this table.'**
+  String get webJoinBack;
+
+  /// No description provided for @webJoinContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as {name}'**
+  String webJoinContinue(String name);
+
+  /// No description provided for @webJoinSomeoneElse.
+  ///
+  /// In en, this message translates to:
+  /// **'Join as someone else'**
+  String get webJoinSomeoneElse;
+
+  /// No description provided for @webJoinScreenOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the screen on and the sound up while you play.'**
+  String get webJoinScreenOn;
+
   /// No description provided for @inviteHintWeb.
   ///
   /// In en, this message translates to:

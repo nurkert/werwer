@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:protocol/protocol.dart';
 import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/stage.dart';
@@ -24,34 +25,27 @@ class WebJoinScreen extends StatefulWidget {
 
 class _WebJoinScreenState extends State<WebJoinScreen> {
   // Read once; the address bar forgets it. After a reload (phones throw
-  // away background tabs) the tab's own storage brings it back, with the
-  // session token: the player is back at their seat.
-  static final ({JoinLink link, String? token, String? name})? _game = () {
+  // away background tabs) this tab's kept game brings it back; a second
+  // scan of the same room finds it too, with the session token: the player
+  // goes back to their seat instead of taking a new one.
+  static final KeptGame? _game = () {
     final link = JoinLink.tryParse(Uri.base.toString());
-    if (link != null) {
-      forgetPageLink();
-      return (link: link, token: null, name: null);
-    }
-    final kept = recallGame();
-    final keptLink = kept == null ? null : JoinLink.tryParse(kept.link);
-    if (kept == null || keptLink == null) return null;
-    return (link: keptLink, token: kept.token, name: kept.name);
+    if (link == null) return recallGame();
+    forgetPageLink();
+    return recallGame(link) ?? (link: link, token: null, name: null);
   }();
 
   final _name = TextEditingController();
   String? _error;
 
+  /// The seat kept from before; dropped when the player joins as someone
+  /// else.
+  String? _token = _game?.token;
+
   @override
   void initState() {
     super.initState();
-    final game = _game;
-    _name.text = game?.name ?? '';
-    // Seated before the reload: straight back in.
-    if (game?.token case final token?) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _join(game!.link, token: token),
-      );
-    }
+    _name.text = _game?.name ?? '';
   }
 
   @override
@@ -60,24 +54,31 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
     super.dispose();
   }
 
-  Future<void> _join(JoinLink link, {String? token}) async {
+  // Always one tap to sit down, also when coming back: browsers only allow
+  // sound and keeping the screen on after the player touched the page.
+  Future<void> _join(JoinLink link) async {
     final l10n = AppLocalizations.of(context);
     final name = _name.text.trim();
+    final token = _token;
     if (name.isEmpty && token == null) {
       setState(() => _error = l10n.nameRequired);
       return;
     }
     setState(() => _error = null);
-    final text = link.encodeLocal() ?? link.encode();
-    rememberGame(text, token: token, name: name);
+    // Played inside the tap, so the browser lets this page make sound.
+    AudioSounds().play(Sound.tap);
+    rememberGame(link, token: token, name: name);
     final session = GameSession(
       name: name,
       roomCode: link.room,
       token: token,
-      onWelcome: (token, name) => rememberGame(text, token: token, name: name),
-      onEnded: forgetGame,
+      onWelcome: (token, name) {
+        _token = token;
+        rememberGame(link, token: token, name: name);
+      },
+      onEnded: () => forgetGame(link),
       dial: () async => connectSecure(
-        await dialPageHost(),
+        await dialPage(link),
         hostKey: link.hostKey,
         roomSecret: link.roomSecret,
       ),
@@ -117,7 +118,22 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
             const SizedBox(height: 10),
             if (link == null)
               Body(l10n.webJoinNoLink)
-            else ...[
+            else if (_token != null) ...[
+              Body(l10n.webJoinBack),
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: l10n.webJoinContinue(_name.text),
+                onPressed: () => _join(link),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => setState(() {
+                  _token = null;
+                  _name.clear();
+                }),
+                child: Text(l10n.webJoinSomeoneElse),
+              ),
+            ] else ...[
               Body(l10n.webJoinHint),
               const SizedBox(height: 20),
               TextField(
@@ -138,6 +154,12 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
               ),
             ],
             const SizedBox(height: 24),
+            Text(
+              l10n.webJoinScreenOn,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Palette.moon200, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
             Text(
               l10n.webJoinApp,
               textAlign: TextAlign.center,

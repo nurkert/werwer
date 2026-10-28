@@ -634,6 +634,17 @@
   "webJoinNoLink": "Scan the QR code at the table with your phone's camera to continue here.",
   "webJoinButton": "Join",
   "webJoinApp": "The app can do even more: whowolf.de",
+  "webJoinBack": "You already have a seat at this table.",
+  "webJoinContinue": "Continue as {name}",
+  "@webJoinContinue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "webJoinSomeoneElse": "Join as someone else",
+  "webJoinScreenOn": "Keep the screen on and the sound up while you play.",
   "inviteHintWeb": "Scan the code with the Whowolf app, or without the app with your phone's camera to play in the browser.",
   "language": "Language",
   "languageSystem": "Like the system",

@@ -110,6 +110,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
+    // Browsers release the screen lock whenever the page was hidden.
+    unawaited(WakelockPlus.enable());
     final room = session.hosted;
     if (room != null) unawaited(_revive(room));
     session.reconnectNow();

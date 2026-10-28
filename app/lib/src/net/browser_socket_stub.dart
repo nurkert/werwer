@@ -1,18 +1,21 @@
 import 'package:game_host/game_host.dart';
+import 'package:protocol/protocol.dart';
 
 /// Joining from a browser page: only on the web.
-Future<Connection> dialPageHost() =>
+Future<Connection> dialPage(JoinLink link) =>
     Future.error(UnsupportedError('only in the browser'));
 
 /// Removes the join link (with the room's key) from the address bar.
 void forgetPageLink() {}
 
-/// Keeps the way back into this game for this browser tab (see the web
-/// version).
-void rememberGame(String link, {String? token, String? name}) {}
+/// A game kept for this browser: how to get back in and as whom.
+typedef KeptGame = ({JoinLink link, String? token, String? name});
 
-/// The way back into this tab's game, if any.
-({String link, String? token, String? name})? recallGame() => null;
+/// Keeps the way back into [link]'s game (see the web version).
+void rememberGame(JoinLink link, {String? token, String? name}) {}
 
-/// Forgets this tab's game.
-void forgetGame() {}
+/// The game kept for [link], or this tab's game.
+KeptGame? recallGame([JoinLink? link]) => null;
+
+/// Forgets [link]'s game.
+void forgetGame(JoinLink link) {}

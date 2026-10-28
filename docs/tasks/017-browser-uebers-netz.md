@@ -18,6 +18,12 @@ Heute kann man im Browser nur im selben WLAN mitspielen. Das Host-Handy liefert 
 - **Ein Code:** Die Browser-Version ist dieselbe Flutter-App, für das Web gebaut (`tool/build_webapp.sh`). Unterschiede nur an den Rändern (Verbindung, Speicher, Ton freischalten, Wake Lock), keine eigene Browser-Oberfläche und keine Browser-Logik in den Bildschirmen.
 - **Wer die Seite ausliefert:** über das Internet nur der **Server** (opt-in am Relay, auf `play.whowolf.de` an), im WLAN wie heute das **Host-Handy**. Keine Mitspieler, kein Tunnel vom Host durch das Relay (siehe Review unten).
 - Mit der App ändert sich nichts: zuerst das WLAN, das Relay nur, wenn es sein muss.
+- **Im Browser nur beitreten:** Ein Browser kann nie einen Raum öffnen. Die Web-App hat keinen Weg dahin, und das Relay lehnt `/host` ab, sobald ein `Origin`-Header dabei ist (den schicken Browser immer, die App nie). So kann auch keine fremde Webseite die Browser ihrer Besucher Räume öffnen lassen.
+- **Viele Runden, viele Leute:** Das Relay trennt Räume und Spieler wie heute. Im Browser hat jeder Raum seinen eigenen Token, also kann ein Gerät auch in verschiedenen Runden sein, ohne dass sich etwas vermischt.
+- **Keine Cookies, kein Banner:** Die Seite setzt keine Cookies, lädt keine Tracker und keine Drittanbieter. Gespeichert wird nur der Rückweg in die eigene Runde. Das ist für den gewünschten Dienst unbedingt nötig (§ 25 Abs. 2 TDDDG), braucht also keine Einwilligung. Stattdessen gibt es einen kurzen Hinweis nach Art. 13 DSGVO auf der Beitrittsseite, mit Link zur Datenschutzerklärung (wie in der App, Entscheidung vom 2026-10-26). Keine Rechtsberatung.
+- **Ein QR-Code für alle:** Wer die App hat und mit der Kamera scannt, landet in der App am Tisch. Wer sie nicht hat, landet im Browser am selben Tisch. Dafür zeigt der QR-Code die Seite des Servers, und diese Adresse ist als Universal Link (iOS) bzw. App Link (Android) mit der App verknüpft. Mit dem Scanner in der App geht es weiter direkt, jetzt mit einer Überlagerung im Stil der Bühne.
+- **Fehlertolerant:** Jeder Weg hat einen Rückfall. App: WLAN, dann Relay. Browser: Neuladen, zweiter Scan und neuer Tab führen zurück an den eigenen Platz. Fehlt der Host, sehen alle die ruhige Pause, und die Host-Übernahme greift wie heute.
+- **Sicher für Betreiber und Spieler:** Jede neue Fläche am Server hat Grenzen pro Adresse, kein Log mit Pfaden oder Inhalten, und die Auslieferung ist opt-in.
 
 ## Ablauf
 
@@ -50,13 +56,13 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 
 ### Phase 1 – Browser über das Relay
 
-- [ ] `web_join_screen.dart` / `browser_socket.dart`: Der Browser wählt den Weg nach dem Ursprung der Seite, mit demselben `connectSecure` und denselben Schlüsseln aus dem Fragment.
-- [ ] `forgetPageLink()` behält den Basispfad (heute fest `/join`, unter `/v/…/` würde ein Neuladen ins Leere führen). Gemerkt wird die Form relativ zum Ursprung.
-- [ ] **Wiedereinstieg:** Token pro Raum in `localStorage` mit Ablaufzeit statt nur `sessionStorage`. Ein neuer Tab oder ein erneutes Scannen fragt „Weiter als {Name}?“ statt einen zweiten Platz anzulegen. Am Spielende gelöscht.
+- [x] `web_join_screen.dart` / `browser_socket.dart`: Der Browser wählt den Weg nach dem Ursprung der Seite, mit demselben `connectSecure` und denselben Schlüsseln aus dem Fragment.
+- [x] `forgetPageLink()` behält den Basispfad (heute fest `/join`, unter `/v/…/` würde ein Neuladen ins Leere führen). Gemerkt wird die Form relativ zum Ursprung.
+- [x] **Wiedereinstieg:** Token pro Raum in `localStorage` mit Ablaufzeit statt nur `sessionStorage`. Ein neuer Tab oder ein erneutes Scannen fragt „Weiter als {Name}?“ statt einen zweiten Platz anzulegen. Am Spielende gelöscht.
 - [ ] **Ton:** ein Tipp „Ton an“ vor der ersten Nacht schaltet Web Audio frei (Autoplay-Sperre). Gähnen und Nachtgeräusche spielen auch im Browser zum gemeinsamen Zeitpunkt.
 - [ ] **Bildschirm an:** Screen Wake Lock API, wo vorhanden; sonst ein Satz „Lass den Bildschirm an, solange ihr spielt.“
 - [ ] **Pausen:** Fehlt der Host (iOS im Hintergrund), sieht der Browser die ruhige Pause wie in der App, nicht „Verbindung weg“.
-- [ ] Test: Ein Browser-Client (Chrome in `tool/check.sh`) spielt über ein lokales Relay eine Partie mit dem Host, inklusive Neuladen.
+- [x] Test: Ein Browser-Client (Chrome in `tool/check.sh`) setzt sich über ein lokales Relay an den Tisch des Hosts und kommt nach dem Neuladen an denselben Platz zurück (`server/test/browser_relay_test.dart`, echter WebSocket im Browser, Relay und Host in der VM).
 
 ### Phase 2 – Der Server liefert die Web-App aus (opt-in)
 
@@ -64,15 +70,19 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 - [ ] Antwort-Header auf jeder Datei: `Content-Security-Policy` mit `default-src 'self'`, `connect-src` genau `wss://<self>/join/`, `worker-src 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`, `frame-ancestors 'none'`, dazu was CanvasKit und wasm brauchen; `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`. `index.html` ohne Cache, die übrigen Dateien lange (der Build steht im Pfad).
 - [ ] Statische Seiten vor Flutter: `index.html` zeigt „Lädt… (ca. 5 MB)“ in reinem HTML. Fehlerseiten für „Diese Runde ist nicht mehr offen“ und „Diese Version gibt es hier nicht“ statt eines weißen Bildschirms. `lang`, Kontrast, echte Texte.
 - [ ] Grenzen pro Adresse auch für HTTP (heute zählen nur WebSocket-Upgrades). Das Relay schreibt keine Pfade ins Log.
+- [ ] Relay: `/host` mit `Origin`-Header wird abgelehnt (Browser können keinen Raum öffnen).
+- [ ] Beitrittsseite: Hinweis nach Art. 13 DSGVO in einer Zeile mit Link zur Datenschutzerklärung, offline in der Web-App (wie in der App).
 - [ ] Release-Pipeline: Web-App jedes Releases als `whowolf-<version>-webapp.tar.gz` mit Prüfsumme und Attestation.
 - [ ] `server/webapps.lock`: nur anhängen, ein Eintrag je Build mit SHA-256. Neue Einträge nur per Commit, nachdem die CI die Attestation geprüft hat (`gh attestation verify`, Identität `prerelease.yml` auf einem Tag). Ein Eintrag kann ausdrücklich zurückgezogen werden (Sicherheitslücke in einem alten Build).
 - [ ] Image-Build lädt jeden Build und bricht bei falscher Prüfsumme ab. **Release-Pflicht:** Jedes Release ergänzt `webapps.lock`, damit `play.whowolf.de` immer den Build der aktuellen App hat.
 - [ ] Die App versteht die neuen Links (`/v/…/join` auf beliebigem HTTPS-Host nur zusammen mit dem Schlüssel). Universal Links / App Links für `play.whowolf.de`, damit App-Besitzer, die mit der Kamera scannen, in der App landen.
+- [ ] **Ein QR-Code für alle:** Das Relay liefert `/.well-known/apple-app-site-association` und `/.well-known/assetlinks.json` aus, wenn es per Umgebungsvariable konfiguriert ist (App-ID mit Team-ID, Fingerabdruck des Signierschlüssels). Nichts davon steht im Repo. Die App meldet `play.whowolf.de` als verknüpfte Domain an (iOS Associated Domains, Android `intent-filter` mit `autoVerify` für `/v/*/join`) und nimmt eingehende Links mit Flutters eingebautem Deep Linking an, ohne neue Abhängigkeit. Ein Link öffnet nie ungefragt einen Raum: Er geht durch dieselbe Prüfung und Bestätigung wie ein gescannter Code.
 - [ ] `whowolf.de/join` ohne passende Quelle zeigt „Dieser Raum ist nur mit der App erreichbar“ und die Downloads.
 
 ### Phase 3 – Einstellungen und Lobby
 
 - [ ] Globaler Schalter in den App-Einstellungen, Auswahl unter „Verbindungsdetails“ (siehe oben). Eine Änderung baut den QR-Code sofort neu.
+- [ ] **Scanner im Stil der Bühne:** Kamerabild mit abgedunkeltem Rand, ein Rahmen aus Pappe und Messing um das Sichtfeld, Hinweis in Lilita One, Taschenlampe, eine freundliche Zeile bei fremden Codes. Der Scanner bleibt der direkte Weg in der App.
 - [ ] Der Einladungstext richtet sich danach, ob der Browser möglich ist, nicht nach dem Schema des Links (heute `startsWith('http:')`).
 - [ ] Ein kleines Browser-Symbol am Platz eines Browser-Spielers, **nur in der Lobby**, nie nachts (das Symbol hängt nicht an der Rolle, verrät also nichts).
 - [ ] Test: Mit abgeschalteter Auslieferung kommt im WLAN keine Datei mehr vom Host (auch nicht per `HEAD`). Der QR-Code folgt der Wahl in der Lobby.
@@ -80,6 +90,7 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 ### Phase 4 – Abschluss
 
 - [ ] SECURITY_DESIGN, Datenschutz (Website und App: Betreiber als Verantwortlicher für die Auslieferung der Seite), Docs für Spieler (Mindestanforderungen: aktueller Browser, Ton an, Bildschirm an; „am Tisch, nicht aus der Ferne“) und für Server-Betreiber (`server/deploy/README.md`).
+- [ ] **Voraussetzungen beim Eigentümer:** Universal Links unter iOS brauchen den Apple Developer Account (fehlt noch, siehe 2026-10-26). App Links unter Android brauchen den Release-Schlüssel (Vorabversionen sind mit dem Debug-Schlüssel signiert). Bis dahin öffnet der QR-Code mit der Kamera immer den Browser, und mit dem Scanner in der App geht es wie heute.
 - [ ] Auf echten Geräten: iPhone als Host; iOS Safari und Android Chrome über mobile Daten im Browser, eines im WLAN im Browser. Ton, Wake Lock, Neuladen, Host kurz im Hintergrund.
 
 ## Sicherheit
@@ -105,10 +116,13 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 **Welche Tests es beweisen (blockieren den Merge):**
 
 - Relay: Pfadtricks (`..`, `%2e%2e`, `//`, Backslash, Nullbyte), Dateien außerhalb des Manifests, unbekannter Build, POST/PUT, zu viele Anfragen pro Adresse werden abgelehnt. Ist die Auslieferung aus, antwortet auch `HEAD` mit 404. Kein Pfad im Log.
+- Relay: `/host` mit `Origin`-Header wird abgelehnt, ohne angenommen.
 - Relay: CSP und die übrigen Header stehen auf jeder Datei. Der Browser-Test aus Phase 1 läuft **unter genau diesen Headern** (beweist, dass CanvasKit und wasm damit laufen).
 - Image-Build bricht bei falscher Prüfsumme ab. `webapps.lock` wird nur ergänzt, nie geändert (CI-Test).
 - Browser: Ein Client mit falschem Schlüssel kommt nicht durch den Handshake, einer mit anderer Protokollversion wird abgewiesen. Neuladen unter `/v/…/` landet wieder am Tisch.
 - App: Parser-Tests für die neuen Linkformen, kein HTTPS-Link ohne Schlüssel.
+- App: Ein eingehender Link (Deep Link) mit fremdem Host, ohne Schlüssel oder mit falschem Pfad wird ignoriert, ein gültiger führt zur selben Bestätigung wie ein Scan.
+- Relay: Die `.well-known`-Dateien gibt es nur bei gesetzter Konfiguration, mit festem Medientyp und ohne Werte aus der Anfrage.
 
 ## Review (2026-10-28)
 

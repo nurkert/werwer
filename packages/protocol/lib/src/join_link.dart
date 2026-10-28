@@ -6,6 +6,16 @@ import 'package:protocol/src/relay.dart';
 /// Default port of a host on the local network.
 const defaultLanPort = 47470;
 
+/// The only path a host answers WebSockets on, on the local network.
+const hostSocketPath = '/whowolf';
+
+/// The relay server's page for a room: `/v/<protocol>/<build>/join`.
+final _serverPage = RegExp(r'^/v/[0-9]{1,4}/([0-9a-z][0-9a-z.-]{0,31})/join$');
+
+/// Whether [build] can name a web app build in a server page's path.
+bool isWebAppBuild(String build) =>
+    RegExp(r'^[0-9a-z][0-9a-z.-]{0,31}$').hasMatch(build);
+
 /// Everything needed to join a room, as carried by the QR code:
 /// `https://whowolf.de/join?room=1234&lan=192.168.1.5:47470&relay=abcd2345&srv=wss://relay.example.org`.
 ///
@@ -16,6 +26,11 @@ const defaultLanPort = 47470;
 /// (`http://192.168.1.5:47470/join?room=1234#k=…&s=…`): a phone without
 /// the app opens it in the browser and joins, even without internet. The
 /// address must be a private one, and such a link always carries the key.
+///
+/// A relay server that serves the web app links to its own page for the
+/// host's build (`https://play.whowolf.de/v/7/0.2.0/join?room=1234&relay=…#k=…&s=…`):
+/// a phone without the app joins in the browser over the internet. The
+/// server is the page's own origin, and such a link always carries the key.
 class JoinLink {
   /// Creates a link; at least one of [lan] or [relayRoom] must be set.
   const JoinLink({
@@ -31,18 +46,26 @@ class JoinLink {
   static JoinLink? tryParse(String raw) {
     if (raw.length > 512) return null;
     final uri = Uri.tryParse(raw.trim());
-    if (uri == null || uri.path != '/join' || uri.userInfo.isNotEmpty) {
-      return null;
-    }
+    if (uri == null || uri.userInfo.isNotEmpty) return null;
+    final onServer = uri.scheme == 'https' && _serverPage.hasMatch(uri.path);
+    if (uri.path != '/join' && !onServer) return null;
     // The host itself, on the local network: its address is the link's.
-    final local = uri.scheme == 'http'
+    final local = uri.scheme == 'http' && uri.path == '/join'
         ? LanAddress.tryParse('${uri.host}:${uri.hasPort ? uri.port : 80}')
         : null;
     final official =
-        uri.scheme == 'https' && uri.host == linkHost && !uri.hasPort;
-    if (local == null && !official) return null;
+        uri.scheme == 'https' &&
+        uri.path == '/join' &&
+        uri.host == linkHost &&
+        !uri.hasPort;
+    if (local == null && !official && !onServer) return null;
     final q = uri.queryParameters;
-    final allowed = {'room', 'relay', 'srv', if (official) 'lan'};
+    final allowed = {
+      'room',
+      'relay',
+      if (!onServer) 'srv',
+      if (official || onServer) 'lan',
+    };
     if (q.keys.any((k) => !allowed.contains(k))) return null;
     final room = q['room'] ?? '';
     if (!RegExp('^[0-9]{$roomCodeLength}\$').hasMatch(room)) return null;
@@ -51,8 +74,20 @@ class JoinLink {
     if (q['lan'] != null && lan == null) return null;
     final relay = q['relay'];
     if (relay != null && !isRelayRoomId(relay)) return null;
-    final server = q['srv'] == null ? null : parseRelayServer(q['srv']!);
-    if (q['srv'] != null && server == null) return null;
+    // A server's own page: the server is the page's origin.
+    final server = onServer
+        ? parseRelayServer(
+            Uri(
+              scheme: 'wss',
+              host: uri.host,
+              port: uri.hasPort ? uri.port : null,
+            ).toString(),
+          )
+        : q['srv'] == null
+        ? null
+        : parseRelayServer(q['srv']!);
+    if ((onServer || q['srv'] != null) && server == null) return null;
+    if (onServer && relay == null) return null;
     if (lan == null && relay == null) return null;
     if ((relay == null) != (server == null)) return null;
     List<int>? key;
@@ -69,8 +104,9 @@ class JoinLink {
     // a bare server could be anyone's.
     if (server != null && key == null) return null;
     // Whoever serves a page could serve any page: from the host's own
-    // address only with the key, so the handshake proves it is the host.
-    if (local != null && key == null) return null;
+    // address or a server's page only with the key, so the handshake
+    // proves it is the host.
+    if ((local != null || onServer) && key == null) return null;
     return JoinLink(
       room: room,
       lan: lan,
@@ -122,6 +158,35 @@ class JoinLink {
     ).toString();
   }
 
+  /// The link to this room's page on its relay server (see the class
+  /// comment), for phones that join in the browser over the internet;
+  /// `null` without a `wss://` server, a relay room or the key, or for an
+  /// invalid [build].
+  String? encodeOnServer(String build) {
+    final server = this.server;
+    if (server == null ||
+        server.scheme != 'wss' ||
+        relayRoom == null ||
+        hostKey == null ||
+        roomSecret == null ||
+        !isWebAppBuild(build)) {
+      return null;
+    }
+    return Uri(
+      scheme: 'https',
+      host: server.host,
+      port: server.hasPort ? server.port : null,
+      path: '/v/$protocolVersion/$build/join',
+      queryParameters: {
+        'room': room,
+        'lan': ?lan?.toString(),
+        'relay': relayRoom,
+      },
+      fragment:
+          'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}',
+    ).toString();
+  }
+
   /// The link as text for the QR code.
   String encode() => Uri(
     scheme: 'https',
@@ -137,6 +202,32 @@ class JoinLink {
         ? null
         : 'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}',
   ).toString();
+}
+
+/// Where a browser page that came with [link] connects: back to the origin
+/// that served it. A page from the host's phone (`http://`, the local
+/// network) reaches the host directly; a page from a relay server
+/// (`https://`) reaches the room on that same server, because a secure page
+/// may not open `ws://` into the local network. A server named in the link
+/// is never used here: the page talks only to its own origin. `null` if
+/// there is no way.
+Uri? pageSocket(Uri page, JoinLink link) {
+  final port = page.hasPort ? page.port : null;
+  return switch (page.scheme) {
+    'http' => Uri(
+      scheme: 'ws',
+      host: page.host,
+      port: port,
+      path: hostSocketPath,
+    ),
+    'https' when link.relayRoom != null => Uri(
+      scheme: 'wss',
+      host: page.host,
+      port: port,
+      path: '/join/${link.relayRoom}',
+    ),
+    _ => null,
+  };
 }
 
 List<int>? _key32(String? value) {

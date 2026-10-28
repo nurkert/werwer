@@ -11,6 +11,9 @@ dependencies:
     path: ../game_core
   protocol:
     path: ../protocol
+  # The browser's WebSocket (lib/browser.dart only), for players who join
+  # without the app.
+  web: ^1.1.1
 
 dev_dependencies:
   test: ^1.31.0

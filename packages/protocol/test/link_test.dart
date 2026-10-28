@@ -91,6 +91,102 @@ void main() {
       );
     });
 
+    test('a relay server links to its own page for the browser', () {
+      final link = JoinLink(
+        room: '1234',
+        lan: const LanAddress('192.168.1.5', 47470),
+        relayRoom: 'abcd2345',
+        server: parseRelayServer('wss://play.example.org'),
+        hostKey: List.filled(32, 7),
+        roomSecret: List.filled(32, 9),
+      );
+      final page = link.encodeOnServer('0.2.0')!;
+      expect(
+        page,
+        startsWith('https://play.example.org/v/$protocolVersion/0.2.0/join?'),
+      );
+      expect(page, isNot(contains('srv=')));
+      final back = JoinLink.tryParse(page)!;
+      // The server is the page's own origin.
+      expect(back.server.toString(), 'wss://play.example.org');
+      expect(back.relayRoom, 'abcd2345');
+      expect(back.lan.toString(), '192.168.1.5:47470');
+      expect(back.hostKey, List.filled(32, 7));
+      // No page without a secure server, a relay room, the key or a sane
+      // build.
+      expect(link.encodeOnServer('../x'), isNull);
+      expect(link.encodeOnServer(''), isNull);
+      expect(
+        JoinLink(
+          room: '1234',
+          relayRoom: 'abcd2345',
+          server: parseRelayServer('ws://play.example.org'),
+          hostKey: List.filled(32, 7),
+          roomSecret: List.filled(32, 9),
+        ).encodeOnServer('0.2.0'),
+        isNull,
+      );
+      expect(
+        JoinLink(
+          room: '1234',
+          lan: const LanAddress('192.168.1.5', 1),
+          hostKey: List.filled(32, 7),
+          roomSecret: List.filled(32, 9),
+        ).encodeOnServer('0.2.0'),
+        isNull,
+      );
+      final k =
+          'k=${base64Url.encode(List.filled(32, 1))}'
+          '&s=${base64Url.encode(List.filled(32, 2))}';
+      for (final raw in [
+        // Without the key: whoever serves the page could be anyone.
+        'https://play.example.org/v/7/0.2.0/join?room=1234&relay=abcd2345',
+        // Without a relay room, or naming another server.
+        'https://play.example.org/v/7/0.2.0/join?room=1234#$k',
+        'https://play.example.org/v/7/0.2.0/join?room=1234&relay=abcd2345&srv=wss://evil.example.org#$k',
+        // Not plain https, or a path that is not a page.
+        'http://play.example.org/v/7/0.2.0/join?room=1234&relay=abcd2345#$k',
+        'https://play.example.org/v/7/../join?room=1234&relay=abcd2345#$k',
+        'https://play.example.org/v/7/0.2.0/x/join?room=1234&relay=abcd2345#$k',
+        'https://play.example.org/v/x/0.2.0/join?room=1234&relay=abcd2345#$k',
+        'https://play.example.org/v/7/0.2.0/other?room=1234&relay=abcd2345#$k',
+        'https://u:p@play.example.org/v/7/0.2.0/join?room=1234&relay=abcd2345#$k',
+      ]) {
+        expect(JoinLink.tryParse(raw), isNull, reason: raw);
+      }
+    });
+
+    test('a browser page connects back to its own origin', () {
+      final link = JoinLink(
+        room: '1234',
+        lan: const LanAddress('192.168.1.5', 47470),
+        relayRoom: 'abcd2345',
+        server: parseRelayServer('wss://elsewhere.example.org'),
+        hostKey: List.filled(32, 7),
+        roomSecret: List.filled(32, 9),
+      );
+      expect(
+        pageSocket(Uri.parse('http://192.168.1.5:47470/join'), link).toString(),
+        'ws://192.168.1.5:47470$hostSocketPath',
+      );
+      // From a server's page: that server, never the one named in the link.
+      expect(
+        pageSocket(
+          Uri.parse('https://play.example.org/v/7/0.2.0/join'),
+          link,
+        ).toString(),
+        'wss://play.example.org/join/abcd2345',
+      );
+      expect(
+        pageSocket(
+          Uri.parse('https://play.example.org/v/7/0.2.0/join'),
+          const JoinLink(room: '1234', lan: LanAddress('192.168.1.5', 1)),
+        ),
+        isNull,
+      );
+      expect(pageSocket(Uri.parse('file:///join'), link), isNull);
+    });
+
     test('LAN addresses must be private', () {
       expect(LanAddress.tryParse('10.0.0.2')!.port, defaultLanPort);
       expect(LanAddress.tryParse('172.20.1.1:80')!.port, 80);

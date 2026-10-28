@@ -33,6 +33,10 @@ for package in packages/game_core packages/protocol; do
   echo "▶ $package (browser)"
   (cd "$package" && dart test --platform chrome --reporter=compact)
 done
+# Players without the app connect from a real browser, also through the
+# relay; the relay and the host run in the VM next to it.
+echo "▶ server (browser)"
+(cd server && dart test --platform chrome --reporter=compact test/browser_relay_test.dart)
 (cd app && flutter test)
 
 echo "✓ All checks passed"

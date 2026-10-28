@@ -1095,6 +1095,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get webJoinApp => 'Mit der App geht noch mehr: whowolf.de';
 
   @override
+  String get webJoinBack => 'Du sitzt schon an diesem Tisch.';
+
+  @override
+  String webJoinContinue(String name) {
+    return 'Weiter als $name';
+  }
+
+  @override
+  String get webJoinSomeoneElse => 'Als jemand anderes beitreten';
+
+  @override
+  String get webJoinScreenOn =>
+      'Lass den Bildschirm an und den Ton laut, solange ihr spielt.';
+
+  @override
   String get inviteHintWeb =>
       'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
 

@@ -10,12 +10,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:game_host/src/transport.dart';
+import 'package:protocol/protocol.dart' show hostSocketPath;
 
 /// Port the host tries first; if it is taken, the system picks one.
 const defaultPort = 47470;
 
 /// The only path the host answers on.
-const socketPath = '/whowolf';
+const String socketPath = hostSocketPath;
 
 /// A file of the web app the host serves to browsers on the local network.
 class SiteFile {
