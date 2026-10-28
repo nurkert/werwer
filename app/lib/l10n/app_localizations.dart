@@ -2528,6 +2528,12 @@ abstract class AppLocalizations {
   /// **'Join {name}\'s table'**
   String quickJoin(String name);
 
+  /// No description provided for @roomGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This room is no longer open.'**
+  String get roomGone;
+
   /// No description provided for @quickJoinLast.
   ///
   /// In en, this message translates to:

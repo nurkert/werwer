@@ -40,8 +40,9 @@ class _StartScreenState extends State<StartScreen> {
   ResumeInfo? _resume;
   SavedRoom? _savedRoom;
 
-  /// Rooms open on this Wi-Fi, to join in one tap; the last one first.
-  final _finder = RoomFinder();
+  /// Rooms open on this Wi-Fi whose host answers, to join in one tap; the
+  /// last one first.
+  final _finder = RoomFinder(probe: tcpProbe);
   String? _lastRoom;
 
   /// Rejoining by itself happens once per app start; coming back to this
@@ -83,6 +84,16 @@ class _StartScreenState extends State<StartScreen> {
   Future<void> _quickJoin(NearbyRoom room) async {
     final name = _checkedName();
     if (name == null) return;
+    // The room may have closed since the last probe: say so instead of
+    // waiting for a host that is gone.
+    if (!await _finder.check(room)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).roomGone)),
+      );
+      return;
+    }
+    if (!mounted) return;
     await playSession(
       context,
       playerSession(name: name, room: room.room, lan: room.lan),

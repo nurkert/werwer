@@ -1,6 +1,6 @@
 # Task 019 – Geschlossene Räume verschwinden aus dem Hauptmenü
 
-**Status:** offen (gemeldet 2026-10-28), Fehler
+**Status:** umgesetzt (2026-10-28), offen ist nur die Prüfung auf zwei echten Geräten
 **Bezug:** `app/lib/src/net/discovery.dart` (`RoomFinder`), `app/lib/src/start_screen.dart` (Schnellbeitritt), Task 016 (ein selbst geschlossener Raum verschwindet aus der laufenden Suche dieses Geräts)
 
 ## Fehler
@@ -49,3 +49,14 @@ Der Eigentümer öffnet einen Raum und schließt ihn wieder. Im Hauptmenü steht
 - **Was schiefgehen kann:** Die Prüfung öffnet Verbindungen zu Adressen aus fremden Ankündigungen. Ein Angreifer im WLAN könnte damit Verbindungen zu beliebigen Zielen auslösen.
 - **Was es verhindert:** Nur private IPv4-Adressen (wie heute schon in `_found`), nur der angekündigte Port, nur TCP ohne Daten, kurzes Zeitlimit, höchstens eine Prüfung pro Raum gleichzeitig, und die Liste der Räume ist begrenzt (neu: höchstens z. B. 32 Einträge).
 - **Welcher Test es beweist:** Eine Ankündigung mit öffentlicher Adresse wird nie geprüft, und mehr als die Höchstzahl an Ankündigungen erzeugt keine weiteren Prüfungen.
+
+## Umsetzung (2026-10-28)
+
+- [x] **Ursachen:** Ursachen 1 und 4 treffen sicher zu und betreffen jedes Gerät, auf dem ein Raum nur im Cache des Systems steht (andere Geräte, oder dieses Gerät nach einem Neustart der App). Ursache 2 ist gewollt (Übergabe), Ursache 3 griff schon. Statt die Ursache auf dem Gerät nachzustellen, deckt die Erreichbarkeitsprüfung alle vier ab.
+- [x] **Erreichbarkeit:** `RoomFinder(probe: tcpProbe)` im Startbildschirm. Ein Raum erscheint erst, wenn `tcpProbe` (nur TCP, 1,5 s, sofort `destroy()`) auf der angekündigten Adresse eine Verbindung bekommt. Wiederholt wird alle 4 s, höchstens eine Prüfung pro Raum gleichzeitig. Nach zwei Fehlversuchen in Folge ist der Raum ausgeblendet, bis er wieder antwortet. Höchstens `RoomFinder.maxRooms` (32) Ankündigungen.
+- [x] **Selbst geschlossene Räume** bleiben 6 Stunden ausgeblendet, auch nach einem Neustart (`Store.closedRooms`, höchstens 16 Einträge, abgelaufene fallen beim Lesen weg).
+- [x] **Beim Tippen:** `RoomFinder.check` prüft sofort. Antwortet der Host nicht, erscheint „Dieser Raum ist nicht mehr offen.“, und der Raum verschwindet aus der Liste.
+- [x] **`HostLocator`** bleibt ohne Prüfung, weil ein Host im Hintergrund (iOS) kurz nicht antwortet und trotzdem wiedergefunden werden soll. Hängen kann dort nichts: `dial` gibt jedem Versuch 5 s und nimmt nach 1,5 s das Relay dazu.
+- [x] Tests in `app/test/room_finder_test.dart`: nie antwortender Raum erscheint nie, antwortender erscheint, nach zwei Fehlversuchen weg, kommt zurück, Tipp auf toten Raum blendet sofort aus, Höchstzahl begrenzt die Prüfungen, ein hier geschlossener Raum wird nicht geprüft und bleibt nach simuliertem Neustart bis zum Ablauf verborgen, `tcpProbe` gegen einen echten Socket. Statt eines Widget-Tests für den Hinweis prüft der Test `RoomFinder.check`; der Startbildschirm zeigt nur noch dessen Ergebnis an.
+- [x] Eine Ankündigung mit öffentlicher Adresse kommt gar nicht erst in die Liste (`LanAddress.tryParse`, wie bisher). Sie wird also nie geprüft.
+- [ ] Auf echten Geräten: Raum auf Gerät A schließen. Er verschwindet auf A sofort und auf B innerhalb weniger Sekunden.

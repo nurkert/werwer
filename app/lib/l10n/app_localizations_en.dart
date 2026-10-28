@@ -1429,6 +1429,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get roomGone => 'This room is no longer open.';
+
+  @override
   String get quickJoinLast => 'Your last table';
 
   @override

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/foundation.dart';
 import 'package:game_core/game_core.dart' show maxNameLength;
 import 'package:protocol/protocol.dart';
+import 'package:whowolf/src/net/store.dart';
 
 /// The mDNS / Bonjour service type of a Whowolf room.
 const roomServiceType = '_whowolf._tcp';
@@ -120,44 +122,192 @@ class NearbyRoom {
   final bool candidate;
 }
 
-/// Looks for rooms on the local network while it lives.
-class RoomFinder extends ChangeNotifier {
-  RoomFinder() {
-    _live.add(this);
-    unawaited(_start());
+/// Answers whether a host listens at an address.
+typedef RoomProbe = Future<bool> Function(LanAddress at);
+
+/// A bare TCP connection to [at], closed at once: no HTTP, no WebSocket,
+/// so it is no join attempt and the host sees nothing but a short
+/// connection.
+Future<bool> tcpProbe(LanAddress at) async {
+  try {
+    final socket = await Socket.connect(
+      HostLocator.loopback ? '127.0.0.1' : at.ip,
+      at.port,
+      timeout: const Duration(milliseconds: 1500),
+    );
+    socket.destroy();
+    return true;
+  } on Object {
+    return false;
   }
+}
+
+/// Looks for rooms on the local network while it lives.
+///
+/// With a probe, [rooms] lists only rooms whose host answers: the system
+/// may keep an announcement long after the room closed (a lost goodbye, a
+/// cache), so the announcement alone proves nothing.
+class RoomFinder extends ChangeNotifier {
+  RoomFinder({RoomProbe? probe, Duration every = const Duration(seconds: 4)})
+    : this._(probe, every, search: true);
+
+  /// A finder without the mDNS search: rooms come from [add] and [lose].
+  @visibleForTesting
+  RoomFinder.manual({
+    RoomProbe? probe,
+    Duration every = const Duration(seconds: 4),
+  }) : this._(probe, every, search: false);
+
+  RoomFinder._(this._probe, Duration every, {required bool search}) {
+    _live.add(this);
+    _loaded ??= _loadClosed();
+    if (_probe != null) {
+      _ticker = Timer.periodic(every, (_) => unawaited(probeAll()));
+    }
+    if (search) unawaited(_start());
+  }
+
+  /// At most this many announcements are kept (and probed).
+  static const maxRooms = 32;
+
+  /// Two probes in a row without an answer hide a room.
+  static const _maxMisses = 2;
+
+  /// How long a room closed here stays hidden, also across app restarts.
+  static const closedFor = Duration(hours: 6);
 
   /// Searches running now: a room closed here leaves all of them at once.
   static final Set<RoomFinder> _live = {};
 
+  final RoomProbe? _probe;
+  Timer? _ticker;
   BonsoirDiscovery? _discovery;
   StreamSubscription<BonsoirDiscoveryEvent>? _events;
   final _rooms = <String, NearbyRoom>{};
   bool _disposed = false;
 
+  /// Rooms whose host answered the last probe (or did not miss twice).
+  final _alive = <String>{};
+  final _misses = <String, int>{};
+  final _probing = <String>{};
+
   /// Whether the search could not start (no mDNS on this device).
   bool unavailable = false;
 
-  /// Rooms this device hosted and closed, by key fingerprint: the system
-  /// may keep their announcement cached for a while after it was
-  /// withdrawn, but a closed room is gone for good.
-  static final Set<String> _closed = {};
+  /// Rooms this device hosted and closed, by key fingerprint, until when
+  /// to hide them: the system may keep their announcement cached for a
+  /// while after it was withdrawn, but a closed room is gone for good.
+  static final Map<String, DateTime> _closed = {};
+  static Future<void>? _loaded;
 
-  /// Marks a room this device closed, so no search shows it again.
-  static void closed(List<int> hostKey) {
-    if (!_closed.add(keyPrint(hostKey))) return;
+  static Future<void> _loadClosed() async {
+    final stored = await const Store().closedRooms();
+    for (final MapEntry(:key, :value) in stored.entries) {
+      final known = _closed[key];
+      if (known == null || value.isAfter(known)) _closed[key] = value;
+    }
+    if (stored.isNotEmpty) _tellAll();
+  }
+
+  static void _tellAll() {
     for (final finder in [..._live]) {
       finder.notifyListeners();
     }
   }
 
-  /// Rooms to join (without successors' entrances and rooms closed here).
+  static bool _isClosed(String? print) {
+    final until = print == null ? null : _closed[print];
+    return until != null && until.isAfter(DateTime.now());
+  }
+
+  /// Marks a room this device closed, so no search shows it again (for
+  /// [closedFor], also after a restart).
+  static void closed(List<int> hostKey) {
+    final print = keyPrint(hostKey);
+    if (_isClosed(print)) return;
+    final now = DateTime.now();
+    _closed
+      ..removeWhere((_, until) => !until.isAfter(now))
+      ..[print] = now.add(closedFor);
+    unawaited(const Store().setClosedRooms(_closed));
+    _tellAll();
+  }
+
+  /// Forgets what this app run knows of closed rooms, as a restart would.
+  @visibleForTesting
+  static Future<void> restart() async {
+    _closed.clear();
+    await (_loaded = _loadClosed());
+  }
+
+  bool _offered(NearbyRoom r) => !r.candidate && !_isClosed(r.keyPrint);
+
+  /// Rooms to join: without successors' entrances, rooms closed here and,
+  /// with a probe, rooms whose host does not answer.
   List<NearbyRoom> get rooms => _rooms.values
-      .where((r) => !r.candidate && !_closed.contains(r.keyPrint))
+      .where((r) => _offered(r) && (_probe == null || _alive.contains(r.id)))
       .toList();
 
   /// Everything announced, entrances included.
   Iterable<NearbyRoom> get all => _rooms.values;
+
+  /// Probes [room] right now (a player tapped it): if its host does not
+  /// answer, it leaves the list until it answers again.
+  Future<bool> check(NearbyRoom room) async {
+    final open = await (_probe ?? tcpProbe)(room.lan);
+    if (!open && !_disposed && _alive.remove(room.id)) {
+      _misses[room.id] = _maxMisses;
+      notifyListeners();
+    }
+    return open;
+  }
+
+  /// Adds or updates an announcement.
+  @visibleForTesting
+  void add(NearbyRoom room) {
+    final before = _rooms[room.id];
+    if (before == null && _rooms.length >= maxRooms) return;
+    _rooms[room.id] = room;
+    if (before == null || before.lan.toString() != room.lan.toString()) {
+      _misses.remove(room.id);
+      unawaited(_probeOne(room.id));
+    }
+    notifyListeners();
+  }
+
+  /// Removes an announcement the system says is gone.
+  @visibleForTesting
+  void lose(String id) {
+    _alive.remove(id);
+    _misses.remove(id);
+    if (_rooms.remove(id) != null) notifyListeners();
+  }
+
+  /// What the timer does every few seconds.
+  @visibleForTesting
+  Future<void> probeAll() => Future.wait([..._rooms.keys].map(_probeOne));
+
+  Future<void> _probeOne(String id) async {
+    final probe = _probe;
+    final room = _rooms[id];
+    if (probe == null || room == null || !_offered(room)) return;
+    // One probe per room at a time.
+    if (!_probing.add(id)) return;
+    try {
+      final open = await probe(room.lan);
+      // Gone or moved meanwhile: the next probe decides.
+      if (_disposed || !identical(_rooms[id], room)) return;
+      if (open) {
+        _misses.remove(id);
+        if (_alive.add(id)) notifyListeners();
+      } else {
+        final misses = _misses[id] = (_misses[id] ?? 0) + 1;
+        if (misses >= _maxMisses && _alive.remove(id)) notifyListeners();
+      }
+    } finally {
+      _probing.remove(id);
+    }
+  }
 
   Future<void> _start() async {
     try {
@@ -175,7 +325,7 @@ class RoomFinder extends ChangeNotifier {
               BonsoirDiscoveryServiceUpdatedEvent(:final service):
             _found(service);
           case BonsoirDiscoveryServiceLostEvent(:final service):
-            if (_rooms.remove(service.name) != null) notifyListeners();
+            lose(service.name);
           default:
             break;
         }
@@ -202,26 +352,30 @@ class RoomFinder extends ChangeNotifier {
         .firstOrNull;
     if (lan == null) return;
     final host = service.attributes['host'] ?? '';
-    _rooms[service.name] = NearbyRoom(
-      id: service.name,
-      hostName: host.length > maxNameLength
-          ? host.substring(0, maxNameLength)
-          : host,
-      room: room,
-      lan: lan,
-      keyPrint: service.attributes['key'],
-      epoch:
-          int.tryParse(service.attributes['epoch'] ?? '')?.clamp(0, maxEpoch) ??
-          0,
-      candidate: service.attributes['cand'] == '1',
+    add(
+      NearbyRoom(
+        id: service.name,
+        hostName: host.length > maxNameLength
+            ? host.substring(0, maxNameLength)
+            : host,
+        room: room,
+        lan: lan,
+        keyPrint: service.attributes['key'],
+        epoch:
+            int.tryParse(
+              service.attributes['epoch'] ?? '',
+            )?.clamp(0, maxEpoch) ??
+            0,
+        candidate: service.attributes['cand'] == '1',
+      ),
     );
-    notifyListeners();
   }
 
   @override
   void dispose() {
     _disposed = true;
     _live.remove(this);
+    _ticker?.cancel();
     unawaited(_events?.cancel());
     final discovery = _discovery;
     if (discovery != null) {

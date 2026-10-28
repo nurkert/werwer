@@ -214,6 +214,44 @@ class Store {
     }
   }
 
+  static const _closedRoomsKey = 'closedRooms';
+
+  /// Rooms this device closed, by key fingerprint, with the time until
+  /// which to hide them; expired ones are left out.
+  Future<Map<String, DateTime>> closedRooms() async {
+    try {
+      final raw = await _storage.read(key: _closedRoomsKey);
+      if (raw == null) return {};
+      final now = DateTime.now();
+      return {
+        for (final MapEntry(:key, :value)
+            in (jsonDecode(raw) as Map<String, Object?>).entries)
+          if (value is int &&
+              DateTime.fromMillisecondsSinceEpoch(value).isAfter(now))
+            key: DateTime.fromMillisecondsSinceEpoch(value),
+      };
+    } on Object {
+      return {};
+    }
+  }
+
+  /// Keeps at most the 16 latest entries.
+  Future<void> setClosedRooms(Map<String, DateTime> rooms) async {
+    final latest = rooms.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    try {
+      await _storage.write(
+        key: _closedRoomsKey,
+        value: jsonEncode({
+          for (final MapEntry(:key, :value) in latest.take(16))
+            key: value.millisecondsSinceEpoch,
+        }),
+      );
+    } on Object {
+      // Hidden only until the app restarts.
+    }
+  }
+
   static const _languageKey = 'language';
 
   /// The language the player picked in the app (`de`, `en`), or `null`

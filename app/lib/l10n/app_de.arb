@@ -420,6 +420,7 @@
   "figureTitle": "Wer bist du heute?",
   "figureTaken": "vergeben",
   "quickJoin": "Tisch von {name} beitreten",
+  "roomGone": "Dieser Raum ist nicht mehr offen.",
   "quickJoinLast": "Dein letzter Tisch",
   "settingsOnline": "Online-Spiel",
   "settingsAbout": "Über Whowolf",

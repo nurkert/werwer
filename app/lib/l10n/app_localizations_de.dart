@@ -1441,6 +1441,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get roomGone => 'Dieser Raum ist nicht mehr offen.';
+
+  @override
   String get quickJoinLast => 'Dein letzter Tisch';
 
   @override
