@@ -656,6 +656,54 @@ abstract class AppLocalizations {
   /// **'Suited to {count} players'**
   String timesForTable(int count);
 
+  /// No description provided for @updateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is out'**
+  String updateTitle(String version);
+
+  /// No description provided for @updateText.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still playing {current}. Best update everyone at the table: only the same versions play together.'**
+  String updateText(String current);
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateGet.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to downloads'**
+  String get updateGet;
+
+  /// No description provided for @updateCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for new versions'**
+  String get updateCheck;
+
+  /// No description provided for @updateCheckHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks GitHub for the newest version when the app starts. GitHub sees your IP address.'**
+  String get updateCheckHint;
+
+  /// No description provided for @privacyUpdatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New versions'**
+  String get privacyUpdatesTitle;
+
+  /// No description provided for @privacyUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is our legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).'**
+  String get privacyUpdates;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

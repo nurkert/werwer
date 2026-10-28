@@ -354,6 +354,36 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String updateTitle(String version) {
+    return 'Version $version ist da';
+  }
+
+  @override
+  String updateText(String current) {
+    return 'Du spielst noch mit $current. Am besten aktualisieren alle am Tisch, denn nur gleiche Versionen spielen zusammen.';
+  }
+
+  @override
+  String get updateLater => 'Später';
+
+  @override
+  String get updateGet => 'Zur Download-Seite';
+
+  @override
+  String get updateCheck => 'Nach neuen Versionen suchen';
+
+  @override
+  String get updateCheckHint =>
+      'Fragt beim Start GitHub nach der neuesten Version. GitHub sieht dabei deine IP-Adresse.';
+
+  @override
+  String get privacyUpdatesTitle => 'Neue Versionen';
+
+  @override
+  String get privacyUpdates =>
+      'Beim Start fragt die App die öffentliche Liste der Versionen auf GitHub ab (github.com, betrieben von GitHub Inc., USA), um dir eine neue Version zu zeigen. Dabei sieht GitHub die IP-Adresse deines Geräts, wie bei jedem Abruf einer Webseite. Es werden keine Daten über dich oder dein Spiel gesendet. In den Einstellungen kannst du das abschalten. Rechtsgrundlage ist unser berechtigtes Interesse, dich auf Fehlerbehebungen und zueinander passende Versionen hinzuweisen (Art. 6 Abs. 1 lit. f DSGVO).';
+
+  @override
   String get seerVisionTitle => 'Deine Vision';
 
   @override

@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bonsoir_windows
   flutter_secure_storage_windows
   flutter_tts
+  url_launcher_windows
   volume_controller
 )
 

@@ -351,6 +351,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String updateTitle(String version) {
+    return 'Version $version is out';
+  }
+
+  @override
+  String updateText(String current) {
+    return 'You are still playing $current. Best update everyone at the table: only the same versions play together.';
+  }
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateGet => 'Go to downloads';
+
+  @override
+  String get updateCheck => 'Look for new versions';
+
+  @override
+  String get updateCheckHint =>
+      'Asks GitHub for the newest version when the app starts. GitHub sees your IP address.';
+
+  @override
+  String get privacyUpdatesTitle => 'New versions';
+
+  @override
+  String get privacyUpdates =>
+      'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is our legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).';
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

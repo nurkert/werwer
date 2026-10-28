@@ -33,6 +33,7 @@ dependencies:
   secure_channel:
     path: ../packages/secure_channel
   sensors_plus: ^7.1.1
+  url_launcher: ^6.3.3
   volume_controller: ^3.7.1
   wakelock_plus: ">=1.3.0 <1.8.1"
   # Browser APIs for joining in the browser (Dart team, BSD-3).

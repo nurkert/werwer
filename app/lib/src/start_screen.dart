@@ -18,6 +18,7 @@ import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/net/update_check.dart';
 import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/stage/stage_pages.dart';
 import 'package:whowolf/src/stage/wolf_title.dart';
@@ -118,6 +119,7 @@ class _StartScreenState extends State<StartScreen> {
       await _continue(resume);
     } else if (mounted) {
       await showPrivacyNoticeOnce(context);
+      if (mounted && auto) await checkForUpdate(context, widget.version);
     }
   }
 

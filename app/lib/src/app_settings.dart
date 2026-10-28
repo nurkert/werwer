@@ -30,6 +30,7 @@ class _AppSettingsState extends State<AppSettings> {
   String _savedServer = '';
   RelayMode _mode = RelayMode.onDemand;
   bool _serveWebApp = true;
+  bool _updateCheck = true;
   bool _loaded = false;
 
   bool get _relayOff => _mode == RelayMode.never;
@@ -46,8 +47,10 @@ class _AppSettingsState extends State<AppSettings> {
     final server = await _store.customServer() ?? '';
     final mode = await _store.relayMode();
     final serve = await _store.serveWebApp();
+    final updates = await _store.updateCheck();
     if (!mounted) return;
     setState(() {
+      _updateCheck = updates;
       _server.text = _savedServer = server;
       _mode = mode;
       _serveWebApp = serve;
@@ -139,6 +142,23 @@ class _AppSettingsState extends State<AppSettings> {
                                   : null,
                             ),
                         ],
+                      ),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _updateCheck,
+                      onChanged: (on) {
+                        setState(() => _updateCheck = on);
+                        unawaited(_store.setUpdateCheck(on: on));
+                      },
+                      activeThumbColor: Palette.lantern400,
+                      title: Text(
+                        l10n.updateCheck,
+                        style: const TextStyle(color: Palette.moon100),
+                      ),
+                      subtitle: Text(
+                        l10n.updateCheckHint,
+                        style: const TextStyle(color: Palette.moon200),
                       ),
                     ),
                     SwitchListTile(

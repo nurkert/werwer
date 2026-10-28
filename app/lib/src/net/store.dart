@@ -214,6 +214,33 @@ class Store {
     }
   }
 
+  static const _updateOffKey = 'updateCheckOff';
+  static const _updateSeenKey = 'updateSeen';
+
+  /// Whether the app asks GitHub for a new version when it starts (on
+  /// unless the player switched it off).
+  Future<bool> updateCheck() async => !await _flag(_updateOffKey);
+
+  Future<void> setUpdateCheck({required bool on}) =>
+      _setFlag(_updateOffKey, on: !on);
+
+  /// The newest version the player was told about already.
+  Future<String?> updateSeen() async {
+    try {
+      return await _storage.read(key: _updateSeenKey);
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<void> setUpdateSeen(String version) async {
+    try {
+      await _storage.write(key: _updateSeenKey, value: version);
+    } on Object {
+      // Told again next time.
+    }
+  }
+
   static const _closedRoomsKey = 'closedRooms';
 
   /// Rooms this device closed, by key fingerprint, with the time until
