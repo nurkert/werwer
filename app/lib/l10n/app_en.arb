@@ -334,6 +334,8 @@
       }
     }
   },
+  "rolePeek": "My role",
+  "rolePeekHint": "Hold to see your role.",
   "mute": "Narrator voice off",
   "unmute": "Narrator voice on",
   "nightSheep": "Count sheep until morning: tap the white ones, let the black ones jump.",

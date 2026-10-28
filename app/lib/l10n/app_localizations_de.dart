@@ -644,6 +644,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get rolePeek => 'Meine Rolle';
+
+  @override
+  String get rolePeekHint => 'Gedrückt halten, um deine Rolle zu sehen.';
+
+  @override
   String get mute => 'Erzählerstimme aus';
 
   @override

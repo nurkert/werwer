@@ -19,6 +19,7 @@ import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/role_peek.dart';
 import 'package:whowolf/src/game/seat_handover.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
@@ -483,6 +484,12 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                     onPressed: () =>
                         handOverSeat(context, session: session, link: link),
                   ),
+                // Everyone's own role, while held (the same for all).
+                if (view != null &&
+                    view.yourRole != null &&
+                    view.phase != Phase.lobby &&
+                    view.phase != Phase.ended)
+                  RolePeek(view: view),
                 // Always here: a silent phone also drops out of the walk.
                 if (view != null)
                   IconButton(

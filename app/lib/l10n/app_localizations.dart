@@ -1136,6 +1136,18 @@ abstract class AppLocalizations {
   /// **'They were: {role}.'**
   String narrateRole(String role);
 
+  /// No description provided for @rolePeek.
+  ///
+  /// In en, this message translates to:
+  /// **'My role'**
+  String get rolePeek;
+
+  /// No description provided for @rolePeekHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to see your role.'**
+  String get rolePeekHint;
+
   /// No description provided for @mute.
   ///
   /// In en, this message translates to:

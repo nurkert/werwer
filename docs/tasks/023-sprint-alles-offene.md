@@ -49,7 +49,7 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 - [x] **B1 Wölfe können ihre Wahl ändern,** bis sich das Rudel einig ist. Die Kopfzeile sagt dann „Das Rudel ist wach“ statt „Nur du bist wach“. Test im Host: eine geänderte Wahl gilt, die Einigung danach auch. (erledigt: die Karte bzw. der Wach-Bildschirm bleibt offen, bis alle lebenden Wölfe dieselbe Beute nennen; die Regeln erlaubten das Umwählen schon, Test `werewolves can change their pick`)
 - [x] **B2 Hexe: die richtige Hauptaktion.** Heute ist „Nichts brauen“ der große Hauptknopf. Künftig sind die Tränke die Hauptaktionen, und „Nichts brauen“ ist ein zurückhaltender Knopf. (erledigt: „Brauen“ ist erst mit einem Trank die Hauptaktion, „Nichts brauen“ ein zurückhaltender Knopf)
 - [x] **B3 Bestätigungsschritt für Seherin, Abstimmung und Jäger.** Erst auswählen, dann „Bestätigen“. Danach ist die Wahl fest. Bis die Zeit abläuft, ist ein Wechsel nur bei der Abstimmung erlaubt, wie heute. (erledigt: Abstimmung „Stimme für … abgeben“, Jäger „Auf … schießen“; nachts hat jede Karte dieselbe Folge „wählen, dann Wählen“, auch Rudel und Deckfrage, damit die Seherin nicht auffällt; geprüft mit Screenshots)
-- [ ] **B4 Die eigene Rolle jederzeit per Halten ansehen.** Ein Knopf, den man gedrückt hält, zeigt die Rolle nur, solange man drückt. Er sieht für alle gleich aus und ist auch nachts erlaubt, aber nur verdeckt.
+- [x] **B4 Die eigene Rolle jederzeit per Halten ansehen.** Ein Knopf, den man gedrückt hält, zeigt die Rolle nur, solange man drückt. Er sieht für alle gleich aus und ist auch nachts erlaubt, aber nur verdeckt. (erledigt: `RolePeek` oben in der Leiste, gedrückt halten zeigt Figur und Rolle, ein Tipp erklärt es; Test `role_peek_test.dart`)
 
 ## C – Desktop
 
@@ -71,6 +71,8 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 ## E – Der Erzähler gleitet (das große Stück)
 
 Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übergänge wirken magisch, als glitte die Stimme sauber hinüber, nicht „hier an, da aus“. Gemessen wird nichts, es zählt nur die Sitzreihenfolge. Grundlage sind die Berichte der Erzähler- und der Theater-Teams (2026-10-28).
+
+**Baut auf Task 021 auf:** Der Plan hängt an `phaseAt` = `showAt` (vorher vereinbarter Phasenwechsel) und verteilt sich über die `voices`-Liste des Hosts (verbunden, in den letzten 7 s gehört, nicht stumm). Fällt ein Gerät aus, übernehmen die anderen den Rest des Plans. Keine eigene Liste der Sprecher mehr neben `voices`.
 
 - [ ] **E1 Die Aufnahmen an Pausen teilen.** `tool/voice` erkennt mit ffmpeg `silencedetect` Pausen ab 180–250 ms und schreibt die Abschnitte in das Manifest (Start und Ende je Abschnitt). Außerdem werden die Aufnahmen auf −20 LUFS normalisiert und mit einem Hochpass bei etwa 200 Hz gefiltert.
 - [ ] **E2 Die Abspiel-Engine entscheiden.** `flutter_soloud` (MIT) blendet und plant auf dem Audio-Thread, statt alle 40 ms die Lautstärke zu stufen. Das ist eine neue Abhängigkeit: Maintainer, Lizenz und Aktivität prüfen und in DECISIONS festhalten. Die Alternative sind feinere Blenden mit `audioplayers`. Erst ein Prototyp auf 2–3 Geräten.
