@@ -446,72 +446,79 @@ class StageSet extends StatelessWidget {
     final plate = plateOf(scene);
     Widget shift(double depth, Widget child) =>
         TiltShift(depth: depth, child: child);
-    return StageClock(
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 600),
-        child: KeyedSubtree(
-          key: ValueKey(scene),
-          child: plate == null
-              ? RepaintBoundary(
-                  child: CustomPaint(
-                    painter: ScenePainter(scene),
-                    size: Size.infinite,
-                  ),
-                )
-              : Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Behind the plate, in case it is not decoded yet.
-                    RepaintBoundary(
-                      child: CustomPaint(painter: ScenePainter(scene)),
+    // The plate is wider than a phone and its life is painted across all
+    // of it: clipped, so a page sliding away (back to the menu) does not
+    // leave its stars over the page below.
+    return ClipRect(
+      child: StageClock(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          child: KeyedSubtree(
+            key: ValueKey(scene),
+            child: plate == null
+                ? RepaintBoundary(
+                    child: CustomPaint(
+                      painter: ScenePainter(scene),
+                      size: Size.infinite,
                     ),
-                    // A little larger than the screen, so tilting never
-                    // shows its edge.
-                    // The plate and its life (lights, stars, fireflies) share
-                    // one frame, so every glow stays on its painted light.
-                    shift(
-                      4,
-                      Transform.scale(
-                        scale: 1.04,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            RepaintBoundary(child: _Plate(scene, plate)),
-                            if (lifeOf(scene).plate case final name?)
-                              RepaintBoundary(
-                                child: _tinted(
-                                  scene,
-                                  PlateWater(plate: name, asset: plate),
+                  )
+                : Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Behind the plate, in case it is not decoded yet.
+                      RepaintBoundary(
+                        child: CustomPaint(painter: ScenePainter(scene)),
+                      ),
+                      // A little larger than the screen, so tilting never
+                      // shows its edge.
+                      // The plate and its life (lights, stars, fireflies) share
+                      // one frame, so every glow stays on its painted light.
+                      shift(
+                        4,
+                        Transform.scale(
+                          scale: 1.04,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              RepaintBoundary(child: _Plate(scene, plate)),
+                              if (lifeOf(scene).plate case final name?)
+                                RepaintBoundary(
+                                  child: _tinted(
+                                    scene,
+                                    PlateWater(plate: name, asset: plate),
+                                  ),
                                 ),
-                              ),
-                            RepaintBoundary(child: _Life(scene)),
-                          ],
+                              RepaintBoundary(child: _Life(scene)),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    shift(
-                      8,
+                      shift(
+                        8,
+                        RepaintBoundary(
+                          child: CustomPaint(painter: _MoonLayer(scene)),
+                        ),
+                      ),
+                      // The dark that keeps titles readable, then the sky's
+                      // stars above it (on the plate's frame), then the
+                      // scenery (cut-outs at the sides and from the top),
+                      // each piece at its own depth.
                       RepaintBoundary(
-                        child: CustomPaint(painter: _MoonLayer(scene)),
+                        child: CustomPaint(painter: _PlateLight(scene)),
                       ),
-                    ),
-                    // The dark that keeps titles readable, then the sky's
-                    // stars above it (on the plate's frame), then the
-                    // scenery (cut-outs at the sides and from the top),
-                    // each piece at its own depth.
-                    RepaintBoundary(
-                      child: CustomPaint(painter: _PlateLight(scene)),
-                    ),
-                    shift(
-                      4,
-                      Transform.scale(
-                        scale: 1.04,
-                        child: RepaintBoundary(child: _Life(scene, sky: true)),
+                      shift(
+                        4,
+                        Transform.scale(
+                          scale: 1.04,
+                          child: RepaintBoundary(
+                            child: _Life(scene, sky: true),
+                          ),
+                        ),
                       ),
-                    ),
-                    _PanningScenery(scene: scene),
-                  ],
-                ),
+                      _PanningScenery(scene: scene),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
