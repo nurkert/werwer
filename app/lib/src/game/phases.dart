@@ -93,36 +93,60 @@ class PhaseBody extends StatelessWidget {
         if (child is! Aside) child,
     ];
     final insets = MediaQuery.paddingOf(context);
-    // Two columns standing together in the middle of the stage, each
-    // centred when it is short and scrolling when it is long; the main
-    // button right under its column's content, not at the window's foot.
+    final action = this.action;
+    // Two columns standing on the stage floor, so their boxes line up at
+    // the same height; each scrolls when it is long. The main button sits
+    // centred below both.
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1160),
+        constraints: const BoxConstraints(maxWidth: 1240),
         child: Padding(
           padding: EdgeInsets.only(left: insets.left, right: insets.right),
           child: MediaQuery.removePadding(
             context: context,
             removeLeft: true,
             removeRight: true,
-            child: Row(
+            child: Column(
               children: [
-                SizedBox(
-                  width: (layout.size.width * 0.38).clamp(360, 480),
-                  child: StageScroll(
-                    horizontal: 24,
-                    center: true,
-                    child: _stack([...main, ?action]),
-                  ),
-                ),
                 Expanded(
-                  child: StageScroll(
-                    maxWidth: 720,
-                    horizontal: 24,
-                    center: true,
-                    child: _stack(aside),
+                  child: MediaQuery.removePadding(
+                    context: context,
+                    removeBottom: action != null,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: (layout.size.width * 0.4).clamp(360, 520),
+                          child: StageScroll(
+                            horizontal: 24,
+                            floor: true,
+                            child: _stack(main),
+                          ),
+                        ),
+                        Expanded(
+                          child: StageScroll(
+                            maxWidth: 760,
+                            horizontal: 24,
+                            floor: true,
+                            child: _stack(aside),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+                if (action != null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      4,
+                      24,
+                      insets.bottom + 18,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 460),
+                      child: action,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -1244,12 +1268,13 @@ class _RevealPhaseState extends State<RevealPhase> {
     final role = view.yourRole!;
     final listening = widget.listening;
     if (listening) _shown = false;
-    final wolf = role.faction == Faction.werewolves;
     final mates = [
       for (final s in view.seats)
         if (s.id != view.you && s.role == Role.werewolf) s.name,
     ];
-    final color = wolf ? Palette.curtain400 : Palette.stageLanternTop;
+    // The same colour for every role: red for the werewolves would show
+    // across the table at a glance.
+    const color = Palette.stageLanternTop;
     final wide = StageLayout.of(context).twoColumns;
     void turn() {
       SoundScope.play(context, Sound.turn);
@@ -1713,7 +1738,7 @@ class EndedPhase extends StatelessWidget {
         ),
         RoleFigure(
           role: figure,
-          height: figureHeight(context, phone: 200, wideShare: 0.36),
+          height: figureHeight(context, phone: 200, wideShare: 0.5),
         ),
         LastNews(view: view),
         if (_bestDreamer(view) case (final name, final points))
@@ -1729,7 +1754,8 @@ class EndedPhase extends StatelessWidget {
             },
           ),
         ),
-        if (view.chronicle.isNotEmpty) Aside(child: ChroniclePanel(view: view)),
+        if (view.chronicle.isNotEmpty)
+          Aside(child: ChronicleButton(view: view)),
         TextButton(onPressed: onLeave, child: Text(l10n.leave)),
       ],
     );
@@ -1747,7 +1773,11 @@ class _CurtainCall extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final height = StageLayout.of(context).roomy ? 170.0 : 128.0;
+    final layout = StageLayout.of(context);
+    // As big as the column allows on a computer, a row of them on a phone.
+    final height = layout.twoColumns
+        ? (layout.size.height * 0.26).clamp(150.0, 230.0)
+        : (layout.roomy ? 170.0 : 128.0);
     return Wrap(
       alignment: WrapAlignment.center,
       spacing: 4,
@@ -1773,8 +1803,8 @@ class _CurtainCall extends StatelessWidget {
                   decoration: const PlaqueDecoration(radius: 10),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 3,
+                      horizontal: 12,
+                      vertical: 6,
                     ),
                     child: Column(
                       children: [

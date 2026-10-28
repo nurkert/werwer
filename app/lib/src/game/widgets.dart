@@ -411,18 +411,25 @@ class SeatGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Puppet cards (task 012): two a row for a few, three for more,
-    // more on wider screens.
+    // Puppet cards (task 012) in even rows. In a choice (onTap) only who
+    // can be chosen is shown: not yourself unless you may pick yourself,
+    // not the dead; so a few cards fit in one row without scrolling.
+    bool can(SeatView seat) =>
+        onTap != null &&
+        (enabled?.call(seat) ?? (seat.isAlive && seat.id != view.you));
+    final seats = [
+      for (final seat in view.seats)
+        if (onTap == null || can(seat) || (seat.isAlive && seat.id != view.you))
+          seat,
+    ];
     return LayoutBuilder(
       builder: (context, box) {
         const gap = 12.0;
-        final few = view.seats.length <= 4;
-        final columns = max(
-          few ? 2 : 3,
-          ((box.maxWidth + gap) / 170).floor(),
-        );
+        final most = max(3, ((box.maxWidth + gap) / (112 + gap)).floor());
+        final rows = (seats.length / most).ceil().clamp(1, 99);
+        final columns = (seats.length / rows).ceil().clamp(1, most);
         final width = min<double>(
-          few ? 180 : 150,
+          170,
           (box.maxWidth - gap * (columns - 1)) / columns,
         );
         return Wrap(
@@ -430,12 +437,9 @@ class SeatGrid extends StatelessWidget {
           runSpacing: 16,
           alignment: WrapAlignment.center,
           children: [
-            for (final seat in view.seats)
+            for (final seat in seats)
               () {
-                final can =
-                    onTap != null &&
-                    (enabled?.call(seat) ??
-                        (seat.isAlive && seat.id != view.you));
+                final tappable = can(seat);
                 final card = PuppetCard(
                   // A villager pose at work, but plain figures at night.
                   pose: view.phase == Phase.night
@@ -450,17 +454,20 @@ class SeatGrid extends StatelessWidget {
                   you: seat.id == view.you,
                   alive: seat.isAlive,
                   selected: seat.id == selected || chosen.contains(seat.id),
-                  onTap: can ? () => onTap?.call(seat) : null,
+                  onTap: tappable ? () => onTap?.call(seat) : null,
                   subtitle: [
                     if (seat.id == view.you) l10n.you,
-                    ?openRole(view, seat, l10n),
+                    // Never your own role at night: a glance across the
+                    // table would read it.
+                    if (!(seat.id == view.you && view.phase == Phase.night))
+                      ?openRole(view, seat, l10n),
                     ?badges[seat.id],
                   ].where((part) => part.isNotEmpty).join(' · '),
                   deadLabel: l10n.dead,
                   trailing: trailing?.call(seat),
                 );
-                // Out of the choice (yourself, outside a runoff): dimmed.
-                return onTap != null && !can && seat.isAlive
+                // Alive but out of this choice (outside a runoff): dimmed.
+                return onTap != null && !tappable && seat.isAlive
                     ? Opacity(opacity: 0.45, child: card)
                     : card;
               }(),

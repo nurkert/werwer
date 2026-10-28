@@ -113,12 +113,69 @@ Map<PlayerId, PlayerId?> votesOf(PlayerView view, int round) {
   };
 }
 
+/// "What really happened" folded into one button at the end, unfolding
+/// (animated) into the chronicle, so the curtain call stays in view.
+class ChronicleButton extends StatefulWidget {
+  const ChronicleButton({required this.view, super.key});
+
+  final PlayerView view;
+
+  @override
+  State<ChronicleButton> createState() => _ChronicleButtonState();
+}
+
+class _ChronicleButtonState extends State<ChronicleButton> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: TextButton.icon(
+              onPressed: () => setState(() => _open = !_open),
+              style: TextButton.styleFrom(
+                foregroundColor: Palette.stageLanternTop,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+              ),
+              icon: Icon(
+                _open ? Icons.expand_less_rounded : Icons.auto_stories_rounded,
+              ),
+              label: Text(
+                l10n.chronicleTitle,
+                style: const TextStyle(
+                  fontFamily: displayFont,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+          if (_open) ChroniclePanel(view: widget.view, title: false),
+        ],
+      ),
+    );
+  }
+}
+
 /// What really happened, night by night and vote by vote: told when the
 /// game is over.
 class ChroniclePanel extends StatelessWidget {
-  const ChroniclePanel({required this.view, super.key});
+  const ChroniclePanel({required this.view, this.title = true, super.key});
 
   final PlayerView view;
+
+  /// Whether the panel names itself (not under its own button).
+  final bool title;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +183,7 @@ class ChroniclePanel extends StatelessWidget {
     final rounds = {for (final e in view.chronicle) e.round}.toList()..sort();
     String name(PlayerId? id) => id == null ? '?' : view.nameOf(id);
     final children = <Widget>[
-      Headline(l10n.chronicleTitle, size: 28),
+      if (title) Headline(l10n.chronicleTitle, size: 28),
     ];
     for (final round in rounds) {
       final entries = [

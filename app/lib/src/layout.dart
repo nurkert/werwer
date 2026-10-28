@@ -56,8 +56,13 @@ class StageScroll extends StatelessWidget {
     this.maxWidth = 560,
     this.horizontal = 20,
     this.center = false,
+    this.floor = false,
     super.key,
   });
+
+  /// Short content stands at the foot (on the stage floor), so boxes in
+  /// neighbouring columns line up.
+  final bool floor;
 
   final Widget child;
   final double maxWidth;
@@ -112,7 +117,9 @@ class StageScroll extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: viewport),
                 child: Align(
-                  alignment: center ? Alignment.center : Alignment.topCenter,
+                  alignment: floor
+                      ? Alignment.bottomCenter
+                      : (center ? Alignment.center : Alignment.topCenter),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     child: ColumnSpace(height: viewport, child: child),
