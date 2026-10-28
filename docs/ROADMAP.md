@@ -192,6 +192,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] **Host-Übernahme (Nachfolger + Zeuge):** fällt der Host weg, übernimmt still und schnell der nächste Spieler; der Nachfolger hält den verschlüsselten Spielstand, ein Zeuge den Schlüssel und gibt ihn nur heraus, wenn er den Host selbst verloren hat; Epochen gegen geteilte Tische, kein neuer DDoS-Weg ([Task 008](tasks/008-host-uebernahme.md))
 - [x] **play.whowolf.de:** (Code, Image und Deployment fertig; auf dem VPS einzurichten nach `server/deploy/README.md`) Relay als schlanker Container auf dem eigenen VPS, Standard-Server der App; aktualisiert sich nach jedem Release selbst (signiertes Image, Abruf statt offenem Endpunkt)
 - [x] Bildschirmfotos aller Phasen in drei Größen (Handy, Tablet, Desktop) als Prüfung im Screenshot-Test
+- [x] **Mitspielen per Code:** auf `play.whowolf.de` einen wechselnden Türcode aus der Einladung eintippen, ohne Kamera oder am Computer; Einlass über Prüfbild und Spielleitung ([Task 022](tasks/022-code-beitritt.md))
 
 ---
 

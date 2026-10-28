@@ -69,6 +69,14 @@ Players trust whoever serves the page: a modified page could read the room
 key. Switch it off by removing `WEB_APP_DIR` if you do not want that role;
 the app then still works through your relay, browsers only on the Wi-Fi.
 
+With the web app on, the server's start page (`https://<your domain>/`)
+asks for a door code. The host's invitation shows a six-character code
+that changes every five minutes; typing it leads to that room's page
+without the room's key, so the game leader compares a few symbols with
+the newcomer before letting them in (like joining without the QR code in
+the app). Codes die with their room and are never logged; each address may
+try 10 per minute (`MAX_DOOR_LOOKUPS_PER_MINUTE`).
+
 To let a QR code open the installed app instead of the browser, add to
 `domain.env` (never to the repository):
 

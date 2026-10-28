@@ -184,6 +184,13 @@ class _LobbyPhaseState extends State<LobbyPhase> {
           browserCanJoin: widget.browserCanJoin,
           onShowCode: widget.onShowCode,
           onLocalCode: widget.onLocalCode,
+          // The door code only beside the server's QR code (not for the
+          // Wi-Fi code of a game without internet).
+          doorPage: session.hosted?.localOnly ?? true
+              ? null
+              : session.hosted?.doorPage,
+          doorCode: session.hosted?.doorCode,
+          doorCodes: session.hosted?.doorCodes,
         ),
       if (widget.relayFailed) Body(l10n.relayFailed, muted: true),
       if (session.isOwner && widget.keepAppOpen)

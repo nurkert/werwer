@@ -15,6 +15,9 @@ class LobbyInvite extends StatefulWidget {
     this.browserCanJoin = false,
     this.onShowCode,
     this.onLocalCode,
+    this.doorPage,
+    this.doorCode,
+    this.doorCodes,
   });
 
   final JoinLink link;
@@ -22,6 +25,14 @@ class LobbyInvite extends StatefulWidget {
   final bool browserCanJoin;
   final Future<void> Function()? onShowCode;
   final VoidCallback? onLocalCode;
+
+  /// The server's code page (`play.whowolf.de`), where people without a
+  /// camera type [doorCode]; `null` hides the code.
+  final String? doorPage;
+
+  /// The room's current door code, and its changes.
+  final String? doorCode;
+  final Stream<String?>? doorCodes;
 
   @override
   State<LobbyInvite> createState() => _LobbyInviteState();
@@ -206,6 +217,16 @@ class _LobbyInviteState extends State<LobbyInvite> {
                 ),
               ),
             ),
+          if (!waiting && widget.browserCanJoin)
+            if (widget.doorPage case final page?)
+              StreamBuilder<String?>(
+                stream: widget.doorCodes,
+                initialData: widget.doorCode,
+                builder: (context, snapshot) => switch (snapshot.data) {
+                  final code? => _DoorCode(page: page, code: code),
+                  null => const SizedBox.shrink(),
+                },
+              ),
           // The technical bits only for those who want them.
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -237,6 +258,57 @@ class _LobbyInviteState extends State<LobbyInvite> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// For phones without a working camera and for computers: the server's
+/// code page and the room's door code, which changes every few minutes.
+class _DoorCode extends StatelessWidget {
+  const _DoorCode({required this.page, required this.code});
+
+  final String page;
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final shown = showDoorCode(code);
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        children: [
+          Text(
+            l10n.doorCodeHint(page),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Palette.inkSoft, fontSize: 13),
+          ),
+          const SizedBox(height: 6),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Semantics(
+              key: ValueKey(code),
+              label: l10n.doorCodeLabel(shown.split('').join(' ')),
+              excludeSemantics: true,
+              child: SelectableText(
+                shown,
+                style: const TextStyle(
+                  fontFamily: displayFont,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 30,
+                  letterSpacing: 4,
+                  color: Palette.ink,
+                ),
+              ),
+            ),
+          ),
+          Text(
+            l10n.doorCodeChanges,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Palette.inkSoft, fontSize: 12),
           ),
         ],
       ),

@@ -197,24 +197,51 @@ class HostedRoom {
         notice != null &&
         await KeepAlive.start(title: 'Whowolf', text: notice(code));
     return HostedRoom._(
-      host,
-      roomKeys,
-      hostName,
-      lan,
-      lan.port,
-      relay,
-      await _linkFor(code, roomKeys, lan, relay),
-      announcer,
-      relayFailed:
-          relayServer != null &&
-          OnDemandRelay.rightAway(always: online, offline: offline) &&
-          relay == null,
-      keptAlive: keptAlive,
-      relayServer: relayServer,
-      relayGate: gate,
-      webAppBuild: webAppBuild,
-      serverHasBuild: relay != null && await _serves(relayServer!, webAppBuild),
-    ).._webApp = site;
+        host,
+        roomKeys,
+        hostName,
+        lan,
+        lan.port,
+        relay,
+        await _linkFor(code, roomKeys, lan, relay),
+        announcer,
+        relayFailed:
+            relayServer != null &&
+            OnDemandRelay.rightAway(always: online, offline: offline) &&
+            relay == null,
+        keptAlive: keptAlive,
+        relayServer: relayServer,
+        relayGate: gate,
+        webAppBuild: webAppBuild,
+        serverHasBuild:
+            relay != null && await _serves(relayServer!, webAppBuild),
+      )
+      .._webApp = site
+      .._openDoor();
+  }
+
+  /// With the room online on a server that has this build's page, people
+  /// can also type a short door code on the server's code page (see
+  /// `RelayTransport.openDoor`).
+  void _openDoor() {
+    final build = _webAppBuild;
+    if (!_serverHasBuild || build == null) return;
+    _relay?.openDoor(room: roomCode, protocol: protocolVersion, build: build);
+  }
+
+  /// The room's door code for the server's code page, or `null` (no
+  /// server, no page for this build, or not handed out yet).
+  String? get doorCode => _relay?.doorCode;
+
+  /// Tells when [doorCode] changes.
+  Stream<String?> get doorCodes =>
+      _relay?.doorCodes ?? const Stream<String?>.empty();
+
+  /// Where people type the door code: the server's code page.
+  String? get doorPage {
+    final server = _relayServer;
+    if (server == null || server.scheme != 'wss') return null;
+    return server.hasPort ? '${server.host}:${server.port}' : server.host;
   }
 
   static Future<RelayTransport?> _openRelay(
@@ -276,6 +303,7 @@ class HostedRoom {
     _relay = relay;
     _link = await _linkFor(roomCode, _keys, _lan, relay);
     _serverHasBuild = await _serves(server, _webAppBuild);
+    _openDoor();
     return true;
   }
 

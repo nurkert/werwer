@@ -10,6 +10,9 @@ Every device at the table needs this version (protocol 12).
 ### Added
 - Narrator "Essentials": the voice only says what a table with closed
   eyes needs (falling asleep, who wakes, the village waking up).
+- Join by code: without a camera or on a computer, type the code from the
+  invitation on play.whowolf.de. It changes every few minutes, and the
+  game leader compares a few symbols with whoever joins this way.
 
 ### Changed
 - Night screens without a task read "All quiet" instead of "done".

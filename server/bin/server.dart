@@ -14,7 +14,9 @@ import 'package:whowolf_server/web_apps.dart';
 /// The web app for players without the app is opt-in: `WEB_APP_DIR` (the
 /// builds in the image are under `/webapps`), `PUBLIC_HOST` (the name
 /// players reach the server under, else `RELAY_DOMAIN`), `WEB_APP_MAX_MB`
-/// (160, held in memory), `MAX_REQUESTS_PER_MINUTE` (600). To let
+/// (160, held in memory), `MAX_REQUESTS_PER_MINUTE` (600). With a web app
+/// the server also has a code page at `/`, where people type a room's door
+/// code; `MAX_DOOR_LOOKUPS_PER_MINUTE` (10 per address) limits guessing. To let
 /// QR codes open the installed app: `APPLE_APP_ID` (`TEAMID.de.whowolf.app`)
 /// and `ANDROID_CERT_SHA256` (fingerprints, comma-separated).
 ///
@@ -97,6 +99,7 @@ Future<void> _serve(List<String> args) async {
       maxUpgradesPerMinute: env('MAX_UPGRADES_PER_MINUTE', 60),
       trustProxy: Platform.environment['TRUST_PROXY'] == '1',
       maxRequestsPerMinute: env('MAX_REQUESTS_PER_MINUTE', 600),
+      maxDoorLookupsPerMinute: env('MAX_DOOR_LOOKUPS_PER_MINUTE', 10),
       publicHost: text(
         Platform.environment['PUBLIC_HOST'] == null
             ? 'RELAY_DOMAIN'

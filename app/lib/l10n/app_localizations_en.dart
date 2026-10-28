@@ -1421,6 +1421,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.';
 
   @override
+  String doorCodeHint(String page) {
+    return 'No camera, or on a computer: enter this code at $page';
+  }
+
+  @override
+  String doorCodeLabel(String code) {
+    return 'Join code $code';
+  }
+
+  @override
+  String get doorCodeChanges =>
+      'The code changes every few minutes. Whoever joins this way compares a few symbols with you.';
+
+  @override
   String get inviteNoBrowser =>
       'Nobody can join in the browser right now: the server does not have this version of the app yet, and serving the page on the Wi-Fi is off in the settings. The app always works.';
 

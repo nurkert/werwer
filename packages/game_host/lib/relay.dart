@@ -61,6 +61,44 @@ class RelayTransport implements Transport {
   @override
   Stream<Connection> get connections => _incoming.stream;
 
+  /// Whether the server hands out door codes (it has a code page).
+  bool get doors => _doors;
+  bool _doors = false;
+
+  /// The room's current door code for the server's code page, `null`
+  /// while there is none (not asked yet, or the last one expired).
+  String? get doorCode => _doorCode;
+  String? _doorCode;
+
+  /// Tells when [doorCode] changes.
+  Stream<String?> get doorCodes => _doorCodes.stream;
+  final _doorCodes = StreamController<String?>.broadcast();
+  Timer? _doorRotation;
+  Timer? _doorExpiry;
+
+  /// Asks the server for a door code now and a fresh one [every] so often,
+  /// so people without the QR code can type it on the server's page; they
+  /// land on [build]'s page for [protocol] with the [room] code, and the
+  /// game leader checks them like any join without the QR code. Does
+  /// nothing if the server has no code page.
+  void openDoor({
+    required String room,
+    required int protocol,
+    required String build,
+    Duration every = const Duration(minutes: 5),
+  }) {
+    if (!_doors || _doorRotation != null) return;
+    final ask = DoorAsked(room: room, protocol: protocol, build: build);
+    _send(ask);
+    _doorRotation = Timer.periodic(every, (_) => _send(ask));
+  }
+
+  void _setDoor(String? code) {
+    if (code == _doorCode) return;
+    _doorCode = code;
+    if (!_doorCodes.isClosed) _doorCodes.add(code);
+  }
+
   void _receive(Object? data) {
     if (data is! String) return;
     final RelayFrame frame;
@@ -78,10 +116,20 @@ class RelayTransport implements Transport {
         _peers[peer]?._in.add(data);
       case PeerLeft(:final peer):
         _peers.remove(peer)?._ended();
-      case RoomOpened(:final roomId):
+      case RoomOpened(:final roomId, :final doors):
         if (_opened.isCompleted) return;
         this.roomId = roomId;
+        _doors = doors;
         _opened.complete();
+      case DoorOpened(:final code, :final lifetime):
+        if (_doorRotation == null) return;
+        _setDoor(code);
+        // Without a newer one, the code stops showing when it stops working.
+        _doorExpiry?.cancel();
+        _doorExpiry = Timer(lifetime, () => _setDoor(null));
+      case DoorAsked():
+        // Only hosts ask.
+        return;
     }
   }
 
@@ -90,6 +138,10 @@ class RelayTransport implements Transport {
   }
 
   void _shutDown() {
+    _doorRotation?.cancel();
+    _doorExpiry?.cancel();
+    _setDoor(null);
+    if (!_doorCodes.isClosed) unawaited(_doorCodes.close());
     if (!_opened.isCompleted) {
       _opened.completeError(const ProtocolError('relay closed'));
     }

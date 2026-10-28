@@ -46,9 +46,23 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
   // away background tabs) this tab's kept game brings it back; a second
   // scan of the same room finds it too, with the session token: the player
   // goes back to their seat instead of taking a new one.
+  //
+  // A player who typed a door code on the server's code page comes without
+  // the room's key: the game leader checks them with the check image, and
+  // the address (room and relay room, nothing secret) stays for a reload.
   static final KeptGame? _game = () {
-    final link = JoinLink.tryParse(Uri.base.toString());
+    final page = Uri.base.toString();
+    final link = JoinLink.tryParse(page) ?? JoinLink.tryParseCodePage(page);
     if (link == null) return recallGame();
+    if (link.hostKey == null) {
+      // Let in before and reloaded: this tab kept the room with its keys.
+      final mine = recallGame();
+      return mine != null &&
+              mine.link.room == link.room &&
+              mine.link.relayRoom == link.relayRoom
+          ? mine
+          : (link: link, token: null, name: null);
+    }
     forgetPageLink();
     return recallGame(link) ?? (link: link, token: null, name: null);
   }();
@@ -85,21 +99,34 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
     setState(() => _error = null);
     // Played inside the tap, so the browser lets this page make sound.
     AudioSounds().play(Sound.tap);
-    rememberGame(link, token: token, name: name);
+    // Without the key (joined by door code) nothing is kept until the game
+    // leader let the player in and the room's keys arrived.
+    var kept = link;
+    if (link.hostKey != null) rememberGame(link, token: token, name: name);
     final session = GameSession(
       name: name,
       roomCode: link.room,
       token: token,
       seat: token == null ? link.seat : null,
+      // Let in after the check image: from now on the room's keys prove
+      // the host, on every reconnect and after a reload.
+      onRoomKeys: (hostKey, roomSecret) => kept = JoinLink(
+        room: link.room,
+        lan: link.lan,
+        relayRoom: link.relayRoom,
+        server: link.server,
+        hostKey: hostKey,
+        roomSecret: roomSecret,
+      ),
       onWelcome: (token, name) {
         _token = token;
-        rememberGame(link, token: token, name: name);
+        if (kept.hostKey != null) rememberGame(kept, token: token, name: name);
       },
-      onEnded: () => forgetGame(link),
+      onEnded: () => forgetGame(kept),
       dial: () async => connectSecure(
-        await dialPage(link),
-        hostKey: link.hostKey,
-        roomSecret: link.roomSecret,
+        await dialPage(kept),
+        hostKey: kept.hostKey,
+        roomSecret: kept.roomSecret,
       ),
     );
     await Navigator.push(

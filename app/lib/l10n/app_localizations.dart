@@ -2480,6 +2480,24 @@ abstract class AppLocalizations {
   /// **'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.'**
   String get inviteHintWeb;
 
+  /// No description provided for @doorCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera, or on a computer: enter this code at {page}'**
+  String doorCodeHint(String page);
+
+  /// No description provided for @doorCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Join code {code}'**
+  String doorCodeLabel(String code);
+
+  /// No description provided for @doorCodeChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'The code changes every few minutes. Whoever joins this way compares a few symbols with you.'**
+  String get doorCodeChanges;
+
   /// No description provided for @inviteNoBrowser.
   ///
   /// In en, this message translates to:

@@ -29,7 +29,23 @@ class RelayConfig {
     this.publicHost,
     this.appleAppId,
     this.androidCertSha256,
+    this.maxDoorLookupsPerMinute = 10,
+    this.doorLifetime = const Duration(minutes: 7),
+    this.minDoorInterval = const Duration(seconds: 60),
   });
+
+  /// Most door codes one address may try per minute on the code page
+  /// (`/c`), right or wrong: guessing one of a few hundred live codes among
+  /// 887 million takes years. 0 turns it off.
+  final int maxDoorLookupsPerMinute;
+
+  /// How long a door code works after the host got it. Hosts ask for a new
+  /// one every few minutes; the previous one keeps working until its time
+  /// is up, so a code read a moment ago still opens the door.
+  final Duration doorLifetime;
+
+  /// A host asking for door codes faster than this is not answered.
+  final Duration minDoorInterval;
 
   /// Most rooms open at once.
   final int maxRooms;
@@ -111,6 +127,25 @@ class _Room {
   final String? address;
   final peers = <int, GuardedWebSocket>{};
   int nextPeer = 1;
+
+  /// This room's door codes, oldest first (at most two).
+  final doors = <String>[];
+
+  /// When the host last got a door code (relay clock, ms); `null` if never.
+  int? lastDoor;
+}
+
+/// Where a door code leads: a room's page on this server.
+class _Door {
+  _Door(this.room, this.roomCode, this.protocol, this.build, this.until);
+
+  final _Room room;
+  final String roomCode;
+  final int protocol;
+  final String build;
+
+  /// Until when it works (relay clock, ms).
+  final int until;
 }
 
 /// Counts messages per second for one connection.
@@ -171,6 +206,12 @@ class RelayServer {
   /// Recent plain HTTP requests per address.
   final _requests = <String, List<int>>{};
 
+  /// Live door codes; they die with their room.
+  final _doors = <String, _Door>{};
+
+  /// Recent door code tries per address.
+  final _lookups = <String, List<int>>{};
+
   /// Open sockets per address, and when each address last upgraded.
   final _open = <String, int>{};
   int _openTotal = 0;
@@ -187,6 +228,14 @@ class RelayServer {
   int get connectionCount => _openTotal;
 
   int get roomCount => _rooms.length;
+
+  /// Door codes held right now (expired ones may linger until looked up or
+  /// until their room asks again).
+  int get doorCount => _doors.length;
+
+  /// Whether this server hands out door codes: only with a web app, where
+  /// the code page can send people.
+  bool get _hasDoors => webApps.builds.isNotEmpty;
 
   Future<void> close() async {
     for (final room in [..._rooms.values]) {
@@ -228,6 +277,9 @@ class RelayServer {
         ..write('ok');
       await request.response.close();
       return;
+    }
+    if (!upgrade && _hasDoors && (path == '/' || path == '/c')) {
+      return _doorPage(request, path == '/c');
     }
     if (WebApps.owns(path) || path.startsWith('/.well-known/')) {
       if (path.startsWith('/.well-known/')) return _wellKnown(request, path);
@@ -305,6 +357,129 @@ class RelayServer {
     if (recent.length >= perMinute) return false;
     recent.add(now);
     return true;
+  }
+
+  /// The code page (`/`) and its answer (`/c?code=…`): a typed door code
+  /// leads to its room's page, without the room's keys (see [DoorAsked]).
+  /// Nothing from the request is echoed or logged; every try counts
+  /// against its address.
+  Future<void> _doorPage(HttpRequest request, bool lookup) async {
+    final response = request.response;
+    final german =
+        (request.headers[HttpHeaders.acceptLanguageHeader]?.join(',') ?? '')
+            .trim()
+            .toLowerCase()
+            .startsWith('de');
+    final method = request.method;
+    if (method != 'GET' && method != 'HEAD') {
+      response.statusCode = HttpStatus.methodNotAllowed;
+      await response.close();
+      return;
+    }
+    var note = _DoorNote.none;
+    if (lookup) {
+      if (!_mayLookUp(_clientAddress(request))) {
+        note = _DoorNote.tooMany;
+      } else {
+        final code = normalizeDoorCode(
+          request.uri.queryParameters['code'] ?? '',
+        );
+        final door = code == null ? null : _doors[code];
+        final now = _clock.elapsedMilliseconds;
+        if (door != null && door.until <= now) _doors.remove(code);
+        if (door == null || door.until <= now || !_mayJoin(door.room)) {
+          note = _DoorNote.unknown;
+        } else if (!webApps.builds.contains(
+          '${door.protocol}/${door.build}',
+        )) {
+          note = _DoorNote.version;
+        } else {
+          response
+            ..statusCode = HttpStatus.seeOther
+            ..headers.set(HttpHeaders.cacheControlHeader, 'no-store')
+            ..headers.set('Referrer-Policy', 'no-referrer')
+            ..headers.set(
+              HttpHeaders.locationHeader,
+              Uri(
+                path: '/v/${door.protocol}/${door.build}/join',
+                queryParameters: {
+                  'room': door.roomCode,
+                  'relay': door.room.id,
+                },
+              ).toString(),
+            );
+          await response.close();
+          return;
+        }
+      }
+    }
+    response
+      ..statusCode = switch (note) {
+        _DoorNote.none => HttpStatus.ok,
+        _DoorNote.tooMany => HttpStatus.tooManyRequests,
+        _DoorNote.unknown || _DoorNote.version => HttpStatus.notFound,
+      }
+      ..headers.contentType = ContentType.html
+      ..headers.set(HttpHeaders.cacheControlHeader, 'no-store')
+      ..headers.set('X-Content-Type-Options', 'nosniff')
+      ..headers.set('X-Frame-Options', 'DENY')
+      ..headers.set('Referrer-Policy', 'no-referrer')
+      ..headers.set(
+        'Content-Security-Policy',
+        "default-src 'none'; style-src 'unsafe-inline'; "
+            "frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+      );
+    final body = utf8.encode(_doorHtml(german: german, note: note));
+    response.contentLength = body.length;
+    if (method == 'GET') response.add(body);
+    await response.close();
+  }
+
+  /// One more door code try for [address], within its rate.
+  bool _mayLookUp(String? address) {
+    final perMinute = config.maxDoorLookupsPerMinute;
+    if (perMinute <= 0) return true;
+    final now = _clock.elapsedMilliseconds;
+    if (_lookups.length > 10000) {
+      _lookups.removeWhere((_, at) => at.isEmpty || now - at.last > 60000);
+    }
+    final recent = _lookups.putIfAbsent(address ?? '', () => [])
+      ..removeWhere((at) => now - at > 60000);
+    if (recent.length >= perMinute) return false;
+    recent.add(now);
+    return true;
+  }
+
+  /// Gives [room] a fresh door code for [ask], unless it asked too soon.
+  void _openDoor(_Room room, DoorAsked ask) {
+    final now = _clock.elapsedMilliseconds;
+    final last = room.lastDoor;
+    if (!_hasDoors ||
+        (last != null && now - last < config.minDoorInterval.inMilliseconds)) {
+      return;
+    }
+    room.lastDoor = now;
+    String code;
+    do {
+      code = String.fromCharCodes([
+        for (var i = 0; i < doorCodeLength; i++)
+          relayAlphabet.codeUnitAt(_random.nextInt(relayAlphabet.length)),
+      ]);
+    } while (_doors.containsKey(code));
+    final lifetime = config.doorLifetime;
+    _doors[code] = _Door(
+      room,
+      ask.room,
+      ask.protocol,
+      ask.build,
+      now + lifetime.inMilliseconds,
+    );
+    room.doors.add(code);
+    // The previous code keeps working until its time is up; older ones go.
+    while (room.doors.length > 2) {
+      _doors.remove(room.doors.removeAt(0));
+    }
+    room.host.send(DoorOpened(code, lifetime: lifetime).encode());
   }
 
   /// The files that tie this server's QR codes to the app (Universal Links,
@@ -421,11 +596,14 @@ class RelayServer {
   void _openRoom(GuardedWebSocket host, String? address) {
     final room = _Room(_newRoomId(), host, address);
     _rooms[room.id] = room;
-    host.send(RoomOpened(room.id).encode());
+    host.send(RoomOpened(room.id, doors: _hasDoors).encode());
     final meter = _Meter(config.maxMessagesPerSecond * config.maxPeersPerRoom);
     void end() {
       if (_rooms[room.id] != room) return;
       _rooms.remove(room.id);
+      // A closed room's codes open nothing.
+      room.doors.forEach(_doors.remove);
+      room.doors.clear();
       for (final peer in room.peers.values) {
         unawaited(peer.socket.close().catchError((Object _) {}));
       }
@@ -457,7 +635,9 @@ class RelayServer {
                     (Object _) {},
                   ),
             );
-          case RoomOpened() || PeerJoined():
+          case final DoorAsked ask:
+            _openDoor(room, ask);
+          case RoomOpened() || PeerJoined() || DoorOpened():
             end();
         }
       },
@@ -491,4 +671,110 @@ class RelayServer {
       cancelOnError: true,
     );
   }
+}
+
+/// What the code page says above its form.
+enum _DoorNote { none, unknown, version, tooMany }
+
+/// The code page: one field, no script, nothing from the request in it.
+String _doorHtml({required bool german, required _DoorNote note}) {
+  final t = german
+      ? (
+          lang: 'de',
+          title: 'Mitspielen mit Code',
+          lead:
+              'Gib den Code ein, den die Einladung am Tisch zeigt. '
+              'Du spielst dann direkt hier im Browser mit.',
+          label: 'Code',
+          button: 'Weiter',
+          hint:
+              'Danach vergleicht ihr ein paar Symbole: Die Spielleitung '
+              'lässt dich herein, wenn sie auf beiden Bildschirmen gleich '
+              'sind.',
+          unknown:
+              'Diesen Code kennen wir nicht, oder er ist abgelaufen. '
+              'Er wechselt alle paar Minuten: Schau noch einmal auf die '
+              'Einladung.',
+          version:
+              'Diese Runde läuft mit einer App-Version, die es hier im '
+              'Browser noch nicht gibt. Spielt mit der Whowolf-App, oder '
+              'versucht es in ein paar Minuten noch einmal.',
+          tooMany:
+              'Zu viele Versuche. Warte eine Minute und versuche es dann '
+              'noch einmal.',
+          app: 'Lieber mit der App? whowolf.de',
+        )
+      : (
+          lang: 'en',
+          title: 'Join with a code',
+          lead:
+              'Enter the code the invitation at the table shows. You will '
+              'play right here in your browser.',
+          label: 'Code',
+          button: 'Continue',
+          hint:
+              'Then you compare a few symbols: the game leader lets you in '
+              'when both screens show the same ones.',
+          unknown:
+              'We do not know this code, or it has expired. It changes every '
+              'few minutes: look at the invitation again.',
+          version:
+              'This game runs an app version this browser page does not have '
+              'yet. Play with the Whowolf app, or try again in a few minutes.',
+          tooMany: 'Too many tries. Wait a minute, then try again.',
+          app: 'Rather use the app? whowolf.de',
+        );
+  final message = switch (note) {
+    _DoorNote.none => null,
+    _DoorNote.unknown => t.unknown,
+    _DoorNote.version => t.version,
+    _DoorNote.tooMany => t.tooMany,
+  };
+  return '''
+<!DOCTYPE html>
+<html lang="${t.lang}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Whowolf – ${t.title}</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;
+font:17px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#F4EEDC;
+background:radial-gradient(ellipse at 50% -10%,#2B3C5A 0%,#141A33 55%,#0B0F22 100%)}
+main{width:100%;max-width:26rem;text-align:center}
+.moon{width:72px;height:72px;margin:0 auto 20px;border-radius:50%;
+background:radial-gradient(circle at 38% 36%,#FFF6DA,#F2D58C 55%,#C99A45);
+box-shadow:0 0 40px 8px rgba(242,181,68,.35)}
+h1{margin:0;font:700 clamp(1.8rem,7vw,2.3rem)/1.15 Georgia,"Times New Roman",serif}
+p{margin:.8em auto 0;color:#D9D0B8}
+form{margin-top:28px;display:grid;gap:14px}
+label{font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#F2B544}
+input{width:100%;min-height:64px;padding:8px 12px;border:2px solid #6E5A35;border-radius:16px;
+background:#0E1426;color:#FFF6DA;text-align:center;font:700 2rem/1 ui-monospace,Menlo,monospace;
+letter-spacing:.3em;text-transform:uppercase}
+input:focus{outline:3px solid #F2B544;outline-offset:2px;border-color:#F2B544}
+button{min-height:52px;border:0;border-radius:999px;background:#F2B544;color:#1C1408;
+font:700 1.1rem/1 system-ui,sans-serif;cursor:pointer}
+button:hover{background:#FFC864}
+button:focus-visible{outline:3px solid #FFF6DA;outline-offset:3px}
+.note{margin-top:22px;padding:12px 16px;border-radius:14px;background:rgba(201,74,58,.18);
+border:1px solid rgba(232,120,98,.55);color:#FFE3D6}
+.hint{font-size:.9rem;color:#B9B09A}
+a{color:#F2B544}
+</style></head><body><main>
+<div class="moon" aria-hidden="true"></div>
+<h1>${t.title}</h1>
+<p>${t.lead}</p>
+${message == null ? '' : '<p class="note" role="alert">$message</p>'}
+<form method="get" action="/c">
+<label for="code">${t.label}</label>
+<input id="code" name="code" required maxlength="9" autocomplete="off"
+autocapitalize="characters" autocorrect="off" spellcheck="false" autofocus
+placeholder="ABC 234">
+<button type="submit">${t.button}</button>
+</form>
+<p class="hint">${t.hint}</p>
+<p class="hint"><a href="https://whowolf.de">${t.app}</a></p>
+</main></body></html>
+''';
 }

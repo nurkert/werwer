@@ -243,4 +243,32 @@ void main() {
       isNull,
     );
   });
+
+  test('a code page link carries the room but no key, and only there', () {
+    const page =
+        'https://play.example.org/v/12/0.3.0/join?room=1234&relay=abcd2345';
+    final link = JoinLink.tryParseCodePage(page)!;
+    expect(link.room, '1234');
+    expect(link.relayRoom, 'abcd2345');
+    expect(link.server, Uri.parse('wss://play.example.org'));
+    expect(link.hostKey, isNull);
+    expect(link.roomSecret, isNull);
+    // A scanned code is never read this way: without the key a server's
+    // page is refused, as before.
+    expect(JoinLink.tryParse(page), isNull);
+    for (final bad in [
+      // Anything with a fragment is a QR code's page, read with tryParse.
+      '$page#k=x',
+      page.replaceFirst('https', 'http'),
+      '$page&lan=192.168.1.5:47470',
+      'https://play.example.org/v/12/0.3.0/join?room=12a4&relay=abcd2345',
+      'https://play.example.org/v/12/0.3.0/join?room=1234&relay=ABCD2345',
+      'https://play.example.org/v/12/0.3.0/join?room=1234',
+      'https://play.example.org/join?room=1234&relay=abcd2345',
+      'https://evil@play.example.org/v/12/0.3.0/join?room=1234&relay=abcd2345',
+      '${page}x' * 20,
+    ]) {
+      expect(JoinLink.tryParseCodePage(bad), isNull, reason: bad);
+    }
+  });
 }

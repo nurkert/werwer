@@ -1433,6 +1433,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.';
 
   @override
+  String doorCodeHint(String page) {
+    return 'Ohne Kamera oder am Computer: auf $page diesen Code eingeben';
+  }
+
+  @override
+  String doorCodeLabel(String code) {
+    return 'Beitrittscode $code';
+  }
+
+  @override
+  String get doorCodeChanges =>
+      'Der Code wechselt alle paar Minuten. Wer so beitritt, vergleicht mit dir ein paar Symbole.';
+
+  @override
   String get inviteNoBrowser =>
       'Im Browser kann gerade niemand beitreten: Der Server hat diese Version der App noch nicht, und die Seite im WLAN ist in den Einstellungen aus. Mit der App geht es immer.';
 

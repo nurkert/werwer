@@ -125,6 +125,43 @@ class JoinLink {
     );
   }
 
+  /// The page a relay server's code page sent this browser to
+  /// (`https://<server>/v/<protocol>/<build>/join?room=1234&relay=…`, see
+  /// [DoorAsked]): the room and its relay room, but no key, because the
+  /// player only typed a short code. Such a join runs the handshake without
+  /// the QR code: both screens show the check image, and the game leader
+  /// lets the player in or not. Only the web app reads its own address
+  /// this way; a scanned code is always read with [tryParse], which never
+  /// accepts a server without the key. `null` for anything else.
+  static JoinLink? tryParseCodePage(String raw) {
+    if (raw.length > 512) return null;
+    final uri = Uri.tryParse(raw.trim());
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasFragment ||
+        !_serverPage.hasMatch(uri.path)) {
+      return null;
+    }
+    final q = uri.queryParameters;
+    if (q.length != 2) return null;
+    final room = q['room'] ?? '';
+    final relay = q['relay'] ?? '';
+    if (!RegExp('^[0-9]{$roomCodeLength}\$').hasMatch(room) ||
+        !isRelayRoomId(relay)) {
+      return null;
+    }
+    final server = parseRelayServer(
+      Uri(
+        scheme: 'wss',
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      ).toString(),
+    );
+    if (server == null) return null;
+    return JoinLink(room: room, relayRoom: relay, server: server);
+  }
+
   /// Host name of join links.
   static const linkHost = 'whowolf.de';
 
