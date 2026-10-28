@@ -236,6 +236,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get seerVisionTitle => 'Deine Vision';
+
+  @override
+  String get seerVisionClose => 'Tippen zum Schließen';
+
+  @override
+  String get seerSeeAgain => 'Nochmal ansehen';
+
+  @override
   String seerSaw(String name, String what) {
     return '$name ist: $what';
   }

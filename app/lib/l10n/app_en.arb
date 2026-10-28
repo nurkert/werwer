@@ -118,6 +118,9 @@
       }
     }
   },
+  "seerVisionTitle": "Your vision",
+  "seerVisionClose": "Tap to close",
+  "seerSeeAgain": "See again",
   "seerSaw": "{name} is: {what}",
   "@seerSaw": {
     "placeholders": {

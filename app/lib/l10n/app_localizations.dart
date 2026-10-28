@@ -470,6 +470,24 @@ abstract class AppLocalizations {
   /// **'You picked {name}.'**
   String picked(String name);
 
+  /// No description provided for @seerVisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vision'**
+  String get seerVisionTitle;
+
+  /// No description provided for @seerVisionClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to close'**
+  String get seerVisionClose;
+
+  /// No description provided for @seerSeeAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'See again'**
+  String get seerSeeAgain;
+
   /// No description provided for @seerSaw.
   ///
   /// In en, this message translates to:

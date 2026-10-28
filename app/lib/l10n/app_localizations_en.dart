@@ -232,6 +232,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get seerVisionTitle => 'Your vision';
+
+  @override
+  String get seerVisionClose => 'Tap to close';
+
+  @override
+  String get seerSeeAgain => 'See again';
+
+  @override
   String seerSaw(String name, String what) {
     return '$name is: $what';
   }

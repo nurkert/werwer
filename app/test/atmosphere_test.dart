@@ -110,6 +110,13 @@ void main() {
       },
     );
 
+    test('taps never sound at night, whatever the role does', () {
+      final a = atmosphere()..update(_view(Phase.night, 1));
+      ear.heard.clear();
+      Sound.values.forEach(a.own);
+      expect(ear.heard, isEmpty);
+    });
+
     test('a phone that is not a speaker plays no shared sound, but keeps '
         'its own taps', () {
       final a = atmosphere()

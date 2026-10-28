@@ -9,6 +9,7 @@ import 'package:whowolf/src/game/door_sign.dart';
 import 'package:whowolf/src/game/ghost_sight.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/seer_vision.dart';
 import 'package:whowolf/src/game/sheep.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
@@ -37,6 +38,9 @@ class _NightPhaseState extends State<NightPhase> {
   (int, NightStep)? _step;
   int _sheep = 0;
   int _sentSheep = 0;
+
+  /// What the seer has already seen as a vision (each result once).
+  final _visions = <(PlayerId, int)>{};
 
   /// Cupid's picks and the witch's draft, before they are sent.
   final _pair = <PlayerId>{};
@@ -93,6 +97,24 @@ class _NightPhaseState extends State<NightPhase> {
       _poison = null;
     }
     _planDecoy(view);
+    _showVisions(view);
+  }
+
+  /// A new result for the seer: the vision, large, once.
+  void _showVisions(PlayerView view) {
+    for (final r in view.seerResults) {
+      if (r.round != view.round || !_visions.add((r.target, r.round))) {
+        continue;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) => _vision(r));
+    }
+  }
+
+  void _vision(SeerResult result) {
+    final view = session.view;
+    if (!mounted || view == null) return;
+    final seat = view.seats.where((s) => s.id == result.target).firstOrNull;
+    if (seat != null) unawaited(showSeerVision(context, seat, result));
   }
 
   /// Counting sheep is the cover task; after a while the app sends the
@@ -293,15 +315,13 @@ class _NightPhaseState extends State<NightPhase> {
             MarkForm(session: session),
           ],
           for (final r in view.seerResults.where((r) => r.round == view.round))
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Body(
-                l10n.seerSaw(
-                  view.nameOf(r.target),
-                  r.role != null ? l10n.role(r.role!) : l10n.faction(r.faction),
-                ),
+            if (view.seats.where((s) => s.id == r.target).firstOrNull
+                case final seat?)
+              SeerResultCard(
+                seat: seat,
+                result: r,
+                onSeeAgain: () => _vision(r),
               ),
-            ),
         ];
       case NightAbility.link:
         final linked = view.yourNightTargets;

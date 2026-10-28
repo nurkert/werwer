@@ -434,6 +434,19 @@ void main() {
             table.playRound(withYou: true);
             await tester.pump();
             await shot.shoot('04-night-${role.name}');
+            if (role == Role.seer) {
+              // The seer looks at someone: the figure turns, name and role
+              // stand large.
+              final view = table.you.view!;
+              final other = view.seats.firstWhere(
+                (s) => s.isAlive && s.id != view.you,
+              );
+              await tester.tap(find.text(other.name).first);
+              await tester.pump();
+              await tester.pump();
+              await tester.pump(const Duration(milliseconds: 1600));
+              await shot.shoot('04-night-seer-vision');
+            }
             if (first) {
               table.playRound(withYou: true);
               await tester.pump();

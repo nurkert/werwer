@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -139,7 +140,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   /// Follows the device's volume where the platform tells it (not in the
   /// browser; the iPhone's silent switch no app can read).
   void _watchVolume() {
-    if (kIsWeb) return;
+    if (!_volumeKnown) return;
     try {
       VolumeController.instance
         ..showSystemUI = false
@@ -198,9 +199,14 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     return limit == null ? null : startedAt + limit.inMilliseconds;
   }
 
+  /// Whether the platform tells the volume: not in the browser, and not
+  /// in widget tests (no plugins there).
+  static bool get _volumeKnown =>
+      !kIsWeb && !Platform.environment.containsKey('FLUTTER_TEST');
+
   @override
   void dispose() {
-    if (!kIsWeb) {
+    if (_volumeKnown) {
       unawaited(
         VolumeController.instance.removeListener().catchError((Object _) {}),
       );
