@@ -34,6 +34,9 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+      # Checked every 2 s while starting, so an update knows quickly.
+      start_period: 30s
+      start_interval: 2s
     # The binary needs nothing else: no writes, no privileges, little memory.
     read_only: true
     cap_drop: [ALL]

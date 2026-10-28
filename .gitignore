@@ -20,6 +20,7 @@ coverage/
 # Env / secrets
 .env
 .env.*
+.failed-image
 !.env.example
 *.keystore
 *.jks

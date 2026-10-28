@@ -5,6 +5,23 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.1.9 – 2026-10-28
+
+### Fixed
+- The relay's updater rolls a release back when it does not start: it
+  waits for the healthcheck, puts the previous version back, says so in
+  the log and does not try the broken one again until a newer release
+  is out.
+- The Mac app keeps its settings (they no longer depend on the
+  keychain).
+- The seer has time to see what she found; tasks at night open only
+  after the narrator calls a role.
+
+### Changed
+- On the desktop: lobby pages with arrows, columns centred and standing
+  on the stage floor, the invitation folded into one button.
+- A new figure turns in like a card; long names fit on the cards.
+
 ## 0.1.8 – 2026-10-28
 
 ### Fixed

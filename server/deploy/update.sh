@@ -25,6 +25,11 @@ current=$(sed -n 's/^RELAY_IMAGE=//p' .env 2>/dev/null || true)
 if [ "$ref" = "$current" ] && docker compose ps --status running --quiet relay | grep -q .; then
   exit 0
 fi
+# A release that failed to come up here is not tried again; only a new
+# digest on the tag is (see README, "When a release does not start").
+if [ -f .failed-image ] && [ "$ref" = "$(cat .failed-image)" ]; then
+  exit 0
+fi
 
 if ! docker run --rm "$COSIGN" verify \
   --certificate-identity-regexp "$IDENTITY" \
@@ -34,7 +39,55 @@ if ! docker run --rm "$COSIGN" verify \
   exit 1
 fi
 
-printf 'RELAY_IMAGE=%s\n' "$ref" > .env.new && mv .env.new .env
-docker compose up -d --remove-orphans
-echo "deployed $ref"
-docker image prune --force >/dev/null 2>&1 || true
+# Waits until the relay service's container passes its healthcheck. Fails
+# when it turns unhealthy, stops, restarts or takes longer than
+# WHOWOLF_HEALTH_TIMEOUT seconds. Asks by service name, so a custom
+# container_name or network does not matter.
+wait_healthy() {
+  deadline=$(($(date +%s) + ${WHOWOLF_HEALTH_TIMEOUT:-120}))
+  while :; do
+    id=$(docker compose ps --all --quiet relay | head -n 1)
+    if [ -n "$id" ]; then
+      state=$(docker inspect --format \
+        '{{.State.Status}} {{.RestartCount}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' \
+        "$id" 2>/dev/null || echo gone)
+      case $state in
+        "running 0 healthy") return 0 ;;
+        "running 0 starting" | "created 0 "*) ;;
+        "running 0 none") return 0 ;;
+        *) echo "relay container: $state" >&2; return 1 ;;
+      esac
+    fi
+    if [ "$(date +%s)" -ge "$deadline" ]; then
+      echo "relay container: not healthy after ${WHOWOLF_HEALTH_TIMEOUT:-120}s" >&2
+      return 1
+    fi
+    sleep 2
+  done
+}
+
+deploy() {
+  printf 'RELAY_IMAGE=%s\n' "$1" > .env.new && mv .env.new .env
+  docker compose up -d --remove-orphans && wait_healthy
+}
+
+if deploy "$ref"; then
+  rm -f .failed-image
+  echo "deployed $ref"
+  docker image prune --force >/dev/null 2>&1 || true
+  exit 0
+fi
+
+if [ -z "$current" ] || [ "$current" = "$ref" ]; then
+  echo "error: $ref did not start, and there is no earlier release to go back to" >&2
+  exit 1
+fi
+# Remember the broken digest first, so the timer does not deploy it again,
+# and keep every image (no prune) until the old one runs again.
+printf '%s\n' "$ref" > .failed-image
+if deploy "$current"; then
+  echo "error: $ref did not start; rolled back from $ref to $current" >&2
+else
+  echo "error: $ref did not start, and rolling back to $current failed too" >&2
+fi
+exit 1

@@ -36,6 +36,21 @@ workflow (`.github/workflows/prerelease.yml`, on a version tag) is accepted.
 Then it runs that exact digest. A new release is live within minutes. The
 server opens no webhook or other endpoint for this; it asks.
 
+### When a release does not start
+
+After `docker compose up -d` the script waits for the relay's healthcheck
+(up to `WHOWOLF_HEALTH_TIMEOUT` seconds, default 120). If the new container
+turns unhealthy, stops or restarts instead, it writes the previous digest
+back to `.env`, starts that again and exits non-zero with
+`rolled back from <new> to <old>`, so `journalctl -u whowolf-update` shows
+it. No images are pruned after a rollback.
+
+The broken digest is kept in `.failed-image` next to `update.sh`; the timer
+skips it and only deploys the next digest on `stable`. To try it once more
+(say after fixing `domain.env`), delete the file and run `./update.sh`. On a
+first install there is nothing to go back to: the script only reports the
+error.
+
 Forks set `WHOWOLF_IMAGE` and `WHOWOLF_REPO` in the service's environment.
 
 ## The web app for players without the app
