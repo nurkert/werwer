@@ -36,7 +36,12 @@ class LinkConfig {
     this.maxRetry = const Duration(seconds: 5),
     this.maxQueue = 64,
     this.joinAttempts = 6,
+    this.holderPing = const Duration(seconds: 1),
   });
+
+  /// How often a successor or witness says "still here": the host keeps
+  /// moving the game on only while it hears from one of them.
+  final Duration holderPing;
 
   /// How often a connected player says "still here" with its state version.
   final Duration ping;
@@ -524,6 +529,14 @@ class PlayerLink {
         return;
       case StateMessage():
         if (message.version < version) return;
+        // The host claimed the room anew (its pair was out of reach): what
+        // this device held for the old epoch is void, new parts follow.
+        if (message.epoch > _epoch) {
+          _epoch = message.epoch;
+          _versionEpoch = max(_versionEpoch, message.epoch);
+          custody = null;
+          witness = null;
+        }
         version = message.version;
         _cancelUpcoming?.call();
         _cancelUpcoming = null;
@@ -631,6 +644,9 @@ class PlayerLink {
     }
 
     every(config.ping, _ping);
+    every(config.holderPing, () {
+      if (custody != null || witness != null) _ping();
+    });
     // A few quick pings at the start put the clocks in step at once.
     for (final ms in const [0, 250, 600]) {
       _timers.add(

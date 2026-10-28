@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 14;
+const protocolVersion = 15;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -720,6 +720,7 @@ sealed class HostMessage {
         phaseEndsAt: json.maybeInteger('endsAt', max: maxClock),
         phaseAt: json.maybeInteger('phaseAt', max: maxClock),
         showAt: json.maybeInteger('showAt', max: maxClock),
+        epoch: json.maybeInteger('epoch', max: maxEpoch) ?? 0,
         introSkippedAt: json.maybeInteger('skippedAt', max: maxClock),
         inBrowser: json.has('web')
             ? [
@@ -1021,6 +1022,7 @@ final class StateMessage extends HostMessage {
     this.phaseEndsAt,
     this.phaseAt,
     this.showAt,
+    this.epoch = 0,
     this.introSkippedAt,
     this.pending = const [],
     this.voices = const [],
@@ -1062,6 +1064,11 @@ final class StateMessage extends HostMessage {
   /// For the room owner: people waiting to be let in.
   final List<PendingJoin> pending;
 
+  /// How many times the room changed hands, as this host counts. It can
+  /// grow without a takeover: a host that lost its successor and witness
+  /// but still plays with the rest of the table claims the room anew.
+  final int epoch;
+
   /// When this state shows, on the host's clock, if that is still ahead:
   /// a new phase is decided a moment before, so every phone has it in
   /// time and all switch at the same instant.
@@ -1102,6 +1109,7 @@ final class StateMessage extends HostMessage {
     'endsAt': ?phaseEndsAt,
     'phaseAt': ?phaseAt,
     'showAt': ?showAt,
+    if (epoch > 0) 'epoch': epoch,
     if (voices.isNotEmpty) 'voices': [for (final p in voices) p.value],
     'skippedAt': ?introSkippedAt,
     if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],

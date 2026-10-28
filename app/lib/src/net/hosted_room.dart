@@ -220,7 +220,31 @@ class HostedRoom {
             relay != null && await _serves(relayServer!, webAppBuild),
       )
       .._webApp = site
-      .._openDoor();
+      .._openDoor()
+      .._followEpoch();
+  }
+
+  /// The host claimed the room anew (its successor and witness were out
+  /// of reach, the rest of the table still here): the announcement says
+  /// so, or phones that saw the new epoch would pass this host by.
+  void _followEpoch() {
+    host.onEpoch = (_) => unawaited(_announceAgain());
+  }
+
+  Future<void> _announceAgain() async {
+    if (_closed) return;
+    await _announcer.stop();
+    final announcer = RoomAnnouncer();
+    await announcer.start(
+      hostName: _hostName,
+      room: roomCode,
+      port: _port,
+      hostKey: _keys.publicKey,
+      epoch: host.epoch,
+    );
+    _announcer = announcer;
+    // Closed while announcing: close() already stopped the old announcer.
+    if (_closed) await announcer.stop();
   }
 
   /// With the room online on a server that has this build's page, people

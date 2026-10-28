@@ -1,6 +1,6 @@
 # Task 021 – Nahtlos weiterspielen: Fehlertoleranz nach Lehrbuch
 
-**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritte 1 bis 3 erledigt.
+**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritte 1 bis 4 erledigt.
 **Bezug:** [ARCHITECTURE](../ARCHITECTURE.md), [SECURITY_DESIGN](../SECURITY_DESIGN.md), Task 002 (stabiles Netz), Task 008 (Host-Übernahme), Task 020 (Spielabend)
 
 ## Ziel
@@ -74,6 +74,13 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 - Der Host schaltet Phasen nur weiter und bestätigt nur, solange er in den letzten 4 s (unter der Übernahmeschwelle von 6 s) von Nachfolger **oder** Zeuge gehört hat. Sonst friert er ein und zeigt die Pause.
 - Kleine Tische ohne Nachfolger und Zeuge: keine Lease, wie heute.
 - Test: Host partitioniert, kommt nach 20 s zurück; es gab nie zwei weiterschaltende Hosts, alle landen beim Gewinner.
+
+**Umgesetzt (2026-10-28), Protokoll Version 15:**
+- Nachfolger und Zeuge pingen jede Sekunde (`LinkConfig.holderPing`); der Host bewegt das Spiel nur, solange er einen der beiden in `HostConfig.leaseTime` (4 s, unter der Übernahmeschwelle von 6 s) gehört hat. Als Paar kommen nur Geräte in Frage, die er in dieser Zeit gehört hat.
+- **Host abgeschnitten** (hört außer seinem eigenen Spieler niemanden): Er friert ein (`GameHost.frozen`). Keine Phase läuft ab, keine Absicht wird angewendet oder bestätigt; die Geräte behalten sie und geben sie dem, der hostet (Schritt 1). Kommt einer des Paars zurück, ohne übernommen zu haben, vergisst er seinen Teil und es geht weiter. Ein Gerät, das schon einen neueren Host gesehen hat, wird nicht mehr aufgenommen und zählt nicht als zurück.
+- **Nur das Paar ist weg**, der Rest des Tischs noch da: Der Host beansprucht den Raum neu, **zwei Epochen weiter** (über allem, was das Paar daraus machen kann), wählt ein neues Paar und kündigt sich neu an (`GameHost.onEpoch`). Die Geräte übernehmen die Epoche aus dem Zustand (`StateMessage.epoch`). Ein Raum, den das Paar unter sich übernommen hat, hat die kleinere Epoche und gibt nach, sobald man sich wieder trifft.
+- Bewusst nicht: ein später Neuanspruch. Wer eingefroren ist, bleibt es, bis jemand vom Paar zurückkommt oder die App ihn als ersetzt erkennt und abtritt; sonst könnte ein lange abgeschnittener Host den Raum der anderen zurückholen.
+- Tests: `takeover_test.dart` Gruppe „never two hosts moving the same game on“ (abgeschnittener Host steht still, während der Nachfolger übernimmt; Host ohne Paar beansprucht neu und spielt mit dem Tisch weiter), über eine Test-Leitung, die hängt statt abzubrechen.
 
 ### 5. Ausfälle klug erkennen
 

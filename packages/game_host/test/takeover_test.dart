@@ -84,6 +84,26 @@ class Lan {
   }
 }
 
+/// A Wi-Fi link that can hang: the connection stays open, but nothing
+/// gets through any more, either way.
+class Wire implements Connection {
+  Wire(this._inner);
+
+  final Connection _inner;
+  bool cut = false;
+
+  @override
+  Stream<String> get messages => _inner.messages.where((_) => !cut);
+
+  @override
+  void send(String message) {
+    if (!cut) _inner.send(message);
+  }
+
+  @override
+  Future<void> close() => _inner.close();
+}
+
 /// An entrance that withdraws itself when closed.
 class Entrance implements Transport {
   Entrance(this.lan, this.candidate) {
@@ -118,7 +138,7 @@ class Phone {
     link = PlayerLink(
       name: name,
       roomCode: table.code,
-      dial: table.lan.dialRoom,
+      dial: _dial,
       candidate: candidate,
       config: fast,
       random: Random(name.hashCode + 1),
@@ -140,6 +160,23 @@ class Phone {
   late final PlayerLink link;
   late final Succession succession;
   GameHost? hosting;
+
+  /// The room this phone cannot reach any more, and its current wire.
+  MemoryTransport? _cutFrom;
+  Wire? _wire;
+
+  Future<Connection> _dial() async {
+    final room = table.lan.room;
+    if (room == null || identical(room, _cutFrom)) throw StateError('gone');
+    return _wire = Wire(room.connect());
+  }
+
+  /// This phone's Wi-Fi to the room's host hangs: nothing gets through,
+  /// and dialling it again fails. Other hosts it still reaches.
+  void cutFromHost() {
+    _cutFrom = table.lan.room;
+    _wire?.cut = true;
+  }
 
   Future<void> _becomeHost(String room) async {
     final host = table.takeOver(
@@ -181,9 +218,9 @@ class Table {
         callback,
       ).cancel;
 
-  void open(int players) {
+  void open(int players, {HostConfig config = quick}) {
     host = GameHost(
-      config: quick,
+      config: config,
       settings: const GameSettings(),
       roomCode: code,
       random: Random(1),
@@ -645,4 +682,80 @@ void main() {
     await until(() => table.phones.every((p) => p.link.version >= 0));
     expect(table.phones.every((p) => p.link.paused), isTrue);
   });
+
+  group('never two hosts moving the same game on', () {
+    // The host stops well before successor and witness can take over.
+    const leased = HostConfig(
+      switchLead: Duration(milliseconds: 100),
+      leaseTime: Duration(milliseconds: 200),
+    );
+
+    Future<void> startLeased(int players) async {
+      table.open(players, config: leased);
+      await until(() => table.owner.view?.seats.length == players + 1);
+      table.owner.send(const StartGameIntent());
+      await until(
+        () => table.links.every((l) => l.view?.phase == Phase.roleReveal),
+      );
+      await until(() => table.phones.first.link.custody != null);
+      await until(() => table.phones[1].link.witness != null);
+    }
+
+    test('a host cut off from the table stands still while its successor '
+        'takes over', () async {
+      await startLeased(4);
+      final old = table.host;
+      // The host's Wi-Fi hangs: only its own player is still with it.
+      for (final p in table.phones) {
+        p.cutFromHost();
+      }
+      final successor = table.phones.first;
+      await until(() => successor.hosting != null, ms: 6000);
+      expect(old.frozen, isTrue);
+      expect(old.epoch, 0);
+      // What its own player does there counts for nothing.
+      final before = stateJson(old);
+      table.owner.send(const ConfirmRoleIntent());
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      expect(stateJson(old), before);
+      expect(table.owner.unconfirmed, 1, reason: 'kept for whoever hosts');
+      // Everyone else plays on with the successor.
+      await until(
+        () => table.phones.every(
+          (p) => p.link.status == LinkStatus.connected && p.link.epoch == 1,
+        ),
+      );
+    });
+
+    test('a host that lost only its successor and witness claims the room '
+        'anew and the table plays on with it', () async {
+      await startLeased(5);
+      final host = table.host;
+      final pair = table.phones.take(2).toList();
+      for (final p in pair) {
+        p.cutFromHost();
+      }
+      await until(() => host.epoch == 2, ms: 3000);
+      expect(host.frozen, isFalse);
+      final rest = table.phones.skip(2).toList();
+      await until(() => rest.every((p) => p.link.epoch == 2));
+      // A new pair among those still at the table.
+      await until(() => rest.any((p) => p.link.custody?.epoch == 2));
+      // It goes on taking and applying what the table does.
+      for (final link in [table.owner, for (final p in rest) p.link]) {
+        link.send(const ConfirmRoleIntent());
+      }
+      await until(
+        () => [
+          table.owner,
+          for (final p in rest) p.link,
+        ].every((l) => host.state.confirmed.contains(l.you)),
+      );
+      expect(table.owner.unconfirmed, 0);
+      expect(host.epoch, 2);
+    });
+  });
 }
+
+/// The whole game state of [host], to compare.
+String stateJson(GameHost host) => jsonEncode(encodeState(host.state));

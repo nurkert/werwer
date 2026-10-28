@@ -33,7 +33,14 @@ class HostConfig {
     this.maxBadMessages = 3,
     this.maxPending = 6,
     this.switchLead = const Duration(milliseconds: 1200),
+    this.leaseTime = const Duration(seconds: 4),
   });
+
+  /// The host moves the game on only while it heard from its successor or
+  /// witness within this time (they ping every second): the two can take
+  /// the room over once they both missed the host for 6 s, and by then
+  /// this host has long stopped. Never two hosts moving the same game on.
+  final Duration leaseTime;
 
   /// How far ahead a new phase is announced: every phone has it before it
   /// shows, and all switch at the same instant, also one that missed the
@@ -280,6 +287,17 @@ class GameHost {
 
   _Session? _successor;
   _Session? _witness;
+
+  /// A pair that holds the room and its key but is out of reach: it may
+  /// take the room over. Until one of the two is back, nothing moves on.
+  (_Session, _Session)? _outstanding;
+
+  /// Whether the game stands still: this host may have been replaced.
+  bool get frozen => _outstanding != null;
+
+  /// Called when the epoch changed without a takeover (see
+  /// [_reviewSuccession]), so the app announces the new one.
+  void Function(int epoch)? onEpoch;
   List<int>? _custodyKey;
   int _sealedVersion = -1;
   bool _sealing = false;
@@ -525,12 +543,30 @@ class GameHost {
   void _reviewSuccession() {
     final custody = this.custody;
     if (custody == null || _closed) return;
+    final now = _clock();
+    final lease = config.leaseTime.inMilliseconds;
+    bool reachable(_Session s) => s.link != null && now - s.lastHeard <= lease;
+    // An absent pair is harmless again once one of the two is back: told
+    // to forget its part, the other cannot take over alone.
+    final out = _outstanding;
+    if (out != null && (reachable(out.$1) || reachable(out.$2))) {
+      if (reachable(out.$1)) {
+        out.$1.link!.connection.send(Custody.drop(epoch: epoch).encode());
+      }
+      if (reachable(out.$2)) {
+        out.$2.link!.connection.send(Witness(epoch: epoch).encode());
+      }
+      _outstanding = null;
+    }
+    // While the absent pair may be taking over, no other pair is made:
+    // the game stands still until one of them is back.
+    if (_outstanding != null) return;
     final order = <_Session>[
       for (final p in _state.players)
         for (final s in _sessions.values)
           if (s.player == p.id &&
               s.candidate != null &&
-              s.link != null &&
+              reachable(s) &&
               !s.link!.owner)
             s,
     ];
@@ -538,6 +574,41 @@ class GameHost {
     final witness = order.elementAtOrNull(1);
     if (!identical(successor, _successor) || !identical(witness, _witness)) {
       final before = (_successor, _witness);
+      final (a, b) = before;
+      if (_custodyKey != null &&
+          a != null &&
+          b != null &&
+          !reachable(a) &&
+          !reachable(b)) {
+        // Both of the pair are out of reach: they may take the room over.
+        final others = _sessions.values.any(
+          (s) =>
+              !identical(s, a) &&
+              !identical(s, b) &&
+              !(s.link?.owner ?? true) &&
+              reachable(s),
+        );
+        if (others && epoch + 2 < maxEpoch) {
+          // This host still plays with the rest of the table: it claims
+          // the room anew, two epochs on, above anything the pair could
+          // make of it. The table follows this host; a room the pair took
+          // over gives way once they meet again.
+          epoch += 2;
+          _successor = null;
+          _witness = null;
+          _custodyKey = null;
+          _sealedVersion = -1;
+          onEpoch?.call(epoch);
+          _broadcast();
+          return;
+        }
+        // Nobody else either: this host is probably the one cut off.
+        _outstanding = (a, b);
+        _successor = null;
+        _witness = null;
+        _custodyKey = null;
+        return;
+      }
       _successor = successor;
       _witness = witness;
       if (before.$1 != null && !identical(before.$1, successor)) {
@@ -693,8 +764,10 @@ class GameHost {
       return _bye(link, ByeReason.misbehaved);
     }
     if (identical(session.link, link)) session.lastHeard = _clock();
-    // Every message is a chance to notice a phone that fell silent: with
-    // a table of phones pinging, that is often enough, and no timer runs.
+    // Every message is a chance to notice a phone that fell silent (or a
+    // successor out of reach): with a table of phones pinging, that is
+    // often enough, and no timer runs.
+    _reviewSuccession();
     _reviewVoices();
     if (message is PingIntent) {
       final sent = message.sent;
@@ -712,6 +785,9 @@ class GameHost {
       }
       return;
     }
+    // Possibly replaced: nothing is applied or confirmed, the players'
+    // apps keep their intents and send them to whoever hosts.
+    if (frozen) return;
     if (seq == null) return _intent(link, session, message);
     if (seq <= session.lastSeq) {
       // Already applied (resent after a reconnect, or doubled on the way):
@@ -736,7 +812,12 @@ class GameHost {
   void _hello(_Link link, Hello hello) {
     if (hello.room != roomCode) return _bye(link, ByeReason.wrongRoom);
     link.web = hello.web;
-    if (hello.epoch > epoch) onNewerEpoch?.call(hello.epoch);
+    if (hello.epoch > epoch) {
+      // This device saw a newer host: it is not ours any more, and its
+      // coming back must not count as the old pair being back.
+      onNewerEpoch?.call(hello.epoch);
+      return _drop(link);
+    }
     final connection = link.connection;
     final unverified = switch (connection) {
       PeerTrust(verified: false) => true,
@@ -1234,9 +1315,34 @@ class GameHost {
           _state.nightStep != step) {
         return;
       }
-      _commit(apply(_state, const PhaseTimeout()));
+      _timeUp();
     });
   }
+
+  /// The phase's time ran out: on to the next, unless this host may have
+  /// been replaced; then it tries again shortly.
+  void _timeUp() {
+    if (_closed) return;
+    _reviewSuccession();
+    if (frozen) {
+      final (phase, round, step) = (
+        _state.phase,
+        _state.round,
+        _state.nightStep,
+      );
+      _cancelPhaseTimer = _startTimer(_frozenRetry, () {
+        if (_state.phase == phase &&
+            _state.round == round &&
+            _state.nightStep == step) {
+          _timeUp();
+        }
+      });
+      return;
+    }
+    _commit(apply(_state, const PhaseTimeout()));
+  }
+
+  static const _frozenRetry = Duration(milliseconds: 500);
 
   Set<PlayerId> _voicesNow() {
     final now = _clock();
@@ -1288,6 +1394,7 @@ class GameHost {
         phaseEndsAt: hideTime ? null : _phaseDeadline,
         phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
         showAt: _showAt != null && _showAt! > _clock() ? _showAt : null,
+        epoch: epoch,
         voices: _state.phase == Phase.lobby ? const [] : [..._voices],
         introSkippedAt: _state.phase == Phase.roleReveal
             ? _introSkippedAt
