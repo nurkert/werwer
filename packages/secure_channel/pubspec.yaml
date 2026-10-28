@@ -7,8 +7,14 @@ environment:
   sdk: ^3.12.0
 
 dev_dependencies:
+  protocol:
+    path: ../protocol
   test: ^1.31.0
   very_good_analysis: 10.3.0
+  # The relay server, for the handshake through it (test only; the relay
+  # image itself never contains this package).
+  whowolf_server:
+    path: ../../server
 dependencies:
   game_host:
     path: ../game_host

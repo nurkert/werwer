@@ -444,7 +444,7 @@ class RelayServer {
   void _openRoom(WebSocket host, String? address) {
     final room = _Room(_newRoomId(), host, address);
     _rooms[room.id] = room;
-    host.add(RoomOpened(room.id).encode());
+    _send(host, RoomOpened(room.id).encode());
     final meter = _Meter(config.maxMessagesPerSecond * config.maxPeersPerRoom);
     void end() {
       if (_rooms[room.id] != room) return;
@@ -468,9 +468,7 @@ class RelayServer {
         switch (frame) {
           case PeerData(:final peer, :final data):
             final socket = room.peers[peer];
-            if (socket != null && socket.readyState == WebSocket.open) {
-              socket.add(data);
-            }
+            if (socket != null) _send(socket, data);
           case PeerLeft(:final peer):
             unawaited(room.peers.remove(peer)?.close());
           case RoomOpened() || PeerJoined():
@@ -483,17 +481,29 @@ class RelayServer {
     );
   }
 
+  /// Sends [data] if [socket] can still take it. A socket may report
+  /// itself open while its sink is already closed (this side began closing
+  /// it); a write then must not throw out of the server.
+  static void _send(WebSocket socket, String data) {
+    if (socket.readyState != WebSocket.open) return;
+    try {
+      socket.add(data);
+      // dart:io has no way to ask whether this side already closed the
+      // sink; the write tells by throwing. The peer is gone either way.
+      // ignore: avoid_catching_errors
+    } on StateError {
+      return;
+    }
+  }
+
   void _joinRoom(_Room room, WebSocket peer) {
     final id = room.nextPeer++;
     room.peers[id] = peer;
-    if (room.host.readyState == WebSocket.open) {
-      room.host.add(PeerJoined(id).encode());
-    }
+    _send(room.host, PeerJoined(id).encode());
     final meter = _Meter(config.maxMessagesPerSecond);
     void leave() {
-      if (room.peers.remove(id) != null &&
-          room.host.readyState == WebSocket.open) {
-        room.host.add(PeerLeft(id).encode());
+      if (room.peers.remove(id) != null) {
+        _send(room.host, PeerLeft(id).encode());
       }
       unawaited(peer.close());
     }
@@ -503,9 +513,7 @@ class RelayServer {
         if (data is! String || data.length > maxClientMessage || meter.tick()) {
           return leave();
         }
-        if (room.host.readyState == WebSocket.open) {
-          room.host.add(PeerData(id, data).encode());
-        }
+        _send(room.host, PeerData(id, data).encode());
       },
       onDone: leave,
       onError: (Object _) => leave(),

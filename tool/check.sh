@@ -17,6 +17,7 @@ dart run tool/tokens.dart --check
 
 echo "→ Web app lock"
 tool/check_webapps_lock.sh
+tool/test_fetch_webapps.sh
 
 echo "→ Format"
 dart format --output=none --set-exit-if-changed app/lib app/test packages server
@@ -41,5 +42,8 @@ done
 echo "▶ server (browser)"
 (cd server && dart test --platform chrome --reporter=compact test/browser_relay_test.dart)
 (cd app && flutter test)
+# The browser's way back to its seat, in a real browser.
+echo "▶ app (browser)"
+(cd app && flutter test --platform chrome test/browser/)
 
 echo "✓ All checks passed"

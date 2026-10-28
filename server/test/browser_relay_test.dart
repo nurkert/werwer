@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:game_host/browser.dart';
 import 'package:game_host/game_host.dart';
+import 'package:protocol/protocol.dart';
 import 'package:test/test.dart';
 
 /// A player in a real browser reaches a host through the relay, the way a
@@ -49,6 +50,20 @@ void main() {
       expect(back.you, you);
       expect(back.view!.seats, hasLength(1));
       back.close();
+
+      // A page of another protocol version is never seated: the host does
+      // not answer its hello, but does answer this version's right after.
+      final raw = await dialBrowser(url);
+      final answers = <HostMessage>[];
+      raw.messages.listen((m) => answers.add(HostMessage.parse(m)));
+      final hello = const Hello(name: 'Old', room: '1357', web: true).encode();
+      raw.send(hello.replaceFirst('"v":$protocolVersion', '"v":7'));
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(answers, isEmpty);
+      raw.send(hello);
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      expect(answers.whereType<Welcome>(), hasLength(1));
+      await raw.close();
       await hybrid.sink.close();
     },
   );
