@@ -1022,6 +1022,8 @@ class GameHost {
           _commit(apply(_state, ChangeSettings(settings)));
         case VoteIntent(:final target):
           _commit(apply(_state, CastVote(me, target)));
+        case MayorIntent(:final target):
+          _commit(apply(_state, BackMayor(me, target)));
         case EndDiscussionIntent():
           _ownerOnly(session);
           _commit(apply(_state, const EndDiscussion()));

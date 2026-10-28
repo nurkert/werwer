@@ -122,6 +122,8 @@
     }
   },
   "eyesClosingTogether": "Close your eyes for a moment and hold your phone close: the night begins in a second.",
+  "settingsMayor": "Mayor",
+  "settingsMayorHint": "Whenever there is no living mayor, the village openly elects one by day. Their vote counts twice.",
   "settingsOpenVotes": "Open voting",
   "settingsOpenVotesHint": "Everyone sees who votes for whom as it happens, and again the next day.",
   "votesFor": "{name}: {voters}",
@@ -247,6 +249,11 @@
       }
     }
   },
+  "mayorBallotTitle": "Who becomes mayor?",
+  "mayorBallotHint": "Open, like a show of hands: tap whoever you like, yourself too. Whoever leads alone at the end wears the chain, and their vote counts twice.",
+  "mayorBackers": "{count, plural, =1{1 vote} other{{count} votes}}",
+  "@mayorBackers": {"placeholders": {"count": {"type": "int"}}},
+  "mayorBadge": "Mayor",
   "discuss": "Talk it out at the table. Phones down!",
   "startVote": "Start the vote",
   "ownerStartsVote": "The host starts the vote when you are done.",
@@ -866,6 +873,7 @@
   "ghostsEverything": "Everything",
   "settingsGhostsHint": "Only once they have nothing left to do, and only while holding a button.",
   "settingsRunoff": "Runoff on a tie (otherwise nobody goes)",
+  "extraMayor": "mayor",
   "extraGhosts": "ghosts watch",
   "extraRunoff": "runoff on a tie",
   "eyebrowEvening": "Game night",

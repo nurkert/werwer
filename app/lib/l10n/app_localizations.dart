@@ -494,6 +494,18 @@ abstract class AppLocalizations {
   /// **'Close your eyes for a moment and hold your phone close: the night begins in a second.'**
   String get eyesClosingTogether;
 
+  /// No description provided for @settingsMayor.
+  ///
+  /// In en, this message translates to:
+  /// **'Mayor'**
+  String get settingsMayor;
+
+  /// No description provided for @settingsMayorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Whenever there is no living mayor, the village openly elects one by day. Their vote counts twice.'**
+  String get settingsMayorHint;
+
   /// No description provided for @settingsOpenVotes.
   ///
   /// In en, this message translates to:
@@ -877,6 +889,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Role: {role}'**
   String roleWas(String role);
+
+  /// No description provided for @mayorBallotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who becomes mayor?'**
+  String get mayorBallotTitle;
+
+  /// No description provided for @mayorBallotHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open, like a show of hands: tap whoever you like, yourself too. Whoever leads alone at the end wears the chain, and their vote counts twice.'**
+  String get mayorBallotHint;
+
+  /// No description provided for @mayorBackers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 vote} other{{count} votes}}'**
+  String mayorBackers(int count);
+
+  /// No description provided for @mayorBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Mayor'**
+  String get mayorBadge;
 
   /// No description provided for @discuss.
   ///
@@ -2839,6 +2875,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Runoff on a tie (otherwise nobody goes)'**
   String get settingsRunoff;
+
+  /// No description provided for @extraMayor.
+  ///
+  /// In en, this message translates to:
+  /// **'mayor'**
+  String get extraMayor;
 
   /// No description provided for @extraGhosts.
   ///

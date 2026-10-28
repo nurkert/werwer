@@ -23,6 +23,7 @@ void main() {
         NightIntent.of(const []),
         const ShootIntent(PlayerId('p2')),
         const ShootIntent(null),
+        const MayorIntent(PlayerId('p2')),
         SettingsIntent(Preset.fullStage.settings),
         SettingsIntent(
           Preset.classic.settings.copyWith(
@@ -113,6 +114,8 @@ void main() {
           'type': 'settings',
           'settings': {...encodeSettings(const GameSettings()), 'sheep': 1},
         }),
+        '{"v":$pv,"type":"mayor"}',
+        '{"v":$pv,"type":"mayor","target":"P2"}',
         '{"v":$pv,"type":"hello","name":"Ada","room":"12a4"}',
         '{"v":$pv,"type":"hello","name":"Ada","room":"12345"}',
         '{"v":$pv,"type":"hello","name":"Ada","room":"1234","token":"short"}',

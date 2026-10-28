@@ -32,6 +32,7 @@ Map<String, Object?> encodeSettings(GameSettings settings) => {
   'ghosts': settings.ghosts.name,
   'ties': settings.tieRule.name,
   'openVotes': settings.openVotes,
+  'mayor': settings.mayor,
 };
 
 /// Decodes [GameSettings]; throws a [ProtocolError] for invalid input. Only
@@ -89,5 +90,6 @@ GameSettings decodeSettings(JsonReader json) {
     tieRule:
         json.maybeEnum('ties', TieRule.values) ?? const GameSettings().tieRule,
     openVotes: json.maybeBoolean('openVotes') ?? false,
+    mayor: json.maybeBoolean('mayor') ?? false,
   );
 }

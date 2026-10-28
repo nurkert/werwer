@@ -140,6 +140,7 @@ class GameSettings {
     this.ghosts = GhostSight.everything,
     this.tieRule = TieRule.runoff,
     this.openVotes = false,
+    this.mayor = false,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -212,6 +213,11 @@ class GameSettings {
   /// Whether everyone sees who votes for whom, as it happens (like raising
   /// hands), and the day after how the last vote went.
   final bool openVotes;
+
+  /// Whether the village elects a mayor, whose vote counts twice: by day,
+  /// whenever there is no living mayor, the table elects one openly during
+  /// the talk.
+  final bool mayor;
 
   /// Whether sheep are counted: they need the phones in hand at night, so
   /// not when the narrator calls the roles.
@@ -354,6 +360,7 @@ class GameSettings {
     GhostSight? ghosts,
     TieRule? tieRule,
     bool? openVotes,
+    bool? mayor,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -375,6 +382,7 @@ class GameSettings {
     ghosts: ghosts ?? this.ghosts,
     tieRule: tieRule ?? this.tieRule,
     openVotes: openVotes ?? this.openVotes,
+    mayor: mayor ?? this.mayor,
   );
 
   @override
@@ -401,7 +409,8 @@ class GameSettings {
       other.narratorLanguage == narratorLanguage &&
       other.ghosts == ghosts &&
       other.tieRule == tieRule &&
-      other.openVotes == openVotes;
+      other.openVotes == openVotes &&
+      other.mayor == mayor;
 
   @override
   int get hashCode => Object.hashAll([
@@ -425,6 +434,7 @@ class GameSettings {
     ghosts,
     tieRule,
     openVotes,
+    mayor,
   ]);
 }
 
@@ -465,6 +475,7 @@ enum Preset {
       atmosphere: true,
       wolfTrail: true,
       doorSigns: true,
+      mayor: true,
     ),
   );
 

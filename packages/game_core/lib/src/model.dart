@@ -230,6 +230,8 @@ class GameState {
     this.packMark,
     this.guarded,
     this.lastGuarded,
+    this.mayor,
+    Map<PlayerId, PlayerId> mayorVotes = const {},
     List<PlayerId> lovers = const [],
     Set<Potion> potionsUsed = const {},
     this.shooter,
@@ -255,6 +257,7 @@ class GameState {
            key: List<PlayerId>.unmodifiable(value),
        }),
        lovers = List.unmodifiable(lovers),
+       mayorVotes = Map.unmodifiable(mayorVotes),
        potionsUsed = Set.unmodifiable(potionsUsed),
        votes = Map.unmodifiable(votes),
        runoff = List.unmodifiable(runoff),
@@ -305,6 +308,20 @@ class GameState {
 
   /// Whom the protector shielded last night (not again tonight).
   final PlayerId? lastGuarded;
+
+  /// The mayor, whose vote counts twice (see [GameSettings.mayor]); may be
+  /// dead, then the next day elects a new one.
+  final PlayerId? mayor;
+
+  /// Today's open ballot for a new mayor: who backs whom.
+  final Map<PlayerId, PlayerId> mayorVotes;
+
+  /// Whether today's talk elects a mayor: the setting is on and there is
+  /// no living mayor.
+  bool get electsMayor =>
+      settings.mayor &&
+      phase == Phase.day &&
+      !(mayor != null && (player(mayor!)?.isAlive ?? false));
 
   /// Tonight's victim as far as it matters: `null` if the protector
   /// shields them (the witch then sees nobody to save).
@@ -383,8 +400,8 @@ class GameState {
   /// Returns a copy with the given fields replaced.
   ///
   /// The nullable fields [nightVictim], [packMark], [guarded],
-  /// [lastGuarded], [shooter] and [afterShot] are replaced whenever they
-  /// are passed, also by `null`.
+  /// [lastGuarded], [mayor], [shooter] and [afterShot] are replaced
+  /// whenever they are passed, also by `null`.
   GameState copyWith({
     List<Player>? players,
     Phase? phase,
@@ -397,6 +414,8 @@ class GameState {
     Object? packMark = _keep,
     Object? guarded = _keep,
     Object? lastGuarded = _keep,
+    Object? mayor = _keep,
+    Map<PlayerId, PlayerId>? mayorVotes,
     List<PlayerId>? lovers,
     Set<Potion>? potionsUsed,
     Object? shooter = _keep,
@@ -429,6 +448,8 @@ class GameState {
     lastGuarded: identical(lastGuarded, _keep)
         ? this.lastGuarded
         : lastGuarded as PlayerId?,
+    mayor: identical(mayor, _keep) ? this.mayor : mayor as PlayerId?,
+    mayorVotes: mayorVotes ?? this.mayorVotes,
     lovers: lovers ?? this.lovers,
     potionsUsed: potionsUsed ?? this.potionsUsed,
     shooter: identical(shooter, _keep) ? this.shooter : shooter as PlayerId?,

@@ -219,6 +219,12 @@ class _SettingsBody extends StatelessWidget {
         ),
       ),
       SettingsSwitch(
+        label: l10n.settingsMayor,
+        hint: s.mayor ? l10n.settingsMayorHint : null,
+        value: s.mayor,
+        onChanged: (v) => onChanged(s.copyWith(mayor: v)),
+      ),
+      SettingsSwitch(
         label: l10n.settingsOpenVotes,
         hint: s.openVotes ? l10n.settingsOpenVotesHint : null,
         value: s.openVotes,

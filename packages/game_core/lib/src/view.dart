@@ -124,12 +124,21 @@ class PlayerView {
     this.yourGhostSight = GhostSight.off,
     this.ghost,
     this.openVotes = const {},
+    this.mayor,
+    this.mayorVotes = const {},
     this.chronicle = const [],
   });
 
   /// With [GameSettings.openVotes]: the votes cast so far in the current
   /// vote, for everyone (`null` abstains).
   final Map<PlayerId, PlayerId?> openVotes;
+
+  /// The mayor, if the village elected one (public).
+  final PlayerId? mayor;
+
+  /// Today's open ballot for mayor: who backs whom (public, like raising
+  /// hands).
+  final Map<PlayerId, PlayerId> mayorVotes;
 
   /// Once the game is over: everything that happened, oldest first. With
   /// [GameSettings.openVotes] the votes are in it from the start.
@@ -348,6 +357,8 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
     openVotes: state.settings.openVotes && state.phase == Phase.vote
         ? state.votes
         : const {},
+    mayor: state.mayor,
+    mayorVotes: state.mayorVotes,
     chronicle: chronicleFor(state),
   );
 }
@@ -457,6 +468,8 @@ PlayerView publicView(GameState state) => PlayerView(
   dreams: state.dreams,
   couple: state.phase == Phase.ended ? state.lovers : const [],
   shooter: state.shooter,
+  mayor: state.mayor,
+  mayorVotes: state.mayorVotes,
   winner: state.winner,
   runoff: state.runoff,
 );

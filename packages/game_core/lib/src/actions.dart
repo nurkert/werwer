@@ -115,6 +115,19 @@ final class SeerInspect extends GameAction {
   final PlayerId target;
 }
 
+/// [voter] backs [candidate] in today's open ballot for mayor (see
+/// [GameSettings.mayor]); a later pick replaces an earlier one.
+final class BackMayor extends GameAction {
+  /// Creates the action.
+  const BackMayor(this.voter, this.candidate);
+
+  /// Who backs.
+  final PlayerId voter;
+
+  /// Whom they back (themselves too).
+  final PlayerId candidate;
+}
+
 /// The protector shields [target] from the werewolves tonight (himself
 /// too, but nobody two nights in a row).
 final class ProtectorGuard extends GameAction {

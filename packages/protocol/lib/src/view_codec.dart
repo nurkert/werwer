@@ -83,6 +83,12 @@ Map<String, Object?> encodeView(PlayerView view) => {
       for (final MapEntry(:key, :value) in view.openVotes.entries)
         {'player': key.value, 'target': ?value?.value},
     ],
+  'mayor': ?view.mayor?.value,
+  if (view.mayorVotes.isNotEmpty)
+    'mayorVotes': [
+      for (final MapEntry(:key, :value) in view.mayorVotes.entries)
+        {'player': key.value, 'target': value.value},
+    ],
   if (view.chronicle.isNotEmpty) 'chronicle': encodeChronicle(view.chronicle),
 };
 
@@ -226,6 +232,12 @@ PlayerView decodeView(JsonReader json) => PlayerView(
     if (json.has('openVotes'))
       for (final v in json.objects('openVotes', max: maxPlayers))
         _pid(v, 'player'): _maybePid(v, 'target'),
+  },
+  mayor: _maybePid(json, 'mayor'),
+  mayorVotes: {
+    if (json.has('mayorVotes'))
+      for (final v in json.objects('mayorVotes', max: maxPlayers))
+        _pid(v, 'player'): _pid(v, 'target'),
   },
   chronicle: decodeChronicle(json, 'chronicle'),
 );

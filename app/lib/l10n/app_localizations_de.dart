@@ -251,6 +251,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Kurz die Augen zu und das Handy an dich: Gleich geht die Nacht los.';
 
   @override
+  String get settingsMayor => 'Bürgermeister';
+
+  @override
+  String get settingsMayorHint =>
+      'Gibt es keinen lebenden Bürgermeister, wählt das Dorf tagsüber offen einen. Seine Stimme zählt doppelt.';
+
+  @override
   String get settingsOpenVotes => 'Offene Abstimmung';
 
   @override
@@ -492,6 +499,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String roleWas(String role) {
     return 'Rolle: $role';
   }
+
+  @override
+  String get mayorBallotTitle => 'Wer wird Bürgermeister?';
+
+  @override
+  String get mayorBallotHint =>
+      'Offen wie per Handzeichen: Tippe auf wen du willst, auch dich selbst. Wer am Ende allein vorn liegt, trägt die Kette, und seine Stimme zählt doppelt.';
+
+  @override
+  String mayorBackers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Stimmen',
+      one: '1 Stimme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mayorBadge => 'Bürgermeister';
 
   @override
   String get discuss => 'Diskutiert am Tisch. Handys weg!';
@@ -1650,6 +1678,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsRunoff => 'Stichwahl bei Gleichstand (sonst geht niemand)';
+
+  @override
+  String get extraMayor => 'Bürgermeister';
 
   @override
   String get extraGhosts => 'Geister schauen zu';

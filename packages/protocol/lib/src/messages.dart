@@ -189,6 +189,7 @@ sealed class ClientMessage {
             ? null
             : _readPlayerId(json, 'target'),
       ),
+      'mayor' => MayorIntent(_readPlayerId(json, 'target')),
       'endDiscussion' => const EndDiscussionIntent(),
       'skipIntro' => const SkipIntroIntent(),
       'silent' => SilentIntent(silent: json.boolean('on')),
@@ -424,6 +425,21 @@ final class VoteIntent extends ClientMessage {
 
   @override
   Map<String, Object?> get _fields => {'target': target?.value};
+}
+
+/// "I back this player for mayor" (today's open ballot).
+final class MayorIntent extends ClientMessage {
+  /// Creates the message.
+  const MayorIntent(this.target);
+
+  /// Whom I back.
+  final PlayerId target;
+
+  @override
+  String get _type => 'mayor';
+
+  @override
+  Map<String, Object?> get _fields => {'target': target.value};
 }
 
 /// Room owner: the discussion is over, start the vote.

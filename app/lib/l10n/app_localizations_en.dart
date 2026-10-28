@@ -247,6 +247,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Close your eyes for a moment and hold your phone close: the night begins in a second.';
 
   @override
+  String get settingsMayor => 'Mayor';
+
+  @override
+  String get settingsMayorHint =>
+      'Whenever there is no living mayor, the village openly elects one by day. Their vote counts twice.';
+
+  @override
   String get settingsOpenVotes => 'Open voting';
 
   @override
@@ -489,6 +496,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String roleWas(String role) {
     return 'Role: $role';
   }
+
+  @override
+  String get mayorBallotTitle => 'Who becomes mayor?';
+
+  @override
+  String get mayorBallotHint =>
+      'Open, like a show of hands: tap whoever you like, yourself too. Whoever leads alone at the end wears the chain, and their vote counts twice.';
+
+  @override
+  String mayorBackers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count votes',
+      one: '1 vote',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mayorBadge => 'Mayor';
 
   @override
   String get discuss => 'Talk it out at the table. Phones down!';
@@ -1638,6 +1666,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRunoff => 'Runoff on a tie (otherwise nobody goes)';
+
+  @override
+  String get extraMayor => 'mayor';
 
   @override
   String get extraGhosts => 'ghosts watch';

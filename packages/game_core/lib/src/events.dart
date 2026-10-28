@@ -137,6 +137,15 @@ final class RunoffStarted extends GameEvent {
   final List<PlayerId> candidates;
 }
 
+/// The village elected [mayor] (see `GameSettings.mayor`).
+final class MayorElected extends GameEvent {
+  /// Creates the event.
+  const MayorElected(this.mayor);
+
+  /// The new mayor.
+  final PlayerId mayor;
+}
+
 /// What the seer saw. Only the seer learns about it.
 final class SeerSaw extends GameEvent {
   /// Creates the event.

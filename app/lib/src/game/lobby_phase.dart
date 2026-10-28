@@ -252,6 +252,7 @@ class _LobbyPhaseState extends State<LobbyPhase> {
                   if (settings.doorSignsInPlay) l10n.extraDoorSigns,
                   if (settings.atmosphere) l10n.extraAtmosphere,
                   if (settings.ghosts != GhostSight.off) l10n.extraGhosts,
+                  if (settings.mayor) l10n.extraMayor,
                   if (settings.tieRule == TieRule.runoff) l10n.extraRunoff,
                 ]
                 case final extras when extras.isNotEmpty)

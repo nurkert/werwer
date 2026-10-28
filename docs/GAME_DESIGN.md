@@ -57,6 +57,7 @@ Jeder Spieler wählt in der Lobby eine Persona: zwanzig ganz normale Leute aus d
 | Hexe | Ein Heiltrank und ein Gifttrank pro Spiel. |
 | Jäger | Nimmt beim Tod eine Person mit. |
 | Amor | Verbindet in Nacht 1 zwei Personen. Stirbt einer, stirbt der andere. |
+| Bürgermeister (umgesetzt, Task 023 F2, Einstellung) | Gibt es keinen lebenden Bürgermeister, wählt das Dorf tagsüber offen einen (wie per Handzeichen, umwählen erlaubt). Liegt einer allein vorn, sobald alle gewählt haben oder spätestens am Ende der Diskussion, trägt er die Kette; bei Gleichstand bleibt das Dorf bis morgen ohne. Seine Stimme zählt bei der Abstimmung doppelt. Stirbt er, wählt der nächste Tag neu. |
 | Beschützer (umgesetzt, Task 023 F3) | Schützt jede Nacht eine Person vor den Werwölfen, auch sich selbst, aber nie zweimal hintereinander dieselbe. Ist das Opfer geschützt, stirbt niemand durch die Wölfe, und die Hexe sieht kein Opfer. In der gerufenen Nacht kommt er vor den Werwölfen. Ein Türzeichen-Treffer des Rudels zählt nicht als Angriff, den er abwehrt. |
 | Eigene Rollen | Ideen für Whowolf-eigene Rollen sammeln, das macht die App besonders. |
 

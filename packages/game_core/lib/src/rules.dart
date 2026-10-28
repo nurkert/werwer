@@ -55,6 +55,7 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
     NightAbility.inspect,
     [target],
   ),
+  BackMayor() => _backMayor(state, action),
   ProtectorGuard(:final protector, :final target) => _night(
     state,
     protector,
@@ -939,9 +940,40 @@ Faction? _winner(GameState state) {
 
 GameUpdate _endDiscussion(GameState state) {
   _expectPhase(state, Phase.day);
-  return GameUpdate(state.copyWith(phase: Phase.vote, votes: const {}), const [
-    VotingStarted(),
-  ]);
+  // The ballot for mayor closes with the talk: whoever leads alone wins,
+  // a tie leaves the village without a mayor until tomorrow.
+  final elected = state.electsMayor ? _elect(state) : null;
+  final next = elected?.state ?? state;
+  return GameUpdate(
+    next.copyWith(phase: Phase.vote, votes: const {}, mayorVotes: const {}),
+    [...?elected?.events, const VotingStarted()],
+  );
+}
+
+/// Backs a candidate for mayor in today's open ballot. Once every living
+/// player has backed someone and one leads alone, they are elected at once.
+GameUpdate _backMayor(GameState state, BackMayor action) {
+  _expectPhase(state, Phase.day);
+  if (!state.electsMayor) _refuse(Violation.wrongPhase);
+  final voter = _living(state, action.voter);
+  final candidate = _living(state, action.candidate);
+  final next = state.copyWith(
+    mayorVotes: {...state.mayorVotes, voter.id: candidate.id},
+  );
+  if (next.alive.every((p) => next.mayorVotes.containsKey(p.id))) {
+    return _elect(next) ?? GameUpdate(next);
+  }
+  return GameUpdate(next);
+}
+
+/// The ballot's single leader becomes mayor; `null` if nobody leads alone.
+GameUpdate? _elect(GameState state) {
+  final leaders = _leaders(state, state.mayorVotes.values);
+  if (leaders.length != 1) return null;
+  return GameUpdate(
+    state.copyWith(mayor: leaders.single, mayorVotes: const {}),
+    [MayorElected(leaders.single)],
+  );
 }
 
 GameUpdate _castVote(GameState state, CastVote action) {
@@ -964,7 +996,12 @@ GameUpdate _castVote(GameState state, CastVote action) {
 }
 
 GameUpdate _resolveVote(GameState state) {
-  final cast = state.votes.values.whereType<PlayerId>().toList();
+  // The mayor's vote counts twice.
+  final mayor = state.mayor;
+  final cast = [
+    for (final MapEntry(:key, :value) in state.votes.entries)
+      if (value != null) ...[value, if (key == mayor) value],
+  ];
   final leaders = _leaders(state, cast);
   final cleared = state.copyWith(
     votes: const {},
