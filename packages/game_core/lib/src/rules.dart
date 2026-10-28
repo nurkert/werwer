@@ -103,10 +103,12 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
   Phase.lobby || Phase.roleReveal || Phase.ended => null,
 };
 
-/// How long a called step lasts once nobody is left to decide (or from the
-/// start, if its role is dead): as if someone were still deciding, so
-/// nobody hears who is gone or how quickly someone picked.
-const calledStepTime = Duration(seconds: 8);
+/// How long a called step lasts at least, counted from its start, once
+/// nobody is left to decide (or from the start, if its role is dead): as
+/// long as a living player typically takes, so nobody can count who is
+/// gone or how quickly someone picked (the host adds a little chance to a
+/// dead role's step, see GameHost).
+const calledStepTime = Duration(seconds: 16);
 
 bool _called(GameState state) => state.settings.nightMode == NightMode.called;
 

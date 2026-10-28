@@ -74,6 +74,12 @@ class FakeTimers {
 
   bool has(Duration after) => pending.any((e) => _phase(e.$1, after));
 
+  /// A timer of [after] up to [extra] longer (a dead role's called step
+  /// gets a few random seconds).
+  bool hasAround(Duration after, Duration extra) => pending.any(
+    (e) => e.$1 > const HostConfig().helloTimeout && e.$1 <= after + extra,
+  );
+
   static bool _phase(Duration timer, Duration phase) =>
       timer <= phase && timer > const HostConfig().helloTimeout;
 }
@@ -661,7 +667,18 @@ Future<void> _simulate(int seed) async {
     // A running phase always has its timer.
     final time = phaseTime(r.host.state);
     if (time != null) {
-      expect(timers.has(time), isTrue, reason: '$where: no $now timer');
+      final state = r.host.state;
+      final idle =
+          state.phase == Phase.night &&
+          state.settings.nightMode == NightMode.called &&
+          !calledStepPending(state);
+      expect(
+        idle
+            ? timers.hasAround(time, const Duration(seconds: 6))
+            : timers.has(time),
+        isTrue,
+        reason: '$where: no $now timer',
+      );
     }
 
     // The snapshot restores exactly this state.

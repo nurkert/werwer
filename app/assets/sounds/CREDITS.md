@@ -37,6 +37,7 @@ HQ MP3 preview.
 | `howl.mp3` | [Cooper Creek … solitary wolf howl very clear](https://freesound.org/s/500646/) | betchkal | CC0 1.0 | 29.3–33.3 s (start of one howl), high-pass 150 Hz, 1.5 s fade-out |
 | `cheer.mp3` | [Good answer harp glissando.wav](https://freesound.org/s/610703/) | oggraphics | CC0 1.0 | 0–2.6 s, 1 s fade-out |
 | `bowstring.mp3` | [Bow Release (Bow and Arrow) 3](https://freesound.org/s/384918/) | Ali_6868 | CC0 1.0 | 0–0.6 s |
+| `steps/step0.mp3` … `steps/step4.mp3` | [Impact Sounds](https://kenney.nl/assets/impact-sounds), `footstep_wood_000.ogg` … `footstep_wood_004.ogg` | Kenney | CC0 1.0 | high-pass 80 Hz, peak −14 dBFS (about 10 dB under the narrator), 0.3 s with a 50 ms fade-out; the narrator's footsteps |
 
 Kenney packs were downloaded as the official zips from kenney.nl; each contains a `License.txt`
 stating CC0 1.0. The CC0 licence of every Freesound item was checked on its page (2026-10-26; the roosters 2026-10-27).

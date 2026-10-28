@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:protocol/protocol.dart';
 
 /// The official relay server: players on mobile data join a host through
@@ -109,6 +112,89 @@ class Store {
 
   final FlutterSecureStorage _storage;
 
+  /// Keys holding secrets (a session token): only in the Keychain or
+  /// Keystore. Everything else is a plain setting and lives in a small
+  /// file in the app's private folder, because a desktop build without a
+  /// signed Keychain entitlement cannot write the Keychain at all (macOS
+  /// refuses silently) and would forget every setting.
+  static const Set<String> _secret = {_resumeKey};
+
+  static Map<String, String>? _prefs;
+  static Future<void> _writing = Future.value();
+
+  static Future<File> _prefsFile() async =>
+      File('${(await getApplicationSupportDirectory()).path}/settings.json');
+
+  static Future<Map<String, String>> _loadPrefs() async {
+    final known = _prefs;
+    if (known != null) return known;
+    try {
+      final file = await _prefsFile();
+      final json = file.existsSync()
+          ? jsonDecode(await file.readAsString()) as Map<String, Object?>
+          : const <String, Object?>{};
+      return _prefs = {
+        for (final MapEntry(:key, :value) in json.entries)
+          if (value is String) key: value,
+      };
+    } on Object {
+      return _prefs = {};
+    }
+  }
+
+  static Future<void> _savePrefs(Map<String, String> prefs) {
+    // One write after another, never two at once into the same file.
+    return _writing = _writing.then((_) async {
+      try {
+        final file = await _prefsFile();
+        await file.parent.create(recursive: true);
+        await file.writeAsString(jsonEncode(prefs));
+      } on Object {
+        // Not saved; the setting holds until the app closes.
+      }
+    });
+  }
+
+  bool _plain(String key) => !kIsWeb && !_secret.contains(key);
+
+  Future<String?> _get(String key) async {
+    if (_plain(key)) {
+      final prefs = await _loadPrefs();
+      if (prefs.containsKey(key)) return prefs[key];
+      // Saved by an earlier version in the Keychain: still read it.
+      try {
+        return await _storage.read(key: key);
+      } on Object {
+        return null;
+      }
+    }
+    return _storage.read(key: key);
+  }
+
+  Future<void> _put(String key, String value) async {
+    if (_plain(key)) {
+      final prefs = await _loadPrefs();
+      prefs[key] = value;
+      return _savePrefs(prefs);
+    }
+    return _storage.write(key: key, value: value);
+  }
+
+  Future<void> _drop(String key) async {
+    if (_plain(key)) {
+      final prefs = await _loadPrefs();
+      prefs.remove(key);
+      await _savePrefs(prefs);
+      try {
+        await _storage.delete(key: key);
+      } on Object {
+        // Nothing there.
+      }
+      return;
+    }
+    return _storage.delete(key: key);
+  }
+
   static const _resumeKey = 'resume';
   static const _serverKey = 'relayServer';
   static const _relayOffKey = 'relayOff';
@@ -116,7 +202,7 @@ class Store {
 
   Future<bool> _flag(String key) async {
     try {
-      return await _storage.read(key: key) == '1';
+      return await _get(key) == '1';
     } on Object {
       return false;
     }
@@ -125,9 +211,9 @@ class Store {
   Future<void> _setFlag(String key, {required bool on}) async {
     try {
       if (on) {
-        await _storage.write(key: key, value: '1');
+        await _put(key, '1');
       } else {
-        await _storage.delete(key: key);
+        await _drop(key);
       }
     } on Object {
       // Not saved; asked again next time.
@@ -147,7 +233,7 @@ class Store {
   Future<RelayMode> relayMode() async {
     if (await relayOff()) return RelayMode.never;
     try {
-      final raw = await _storage.read(key: _relayModeKey);
+      final raw = await _get(_relayModeKey);
       return raw == RelayMode.always.name
           ? RelayMode.always
           : RelayMode.onDemand;
@@ -159,7 +245,7 @@ class Store {
   Future<void> setRelayMode(RelayMode mode) async {
     await setRelayOff(off: mode == RelayMode.never);
     try {
-      await _storage.write(key: _relayModeKey, value: mode.name);
+      await _put(_relayModeKey, mode.name);
     } on Object {
       // Not saved; the default stays.
     }
@@ -183,7 +269,7 @@ class Store {
   /// The name last typed on the start screen, kept for next time.
   Future<String?> name() async {
     try {
-      return await _storage.read(key: _nameKey);
+      return await _get(_nameKey);
     } on Object {
       return null;
     }
@@ -191,7 +277,7 @@ class Store {
 
   Future<void> setName(String name) async {
     try {
-      await _storage.write(key: _nameKey, value: name);
+      await _put(_nameKey, name);
     } on Object {
       // Typed again next time.
     }
@@ -200,7 +286,7 @@ class Store {
   /// The room code of the room last joined, to offer it first nearby.
   Future<String?> lastRoom() async {
     try {
-      return await _storage.read(key: _lastRoomKey);
+      return await _get(_lastRoomKey);
     } on Object {
       return null;
     }
@@ -208,7 +294,7 @@ class Store {
 
   Future<void> setLastRoom(String room) async {
     try {
-      await _storage.write(key: _lastRoomKey, value: room);
+      await _put(_lastRoomKey, room);
     } on Object {
       // Just not offered first.
     }
@@ -227,7 +313,7 @@ class Store {
   /// The newest version the player was told about already.
   Future<String?> updateSeen() async {
     try {
-      return await _storage.read(key: _updateSeenKey);
+      return await _get(_updateSeenKey);
     } on Object {
       return null;
     }
@@ -235,7 +321,7 @@ class Store {
 
   Future<void> setUpdateSeen(String version) async {
     try {
-      await _storage.write(key: _updateSeenKey, value: version);
+      await _put(_updateSeenKey, version);
     } on Object {
       // Told again next time.
     }
@@ -247,7 +333,7 @@ class Store {
   /// which to hide them; expired ones are left out.
   Future<Map<String, DateTime>> closedRooms() async {
     try {
-      final raw = await _storage.read(key: _closedRoomsKey);
+      final raw = await _get(_closedRoomsKey);
       if (raw == null) return {};
       final now = DateTime.now();
       return {
@@ -267,9 +353,9 @@ class Store {
     final latest = rooms.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     try {
-      await _storage.write(
-        key: _closedRoomsKey,
-        value: jsonEncode({
+      await _put(
+        _closedRoomsKey,
+        jsonEncode({
           for (final MapEntry(:key, :value) in latest.take(16))
             key: value.millisecondsSinceEpoch,
         }),
@@ -286,7 +372,7 @@ class Store {
   /// set per app in the system settings).
   Future<String?> language() async {
     try {
-      return await _storage.read(key: _languageKey);
+      return await _get(_languageKey);
     } on Object {
       return null;
     }
@@ -295,9 +381,9 @@ class Store {
   Future<void> setLanguage(String? code) async {
     try {
       if (code == null) {
-        await _storage.delete(key: _languageKey);
+        await _drop(_languageKey);
       } else {
-        await _storage.write(key: _languageKey, value: code);
+        await _put(_languageKey, code);
       }
     } on Object {
       // Not saved; the system language next time.
@@ -308,7 +394,7 @@ class Store {
   /// game is surely over, and the token should not linger).
   Future<ResumeInfo?> loadResume() async {
     try {
-      final raw = await _storage.read(key: _resumeKey);
+      final raw = await _get(_resumeKey);
       final info = raw == null ? null : ResumeInfo.fromJson(raw);
       if (raw != null && (info == null || !info.isFresh)) {
         await clearResume();
@@ -322,7 +408,7 @@ class Store {
 
   Future<void> saveResume(ResumeInfo info) async {
     try {
-      await _storage.write(key: _resumeKey, value: info.toJson());
+      await _put(_resumeKey, info.toJson());
     } on Object {
       // Without a keychain there is no resume after a restart.
     }
@@ -330,7 +416,7 @@ class Store {
 
   Future<void> clearResume() async {
     try {
-      await _storage.delete(key: _resumeKey);
+      await _drop(_resumeKey);
     } on Object {
       // Nothing stored.
     }
@@ -342,7 +428,7 @@ class Store {
     if (await relayOff()) return null;
     String? raw;
     try {
-      raw = await _storage.read(key: _serverKey);
+      raw = await _get(_serverKey);
     } on Object {
       raw = null;
     }
@@ -352,7 +438,7 @@ class Store {
   /// The player's own server as entered, or `null`.
   Future<String?> customServer() async {
     try {
-      return await _storage.read(key: _serverKey);
+      return await _get(_serverKey);
     } on Object {
       return null;
     }
@@ -361,9 +447,9 @@ class Store {
   Future<void> setCustomServer(String? server) async {
     try {
       if (server == null || server.trim().isEmpty) {
-        await _storage.delete(key: _serverKey);
+        await _drop(_serverKey);
       } else {
-        await _storage.write(key: _serverKey, value: server.trim());
+        await _put(_serverKey, server.trim());
       }
     } on Object {
       // Not saved; the field shows the old value next time.

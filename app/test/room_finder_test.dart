@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/src/net/discovery.dart';
+import 'package:whowolf/src/net/store.dart';
 
 NearbyRoom _room(String id, {String ip = '192.168.1.20', String? print}) =>
     NearbyRoom(
@@ -13,29 +13,6 @@ NearbyRoom _room(String id, {String ip = '192.168.1.20', String? print}) =>
       lan: LanAddress(ip, 4040),
       keyPrint: print,
     );
-
-/// The keychain as a map, so a "restart" can read what was written.
-Map<String, String> _fakeKeychain() {
-  final values = <String, String>{};
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(
-        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
-        (call) async {
-          final args = (call.arguments as Map).cast<String, Object?>();
-          final key = args['key'] as String?;
-          switch (call.method) {
-            case 'read':
-              return values[key];
-            case 'write':
-              values[key!] = args['value']! as String;
-            case 'delete':
-              values.remove(key);
-          }
-          return null;
-        },
-      );
-  return values;
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -135,20 +112,10 @@ void main() {
   test(
     'a room closed here stays hidden after a restart, until it expires',
     () async {
-      final keychain = _fakeKeychain();
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-              const MethodChannel(
-                'plugins.it_nomads.com/flutter_secure_storage',
-              ),
-              null,
-            ),
-      );
       final key = List.filled(32, 3);
       RoomFinder.closed(key);
       await pumpEventQueue();
-      expect(keychain['closedRooms'], contains(keyPrint(key)));
+      expect((await const Store().closedRooms()).keys, contains(keyPrint(key)));
 
       await RoomFinder.restart();
       final finder = RoomFinder.manual();
@@ -157,7 +124,9 @@ void main() {
       expect(finder.rooms, isEmpty);
 
       // Expired: the room shows again (if it is announced at all).
-      keychain['closedRooms'] = '{"${keyPrint(key)}": 1}';
+      await const Store().setClosedRooms({
+        keyPrint(key): DateTime.fromMillisecondsSinceEpoch(1),
+      });
       await RoomFinder.restart();
       finder.add(_room('b', print: keyPrint(key)));
       expect(finder.rooms.map((r) => r.id), containsAll(['a', 'b']));

@@ -62,6 +62,7 @@ flutter:
     - assets/sheep/
     - assets/licenses/
     - assets/sounds/
+    - assets/sounds/steps/
     - assets/ui/
     - assets/webapp/
     - assets/voice/

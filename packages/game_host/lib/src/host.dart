@@ -1102,9 +1102,17 @@ class GameHost {
         ? config.revealTime
         : timeLimit(_state);
     if (full == null) return;
-    final duration = remaining == null || (remaining > full && !beyondLimit)
+    var duration = remaining == null || (remaining > full && !beyondLimit)
         ? full
         : remaining;
+    // A called step that nobody in it can decide (its role is dead) gets a
+    // few random seconds more, so its length is no fixed value to count.
+    if (!sameStep &&
+        _state.phase == Phase.night &&
+        _state.settings.nightMode == NightMode.called &&
+        !calledStepPending(_state)) {
+      duration += Duration(milliseconds: _random.nextInt(6000));
+    }
     final (phase, round, step) = (
       _state.phase,
       _state.round,
