@@ -106,3 +106,14 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
 
 - [x] **G1 Release 0.2.0.** CHANGELOG, Web-App-Build in `server/webapps.lock`, alle Geräte auf Protokoll 12. (erledigt: v0.2.0 am 2026-10-28, Protokoll 15)
 - [ ] **G2 Generalprobe am Tisch** mit echten Geräten: iPhone, Android, Mac, ein Browser über play.whowolf.de und einer im WLAN, einer über den Code aus Task 022. Dabei werden auch die offenen Geräteprüfungen aus Task 017, 018 und 019 abgehakt.
+
+  **Vorbereitet (2026-10-28):** Mac-App 0.2.0 läuft, iPhone hat 0.2.0 installiert, Release-Pipeline v0.2.0 gestartet. Checkliste für die Probe (je Punkt ankreuzen, Auffälliges als Issue):
+  1. Alle Geräte auf 0.2.0; ein Gerät mit 0.1.9 bekommt die Versions-Meldung (A2).
+  2. Raum auf dem Mac öffnen, Einladung aufklappen: QR zeigt play.whowolf.de, darunter der Tür-Code (Task 022).
+  3. iPhone im Browser über QR, ein Laptop über den Code auf play.whowolf.de, Android mit App; Prüfbild bestätigen (Option 1), danach einmal raus und wieder rein ohne Prüfbild (D1).
+  4. Ruhemodus auf Android einschalten, nach dem Spiel ist „Nicht stören“ wieder wie vorher (F1).
+  5. „Volle Bühne“: Beschützer, Bürgermeisterwahl am ersten Tag, doppelte Stimme; Hexe sieht kein Opfer, wenn der Beschützer es hält.
+  6. Erzähler „Lebendig“ und „Theater“ anhören: Wechsel nur in Pausen hörbar sauber? Schritte zu laut oder zu schnell (0,32, 450 ms)? Nachts von einem festen Platz? Lautstärke nach −20 LUFS ausreichend?
+  7. Ein Handy mitten in der Nacht ausschalten: Phase läuft weiter, Erzähler übernimmt ein anderes Gerät; Host-Handy kurz offline: Nachfolger übernimmt, nichts Bestätigtes geht verloren (Task 021).
+  8. Desktop: Pfeile, Überschrift über beiden Spalten, Karten passen ins Fenster; Tastatur (Tab, Enter) wählt Karten.
+  9. Große Systemschrift auf einem Handy: nichts abgeschnitten.
