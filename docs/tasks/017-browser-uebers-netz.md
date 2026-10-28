@@ -88,7 +88,7 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 - [x] Test: Ein Raum im WLAN mit *nur bei Bedarf* baut keine Verbindung zum Relay auf, nach `goOnline()` genau eine, beim zweiten Mal keine weitere (`app/integration_test/table_test.dart`, mit Zähl-Relay; läuft wie alle Integrationstests auf Gerät oder Desktop mit WLAN, nicht in der CI).
 - [x] **Scanner im Stil der Bühne:** Kamerabild hinter dunkler Bühnennacht, eine Öffnung mit Messingrahmen und Laternen-Ecken, Titel in der Bühnenschrift und ein Hinweis darüber, Taschenlampe oben rechts, fremde Codes auf einem Papierschild darunter (`app/lib/src/scan_screen.dart`). Am Gerät anzusehen, siehe Phase 4.
 - [x] Der Einladungstext richtet sich danach, ob der Browser möglich ist (`HostedRoom.browserCanJoin`), nicht mehr nach dem Schema des Links.
-- [ ] Ein kleines Browser-Symbol am Platz eines Browser-Spielers, **nur in der Lobby**, nie nachts (das Symbol hängt nicht an der Rolle, verrät also nichts).
+- [x] Am Platz eines Browser-Spielers steht in der Lobby „im Browser“, **nur in der Lobby**, nie nachts (das hängt nicht an der Rolle, verrät also nichts). Dafür **Protokoll Version 8**: `Hello.web` und `StateMessage.inBrowser`, das der Host nur in der Lobby füllt (Tests in `protocol_test.dart` und `host_test.dart`).
 - [x] Test: Mit abgeschalteter Auslieferung gibt der Host im WLAN keine Datei heraus, weder per `GET` noch per `HEAD` (`packages/game_host/test/site_test.dart`). Der QR-Code folgt der Wahl: Server-Seite, WLAN-Code oder nur App-Link (`app/test/invite_code_test.dart`, Entscheidung in `inviteCode`).
 
 ### Phase 4 – Abschluss

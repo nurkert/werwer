@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 7;
+const protocolVersion = 8;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -234,6 +234,7 @@ final class Hello extends ClientMessage {
     this.join,
     this.candidate,
     this.epoch = 0,
+    this.web = false,
   });
 
   factory Hello._parse(JsonReader json) {
@@ -250,8 +251,14 @@ final class Hello extends ClientMessage {
       join: json.maybeString('join') == null ? null : _readToken(json, 'join'),
       candidate: Candidate._read(json, 'ck', 'cs'),
       epoch: json.maybeInteger('epoch', max: maxEpoch) ?? 0,
+      web: json.maybeBoolean('web') ?? false,
     );
   }
+
+  /// The player is in a browser, without the app. Only shown in the lobby
+  /// (the host can tell why a phone stays silent); it says nothing about
+  /// the game.
+  final bool web;
 
   /// This device can take over the room if the host goes away: its
   /// candidate keys. Only apps that can host on the local network send it.
@@ -286,6 +293,7 @@ final class Hello extends ClientMessage {
     'join': ?join,
     ...?candidate?._fields('ck', 'cs'),
     if (epoch > 0) 'epoch': epoch,
+    if (web) 'web': true,
   };
 }
 
@@ -584,6 +592,18 @@ sealed class HostMessage {
         phaseEndsInMs: json.maybeInteger('endsIn'),
         phaseAt: json.maybeInteger('phaseAt', max: maxClock),
         introSkippedAt: json.maybeInteger('skippedAt', max: maxClock),
+        inBrowser: json.has('web')
+            ? [
+                for (final id in json.strings(
+                  'web',
+                  max: maxPlayers,
+                  maxLength: 16,
+                ))
+                  _playerIds.hasMatch(id)
+                      ? PlayerId(id)
+                      : throw const ProtocolError('bad id in "web"'),
+              ]
+            : const [],
         pending: [
           for (final p in json.objects('pending', max: 40))
             PendingJoin(
@@ -834,6 +854,8 @@ class PendingJoin {
   final List<int> checkCode;
 }
 
+final _playerIds = RegExp(r'^[a-z0-9]{1,16}$');
+
 /// The game as you may see it.
 final class StateMessage extends HostMessage {
   /// Creates the message.
@@ -845,7 +867,11 @@ final class StateMessage extends HostMessage {
     this.phaseAt,
     this.introSkippedAt,
     this.pending = const [],
+    this.inBrowser = const [],
   });
+
+  /// In the lobby: who is playing in a browser, without the app.
+  final List<PlayerId> inBrowser;
 
   /// When the room owner skipped the narrator's intro, on the host's
   /// clock (milliseconds); only during the role reveal.
@@ -882,6 +908,7 @@ final class StateMessage extends HostMessage {
     'endsIn': ?phaseEndsInMs,
     'phaseAt': ?phaseAt,
     'skippedAt': ?introSkippedAt,
+    if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],
     'pending': [
       for (final p in pending)
         {

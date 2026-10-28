@@ -2000,6 +2000,12 @@ abstract class AppLocalizations {
   /// **'No cookies, no tracking: this browser only remembers your seat at the table, for at most 12 hours.'**
   String get webJoinPrivacy;
 
+  /// No description provided for @inBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'in the browser'**
+  String get inBrowser;
+
   /// No description provided for @inviteHintWeb.
   ///
   /// In en, this message translates to:

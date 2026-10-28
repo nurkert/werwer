@@ -161,6 +161,21 @@ void main() {
     expect(players[1].last!.isOwner, isFalse);
   });
 
+  test('who plays in a browser shows only in the lobby', () async {
+    final owner = await join('Owner', owner: true);
+    final web = Player(transport.connect())
+      ..send(const Hello(name: 'Web', room: room, web: true));
+    await settle();
+    final app = await join('App');
+    for (final p in [owner, web, app]) {
+      expect(p.last!.inBrowser, [web.id], reason: p.id?.value);
+    }
+    await start([owner, web, app]);
+    for (final p in [owner, web, app]) {
+      expect(p.last!.inBrowser, isEmpty);
+    }
+  });
+
   test('only the owner may start; night falls after confirming', () async {
     final players = await table(5);
     players[1].send(const StartGameIntent());

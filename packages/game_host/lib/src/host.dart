@@ -97,6 +97,9 @@ class _Link {
   final Connection connection;
   final bool owner;
   _Session? session;
+
+  /// The player said hello from a browser.
+  bool web = false;
   void Function()? cancelHello;
   // Cancelled in GameHost._drop.
   // ignore: cancel_subscriptions
@@ -599,6 +602,7 @@ class GameHost {
 
   void _hello(_Link link, Hello hello) {
     if (hello.room != roomCode) return _bye(link, ByeReason.wrongRoom);
+    link.web = hello.web;
     if (hello.epoch > epoch) onNewerEpoch?.call(hello.epoch);
     final connection = link.connection;
     final unverified = switch (connection) {
@@ -939,6 +943,12 @@ class GameHost {
         introSkippedAt: _state.phase == Phase.roleReveal
             ? _introSkippedAt
             : null,
+        inBrowser: _state.phase == Phase.lobby
+            ? [
+                for (final s in _sessions.values)
+                  if (s.link?.web ?? false) s.player,
+              ]
+            : const [],
         pending: session.owner
             ? [
                 for (final p in _pending.values)

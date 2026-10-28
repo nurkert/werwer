@@ -1134,6 +1134,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'No cookies, no tracking: this browser only remembers your seat at the table, for at most 12 hours.';
 
   @override
+  String get inBrowser => 'in the browser';
+
+  @override
   String get inviteHintWeb =>
       'Scan the code with the Whowolf app, or without the app with your phone\'s camera to play in the browser.';
 

@@ -78,6 +78,7 @@ class PlayerLink {
     this.candidate,
     this._epoch = 0,
     this.config = const LinkConfig(),
+    this.web = false,
     this.onChange,
     this.onWelcome,
     this.onRoomKeys,
@@ -163,6 +164,12 @@ class PlayerLink {
 
   /// For the owner: people waiting to be let in.
   List<PendingJoin> pending = const [];
+
+  /// In the lobby: who plays in a browser, without the app.
+  List<PlayerId> inBrowser = const [];
+
+  /// This player is in a browser (the host shows it in the lobby).
+  final bool web;
 
   /// When the phase timer runs out, on this device's clock (milliseconds).
   int? phaseEndsAtMs;
@@ -304,6 +311,7 @@ class PlayerLink {
         join: _join,
         candidate: candidate,
         epoch: _epoch,
+        web: web,
       ).encode(),
     );
   }
@@ -413,6 +421,7 @@ class PlayerLink {
         view = message.view;
         isOwner = message.isOwner;
         pending = message.pending;
+        inBrowser = message.inBrowser;
         phaseStartedAtHostMs = message.phaseAt;
         introSkippedAtHostMs = message.introSkippedAt;
         final endsIn = message.phaseEndsInMs;
@@ -598,7 +607,7 @@ class PlayerLink {
   void rename(String name) {
     _name = name.trim();
     nameRefused = false;
-    _send(Hello(name: _name, room: roomCode, join: _join));
+    _send(Hello(name: _name, room: roomCode, join: _join, web: web));
     _changed();
   }
 

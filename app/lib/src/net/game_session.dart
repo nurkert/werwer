@@ -41,6 +41,7 @@ class GameSession extends ChangeNotifier {
       token: token,
       config: config,
       candidate: takeover?.candidate,
+      web: kIsWeb,
       onChange: _changed,
       onWelcome: onWelcome,
       onRoomKeys: onRoomKeys,
@@ -202,6 +203,9 @@ class GameSession extends ChangeNotifier {
 
   /// For the room owner: people waiting to be let in.
   List<PendingJoin> get pending => _link.pending;
+
+  /// In the lobby: who plays in a browser, without the app.
+  List<PlayerId> get inBrowser => _link.inBrowser;
 
   /// The newest view of the game (kept while the host is away).
   PlayerView? get view => _link.view;

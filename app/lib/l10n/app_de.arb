@@ -332,6 +332,7 @@
   "webJoinSomeoneElse": "Als jemand anderes beitreten",
   "webJoinScreenOn": "Lass den Bildschirm an und den Ton laut, solange ihr spielt.",
   "webJoinPrivacy": "Keine Cookies, kein Tracking: Dieser Browser merkt sich nur deinen Platz am Tisch, höchstens 12 Stunden.",
+  "inBrowser": "im Browser",
   "inviteHintWeb": "Scannt den Code mit der Whowolf-App oder ohne App mit der Handykamera, dann geht es im Browser los.",
   "inviteWifiFirst": "Im selben WLAN? Die anderen öffnen Whowolf und tippen auf „Raum beitreten“: Dein Raum erscheint dort von selbst.",
   "inviteShowCode": "QR-Code zeigen",

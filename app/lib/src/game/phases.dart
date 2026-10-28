@@ -318,6 +318,9 @@ class _LobbyPhaseState extends State<LobbyPhase> {
       TableCircle(
         view: view,
         poseTick: _poseTick,
+        // Only here in the lobby: who plays without the app (it says
+        // nothing about the game, and is never shown at night).
+        badges: {for (final id in session.inBrowser) id: l10n.inBrowser},
         selected: swapFrom,
         onTap: session.isOwner ? _tapSeat : null,
       ),
