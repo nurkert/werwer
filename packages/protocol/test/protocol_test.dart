@@ -7,6 +7,9 @@ import 'package:test/test.dart';
 
 const token = '0123456789abcdef0123456789abcdef';
 
+/// The protocol version, short: it goes into many raw messages below.
+const int pv = protocolVersion;
+
 void main() {
   group('client messages', () {
     test('round-trip', () {
@@ -58,7 +61,7 @@ void main() {
         isNull,
       );
       expect(
-        () => ClientMessage.parse('{"v":12,"type":"confirm","seq":0}'),
+        () => ClientMessage.parse('{"v":$pv,"type":"confirm","seq":0}'),
         throwsA(isA<ProtocolError>()),
       );
     });
@@ -69,21 +72,21 @@ void main() {
         'null',
         '[]',
         '{',
-        '{"v":12}',
-        '{"v":13,"type":"start"}',
-        '{"v":12,"type":"dance"}',
+        '{"v":$pv}',
+        '{"v":${pv + 1},"type":"start"}',
+        '{"v":$pv,"type":"dance"}',
         '{"v":"1","type":"start"}',
-        '{"v":12,"type":"night"}',
-        '{"v":12,"type":"night","target":"p3"}',
-        '{"v":12,"type":"night","targets":5}',
-        '{"v":12,"type":"night","targets":[5]}',
-        '{"v":12,"type":"night","targets":["P3"]}',
-        '{"v":12,"type":"night","targets":["../etc"]}',
-        '{"v":12,"type":"night","targets":["p1","p2","p3"]}',
+        '{"v":$pv,"type":"night"}',
+        '{"v":$pv,"type":"night","target":"p3"}',
+        '{"v":$pv,"type":"night","targets":5}',
+        '{"v":$pv,"type":"night","targets":[5]}',
+        '{"v":$pv,"type":"night","targets":["P3"]}',
+        '{"v":$pv,"type":"night","targets":["../etc"]}',
+        '{"v":$pv,"type":"night","targets":["p1","p2","p3"]}',
         '{"v":2,"type":"night","targets":["p1"]}',
-        '{"v":12,"type":"shoot","target":"P1"}',
-        '{"v":12,"type":"settings"}',
-        '{"v":12,"type":"settings","settings":{}}',
+        '{"v":$pv,"type":"shoot","target":"P1"}',
+        '{"v":$pv,"type":"settings"}',
+        '{"v":$pv,"type":"settings","settings":{}}',
         jsonEncode({
           'v': protocolVersion,
           'type': 'settings',
@@ -110,10 +113,10 @@ void main() {
           'type': 'settings',
           'settings': {...encodeSettings(const GameSettings()), 'sheep': 1},
         }),
-        '{"v":12,"type":"hello","name":"Ada","room":"12a4"}',
-        '{"v":12,"type":"hello","name":"Ada","room":"12345"}',
-        '{"v":12,"type":"hello","name":"Ada","room":"1234","token":"short"}',
-        '{"v":12,"type":"hello","name":"${'x' * 100}","room":"1234"}',
+        '{"v":$pv,"type":"hello","name":"Ada","room":"12a4"}',
+        '{"v":$pv,"type":"hello","name":"Ada","room":"12345"}',
+        '{"v":$pv,"type":"hello","name":"Ada","room":"1234","token":"short"}',
+        '{"v":$pv,"type":"hello","name":"${'x' * 100}","room":"1234"}',
         jsonEncode({'v': protocolVersion, 'type': 'hello', 'name': 'x' * 2000}),
       ];
       for (final raw in bad) {
@@ -286,11 +289,12 @@ void main() {
     });
 
     test('invalid host messages are refused', () {
+      const secret = '"secret":"AAAA"';
       for (final raw in [
-        '{"v":12,"type":"welcome","token":"x","you":"p1"}',
-        '{"v":12,"type":"welcome","token":"$token","you":"p1","secret":"AAAA"}',
-        '{"v":12,"type":"bye","reason":"whatever"}',
-        '{"v":12,"type":"state","owner":true}',
+        '{"v":$pv,"type":"welcome","token":"x","you":"p1"}',
+        '{"v":$pv,"type":"welcome","token":"$token","you":"p1",$secret}',
+        '{"v":$pv,"type":"bye","reason":"whatever"}',
+        '{"v":$pv,"type":"state","owner":true}',
       ]) {
         expect(() => HostMessage.parse(raw), throwsA(isA<ProtocolError>()));
       }
