@@ -29,6 +29,7 @@ Future<GameSession> playerSession({
   List<int>? hostKey,
   List<int>? roomSecret,
   String? token,
+  String? seat,
 }) async {
   const store = Store();
   unawaited(store.setLastRoom(room));
@@ -41,6 +42,7 @@ Future<GameSession> playerSession({
     name: name,
     roomCode: room,
     token: token,
+    seat: seat,
     takeover: await TakeoverKit.create(),
     relayServer: await store.relayServer(),
     dial: dialerFor(
@@ -188,6 +190,7 @@ class _JoinScreenState extends State<JoinScreen> {
         server: link.server,
         hostKey: link.hostKey,
         roomSecret: link.roomSecret,
+        seat: link.seat,
       ),
     );
   }

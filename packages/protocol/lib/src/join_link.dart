@@ -10,6 +10,9 @@ const defaultLanPort = 47470;
 const hostSocketPath = '/whowolf';
 
 /// The relay server's page for a room: `/v/<protocol>/<build>/join`.
+/// A seat's one-time handover code: 32 lowercase hex digits.
+final _seatCode = RegExp(r'^[0-9a-f]{32}$');
+
 final _serverPage = RegExp(r'^/v/[0-9]{1,4}/([0-9a-z][0-9a-z.-]{0,31})/join$');
 
 /// Whether [build] can name a web app build in a server page's path.
@@ -40,6 +43,7 @@ class JoinLink {
     this.server,
     this.hostKey,
     this.roomSecret,
+    this.seat,
   });
 
   /// Parses a scanned link strictly; returns `null` for anything else.
@@ -92,12 +96,15 @@ class JoinLink {
     if ((relay == null) != (server == null)) return null;
     List<int>? key;
     List<int>? secret;
+    String? seat;
     if (uri.fragment.isNotEmpty) {
       final f = Uri.splitQueryString(uri.fragment);
-      if (f.keys.any((k) => k != 'k' && k != 's')) return null;
+      if (f.keys.any((k) => k != 'k' && k != 's' && k != 'h')) return null;
       key = _key32(f['k']);
       secret = _key32(f['s']);
       if (key == null || secret == null) return null;
+      seat = f['h'];
+      if (seat != null && !_seatCode.hasMatch(seat)) return null;
     }
     // A server named by a link is only trusted with the host's key and
     // secret from the same link (end-to-end encrypted and authenticated);
@@ -114,6 +121,7 @@ class JoinLink {
       server: server,
       hostKey: key,
       roomSecret: secret,
+      seat: seat,
     );
   }
 
@@ -137,6 +145,10 @@ class JoinLink {
 
   /// The room secret (32 bytes).
   final List<int>? roomSecret;
+
+  /// A one-time code handing an existing seat to the device that scans
+  /// this link (only with the key, never on its own).
+  final String? seat;
 
   /// The link to the host itself (see the class comment), for phones that
   /// join in the browser; `null` without a local address or the key.
@@ -187,6 +199,17 @@ class JoinLink {
     ).toString();
   }
 
+  /// This link handing [code]'s seat to the device that scans it.
+  JoinLink withSeat(String code) => JoinLink(
+    room: room,
+    lan: lan,
+    relayRoom: relayRoom,
+    server: server,
+    hostKey: hostKey,
+    roomSecret: roomSecret,
+    seat: code,
+  );
+
   /// The link as text for the QR code.
   String encode() => Uri(
     scheme: 'https',
@@ -200,7 +223,8 @@ class JoinLink {
     },
     fragment: hostKey == null || roomSecret == null
         ? null
-        : 'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}',
+        : 'k=${base64Url.encode(hostKey!)}&s=${base64Url.encode(roomSecret!)}'
+              '${seat == null ? '' : '&h=$seat'}',
   ).toString();
 }
 

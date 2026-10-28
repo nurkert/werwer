@@ -73,6 +73,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
       name: name,
       roomCode: link.room,
       token: token,
+      seat: token == null ? link.seat : null,
       onWelcome: (token, name) {
         _token = token;
         rememberGame(link, token: token, name: name);

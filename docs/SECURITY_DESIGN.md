@@ -152,6 +152,13 @@
 - **App-Links:** `.well-known`-Dateien gibt es nur aus der Konfiguration des Servers. Die App nimmt nur Seiten des offiziellen Servers mit Schlüssel an und fragt vor dem Beitritt wie nach einem Scan.
 - **Tests:** `server/test/web_apps_test.dart` (Pfade, Methoden, Header, Grenzen, Service Worker, `Origin`, `.well-known`, kein Log), `server/test/browser_relay_test.dart` (echter Browser über das Relay), `packages/protocol/test/link_test.dart` (Server-Seiten nur mit Schlüssel, Browser nur zum eigenen Ursprung), `app/test/app_links_test.dart`, `app/test/invite_code_test.dart`, `app/integration_test/table_test.dart` (Server nur bei Bedarf).
 
+### Platz an ein anderes Gerät (A1, A2)
+
+- Nur die Sitzung des Spielleiters kann einen Code für einen Platz anlegen (`HandoverIntent`, sonst `notYourAction`). Der Code sind 16 Zufallsbytes vom Gerät des Spielleiters. Er gilt einmal und 2 Minuten, höchstens 4 sind offen, und der Platz des Hosts ist ausgenommen.
+- Der Code steht im Fragment des QR-Codes neben Schlüssel und Raumgeheimnis. Er wird nur über einen geprüften Kanal angenommen; ein Gerät im WLAN ohne den QR-Code kann ihn also nicht einlösen, selbst wenn es ihn errät.
+- Danach bekommt der Platz ein neues Token; das alte Gerät wird getrennt, und sein Token gilt nicht mehr. So sitzen nie zwei Geräte auf einem Platz.
+- Tests: `packages/game_host/test/host_test.dart` (Gruppe „handing a seat to another device“), `packages/protocol/test/link_test.dart`.
+
 ### QR-Codes und Links (A3)
 
 - **Strikte Prüfung:**

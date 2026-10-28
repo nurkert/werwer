@@ -219,4 +219,28 @@ void main() {
       }
     });
   });
+
+  test('a seat code travels in the fragment, only with the key', () {
+    final link = JoinLink(
+      room: '1234',
+      lan: const LanAddress('192.168.1.20', 47470),
+      hostKey: List.filled(32, 1),
+      roomSecret: List.filled(32, 2),
+    ).withSeat('a1b2c3d4e5f60718293a4b5c6d7e8f90');
+    final back = JoinLink.tryParse(link.encode())!;
+    expect(back.seat, 'a1b2c3d4e5f60718293a4b5c6d7e8f90');
+    expect(back.hostKey, List.filled(32, 1));
+    // A bad code, or a code without the key, is no link.
+    expect(
+      JoinLink.tryParse(link.encode().replaceFirst('&h=a1b2', '&h=ZZ')),
+      isNull,
+    );
+    expect(
+      JoinLink.tryParse(
+        'https://whowolf.de/join?room=1234&lan=192.168.1.20:47470'
+        '#h=a1b2c3d4e5f60718293a4b5c6d7e8f90',
+      ),
+      isNull,
+    );
+  });
 }

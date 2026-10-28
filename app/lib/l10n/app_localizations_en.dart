@@ -381,6 +381,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is our legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).';
 
   @override
+  String get handoverMenu => 'Give a seat to another device';
+
+  @override
+  String get handoverPick => 'Whose seat goes to another device?';
+
+  @override
+  String handoverTitle(String name) {
+    return '$name\'s seat';
+  }
+
+  @override
+  String handoverHint(String name) {
+    return 'Scan it on the new device with the Whowolf app. The code works once and only briefly; $name\'s old device is signed out.';
+  }
+
+  @override
+  String get handoverDone => 'Done';
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

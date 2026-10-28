@@ -34,7 +34,7 @@ Wunsch des Eigentümers: Am Wochenende soll ein Spiel ohne Hänger laufen. Dafü
 ## 3. Ausfälle: ein Akku darf kein Spiel beenden
 
 - [x] **Wer fehlt, sieht man tagsüber:** In Diskussion und Abstimmung steht an einem getrennten Platz ein kleines Zeichen „nicht verbunden“. Nachts nie, weil es sonst ein Hinweis wäre.
-- [ ] **Platz an ein anderes Gerät übergeben:** Der Spielleiter tippt auf den Platz und wählt „An anderes Gerät geben“. Es erscheint ein einmaliger QR-Code nur für diesen Platz. Das neue Gerät scannt ihn und sitzt mit Rolle und Stand am Platz, das alte Token wird ungültig.
+- [x] **Platz an ein anderes Gerät übergeben:** Der Spielleiter tippt auf den Platz und wählt „An anderes Gerät geben“. Es erscheint ein einmaliger QR-Code nur für diesen Platz. Das neue Gerät scannt ihn und sitzt mit Rolle und Stand am Platz, das alte Token wird ungültig.
 - [ ] Fehlt jemand in seiner Aktion (nachts, Abstimmung), läuft die Phase nach Zeit weiter wie bisher. Prüfen, dass das in jeder Phase und Rolle stimmt (Jäger, Hexe, Amor, Seherin).
 
 Umsetzung Tempo und Ausfälle (2026-10-28, Protokoll 11): `ReadyIntent` (nur Lebende, nur tagsüber; mehr als die Hälfte bereit verkürzt die Diskussion auf 5 s, alle sehen „Gleich wird abgestimmt“), `LeaderIntent` (nur Spielleiter: Pause und Weiter in jeder Phase mit Uhr, +30 s und Beenden nur in Diskussion und Abstimmung, höchstens 5 Minuten mehr pro Phase), `StateMessage.ready`, `.paused`, `.offline` (nur Lobby, Tag, Abstimmung). `GameSettings.timedFor` und ein Knopf „Passend für N Spieler“. Tests in `host_test.dart`.
@@ -63,3 +63,5 @@ Umsetzung Tempo und Ausfälle (2026-10-28, Protokoll 11): `ReadyIntent` (nur Leb
   - Tests: Ein Code geht kein zweites Mal, er verfällt, das alte Gerät fliegt heraus, und ein Nicht-Spielleiter kann keinen Code erzeugen.
 - **Wer fehlt:** Die Anzeige erscheint nur tagsüber. Ein Test prüft, dass die Sicht in der Nacht keinen Verbindungszustand enthält.
 - Protokolländerungen erhöhen `protocolVersion` und kommen in DECISIONS.
+
+Umsetzung der Platzübergabe (2026-10-28): Der Host zeigt oben „Platz an anderes Gerät geben“. Der Spielleiter wählt einen Platz, sein Gerät würfelt einen Einmal-Code (16 Zufallsbytes) und schickt ihn mit `HandoverIntent`. Der QR-Code ist der Einladungslink mit `#…&h=<Code>` im Fragment, nur zusammen mit den Raumschlüsseln gültig. Das neue Gerät sagt `Hello(seat: …)` und bekommt den Platz mit neuem Token; das alte Gerät erhält `Bye(replaced)`, sein Token gilt nicht mehr. Der Code gilt einmal, 2 Minuten, höchstens 4 gleichzeitig, nie für den Platz des Hosts, nie über einen ungeprüften Kanal. Tests in `host_test.dart` und `link_test.dart`.

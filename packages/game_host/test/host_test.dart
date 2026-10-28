@@ -336,6 +336,66 @@ void main() {
     expect(players.first.last!.offline, [gone.id]);
   });
 
+  group('handing a seat to another device', () {
+    const code = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
+    test('the new device gets the seat, the old one is let go, the code '
+        'works once', () async {
+      final players = await toDay();
+      final owner = players.first;
+      final old = players[2];
+      final oldToken = old.token;
+      owner.send(HandoverIntent(old.id!, code));
+      await settle();
+      expect(owner.refused, isEmpty);
+
+      final fresh = Player(transport.connect())
+        ..send(const Hello(name: 'X', room: room, handover: code));
+      await settle();
+      expect(fresh.id, old.id);
+      expect(fresh.token, isNot(oldToken));
+      expect(fresh.view.yourRole, old.view.yourRole);
+      expect(old.bye, ByeReason.replaced);
+
+      // The old token no longer works, nor does the code a second time.
+      final back = Player(transport.connect())
+        ..send(Hello(name: 'Y', room: room, token: oldToken));
+      final again = Player(transport.connect())
+        ..send(const Hello(name: 'Z', room: room, handover: code));
+      await settle();
+      expect(back.bye, ByeReason.unknownSession);
+      expect(again.bye, ByeReason.unknownSession);
+    });
+
+    test('only the game leader can make a code, and it runs out', () async {
+      final players = await toDay();
+      players[1].send(HandoverIntent(players[2].id!, code));
+      await settle();
+      expect(players[1].refused, [Violation.notYourAction]);
+
+      players.first.send(HandoverIntent(players[2].id!, code));
+      await settle();
+      timers.now += GameHost.handoverTime.inMilliseconds + 1;
+      final late = Player(transport.connect())
+        ..send(const Hello(name: 'X', room: room, handover: code));
+      await settle();
+      expect(late.bye, ByeReason.unknownSession);
+      expect(players[2].bye, isNull, reason: 'the seat stays where it was');
+    });
+
+    test('a code over an unchecked channel is refused', () async {
+      final players = await toDay();
+      players.first.send(HandoverIntent(players[2].id!, code));
+      await settle();
+      final unchecked = UnverifiedTransport();
+      host.serve(unchecked);
+      final stranger = Player(unchecked.connect())
+        ..send(const Hello(name: 'X', room: room, handover: code));
+      await settle();
+      expect(stranger.bye, ByeReason.unknownSession);
+    });
+  });
+
   test('a whole game over the protocol, and nobody learns too much', () async {
     final players = await table(5);
     await start(players);

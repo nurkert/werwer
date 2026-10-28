@@ -168,6 +168,10 @@ sealed class ClientMessage {
       'skipIntro' => const SkipIntroIntent(),
       'silent' => SilentIntent(silent: json.boolean('on')),
       'ready' => ReadyIntent(ready: json.boolean('on')),
+      'handover' => HandoverIntent(
+        _readPlayerId(json, 'player'),
+        _readToken(json, 'code'),
+      ),
       'leader' => LeaderIntent(json.enumValue('do', LeaderAction.values)),
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
@@ -238,6 +242,7 @@ final class Hello extends ClientMessage {
     this.candidate,
     this.epoch = 0,
     this.web = false,
+    this.handover,
   });
 
   factory Hello._parse(JsonReader json) {
@@ -255,8 +260,15 @@ final class Hello extends ClientMessage {
       candidate: Candidate._read(json, 'ck', 'cs'),
       epoch: json.maybeInteger('epoch', max: maxEpoch) ?? 0,
       web: json.maybeBoolean('web') ?? false,
+      handover: json.maybeString('seat') == null
+          ? null
+          : _readToken(json, 'seat'),
     );
   }
+
+  /// A one-time code from the game leader's QR code that hands this device
+  /// an existing seat (see [HandoverIntent]).
+  final String? handover;
 
   /// The player is in a browser, without the app. Only shown in the lobby
   /// (the host can tell why a phone stays silent); it says nothing about
@@ -297,6 +309,7 @@ final class Hello extends ClientMessage {
     ...?candidate?._fields('ck', 'cs'),
     if (epoch > 0) 'epoch': epoch,
     if (web) 'web': true,
+    'seat': ?handover,
   };
 }
 
@@ -436,6 +449,26 @@ final class ReadyIntent extends ClientMessage {
 
   @override
   Map<String, Object?> get _fields => {'on': ready};
+}
+
+/// Room owner: [player]'s seat goes to whichever device brings [code]
+/// (from a one-time QR code, valid for two minutes); the old device is
+/// let go. For a phone whose battery died.
+final class HandoverIntent extends ClientMessage {
+  /// Creates the message.
+  const HandoverIntent(this.player, this.code);
+
+  /// Whose seat.
+  final PlayerId player;
+
+  /// The one-time code, made by the owner's device (a token's format).
+  final String code;
+
+  @override
+  String get _type => 'handover';
+
+  @override
+  Map<String, Object?> get _fields => {'player': player.value, 'code': code};
 }
 
 /// What the game leader can do with the clock.

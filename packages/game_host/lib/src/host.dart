@@ -271,6 +271,13 @@ class GameHost {
   /// When the owner skipped the narrator's intro in this role reveal.
   int? _introSkippedAt;
 
+  /// One-time codes that hand a seat to another device, with when they
+  /// run out (host clock).
+  final _handovers = <String, ({PlayerId player, int until})>{};
+
+  /// How long a handover code works.
+  static const handoverTime = Duration(minutes: 2);
+
   /// In the discussion: who is ready to vote.
   final _ready = <PlayerId>{};
 
@@ -648,6 +655,15 @@ class GameHost {
       PeerTrust(verified: false) => true,
       _ => false,
     };
+    final seat = hello.handover;
+    if (seat != null) {
+      // Only with the QR code's secret: the code came from the owner's
+      // screen, not from someone guessing on the Wi-Fi.
+      if (unverified && !link.owner) {
+        return _bye(link, ByeReason.unknownSession);
+      }
+      return _takeSeat(link, seat, hello.candidate);
+    }
     final token = hello.token;
     if (token != null) {
       // A token over an unchecked channel may have been read by someone in
@@ -851,6 +867,9 @@ class GameHost {
           if (session.silent == silent) return;
           session.silent = silent;
           if (_state.phase == Phase.lobby) _broadcast();
+        case HandoverIntent(:final player, :final code):
+          _ownerOnly(session);
+          _offerSeat(player, code);
         case ReadyIntent(:final ready):
           _readyToVote(me, ready: ready);
         case LeaderIntent(:final action):
@@ -885,6 +904,49 @@ class GameHost {
     } on RuleViolation catch (violation) {
       link.connection.send(Refused(violation.reason).encode());
     }
+  }
+
+  /// The owner made [code] to hand [player]'s seat to another device.
+  /// Each seat has at most one code, and only a few are open at once.
+  void _offerSeat(PlayerId player, String code) {
+    final session = _sessions.values
+        .where((s) => s.player == player)
+        .firstOrNull;
+    if (session == null) throw const RuleViolation(Violation.unknownPlayer);
+    // The host's own seat stays on the host's device.
+    if (session.owner) throw const RuleViolation(Violation.invalidTarget);
+    final now = _clock();
+    _handovers.removeWhere((_, h) => h.player == player || h.until <= now);
+    if (_handovers.length >= 4) {
+      throw const RuleViolation(Violation.outOfRange);
+    }
+    _handovers[code] = (
+      player: player,
+      until: now + handoverTime.inMilliseconds,
+    );
+  }
+
+  /// A device brings a handover code: it gets the seat with a new token,
+  /// the old device is let go and its token no longer works. Each code
+  /// works once.
+  void _takeSeat(_Link link, String code, Candidate? candidate) {
+    final offer = _handovers.remove(code);
+    final old = offer == null
+        ? null
+        : _sessions.values.where((s) => s.player == offer.player).firstOrNull;
+    if (offer == null || offer.until <= _clock() || old == null) {
+      return _bye(link, ByeReason.unknownSession);
+    }
+    _sessions.remove(old.token);
+    final previous = old.link;
+    if (previous != null && previous != link) {
+      _bye(previous, ByeReason.replaced);
+    }
+    final fresh = _Session(_newToken(), old.player, owner: false)
+      ..candidate = old.candidate;
+    _sessions[fresh.token] = fresh;
+    _bind(link, fresh, candidate: candidate);
+    _broadcast();
   }
 
   /// A living player is (no longer) ready to vote. Once more than half

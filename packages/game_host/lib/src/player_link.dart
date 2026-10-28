@@ -79,6 +79,7 @@ class PlayerLink {
     required this.roomCode,
     required this._dial,
     this._token,
+    this._seat,
     this.candidate,
     this._epoch = 0,
     this.config = const LinkConfig(),
@@ -129,6 +130,10 @@ class PlayerLink {
 
   String _name;
   String? _token;
+
+  /// A one-time code that hands this device an existing seat; sent with
+  /// the first hello only, until a token replaces it.
+  String? _seat;
 
   /// This link's join number (see [Hello.join]). Over a checked channel it
   /// claims a seat like a token does, so it comes from a secure random
@@ -332,6 +337,7 @@ class PlayerLink {
         candidate: candidate,
         epoch: _epoch,
         web: web,
+        handover: _token == null ? _seat : null,
       ).encode(),
     );
   }
@@ -491,6 +497,7 @@ class PlayerLink {
       onRoomKeys?.call(peerKey, roomSecret);
     }
     _token = token;
+    _seat = null;
     _attempt = 0;
     status = LinkStatus.connected;
     pausedSinceMs = null;

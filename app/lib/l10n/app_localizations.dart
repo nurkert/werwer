@@ -704,6 +704,36 @@ abstract class AppLocalizations {
   /// **'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is our legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).'**
   String get privacyUpdates;
 
+  /// No description provided for @handoverMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a seat to another device'**
+  String get handoverMenu;
+
+  /// No description provided for @handoverPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Whose seat goes to another device?'**
+  String get handoverPick;
+
+  /// No description provided for @handoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s seat'**
+  String handoverTitle(String name);
+
+  /// No description provided for @handoverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan it on the new device with the Whowolf app. The code works once and only briefly; {name}\'s old device is signed out.'**
+  String handoverHint(String name);
+
+  /// No description provided for @handoverDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get handoverDone;
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

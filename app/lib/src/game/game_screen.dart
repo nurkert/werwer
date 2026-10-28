@@ -18,6 +18,7 @@ import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/night_phase.dart';
 import 'package:whowolf/src/game/phases.dart';
+import 'package:whowolf/src/game/seat_handover.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/stage_moment.dart';
 import 'package:whowolf/src/game/walking_narrator.dart';
@@ -437,6 +438,18 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                 semanticLabel: 'Whowolf',
               ),
               actions: [
+                // The host can hand a seat to another device (a dead
+                // battery), once the game runs.
+                if (session.hosted?.link case final link?
+                    when view != null &&
+                        view.phase != Phase.lobby &&
+                        view.phase != Phase.ended)
+                  IconButton(
+                    tooltip: l10n.handoverMenu,
+                    icon: const Icon(Icons.phonelink_setup_rounded),
+                    onPressed: () =>
+                        handOverSeat(context, session: session, link: link),
+                  ),
                 // Always here: a silent phone also drops out of the walk.
                 if (view != null)
                   IconButton(
