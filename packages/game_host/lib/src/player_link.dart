@@ -155,6 +155,12 @@ class PlayerLink {
   /// host's count without gaps.
   final _queue = <_Queued>[];
 
+  /// Intents the host confirmed, newest last, kept for a while: if the
+  /// host dies before its successor's copy holds them, the successor's
+  /// count is lower and they go to the new host again (its numbers make
+  /// that safe: nothing counts twice). At most [LinkConfig.maxQueue].
+  final _confirmedIntents = <_Queued>[];
+
   /// The highest number the host has confirmed.
   int _confirmed = 0;
   bool _joined = false;
@@ -167,6 +173,11 @@ class PlayerLink {
 
   /// Version of [view]; older states are dropped.
   int version = -1;
+
+  /// The room epoch [version] counts in: a new host after a takeover
+  /// counts from its own (older) copy, so its states are taken whatever
+  /// their number.
+  late int _versionEpoch = _epoch;
 
   /// Whether this player opened the room.
   bool isOwner = false;
@@ -214,6 +225,10 @@ class PlayerLink {
 
   bool _unchecked = false;
   bool _codeConfirmed = false;
+
+  /// Until then (this device's clock) refusals are not shown: they answer
+  /// intents replayed to a new host.
+  int _quietUntil = 0;
 
   /// Messages that arrived on an unchecked channel before the player
   /// confirmed the check code; they count once [confirmCheckCode] is called.
@@ -420,6 +435,13 @@ class PlayerLink {
           custody = null;
           witness = null;
         }
+        if (hostEpoch > _versionEpoch) {
+          _versionEpoch = hostEpoch;
+          version = -1;
+          // The new host may be a few steps behind what we saw: what it
+          // refuses of our replayed intents is no news for the player.
+          _quietUntil = _clock() + config.resend.inMilliseconds * 3;
+        }
         you = me;
         _welcomed(connection, token, roomSecret, lastSeq);
       case Custody(
@@ -450,7 +472,13 @@ class PlayerLink {
                 release: release,
               );
       case Ack(:final seq, version: final hostVersion):
-        _queue.removeWhere((q) => q.seq != null && q.seq! <= seq);
+        _queue.removeWhere((q) {
+          final done = q.seq != null && q.seq! <= seq;
+          if (done) _confirmedIntents.add(q);
+          return done;
+        });
+        final over = _confirmedIntents.length - config.maxQueue;
+        if (over > 0) _confirmedIntents.removeRange(0, over);
         _confirmed = max(_confirmed, seq);
         if (hostVersion > version) _ping();
         return;
@@ -478,7 +506,7 @@ class PlayerLink {
       case Refused(:final reason):
         if (reason == Violation.invalidName && _token == null) {
           nameRefused = true;
-        } else {
+        } else if (_clock() >= _quietUntil) {
           refused = reason;
         }
       case Bye(:final reason):
@@ -506,12 +534,17 @@ class PlayerLink {
     _attempt = 0;
     status = LinkStatus.connected;
     pausedSinceMs = null;
-    // Everything up to lastSeq arrived. If the host lost some confirmed
-    // intents (restored from an older save), the rest continues from its
-    // count instead of leaving a gap it would wait for forever.
-    if (lastSeq >= _confirmed) {
-      _queue.removeWhere((q) => q.seq != null && q.seq! <= lastSeq);
-    }
+    // Everything up to lastSeq arrived. A host with a lower count (a
+    // successor whose copy was older) lacks some confirmed intents: they
+    // go again, in order, before the rest; numbered on from its count,
+    // there is no gap it would wait for forever.
+    _queue.removeWhere((q) => q.seq != null && q.seq! <= lastSeq);
+    final lost = [
+      for (final q in _confirmedIntents)
+        if (q.seq! > lastSeq) q,
+    ];
+    _confirmedIntents.removeWhere((q) => q.seq! > lastSeq);
+    _queue.insertAll(0, lost);
     _confirmed = lastSeq;
     for (final (i, q) in _queue.indexed) {
       q.seq = lastSeq + 1 + i;

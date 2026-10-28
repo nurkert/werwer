@@ -17,11 +17,19 @@ class FakeSealer implements RoomSealer {
 
   final Random _random;
 
+  /// While set, sealing waits for it: the successor's copy falls behind.
+  Completer<void>? hold;
+
   @override
   List<int> newKey() => List.generate(32, (_) => _random.nextInt(256));
 
   @override
-  Future<String> seal(String room, List<int> key, {required int epoch}) async =>
+  Future<String> seal(String room, List<int> key, {required int epoch}) async {
+    await hold?.future;
+    return _seal(room, key, epoch: epoch);
+  }
+
+  String _seal(String room, List<int> key, {required int epoch}) =>
       base64Url.encode(
         utf8.encode(
           jsonEncode({'k': base64Url.encode(key), 'e': epoch, 'r': room}),
@@ -501,5 +509,59 @@ void main() {
           table.phones[2].link.witness != null,
     );
     expect(table.phones[2].link.witness!.key, isNot(oldKey));
+  });
+
+  test('an intent the old host confirmed counts after a takeover, even if '
+      "the successor's copy was older", () async {
+    await startGame(4);
+    final successor = table.phones.first;
+    await until(() => successor.link.custody != null);
+    await until(() => table.phones[1].link.witness != null);
+    // The successor's copy stops here.
+    table.sealer.hold = Completer<void>();
+    final late = table.phones[2];
+    late.link.send(const ConfirmRoleIntent());
+    await until(() => late.link.unconfirmed == 0 && late.link.confirmed > 0);
+    await table.crash();
+    table.ownerGone = true;
+    await until(() => successor.hosting != null, ms: 5000);
+    await until(
+      () => table.phones.every(
+        (p) => p.link.status == LinkStatus.connected && p.link.epoch == 1,
+      ),
+    );
+    await until(
+      () => successor.hosting!.state.confirmed.contains(late.link.you),
+    );
+  });
+
+  test("after a takeover every phone shows the new host's game, even if it "
+      'saw newer states from the old one', () async {
+    await startGame(4);
+    final successor = table.phones.first;
+    await until(() => successor.link.custody != null);
+    await until(() => table.phones[1].link.witness != null);
+    table.sealer.hold = Completer<void>();
+    // The table moves on to the night; the successor's copy stays behind
+    // in the role reveal, and the owner's own confirmation dies with it.
+    for (final link in table.links) {
+      link.send(const ConfirmRoleIntent());
+    }
+    await until(
+      () => table.phones.every((p) => p.link.view?.phase == Phase.night),
+    );
+    await table.crash();
+    table.ownerGone = true;
+    await until(() => successor.hosting != null, ms: 5000);
+    final host = successor.hosting!;
+    await until(
+      () => table.phones.every(
+        (p) =>
+            p.link.status == LinkStatus.connected &&
+            p.link.epoch == 1 &&
+            p.link.view?.phase == host.state.phase &&
+            p.link.view?.round == host.state.round,
+      ),
+    );
   });
 }

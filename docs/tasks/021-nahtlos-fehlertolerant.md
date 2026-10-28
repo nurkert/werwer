@@ -1,6 +1,6 @@
 # Task 021 – Nahtlos weiterspielen: Fehlertoleranz nach Lehrbuch
 
-**Status:** geplant (2026-10-28), wartet auf die Freigabe des Eigentümers
+**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritt 1 erledigt.
 **Bezug:** [ARCHITECTURE](../ARCHITECTURE.md), [SECURITY_DESIGN](../SECURITY_DESIGN.md), Task 002 (stabiles Netz), Task 008 (Host-Übernahme), Task 020 (Spielabend)
 
 ## Ziel
@@ -8,6 +8,15 @@
 Wer einmal angefangen hat, spielt bis zum Ende, auch wenn das WLAN hakt, ein Handy kurz weg ist, jemand geht oder der Host ausfällt. Kurze Unterbrechungen merkt am Tisch niemand. Übergänge sind **vorher vereinbart**: Ein Gerät, das einen Befehl verpasst, schaltet trotzdem pünktlich um und hängt nie hinterher.
 
 Grundlage sind zwei Vorlesungen des Eigentümers (Uni Ulm): *Fault-tolerant Distributed Systems* (Primary-Backup, Leases, Epochen, Failure Detectors, Chaos-Tests) und *Security and Privacy in Mobile Systems* (Pairing über einen Zweitkanal, Sybil, Rogue Host, Seitenkanäle). Aus der MANET-Vorlesung passt Routing **nicht**: Whowolf ist ein Stern um den Host mit einem Sprung, kein Multi-Hop-Netz.
+
+## Grundprinzip: alles wird vorher vereinbart
+
+Wunsch des Eigentümers (2026-10-28): nicht nur Sprecher-Einsätze, **alles** wird unter den Geräten vorher vereinbart. Jeder Übergang, jeder gemeinsame Klang und jeder Satz des Erzählers hat einen Zeitpunkt in Host-Zeit, den alle Geräte vorher kennen.
+
+- **Vereinbart heißt bestätigt:** Der Host weiß, welches Gerät welchen Plan hat (es bestätigt die Version). Wer nicht bestätigt, bekommt keinen Einsatz; ein Gerät, das stumm ist oder weg, wird ersetzt, und der Rest des Plans richtet sich neu aus.
+- **Dynamisch:** Ein Plan hat ein spätestes Ende (die Hexe schläft spätestens nach ihrer Zeit wieder ein). Entscheidet sie früher, kommt der neue Plan früher; auch dann schalten alle zum selben Zeitpunkt um.
+- **Verpasst ist verpasst:** Ein Gerät, das einen Einsatz zu spät erfährt, spricht ihn nicht nach, sondern steigt im laufenden Plan ein. Es weiß, dass es nichts mehr sagen muss.
+- **Niemand nimmt etwas an, was nicht passiert ist:** Ein stummes oder fehlendes Gerät gilt nie als gesprochen; der Plan zeigt, wer wirklich dran war.
 
 ## Fehlermodell (neu, ausdrücklich)
 
@@ -28,6 +37,9 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 
 - Der Client behält bestätigte Absichten der laufenden Epoche, bis eine Sicht mit höherer Epoche sie enthält; bei `Welcome` einer höheren Epoche schickt er alle mit `seq > lastSeq` erneut. Die Sequenzprüfung macht das sicher.
 - Test in `takeover_test.dart`: Absicht bestätigt, Host stirbt vor dem Versiegeln, nach der Übernahme wirkt sie.
+- **Dabei gefunden und behoben:** Der neue Host zählt die Versionen von seiner (älteren) Kopie weiter; die Geräte verwarfen seine Zustände, solange die Nummer kleiner war als die zuletzt gesehene, und zeigten so ein Spiel, das es nicht mehr gab. Jetzt zählt die Version je Epoche (Test: die Runde geht beim alten Host in die Nacht, die Kopie ist noch in der Rollenvergabe, alle zeigen danach den Stand des neuen Hosts).
+- Abweisungen, die nur erneut gesendete Absichten betreffen, sieht der Spieler nicht.
+- **Erledigt (2026-10-28).**
 
 ### 2. Zeitpunkte absolut in Host-Zeit
 
