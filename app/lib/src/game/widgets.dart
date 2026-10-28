@@ -431,7 +431,7 @@ class SeatGrid extends StatelessWidget {
         // Never so big that two rows leave the screen of a short window.
         final double tallest = max(
           96,
-          MediaQuery.sizeOf(context).height * 0.17,
+          MediaQuery.sizeOf(context).height * 0.15,
         );
         final width = min<double>(
           min(170, tallest),

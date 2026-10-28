@@ -16,6 +16,8 @@ Every device at the table needs this version (protocol 12).
   game leader compares a few symbols with whoever joins this way.
 
 ### Changed
+- On wide screens a phase's title stands centred above both columns, and
+  the cards fit the window's height in even rows.
 - On a computer the gear opens all of the app's settings, like the
   page to the right on a phone.
 - Picks are confirmed: every night card, the vote and the hunter's shot
