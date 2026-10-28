@@ -590,8 +590,11 @@ body.has-backdrop .site-footer {
 }
 /* Lengths with a tassel over the seam overlap a little under it; lengths
    made to join (the garland) meet end to end. */
-.piece--top:has(.piece__joint) .piece__frame ~ .piece__frame {
+.piece--top:has(.piece__joint):not(.piece--seamless) .piece__frame ~ .piece__frame {
   margin-left: -3%;
+}
+.piece--seamless .piece__joint {
+  margin: 0;
 }
 /* A knot or tassel over the seam of two lengths: no width of its own,
    centred on the overlap. */

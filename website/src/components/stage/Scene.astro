@@ -25,8 +25,9 @@ export interface ScenePiece {
   front?: boolean;
   /** Top pieces: how many lengths side by side, so it spans the width. */
   repeat?: number;
-  /** Top pieces: hung over each seam between two lengths (a knot, a tassel). */
-  joint?: { src: ImageMetadata; h: string; y?: string };
+  /** Top pieces: hung over each seam between two lengths (a hook, a tassel); `seamless`
+      lengths join end to end instead of overlapping under it. */
+  joint?: { src: ImageMetadata; h: string; y?: string; seamless?: boolean };
 }
 
 interface Props {
@@ -82,7 +83,7 @@ const loading = first ? 'eager' : 'lazy';
   {
     pieces.map((piece) => (
       <div
-        class:list={['piece', `piece--${piece.at}`, { 'piece--mirror': piece.mirror, 'piece--wide': piece.wide }]}
+        class:list={['piece', `piece--${piece.at}`, { 'piece--mirror': piece.mirror, 'piece--wide': piece.wide, 'piece--seamless': piece.joint?.seamless }]}
         aria-hidden="true"
         style={[
           `--h: ${piece.h}`,
