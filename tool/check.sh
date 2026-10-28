@@ -15,6 +15,9 @@ flutter pub get
 echo "→ Design tokens"
 dart run tool/tokens.dart --check
 
+echo "→ Web app lock"
+tool/check_webapps_lock.sh
+
 echo "→ Format"
 dart format --output=none --set-exit-if-changed app/lib app/test packages server
 

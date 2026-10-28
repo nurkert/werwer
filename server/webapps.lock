@@ -1,0 +1,11 @@
+# Web app builds the relay image serves under /v/<protocol>/<build>/
+# (server/README.md, docs/tasks/017-browser-uebers-netz.md).
+#
+# Append only. One line per build: "<protocol> <build> <sha256 of
+# whowolf-<build>-webapp.tar.gz from the GitHub release v<build>>".
+# A build with a security problem is withdrawn with "retire <protocol>
+# <build>" further down, never by deleting its line.
+#
+# The release workflow verifies every file's checksum and its GitHub build
+# attestation before it goes into an image; the current release is added
+# there too, so this file only needs the older builds.

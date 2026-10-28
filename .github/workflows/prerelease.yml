@@ -82,6 +82,11 @@ jobs:
         env:
           APP_VERSION: ${{ env.NAME }}
         run: tool/build_webapp.sh
+      - name: Web app for relay servers
+        # The same web build as one release file; relay images serve it to
+        # browsers that join over the internet (tool/fetch_webapps.sh).
+        if: matrix.target == 'linux'
+        run: mkdir -p dist && tool/package_webapp.sh "$NAME" "dist/whowolf-$NAME-webapp.tar.gz"
       - name: Signed Apple build
         # With the App Store Connect key in the repository secrets, macOS is
         # signed with Developer ID and notarized, and iOS goes to TestFlight.
@@ -129,7 +134,8 @@ jobs:
     # The relay server's container image, for play.whowolf.de and anyone who
     # hosts their own: built here, signed keylessly (Sigstore) and attested,
     # so a server only runs what this workflow built (server/deploy/update.sh).
-    needs: check
+    # After the release, so the image carries this release's web app.
+    needs: release
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -152,6 +158,12 @@ jobs:
           tags="$image:$version"
           case "$version" in 0.0.*) tags="$tags,$image:edge" ;; *) tags="$tags,$image:stable" ;; esac
           echo "TAGS=$tags" >> "$GITHUB_ENV"
+      - name: Web app builds
+        # Every build in server/webapps.lock and this release's, each checked
+        # against its checksum and this repository's build attestation.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: tool/fetch_webapps.sh "$VERSION"
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
@@ -183,7 +195,7 @@ jobs:
           push-to-registry: true
 
   release:
-    needs: [build, relay]
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write # create the release

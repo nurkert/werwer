@@ -23,6 +23,9 @@ RUN mkdir -p /out && dart compile exe server/bin/server.dart -o /out/whowolf-rel
 FROM scratch
 COPY --from=build /runtime/ /
 COPY --from=build /out/whowolf-relay /app/whowolf-relay
+# The web app builds (tool/fetch_webapps.sh, checked against webapps.lock
+# and their build attestations). Served only with WEB_APP_DIR=/webapps.
+COPY server/webapps /webapps
 USER 65532:65532
 EXPOSE 8080
 ENTRYPOINT ["/app/whowolf-relay"]
