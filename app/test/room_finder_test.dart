@@ -5,14 +5,21 @@ import 'package:protocol/protocol.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/store.dart';
 
-NearbyRoom _room(String id, {String ip = '192.168.1.20', String? print}) =>
-    NearbyRoom(
-      id: id,
-      hostName: 'Test',
-      room: '1234',
-      lan: LanAddress(ip, 4040),
-      keyPrint: print,
-    );
+NearbyRoom _room(
+  String id, {
+  String ip = '192.168.1.20',
+  String? print,
+  int epoch = 0,
+  bool candidate = false,
+}) => NearbyRoom(
+  id: id,
+  hostName: 'Test',
+  room: '1234',
+  lan: LanAddress(ip, 4040),
+  keyPrint: print,
+  epoch: epoch,
+  candidate: candidate,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -141,5 +148,64 @@ void main() {
     expect(await tcpProbe(LanAddress('192.168.1.2', port)), isTrue);
     await server.close();
     expect(await tcpProbe(LanAddress('192.168.1.2', port)), isFalse);
+  });
+
+  group('false announcements cannot hide the real host', () {
+    final key = List.filled(32, 3);
+
+    test('every sender is tried, a false high epoch first, the real host '
+        'all the same', () async {
+      await RoomFinder.restart();
+      final finder = RoomFinder.manual();
+      addTearDown(finder.dispose);
+      final locator = HostLocator.over(finder);
+      finder
+        ..add(_room('real', print: keyPrint(key), epoch: 1))
+        ..add(
+          _room('fake', ip: '192.168.1.66', print: keyPrint(key), epoch: 99),
+        );
+      expect(
+        locator.findAll('1234', key).map((a) => a.ip),
+        ['192.168.1.66', '192.168.1.20'],
+      );
+      expect(locator.newest('1234', key)!.epoch, 99, reason: 'only a hint');
+    });
+
+    test('a stranger announcing many rooms counts once', () async {
+      await RoomFinder.restart();
+      final finder = RoomFinder.manual();
+      addTearDown(finder.dispose);
+      final locator = HostLocator.over(finder);
+      finder.add(_room('real', print: keyPrint(key)));
+      for (var i = 0; i < 20; i++) {
+        finder.add(
+          _room('fake$i', ip: '192.168.1.66', print: keyPrint(key), epoch: i),
+        );
+      }
+      final found = locator.findAll('1234', key);
+      expect(found, hasLength(2));
+      expect(found.map((a) => a.ip), contains('192.168.1.20'));
+    });
+
+    test("a false entrance cannot hide the successor's", () async {
+      await RoomFinder.restart();
+      final finder = RoomFinder.manual();
+      addTearDown(finder.dispose);
+      final locator = HostLocator.over(finder);
+      finder
+        ..add(
+          _room(
+            'fake',
+            ip: '192.168.1.66',
+            print: keyPrint(key),
+            candidate: true,
+          ),
+        )
+        ..add(_room('real', print: keyPrint(key), candidate: true));
+      expect(
+        locator.findCandidates('1234', key).map((a) => a.ip),
+        containsAll(['192.168.1.66', '192.168.1.20']),
+      );
+    });
   });
 }

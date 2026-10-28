@@ -91,6 +91,8 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 
 - **Sybil:** Nachfolger und Zeuge nicht mehr die ersten zwei Plätze, sondern zufällig unter den Kandidaten und von **verschiedenen Absenderadressen**; sonst hält ein Spieler mit zwei Geräten Raum und Schlüssel und liest alle Rollen.
 - **Falsche Bonjour-Ansagen:** alle passenden Ansagen parallel probieren (`firstConnection`), einen neuen Host erst nach erfolgreichem Handshake als Nachfolger akzeptieren; Begrenzungen im WLAN pro Absenderadresse statt global.
+  - **Umgesetzt (2026-10-28):** Ansagen gelten nur als Hinweis. `HostLocator.findAll` liefert alle passenden Ansagen, die beste pro Absenderadresse, höchstens 4, höchste Epoche zuerst; der Dialer wählt sie alle parallel, nur der echte Host besteht den Handshake mit dem Raumschlüssel. Dasselbe für den Eingang des Nachfolgers bei der Übernahme (`findCandidates`). Der Host des Spielleiters prüft eine Ansage mit höherer Epoche über eine eigene Probe-Verbindung (Handshake plus Willkommen mit höherer Epoche für sein Token) und schaltet erst danach um; seine eigene Sicht bleibt bis dahin, wo sie ist. Vorher trennte eine falsche Ansage ihn alle 4 s für bis zu 8 s. Tests: `room_finder_test.dart` (falsche hohe Epoche, viele Ansagen eines Fremden, falscher Eingang).
+  - Begrenzungen pro Absenderadresse und die anderen Punkte dieses Abschnitts: auf Wunsch des Eigentümers vorerst nicht.
 - **Seitenkanal klassische Nacht:** Nur Aufgerufene senden und bekommen ein Ack; Absender, Länge und Zeitpunkt verraten die Seherin. In geheimen Schritten senden alle im festen Takt (auf dem 3-s-Ping), Absichten warten auf den nächsten Takt.
 
 ### 7. Chaos-Test wie Jepsen

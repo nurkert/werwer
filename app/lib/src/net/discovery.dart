@@ -391,6 +391,10 @@ class RoomFinder extends ChangeNotifier {
 class HostLocator {
   HostLocator._();
 
+  /// A locator over [finder]'s announcements, for tests.
+  @visibleForTesting
+  HostLocator.over(RoomFinder finder) : _finder = finder;
+
   static final shared = HostLocator._();
 
   /// Tests on one machine: every phone is this machine, and a desktop
@@ -404,37 +408,62 @@ class HostLocator {
 
   RoomFinder? _finder;
 
-  /// The current address of [room], whose host has [hostKey] if known.
-  /// After a takeover two hosts may announce it for a moment: the one with
-  /// the higher epoch (the welcome proves it, a stale host is refused).
-  LanAddress? find(String room, List<int>? hostKey) {
-    final at = newest(room, hostKey)?.lan;
-    return at == null ? null : _here(at);
-  }
+  /// Most announcements of one room that are dialled at once.
+  static const maxTried = 4;
 
-  /// The announcement of [room] with the highest epoch.
-  NearbyRoom? newest(String room, List<int>? hostKey) {
+  /// The current addresses of [room], whose host has [hostKey] if known,
+  /// the highest epoch first. Announcements are only hints: anyone on the
+  /// Wi-Fi can announce any room, epoch and key fingerprint (it is public).
+  /// So every candidate is dialled and the encrypted handshake with the
+  /// host's key decides; a false one fails, a stale host's welcome is
+  /// refused. One per sender, so a stranger cannot crowd out the real host.
+  List<LanAddress> findAll(String room, List<int>? hostKey) => [
+    for (final r in matching(room, hostKey)) _here(r.lan),
+  ];
+
+  /// The announcements of [room] (see [findAll]), the highest epoch first,
+  /// the best one per sender address, at most [maxTried].
+  List<NearbyRoom> matching(String room, List<int>? hostKey) {
     final finder = _finder ??= RoomFinder();
     final print = hostKey == null ? null : keyPrint(hostKey);
-    final matching = finder.rooms.where(
-      (r) =>
-          r.room == room &&
-          (print == null || r.keyPrint == null || r.keyPrint == print),
-    );
-    return matching.fold<NearbyRoom?>(
-      null,
-      (best, r) => best == null || r.epoch > best.epoch ? r : best,
+    return _bestPerSender(
+      finder.rooms.where(
+        (r) =>
+            r.room == room &&
+            (print == null || r.keyPrint == null || r.keyPrint == print),
+      ),
     );
   }
 
-  /// Where the successor with [candidateKey] waits during a takeover.
-  LanAddress? findCandidate(String room, List<int> candidateKey) {
+  /// The announcement of [room] with the highest epoch (only a hint).
+  NearbyRoom? newest(String room, List<int>? hostKey) =>
+      matching(room, hostKey).firstOrNull;
+
+  /// Where the successor with [candidateKey] may wait during a takeover:
+  /// every matching entrance, one per sender (a false one cannot complete
+  /// the handshake with the candidate's keys).
+  List<LanAddress> findCandidates(String room, List<int> candidateKey) {
     final finder = _finder ??= RoomFinder();
     final print = keyPrint(candidateKey);
-    return finder.all
-        .where((r) => r.candidate && r.room == room && r.keyPrint == print)
-        .map((r) => _here(r.lan))
-        .firstOrNull;
+    return [
+      for (final r in _bestPerSender(
+        finder.all.where(
+          (r) => r.candidate && r.room == room && r.keyPrint == print,
+        ),
+      ))
+        _here(r.lan),
+    ];
+  }
+
+  static List<NearbyRoom> _bestPerSender(Iterable<NearbyRoom> rooms) {
+    final best = <String, NearbyRoom>{};
+    for (final r in rooms) {
+      final had = best[r.lan.ip];
+      if (had == null || r.epoch > had.epoch) best[r.lan.ip] = r;
+    }
+    return (best.values.toList()..sort((a, b) => b.epoch.compareTo(a.epoch)))
+        .take(maxTried)
+        .toList();
   }
 
   /// Starts searching early (e.g. when a game screen opens).

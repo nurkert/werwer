@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:game_core/game_core.dart';
 import 'package:game_host/game_host.dart';
+import 'package:game_host/lan.dart';
 import 'package:protocol/protocol.dart';
+import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
@@ -138,12 +140,26 @@ class GameSession extends ChangeNotifier {
 
   Future<void> _checkSuperseded() async {
     final hosted = _hosted;
-    if (hosted == null || _checking || _disposed) return;
+    final token = _link.token;
+    if (hosted == null || token == null || _checking || _disposed) return;
     final mine = hosted.host.epoch;
-    final newer = HostLocator.shared.newest(roomCode, hosted.hostKey);
-    if (newer == null || newer.epoch <= mine) return;
+    // Announcements are only hints: anyone on the Wi-Fi can announce this
+    // room with a higher epoch. This device's own view stays where it is
+    // until a newer host proved itself on a connection of its own.
+    final newer = [
+      for (final r in HostLocator.shared.matching(roomCode, hosted.hostKey))
+        if (r.epoch > mine) r.lan,
+    ];
+    if (newer.isEmpty) return;
     _checking = true;
     try {
+      final proven = await _proveNewer(
+        newer,
+        keys: RoomKeys(hostKey: hosted.hostKey, roomSecret: hosted.roomSecret),
+        token: token,
+        epoch: mine,
+      );
+      if (proven == null || _disposed || !identical(_hosted, hosted)) return;
       _link.redirect(
         dialerFor(
           keys: RoomKeys(
@@ -151,7 +167,7 @@ class GameSession extends ChangeNotifier {
             roomSecret: hosted.roomSecret,
           ),
           room: roomCode,
-          lan: newer.lan,
+          lan: proven,
           locator: HostLocator.shared,
         ),
         epoch: mine + 1,
@@ -159,8 +175,8 @@ class GameSession extends ChangeNotifier {
       final end = DateTime.now().add(const Duration(seconds: 8));
       while (DateTime.now().isBefore(end) && !_disposed) {
         if (_link.status == LinkStatus.connected && _link.epoch > mine) {
-          // Proven: the room lives on elsewhere. Close ours without a
-          // goodbye (nobody is left on it) and forget its save.
+          // The room lives on elsewhere. Close ours without a goodbye
+          // (nobody is left on it) and forget its save.
           _hostingCheck?.cancel();
           _hosted = null;
           await hosted.close(quietly: true);
@@ -169,10 +185,58 @@ class GameSession extends ChangeNotifier {
         }
         await Future<void>.delayed(const Duration(milliseconds: 200));
       }
-      // Not confirmed: stay the host.
+      // Not reached after all: stay the host.
       _link.redirect(() async => hosted.host.connectOwner(), epoch: mine);
     } finally {
       _checking = false;
+    }
+  }
+
+  /// Which of [places] runs this room with a higher epoch than [epoch]:
+  /// the encrypted handshake proves the room's key, the welcome to this
+  /// player's [token] the epoch. A false announcement fails the handshake;
+  /// `null` if none proves itself within a few seconds.
+  Future<LanAddress?> _proveNewer(
+    List<LanAddress> places, {
+    required RoomKeys keys,
+    required String token,
+    required int epoch,
+  }) async {
+    Future<Connection> Function() probe(LanAddress at) => () async {
+      final connection = await connectSecure(
+        await dialHost(at.ip, at.port, timeout: const Duration(seconds: 3)),
+        hostKey: keys.hostKey,
+        roomSecret: keys.roomSecret,
+      );
+      try {
+        connection.send(
+          Hello(
+            name: _link.name,
+            room: roomCode,
+            token: token,
+            epoch: epoch,
+          ).encode(),
+        );
+        final first = await connection.messages.first.timeout(
+          const Duration(seconds: 3),
+        );
+        final message = HostMessage.parse(first);
+        if (message is Welcome && message.epoch > epoch) {
+          return _Proof(connection, at);
+        }
+      } on Object {
+        // Not a host of this room, or an older one.
+      }
+      await connection.close();
+      throw StateError('not newer');
+    };
+    try {
+      final proof =
+          await firstConnection([for (final at in places) probe(at)]) as _Proof;
+      await proof.close();
+      return proof.at;
+    } on Object {
+      return null;
     }
   }
 
@@ -300,4 +364,21 @@ class GameSession extends ChangeNotifier {
     if (hosted != null) unawaited(hosted.close());
     super.dispose();
   }
+}
+
+/// A connection that proved a newer host at [at]; only closed again.
+class _Proof implements Connection {
+  _Proof(this._inner, this.at);
+
+  final Connection _inner;
+  final LanAddress at;
+
+  @override
+  Stream<String> get messages => _inner.messages;
+
+  @override
+  void send(String message) => _inner.send(message);
+
+  @override
+  Future<void> close() => _inner.close();
 }

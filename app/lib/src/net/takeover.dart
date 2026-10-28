@@ -5,6 +5,7 @@ import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:protocol/protocol.dart';
 import 'package:secure_channel/secure_channel.dart';
+import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
 
 /// What lets this device take over a room whose host went away: its own
@@ -58,18 +59,17 @@ class TakeoverKit {
     String room,
     Candidate successor,
   ) async {
-    final at = HostLocator.shared.findCandidate(room, successor.key);
-    if (at == null) throw StateError('successor not announced yet');
-    final raw = await dialHost(
-      at.ip,
-      at.port,
-      timeout: const Duration(seconds: 3),
-    );
-    return connectSecure(
-      raw,
-      hostKey: successor.key,
-      roomSecret: successor.secret,
-    );
+    final places = HostLocator.shared.findCandidates(room, successor.key);
+    if (places.isEmpty) throw StateError('successor not announced yet');
+    // All at once: only the real successor completes the handshake.
+    return firstConnection([
+      for (final at in places)
+        () async => connectSecure(
+          await dialHost(at.ip, at.port, timeout: const Duration(seconds: 3)),
+          hostKey: successor.key,
+          roomSecret: successor.secret,
+        ),
+    ]);
   }
 }
 

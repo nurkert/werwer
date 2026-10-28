@@ -42,8 +42,9 @@ Dial dialerFor({
     roomSecret: keys.roomSecret,
   );
   return () {
-    final found = locator?.find(room, keys.hostKey);
-    final addresses = {?lan, ?found}.toList();
+    // The last known address, and every place the room is announced now
+    // (the host may have moved, or someone announces a false one).
+    final addresses = {?lan, ...?locator?.findAll(room, keys.hostKey)}.toList();
     var settled = false;
     final local = [
       for (final a in addresses)
