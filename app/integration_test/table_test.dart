@@ -11,6 +11,7 @@ import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:protocol/protocol.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
@@ -175,6 +176,7 @@ void main() {
       name: 'Ada',
       roomCode: room.roomCode,
       dial: () async => room.host.connectOwner(),
+      hosted: room,
     );
     await tester.pumpWidget(
       MaterialApp(
@@ -182,10 +184,12 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: supportedLocales,
         theme: buildTheme(),
-        home: GameScreen(session: session, room: room),
+        home: GameScreen(session: session),
       ),
     );
     await until(tester, () => session.view != null);
+    // The host's lobby shows the room's QR code.
+    expect(find.byType(QrImageView), findsOneWidget);
 
     final bots = <Bot>[];
     await tester.runAsync(() async {
@@ -291,6 +295,7 @@ void main() {
       name: 'Ada',
       roomCode: room.roomCode,
       dial: () async => room.host.connectOwner(),
+      hosted: room,
     );
     await tester.pumpWidget(
       MaterialApp(
@@ -298,7 +303,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: supportedLocales,
         theme: buildTheme(),
-        home: GameScreen(session: session, room: room),
+        home: GameScreen(session: session),
       ),
     );
     await until(tester, () => session.view != null);

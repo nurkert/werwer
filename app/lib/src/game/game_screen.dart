@@ -25,19 +25,17 @@ import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
-/// The game from this player's seat. If this device hosts, it also owns the
-/// [room] and closes it when leaving.
+/// The game from this player's seat. If this device hosts, the session owns
+/// the room (`GameSession.hosted`) and closes it when leaving.
 class GameScreen extends StatefulWidget {
   const GameScreen({
     required this.session,
-    this.room,
     this.sounds,
     this.clips,
     super.key,
   });
 
   final GameSession session;
-  final HostedRoom? room;
 
   /// Where night sounds go; the platform's audio unless a test passes one.
   final Sounds? sounds;
@@ -53,7 +51,6 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   GameSession get session => widget.session;
 
-  /// Only the host device speaks, so the voice comes from one place.
   /// Only the host device speaks, so the voice comes from one place (also
   /// after this device took the room over).
   Voice? get _voice => session.hosted == null ? null : _hostVoice;
@@ -103,8 +100,6 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     );
     // The host must stay awake: a locked host phone ends the game for all.
     unawaited(WakelockPlus.enable());
-    final room = session.hosted;
-    if (room != null) session.adopt(room);
     session.addListener(_changed);
     WidgetsBinding.instance.addObserver(this);
   }

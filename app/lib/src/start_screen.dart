@@ -129,13 +129,12 @@ class _StartScreenState extends State<StartScreen> {
         roomCode: room.roomCode,
         token: room.host.ownerToken,
         dial: () async => room.host.connectOwner(),
+        hosted: room,
       );
       if (!mounted) return;
       await Navigator.push(
         context,
-        MaterialPageRoute<void>(
-          builder: (_) => GameScreen(session: session, room: room),
-        ),
+        MaterialPageRoute<void>(builder: (_) => GameScreen(session: session)),
       );
     } on Object {
       await const RoomStore().clear();
@@ -262,13 +261,12 @@ class _StartScreenState extends State<StartScreen> {
         name: name,
         roomCode: room.roomCode,
         dial: () async => room.host.connectOwner(),
+        hosted: room,
       );
       if (!mounted) return;
       await Navigator.push(
         context,
-        MaterialPageRoute<void>(
-          builder: (_) => GameScreen(session: session, room: room),
-        ),
+        MaterialPageRoute<void>(builder: (_) => GameScreen(session: session)),
       );
     } on Object {
       setState(() => _error = l10n.hostFailed);

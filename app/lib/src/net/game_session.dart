@@ -81,8 +81,10 @@ class GameSession extends ChangeNotifier {
   /// The notification text that keeps a hosted room alive (Android).
   final String Function(String room)? notice;
 
-  /// The room this device hosts: the one it opened, or the one it took
-  /// over when the host went away. `null` on a plain player's device.
+  /// The room this device hosts: the one it opened or restored (passed in
+  /// as `hosted`), or the one it took over when the host went away. `null`
+  /// on a plain player's device. The session closes it when it ends, or
+  /// hands it over when the player leaves.
   HostedRoom? get hosted => _hosted;
   HostedRoom? _hosted;
   Timer? _hostingCheck;
@@ -90,14 +92,6 @@ class GameSession extends ChangeNotifier {
 
   /// This device took over the room (for a short note on screen).
   bool tookOver = false;
-
-  /// This device hosts [room] (it opened or restored it); the session
-  /// closes it when it ends, or hands it over when the player leaves.
-  void adopt(HostedRoom room) {
-    if (identical(_hosted, room)) return;
-    _hosted = room;
-    _watchHosting();
-  }
 
   Future<void> _becomeHost(String room) async {
     final me = _link.you;
