@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:whowolf/src/stage/living.dart';
 import 'package:whowolf/src/stage/motion.dart';
+import 'package:whowolf/src/stage/stage_clock.dart';
 
 /// Reads, in the tree below [motion], what the stage would do: the
 /// motion seen, whether animations are asked to stop, the stage clock.

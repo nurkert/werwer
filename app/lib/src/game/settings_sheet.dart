@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
-import 'package:whowolf/src/game/figures.dart';
+import 'package:whowolf/src/game/settings_controls.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/game_session.dart';
-import 'package:whowolf/src/theme.dart';
 
 extension PresetText on AppLocalizations {
   String preset(Preset? preset) => switch (preset) {
@@ -83,7 +82,7 @@ class _SettingsBody extends StatelessWidget {
     final table = players.clamp(minPlayers, 99);
     final dropped = s.droppedFor(table);
     final children = [
-      _Section(l10n.settingsQuick),
+      SettingsSection(l10n.settingsQuick),
       IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,7 +93,7 @@ class _SettingsBody extends StatelessWidget {
             ].indexed) ...[
               if (i > 0) const SizedBox(width: 10),
               Expanded(
-                child: _QuickPick(
+                child: QuickPick(
                   title: l10n.preset(preset),
                   hint: preset == Preset.classic
                       ? l10n.quickClassicHint
@@ -113,11 +112,11 @@ class _SettingsBody extends StatelessWidget {
             ? Body(l10n.settingsQuickHint, muted: true)
             : Stamp(l10n.settingsName(s), size: 16),
       ),
-      _Section(l10n.settingsRoles),
-      _BalancedGrid(
+      SettingsSection(l10n.settingsRoles),
+      BalancedGrid(
         children: [
           for (final role in specialRoles)
-            _RoleToggle(
+            RoleToggle(
               role: role,
               on: s.roles.contains(role),
               onTap: () => onChanged(
@@ -140,8 +139,8 @@ class _SettingsBody extends StatelessWidget {
           muted: true,
         ),
       ],
-      _Section(l10n.settingsWolves),
-      _Stepper(
+      SettingsSection(l10n.settingsWolves),
+      SettingsStepper(
         label: s.werewolves == null
             ? l10n.wolvesSuggested(suggested)
             : '${s.werewolves}',
@@ -160,7 +159,7 @@ class _SettingsBody extends StatelessWidget {
             : () => onChanged(s.copyWith(suggestWerewolves: true)),
         resetLabel: l10n.wolvesSuggested(suggested),
       ),
-      _Section(l10n.settingsTimes),
+      SettingsSection(l10n.settingsTimes),
       if (s.timedFor(table) != s)
         Align(
           child: TextButton.icon(
@@ -169,29 +168,29 @@ class _SettingsBody extends StatelessWidget {
             label: Text(l10n.timesForTable(table)),
           ),
         ),
-      _TimeSlider(
+      TimeSlider(
         label: l10n.timeNight,
         value: s.nightTime,
         range: nightTimeRange,
         step: const Duration(seconds: 15),
         onChanged: (d) => onChanged(s.copyWith(nightTime: d)),
       ),
-      _TimeSlider(
+      TimeSlider(
         label: l10n.timeDay,
         value: s.dayTime,
         range: dayTimeRange,
         step: const Duration(minutes: 1),
         onChanged: (d) => onChanged(s.copyWith(dayTime: d)),
       ),
-      _TimeSlider(
+      TimeSlider(
         label: l10n.timeVote,
         value: s.voteTime,
         range: voteTimeRange,
         step: const Duration(seconds: 15),
         onChanged: (d) => onChanged(s.copyWith(voteTime: d)),
       ),
-      _Section(l10n.settingsNight),
-      _Switch(
+      SettingsSection(l10n.settingsNight),
+      SettingsSwitch(
         label: l10n.settingsNightCalled,
         hint: s.nightMode == NightMode.called
             ? l10n.settingsNightCalledHint
@@ -201,31 +200,31 @@ class _SettingsBody extends StatelessWidget {
           s.copyWith(nightMode: v ? NightMode.called : NightMode.together),
         ),
       ),
-      _Section(l10n.settingsRules),
-      _Switch(
+      SettingsSection(l10n.settingsRules),
+      SettingsSwitch(
         label: l10n.settingsRevealRoles,
         value: s.revealRoleOnDeath,
         onChanged: (v) => onChanged(s.copyWith(revealRoleOnDeath: v)),
       ),
-      _Switch(
+      SettingsSwitch(
         label: l10n.settingsSeerRole,
         value: s.seerSeesRole,
         onChanged: (v) => onChanged(s.copyWith(seerSeesRole: v)),
       ),
-      _Switch(
+      SettingsSwitch(
         label: l10n.settingsRunoff,
         value: s.tieRule == TieRule.runoff,
         onChanged: (v) => onChanged(
           s.copyWith(tieRule: v ? TieRule.runoff : TieRule.nobody),
         ),
       ),
-      _Switch(
+      SettingsSwitch(
         label: l10n.settingsOpenVotes,
         hint: s.openVotes ? l10n.settingsOpenVotesHint : null,
         value: s.openVotes,
         onChanged: (v) => onChanged(s.copyWith(openVotes: v)),
       ),
-      _Choice<GhostSight>(
+      SettingsChoice<GhostSight>(
         label: l10n.settingsGhosts,
         segments: [
           ButtonSegment(value: GhostSight.off, label: Text(l10n.ghostsOff)),
@@ -246,33 +245,33 @@ class _SettingsBody extends StatelessWidget {
           padding: const EdgeInsets.only(top: 6),
           child: Body(l10n.settingsGhostsHint, muted: true),
         ),
-      _Section(l10n.settingsExtras),
+      SettingsSection(l10n.settingsExtras),
       // Both need the phones in hand at night: not in the called night.
       if (s.nightMode == NightMode.together) ...[
-        _Switch(
+        SettingsSwitch(
           label: l10n.settingsSheep,
           hint: s.sheepCounting ? null : l10n.settingsSheepOff,
           value: s.sheepCounting,
           onChanged: (v) => onChanged(s.copyWith(sheepCounting: v)),
         ),
-        _Switch(
+        SettingsSwitch(
           label: l10n.settingsDoorSigns,
           value: s.doorSigns,
           onChanged: (v) => onChanged(s.copyWith(doorSigns: v)),
         ),
       ],
-      _Switch(
+      SettingsSwitch(
         label: l10n.settingsAtmosphere,
         value: s.atmosphere,
         onChanged: (v) => onChanged(s.copyWith(atmosphere: v)),
       ),
-      _Switch(
+      SettingsSwitch(
         label: l10n.settingsWolfTrail,
         value: s.wolfTrail,
         onChanged: (v) => onChanged(s.copyWith(wolfTrail: v)),
       ),
-      _Section(l10n.settingsSound),
-      _Choice<NarratorMode>(
+      SettingsSection(l10n.settingsSound),
+      SettingsChoice<NarratorMode>(
         label: l10n.settingsNarrator,
         segments: [
           ButtonSegment(value: NarratorMode.off, label: Text(l10n.narratorOff)),
@@ -297,7 +296,7 @@ class _SettingsBody extends StatelessWidget {
         }, muted: true),
       ),
       if (s.narratorVoice)
-        _Choice<NarratorLanguage>(
+        SettingsChoice<NarratorLanguage>(
           label: l10n.settingsNarratorLanguage,
           segments: const [
             ButtonSegment(value: NarratorLanguage.de, label: Text('Deutsch')),
@@ -313,8 +312,8 @@ class _SettingsBody extends StatelessWidget {
     // the sections stand in two columns.
     final groups = <List<Widget>>[];
     for (final child in children) {
-      if (child is _Section) groups.add([child]);
-      if (child is! _Section) groups.last.add(child);
+      if (child is SettingsSection) groups.add([child]);
+      if (child is! SettingsSection) groups.last.add(child);
     }
     Widget section(List<Widget> group, {bool plaque = true}) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -370,475 +369,6 @@ class _SettingsBody extends StatelessWidget {
       },
     );
   }
-}
-
-class _Section extends StatelessWidget {
-  const _Section(this.title);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(0, 28, 0, 10),
-    child: Headline(title, size: 24),
-  );
-}
-
-/// A quick pick: a whole way of playing in one tap, a playbill when chosen.
-class _QuickPick extends StatelessWidget {
-  const _QuickPick({
-    required this.title,
-    required this.hint,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String title;
-  final String hint;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: selected,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Panel(
-        paper: selected,
-        highlight: selected,
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: displayFont,
-                      fontSize: 22,
-                      color: selected ? Palette.ink : Palette.moon100,
-                    ),
-                  ),
-                ),
-                if (selected) ...[
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: Palette.forest700,
-                    size: 22,
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              hint,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.5,
-                height: 1.35,
-                color: selected ? Palette.inkSoft : Palette.moon200,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-/// A special role: its figure, its name, on or off.
-class _RoleToggle extends StatelessWidget {
-  const _RoleToggle({
-    required this.role,
-    required this.on,
-    required this.onTap,
-  });
-
-  final Role role;
-  final bool on;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Semantics(
-      toggled: on,
-      label: l10n.role(role),
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedOpacity(
-          opacity: on ? 1 : 0.45,
-          duration: const Duration(milliseconds: 200),
-          child: SizedBox(
-            width: _BalancedGrid.cell,
-            child: Column(
-              children: [
-                RoleFigure(role: role, height: 92),
-                const SizedBox(height: 6),
-                Text(
-                  l10n.role(role),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: Palette.moon100,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Icon(
-                  on ? Icons.check_circle_rounded : Icons.circle_outlined,
-                  color: on ? Palette.lantern400 : Palette.night500,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Cells in even rows: as many columns as fit, then spread so no row is
-/// left with a straggler (four roles: one row of four, or two by two on a
-/// phone; five: three and two).
-class _BalancedGrid extends StatelessWidget {
-  const _BalancedGrid({required this.children});
-
-  final List<Widget> children;
-
-  /// The width one cell needs.
-  static const double cell = 78;
-  static const double _gap = 12;
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      final n = children.length;
-      if (n == 0) return const SizedBox.shrink();
-      final fit = ((box.maxWidth + _gap) / (cell + _gap)).floor().clamp(1, n);
-      final rows = (n / fit).ceil();
-      final columns = (n / rows).ceil();
-      return Column(
-        children: [
-          for (var r = 0; r < rows; r++) ...[
-            if (r > 0) const SizedBox(height: 14),
-            Row(
-              children: [
-                for (var c = 0; c < columns; c++)
-                  Expanded(
-                    child: r * columns + c < n
-                        ? Center(child: children[r * columns + c])
-                        : const SizedBox.shrink(),
-                  ),
-              ],
-            ),
-          ],
-        ],
-      );
-    },
-  );
-}
-
-class _Stepper extends StatelessWidget {
-  const _Stepper({
-    required this.label,
-    required this.onLess,
-    required this.onMore,
-    required this.onReset,
-    required this.resetLabel,
-  });
-
-  final String label;
-  final VoidCallback? onLess;
-  final VoidCallback? onMore;
-  final VoidCallback? onReset;
-  final String resetLabel;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      _BrassButton(icon: Icons.remove_rounded, onTap: onLess),
-      SizedBox(
-        width: 150,
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: Palette.moon100,
-          ),
-        ),
-      ),
-      _BrassButton(icon: Icons.add_rounded, onTap: onMore),
-      if (onReset != null)
-        IconButton(
-          onPressed: onReset,
-          icon: const Icon(Icons.auto_fix_high_rounded),
-          color: Palette.lantern300,
-          tooltip: resetLabel,
-        ),
-    ],
-  );
-}
-
-/// A phase time. Dragging only moves the label; the value goes to the host
-/// when the finger lifts (one message, not one per pixel: the host limits
-/// how many messages a player may send).
-class _TimeSlider extends StatefulWidget {
-  const _TimeSlider({
-    required this.label,
-    required this.value,
-    required this.range,
-    required this.step,
-    required this.onChanged,
-  });
-
-  final String label;
-  final Duration value;
-  final ({Duration min, Duration max}) range;
-  final Duration step;
-  final void Function(Duration) onChanged;
-
-  @override
-  State<_TimeSlider> createState() => _TimeSliderState();
-}
-
-class _TimeSliderState extends State<_TimeSlider> {
-  Duration? _dragging;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final value = _dragging ?? widget.value;
-    final min = widget.range.min.inSeconds.toDouble();
-    final max = widget.range.max.inSeconds.toDouble();
-    return Row(
-      children: [
-        SizedBox(
-          width: 110,
-          child: Text(
-            widget.label,
-            style: const TextStyle(color: Palette.moon200),
-          ),
-        ),
-        Expanded(
-          child: Slider(
-            value: value.inSeconds.toDouble().clamp(min, max),
-            min: min,
-            max: max,
-            divisions: ((max - min) / widget.step.inSeconds).round(),
-            label: l10n.duration(value),
-            onChanged: (v) =>
-                setState(() => _dragging = Duration(seconds: v.round())),
-            onChangeEnd: (v) {
-              setState(() => _dragging = null);
-              widget.onChanged(Duration(seconds: v.round()));
-            },
-          ),
-        ),
-        SizedBox(
-          width: 64,
-          child: Text(
-            l10n.duration(value),
-            textAlign: TextAlign.end,
-            style: const TextStyle(
-              color: Palette.moon100,
-              fontWeight: FontWeight.w600,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Switch extends StatelessWidget {
-  const _Switch({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    this.hint,
-  });
-
-  final String label;
-  final String? hint;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) => MergeSemantics(
-    child: Semantics(
-      toggled: value,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.s),
-        onTap: () => onChanged(!value),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Palette.moon100,
-                      ),
-                    ),
-                    if (hint != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        hint!,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          height: 1.35,
-                          color: Palette.moon200,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              _LanternToggle(on: value),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-/// The switch itself: a brass-edged slot, lit like a lantern when on.
-class _LanternToggle extends StatelessWidget {
-  const _LanternToggle({required this.on});
-
-  final bool on;
-
-  @override
-  Widget build(BuildContext context) {
-    const duration = Duration(milliseconds: 200);
-    return AnimatedContainer(
-      duration: duration,
-      curve: Curves.easeOut,
-      width: 54,
-      height: 32,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: on ? Palette.stageLanternTop : Palette.stageBrass,
-          width: 1.5,
-        ),
-        color: on
-            ? Palette.stageLantern
-            : Palette.night950.withValues(
-                alpha: 0.7,
-              ),
-        boxShadow: [
-          if (on)
-            BoxShadow(
-              color: Palette.stageLantern.withValues(alpha: 0.45),
-              blurRadius: 12,
-            ),
-        ],
-      ),
-      child: AnimatedAlign(
-        duration: duration,
-        curve: Curves.easeOut,
-        alignment: on ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          width: 23,
-          height: 23,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: on ? Palette.stageIvory : Palette.stageBrassLight,
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x66000000),
-                blurRadius: 3,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A round brass button (more, fewer).
-class _BrassButton extends StatelessWidget {
-  const _BrassButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) => Opacity(
-    opacity: onTap == null ? 0.4 : 1,
-    child: Material(
-      color: Palette.stagePlaque,
-      shape: const CircleBorder(
-        side: BorderSide(color: Palette.stageBrass, width: 1.5),
-      ),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          width: 46,
-          height: 46,
-          child: Icon(icon, color: Palette.stageIvory),
-        ),
-      ),
-    ),
-  );
-}
-
-/// One of a few choices, its label above and the choices across the full
-/// width (they fit on a phone, they never squeeze the label).
-class _Choice<T> extends StatelessWidget {
-  const _Choice({
-    required this.label,
-    required this.segments,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final String label;
-  final List<ButtonSegment<T>> segments;
-  final T selected;
-  final ValueChanged<T> onChanged;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 16, color: Palette.moon100),
-        ),
-        const SizedBox(height: 8),
-        SegmentedButton<T>(
-          segments: segments,
-          selected: {selected},
-          showSelectedIcon: false,
-          onSelectionChanged: (v) => onChanged(v.first),
-        ),
-      ],
-    ),
-  );
 }
 
 /// Where the narrator and the shared sounds play: every phone, only the
@@ -897,7 +427,7 @@ class _SoundPlaces extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Choice<_Places>(
+        SettingsChoice<_Places>(
           label: l10n.settingsSoundWhere,
           segments: [
             ButtonSegment(

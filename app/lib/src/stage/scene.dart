@@ -5,7 +5,9 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/stage/living.dart';
 import 'package:whowolf/src/stage/moon.dart';
 import 'package:whowolf/src/stage/pan.dart';
+import 'package:whowolf/src/stage/plate_water.dart';
 import 'package:whowolf/src/stage/scenery.dart';
+import 'package:whowolf/src/stage/stage_clock.dart';
 import 'package:whowolf/src/stage/tilt.dart';
 import 'package:whowolf/src/theme.dart';
 
