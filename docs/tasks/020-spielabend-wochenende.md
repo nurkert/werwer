@@ -28,6 +28,9 @@ Wunsch des Eigentümers: Am Wochenende soll ein Spiel ohne Hänger laufen. Dafü
 - [ ] **Spielleiter-Knöpfe** (nur Spielleiter, vom Host geprüft): Pause/Weiter, Phase um 30 s verlängern, Phase beenden. Alle sehen eine ruhige Anzeige („Der Spielleiter hat pausiert“).
 - [ ] **Zeiten pro Spielerzahl** sinnvoll vorbelegen (Diskussion, Abstimmung, Nacht), in den Einstellungen änderbar.
 
+- [ ] **Zeit zum Augenschließen** (Wunsch des Eigentümers, 2026-10-28): Wenn die Nacht beginnt, zeigt kein Bildschirm sofort, wer gerufen ist. Erst eine ruhige Übergangszeit auf allen Geräten gleich (Augen zu, Handy runter), dann erscheinen die Aktionen. Sonst sieht der Nachbar auf dem Handy daneben, dass jemand Werwolf ist. Gleiches beim Aufwachen der einzelnen Rollen in der klassischen Nacht.
+- [ ] **Einstellungen denken mit** (Wunsch des Eigentümers, 2026-10-28): Mit 3 Leuten ließ sich keine Testrunde starten, weil zu viele Rollen gewählt waren. Die Rollen passen sich automatisch an die Spielerzahl an (zu viele werden abgewählt, beim Wachsen der Runde die gewünschten wieder zugeschaltet), und die Lobby sagt in einer Zeile, was angepasst wurde. Was der Spielleiter selbst gewählt hat, bleibt als Wunsch erhalten.
+
 ## 3. Ausfälle: ein Akku darf kein Spiel beenden
 
 - [ ] **Wer fehlt, sieht man tagsüber:** In Diskussion und Abstimmung steht an einem getrennten Platz ein kleines Zeichen „nicht verbunden“. Nachts nie, weil es sonst ein Hinweis wäre.
