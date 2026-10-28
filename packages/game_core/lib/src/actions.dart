@@ -71,8 +71,8 @@ final class ChangeSettings extends GameAction {
 
 /// Deals the roles and starts the game.
 final class StartGame extends GameAction {
-  /// Creates the action. Without [roles], the settings decide
-  /// ([GameSettings.rolesFor]).
+  /// Creates the action. Without [roles], the settings decide, fitted to
+  /// the table ([GameSettings.fittedFor]).
   const StartGame({required this.random, this.roles});
 
   /// Source of randomness for dealing, injected so games are reproducible.

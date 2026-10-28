@@ -840,6 +840,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsVoice => 'Narrator voice on the host device';
 
   @override
+  String rolesFitted(int count, String roles) {
+    return 'For $count players without: $roles. They come back as soon as more people join.';
+  }
+
+  @override
   String tooManyRoles(int count) {
     return 'For $count players these are too many roles.';
   }

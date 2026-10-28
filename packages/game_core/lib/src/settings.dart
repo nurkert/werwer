@@ -245,6 +245,32 @@ class GameSettings {
     ];
   }
 
+  /// These settings as [playerCount] players can play them: a werewolf
+  /// count that would not be a minority falls back to the suggested one,
+  /// and special roles that do not fit are left out, the last of
+  /// [specialRoles] first (cupid, hunter, witch, then the seer). The
+  /// settings themselves stay as the host chose them, so the roles come
+  /// back when the table grows.
+  GameSettings fittedFor(int playerCount) {
+    if (rolesFor(playerCount) != null) return this;
+    var fitted = this;
+    final wolves = werewolves;
+    if (wolves != null && wolves * 2 >= playerCount) {
+      fitted = fitted.copyWith(suggestWerewolves: true);
+    }
+    for (final role in specialRoles.toList().reversed) {
+      if (fitted.rolesFor(playerCount) != null) break;
+      if (fitted.roles.contains(role)) {
+        fitted = fitted.copyWith(roles: {...fitted.roles}..remove(role));
+      }
+    }
+    return fitted;
+  }
+
+  /// The special roles [fittedFor] leaves out for [playerCount] players.
+  Set<Role> droppedFor(int playerCount) =>
+      roles.difference(fittedFor(playerCount).roles);
+
   /// Returns a copy with the given fields replaced. Pass
   /// `suggestWerewolves: true` to go back to the suggested number.
   GameSettings copyWith({

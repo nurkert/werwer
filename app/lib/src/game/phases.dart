@@ -267,7 +267,11 @@ class _LobbyPhaseState extends State<LobbyPhase> {
     final view = session.view!;
     final count = view.seats.length;
     final settings = view.settings;
-    final roles = count >= minPlayers ? settings.rolesFor(count) : null;
+    final fitted = settings.fittedFor(count);
+    final roles = count >= minPlayers ? fitted.rolesFor(count) : null;
+    final dropped = count >= minPlayers
+        ? settings.droppedFor(count)
+        : const <Role>{};
     final canStart = roles != null && count <= maxPlayers;
     String rolesLine(List<Role> roles) {
       final tally = <Role, int>{};
@@ -332,9 +336,20 @@ class _LobbyPhaseState extends State<LobbyPhase> {
           children: [
             Stamp(l10n.settingsName(settings), size: 17),
             const SizedBox(height: 10),
-            if (roles != null)
-              Body(rolesLine(roles))
-            else if (count >= minPlayers)
+            if (roles != null) ...[
+              Body(rolesLine(roles)),
+              // The host asked for more than this table holds: said, not
+              // refused (the roles come back when more people sit down).
+              if (dropped.isNotEmpty ||
+                  fitted.werewolves != settings.werewolves)
+                Body(
+                  l10n.rolesFitted(
+                    count,
+                    [for (final r in dropped) l10n.role(r)].join(', '),
+                  ),
+                  muted: true,
+                ),
+            ] else if (count >= minPlayers)
               Body(l10n.tooManyRoles(count), muted: true),
             // Everyone sees live what the host sets up.
             const SizedBox(height: 8),

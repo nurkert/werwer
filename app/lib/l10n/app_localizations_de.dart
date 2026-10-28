@@ -851,6 +851,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsVoice => 'Erzählstimme auf dem Gastgeber-Gerät';
 
   @override
+  String rolesFitted(int count, String roles) {
+    return 'Für $count Spieler ohne: $roles. Sie kommen zurück, sobald mehr mitspielen.';
+  }
+
+  @override
   String tooManyRoles(int count) {
     return 'Für $count Spieler sind das zu viele Rollen.';
   }

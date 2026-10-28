@@ -6,6 +6,46 @@ import 'package:test/test.dart';
 import 'support.dart';
 
 void main() {
+  group('fitted to the table', () {
+    test('too many roles for three: the last ones stay out, the wish '
+        'stays', () {
+      const wish = GameSettings(
+        roles: {Role.seer, Role.witch, Role.hunter, Role.cupid},
+      );
+      expect(wish.rolesFor(3), isNull);
+      final fitted = wish.fittedFor(3);
+      expect(fitted.rolesFor(3), isNotNull);
+      expect(fitted.roles, {Role.seer, Role.witch});
+      expect(wish.droppedFor(3), {Role.hunter, Role.cupid});
+      // With more players everything fits again.
+      expect(wish.fittedFor(8), wish);
+      expect(wish.droppedFor(8), isEmpty);
+    });
+
+    test('too many werewolves fall back to the suggested number', () {
+      const wish = GameSettings(werewolves: 3);
+      final fitted = wish.fittedFor(4);
+      expect(fitted.werewolves, isNull);
+      expect(fitted.rolesFor(4), isNotNull);
+    });
+
+    test('a game of three starts with every role switched on', () {
+      final state = apply(
+        lobby(
+          3,
+          settings: const GameSettings(
+            roles: {Role.seer, Role.witch, Role.hunter, Role.cupid},
+          ),
+        ),
+        StartGame(random: Random(1)),
+      ).state;
+      expect(state.phase, Phase.roleReveal);
+      final dealt = state.players.map((p) => p.role).toSet();
+      expect(dealt, isNot(contains(Role.cupid)));
+      expect(dealt, isNot(contains(Role.hunter)));
+    });
+  });
+
   group('presets', () {
     test('each preset is recognised, a change makes it custom', () {
       for (final preset in Preset.values) {
@@ -121,7 +161,8 @@ void main() {
       expect(Preset.fullStage.settings.rolesFor(4), isNull);
     });
 
-    test('the game deals them, or refuses when they do not fit', () {
+    test('the game deals them, fitted to the table; explicit roles that '
+        'do not fit are refused', () {
       final state = apply(
         lobby(6, settings: Preset.fullStage.settings),
         StartGame(random: Random(4)),
@@ -130,12 +171,16 @@ void main() {
         state.players.map((p) => p.role).toSet(),
         {...specialRoles, Role.werewolf, Role.villager},
       );
+      // Four players, every role asked for: the ones that do not fit stay
+      // out instead of blocking the start.
+      final four = apply(
+        lobby(4, settings: Preset.fullStage.settings),
+        StartGame(random: Random(4)),
+      ).state;
+      expect(four.players, hasLength(4));
       expect(
-        () => apply(
-          lobby(4, settings: Preset.fullStage.settings),
-          StartGame(random: Random(4)),
-        ),
-        refuses(Violation.invalidRoles),
+        four.players.where((p) => p.role == Role.werewolf),
+        hasLength(1),
       );
       expect(
         () => apply(

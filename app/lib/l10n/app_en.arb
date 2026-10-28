@@ -523,6 +523,13 @@
   "settingsWolfTrail": "Wolf trail (after the first release)",
   "settingsAtmosphere": "Night sounds and the morning yawn",
   "settingsVoice": "Narrator voice on the host device",
+  "rolesFitted": "For {count} players without: {roles}. They come back as soon as more people join.",
+  "@rolesFitted": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "roles": {"type": "String"}
+    }
+  },
   "tooManyRoles": "For {count} players these are too many roles.",
   "@tooManyRoles": {
     "placeholders": {

@@ -234,6 +234,7 @@
   "settingsWolfTrail": "Wolfsspur (nach dem ersten Release)",
   "settingsAtmosphere": "Nachtgeräusche und Morgen-Gähnen",
   "settingsVoice": "Erzählstimme auf dem Gastgeber-Gerät",
+  "rolesFitted": "Für {count} Spieler ohne: {roles}. Sie kommen zurück, sobald mehr mitspielen.",
   "tooManyRoles": "Für {count} Spieler sind das zu viele Rollen.",
   "presetBasic": "Grundspiel",
   "nightTaskDone": "Deine Nachtaufgabe ist erledigt.",

@@ -1496,6 +1496,12 @@ abstract class AppLocalizations {
   /// **'Narrator voice on the host device'**
   String get settingsVoice;
 
+  /// No description provided for @rolesFitted.
+  ///
+  /// In en, this message translates to:
+  /// **'For {count} players without: {roles}. They come back as soon as more people join.'**
+  String rolesFitted(int count, String roles);
+
   /// No description provided for @tooManyRoles.
   ///
   /// In en, this message translates to:

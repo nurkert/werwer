@@ -80,7 +80,8 @@ class _SettingsBody extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final s = settings;
     final suggested = suggestedWerewolves(players.clamp(minPlayers, 99));
-    final fits = s.rolesFor(players.clamp(minPlayers, 99)) != null;
+    final table = players.clamp(minPlayers, 99);
+    final dropped = s.droppedFor(table);
     final children = [
       _Section(l10n.settingsQuick),
       IntrinsicHeight(
@@ -129,9 +130,15 @@ class _SettingsBody extends StatelessWidget {
             ),
         ],
       ),
-      if (!fits) ...[
+      if (dropped.isNotEmpty) ...[
         const SizedBox(height: 10),
-        Body(l10n.tooManyRoles(players), muted: true),
+        Body(
+          l10n.rolesFitted(
+            table,
+            [for (final r in dropped) l10n.role(r)].join(', '),
+          ),
+          muted: true,
+        ),
       ],
       _Section(l10n.settingsWolves),
       _Stepper(

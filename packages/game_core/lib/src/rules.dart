@@ -330,7 +330,8 @@ GameUpdate _startGame(GameState state, StartGame action) {
     _refuse(Violation.playerCount);
   }
   final roles = [
-    ...?(action.roles ?? state.settings.rolesFor(count)),
+    // Too many roles for this table: the ones that do not fit stay out.
+    ...?(action.roles ?? state.settings.fittedFor(count).rolesFor(count)),
   ];
   final wolves = roles.where((r) => r.faction == Faction.werewolves).length;
   final twice = specialRoles.any((s) => roles.where((r) => r == s).length > 1);
