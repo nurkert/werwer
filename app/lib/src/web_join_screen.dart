@@ -11,6 +11,7 @@ import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/browser_socket_stub.dart'
     if (dart.library.js_interop) 'package:whowolf/src/net/browser_socket.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The page the host's phone serves to browsers: a name, and you are at
@@ -160,6 +161,18 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
               style: const TextStyle(color: Palette.moon200, fontSize: 13),
             ),
             const SizedBox(height: 8),
+            Text(
+              l10n.webJoinPrivacy,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Palette.moon200, fontSize: 13),
+            ),
+            TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
+              ),
+              child: Text(l10n.privacy),
+            ),
             Text(
               l10n.webJoinApp,
               textAlign: TextAlign.center,

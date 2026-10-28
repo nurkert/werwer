@@ -48,6 +48,7 @@ class PrivacyScreen extends StatelessWidget {
               (l10n.privacyTableTitle, l10n.privacyTable),
               (l10n.privacyServerTitle, l10n.privacyServer),
               (l10n.privacyDeviceTitle, l10n.privacyDevice),
+              (l10n.privacyBrowserTitle, l10n.privacyBrowser),
               (l10n.privacyRightsTitle, l10n.privacyRights),
             ]) ...[
               section(title, text),

@@ -1832,6 +1832,18 @@ abstract class AppLocalizations {
   /// **'Your name and a session key for rejoining are kept in your device\'s protected storage (12 hours at most). The host\'s device keeps the game state until the room closes. None of it leaves your device except encrypted, for the game.'**
   String get privacyDevice;
 
+  /// No description provided for @privacyBrowserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In the browser'**
+  String get privacyBrowserTitle;
+
+  /// No description provided for @privacyBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'If you play in the browser without the app, the page comes from the host\'s phone (on the same Wi-Fi) or from the server that issued the QR code. Like any web server, that server sees your IP address and browser, but it does not store them. There are no cookies and nothing from third parties. So that you get back to your seat after a reload, the browser keeps the link to the game and your session key, for at most 12 hours and only on this device. The game needs this, so it does not require consent (§ 25(2) TDDDG). Whoever delivers the page could read along with a modified page. The app does not depend on this.'**
+  String get privacyBrowser;
+
   /// No description provided for @privacyRightsTitle.
   ///
   /// In en, this message translates to:
@@ -1939,6 +1951,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep the screen on and the sound up while you play.'**
   String get webJoinScreenOn;
+
+  /// No description provided for @webJoinPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'No cookies, no tracking: this browser only remembers your seat at the table, for at most 12 hours.'**
+  String get webJoinPrivacy;
 
   /// No description provided for @inviteHintWeb.
   ///

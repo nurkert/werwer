@@ -1046,6 +1046,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dein Name und ein Sitzungsschlüssel für den Wiedereinstieg liegen im geschützten Speicher deines Geräts (höchstens 12 Stunden). Das Gastgeber-Gerät hält den Spielstand, bis der Raum geschlossen wird. Davon verlässt nichts dein Gerät, außer verschlüsselt zum Spiel.';
 
   @override
+  String get privacyBrowserTitle => 'Im Browser';
+
+  @override
+  String get privacyBrowser =>
+      'Wer ohne App im Browser mitspielt, lädt die Seite vom Gastgeber-Handy (im WLAN) oder vom Server, der den QR-Code ausgestellt hat. Dieser Server sieht dabei wie jeder Webserver die IP-Adresse und den Browser, speichert sie aber nicht. Es gibt keine Cookies und keine Inhalte von Dritten. Damit du nach dem Neuladen an deinen Platz zurückkommst, merkt sich der Browser den Link zur Runde und deinen Sitzungsschlüssel, höchstens 12 Stunden und nur auf diesem Gerät. Das ist für das Spiel nötig und braucht deshalb keine Einwilligung (§ 25 Abs. 2 TDDDG). Wer die Seite ausliefert, könnte mit einer veränderten Seite mitlesen. Mit der App gibt es diese Abhängigkeit nicht.';
+
+  @override
   String get privacyRightsTitle => 'Deine Rechte';
 
   @override
@@ -1108,6 +1115,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get webJoinScreenOn =>
       'Lass den Bildschirm an und den Ton laut, solange ihr spielt.';
+
+  @override
+  String get webJoinPrivacy =>
+      'Keine Cookies, kein Tracking: Dieser Browser merkt sich nur deinen Platz am Tisch, höchstens 12 Stunden.';
 
   @override
   String get inviteHintWeb =>
