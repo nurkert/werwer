@@ -1704,4 +1704,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSaved => 'Gespeichert';
+
+  @override
+  String get settingsStage => 'Bühne & Akku';
+
+  @override
+  String get motionFull => 'Volle Bühne';
+
+  @override
+  String get motionFullHint =>
+      'Flackernde Lichter, ziehender Nebel, eine Kulisse, die der Neigung des Handys folgt, wippende Figuren. Am schönsten, kostet aber am meisten Akku.';
+
+  @override
+  String get motionCalm => 'Akku sparen';
+
+  @override
+  String get motionCalmHint =>
+      'Die Bühne steht still und bewegt sich nur, wenn etwas passiert: Karten drehen sich, der Vorhang fällt. Kein Neigungssensor. Gut für einen langen Abend.';
+
+  @override
+  String get motionStill => 'Ruhig';
+
+  @override
+  String get motionStillHint =>
+      'Gar nichts bewegt sich, wie bei „Bewegung reduzieren“ im System. Braucht am wenigsten Akku.';
+
+  @override
+  String get motionMenu => 'Bühne & Akku';
 }

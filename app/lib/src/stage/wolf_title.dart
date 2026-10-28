@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:whowolf/src/game/figures.dart';
+import 'package:whowolf/src/stage/motion.dart';
 
 /// The start screen's title (task 012): the werewolf stands big behind the
 /// wordmark, both cut from corrugated board, each swaying in its own time
@@ -100,7 +101,7 @@ class _WolfTitleState extends State<WolfTitle> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.of(context).disableAnimations) {
+    if (!StageMotionScope.idles(context)) {
       _ticker.stop();
       _time.value = 1.2;
       _move();

@@ -9,6 +9,7 @@ import 'package:protocol/protocol.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/app_settings.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/chronicle.dart';
@@ -26,6 +27,7 @@ import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/stage/scene.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
@@ -475,6 +477,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       _tellSilence();
                     }),
                   ),
+                // Saving battery is this device's own choice, also mid-game.
+                if (view != null) const _MotionMenu(),
                 if (session.status != SessionStatus.ended)
                   TextButton(onPressed: _leave, child: Text(l10n.leave)),
               ],
@@ -883,6 +887,47 @@ class _PausedState extends State<_Paused> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// How much the stage moves on this device, picked from the app bar: a
+/// phone running low can calm its stage without leaving the game.
+class _MotionMenu extends StatelessWidget {
+  const _MotionMenu();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return ValueListenableBuilder(
+      valueListenable: stageMotion,
+      builder: (context, picked, _) => PopupMenuButton<StageMotion>(
+        tooltip: l10n.motionMenu,
+        position: PopupMenuPosition.under,
+        onSelected: pickStageMotion,
+        icon: Icon(
+          picked == StageMotion.full
+              ? Icons.auto_awesome_outlined
+              : Icons.battery_saver_outlined,
+        ),
+        itemBuilder: (_) => [
+          for (final (motion, title, _) in stageMotionChoices(l10n))
+            PopupMenuItem(
+              value: motion,
+              child: Row(
+                children: [
+                  Expanded(child: Text(title)),
+                  if (motion == picked)
+                    const Icon(
+                      Icons.check_rounded,
+                      size: 20,
+                      color: Palette.lantern400,
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

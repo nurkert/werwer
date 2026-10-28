@@ -1692,4 +1692,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSaved => 'Saved';
+
+  @override
+  String get settingsStage => 'Stage & battery';
+
+  @override
+  String get motionFull => 'Full stage';
+
+  @override
+  String get motionFullHint =>
+      'Flickering lights, drifting mist, a set that follows the tilt of your phone, figures that rock. The prettiest, and it costs the most battery.';
+
+  @override
+  String get motionCalm => 'Battery saver';
+
+  @override
+  String get motionCalmHint =>
+      'The stage stands still and only moves when something happens: cards turn, the curtain falls. No tilt sensor. Good for a long evening.';
+
+  @override
+  String get motionStill => 'Still';
+
+  @override
+  String get motionStillHint =>
+      'Nothing moves at all, like the system\'s reduce motion. Uses the least battery.';
+
+  @override
+  String get motionMenu => 'Stage & battery';
 }

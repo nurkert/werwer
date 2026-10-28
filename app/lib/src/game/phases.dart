@@ -20,6 +20,7 @@ import 'package:whowolf/src/game/table_circle.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/stage/stage_pages.dart';
 import 'package:whowolf/src/theme.dart';
@@ -220,7 +221,7 @@ class _LobbyPhaseState extends State<LobbyPhase> {
   void initState() {
     super.initState();
     _poses = Timer.periodic(const Duration(seconds: 25), (_) {
-      if (mounted && !MediaQuery.of(context).disableAnimations) {
+      if (mounted && StageMotionScope.idles(context)) {
         setState(() => _poseTick++);
       }
     });

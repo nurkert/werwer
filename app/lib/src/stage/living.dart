@@ -7,12 +7,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:whowolf/src/stage/lights.g.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/stage/pan.dart';
 import 'package:whowolf/src/stage/scene.dart';
 
 /// The time the stage's life runs on (task 015), in seconds: one ticker for
-/// the whole stage, updated about 30 times a second. With reduced motion it
-/// stands still, and everything shows a calm, lit still.
+/// the whole stage, updated about 30 times a second. With reduced motion,
+/// or a calmer stage picked to save battery ([StageMotion]), it stands
+/// still, and everything shows a calm, lit still.
 class StageClock extends StatefulWidget {
   const StageClock({required this.child, super.key});
 
@@ -44,7 +46,7 @@ class _StageClockState extends State<StageClock>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.of(context).disableAnimations) {
+    if (!StageMotionScope.idles(context)) {
       _ticker.stop();
       _time.value = 3;
     } else if (!_ticker.isActive) {

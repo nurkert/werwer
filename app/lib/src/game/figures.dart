@@ -8,6 +8,7 @@ import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/poses.g.dart';
 import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// The cardboard figure of a role.
@@ -289,7 +290,7 @@ class _TurningFigureState extends State<TurningFigure>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final calm = MediaQuery.of(context).disableAnimations;
+    final calm = !StageMotionScope.idles(context);
     if (widget.sway &&
         widget.angle == null &&
         !calm &&

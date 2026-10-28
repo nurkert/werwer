@@ -493,5 +493,13 @@
   "quickJoinLast": "Dein letzter Tisch",
   "settingsOnline": "Online-Spiel",
   "settingsAbout": "Über Whowolf",
-  "settingsSaved": "Gespeichert"
+  "settingsSaved": "Gespeichert",
+  "settingsStage": "Bühne & Akku",
+  "motionFull": "Volle Bühne",
+  "motionFullHint": "Flackernde Lichter, ziehender Nebel, eine Kulisse, die der Neigung des Handys folgt, wippende Figuren. Am schönsten, kostet aber am meisten Akku.",
+  "motionCalm": "Akku sparen",
+  "motionCalmHint": "Die Bühne steht still und bewegt sich nur, wenn etwas passiert: Karten drehen sich, der Vorhang fällt. Kein Neigungssensor. Gut für einen langen Abend.",
+  "motionStill": "Ruhig",
+  "motionStillHint": "Gar nichts bewegt sich, wie bei „Bewegung reduzieren“ im System. Braucht am wenigsten Akku.",
+  "motionMenu": "Bühne & Akku"
 }

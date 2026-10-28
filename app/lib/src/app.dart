@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/net/app_links.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
 import 'package:whowolf/src/web_join_screen.dart';
@@ -63,6 +64,11 @@ class _WhowolfAppState extends State<WhowolfApp> with WidgetsBindingObserver {
       theme: buildTheme(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: supportedLocales,
+      builder: (context, child) => ValueListenableBuilder(
+        valueListenable: stageMotion,
+        builder: (context, motion, _) =>
+            StageMotionScope(motion: motion, child: child!),
+      ),
       // In the browser the page comes from a host's phone: join it.
       // A room link that started the app goes to the start screen, which
       // asks before joining; there are no other routes.

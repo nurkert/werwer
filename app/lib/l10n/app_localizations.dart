@@ -2971,6 +2971,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get settingsSaved;
+
+  /// Settings page: group for how much the stage moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage & battery'**
+  String get settingsStage;
+
+  /// Stage motion option: everything moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Full stage'**
+  String get motionFull;
+
+  /// Hint under the full stage option.
+  ///
+  /// In en, this message translates to:
+  /// **'Flickering lights, drifting mist, a set that follows the tilt of your phone, figures that rock. The prettiest, and it costs the most battery.'**
+  String get motionFullHint;
+
+  /// Stage motion option: only moves in answer to the game.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver'**
+  String get motionCalm;
+
+  /// Hint under the battery saver option.
+  ///
+  /// In en, this message translates to:
+  /// **'The stage stands still and only moves when something happens: cards turn, the curtain falls. No tilt sensor. Good for a long evening.'**
+  String get motionCalmHint;
+
+  /// Stage motion option: nothing moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Still'**
+  String get motionStill;
+
+  /// Hint under the still option.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing moves at all, like the system\'s reduce motion. Uses the least battery.'**
+  String get motionStillHint;
+
+  /// Tooltip of the in-game button to pick how much the stage moves.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage & battery'**
+  String get motionMenu;
 }
 
 class _AppLocalizationsDelegate

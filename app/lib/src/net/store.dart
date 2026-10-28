@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:protocol/protocol.dart';
+import 'package:whowolf/src/stage/motion.dart';
 
 /// The official relay server: players on mobile data join a host through
 /// it. It only forwards end-to-end encrypted messages. A fork sets its own
@@ -362,6 +363,29 @@ class Store {
       );
     } on Object {
       // Hidden only until the app restarts.
+    }
+  }
+
+  static const _motionKey = 'stageMotion';
+
+  /// How much the stage moves on this device ([StageMotion]).
+  Future<StageMotion> stageMotion() async {
+    try {
+      final raw = await _get(_motionKey);
+      return StageMotion.values.firstWhere(
+        (motion) => motion.name == raw,
+        orElse: () => StageMotion.full,
+      );
+    } on Object {
+      return StageMotion.full;
+    }
+  }
+
+  Future<void> setStageMotion(StageMotion motion) async {
+    try {
+      await _put(_motionKey, motion.name);
+    } on Object {
+      // Not saved; the full stage next time.
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/privacy_screen.dart';
+import 'package:whowolf/src/stage/motion.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -213,6 +214,10 @@ class _AppSettingsState extends State<AppSettings> {
                 ),
         ),
         _Group(
+          title: l10n.settingsStage,
+          child: const StageMotionPicker(),
+        ),
+        _Group(
           title: l10n.settingsAbout,
           child: Column(
             children: [
@@ -229,6 +234,60 @@ class _AppSettingsState extends State<AppSettings> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The three ways the stage may move ([StageMotion]), with their names
+/// and what each costs.
+List<(StageMotion, String, String)> stageMotionChoices(
+  AppLocalizations l10n,
+) => [
+  (StageMotion.full, l10n.motionFull, l10n.motionFullHint),
+  (StageMotion.calm, l10n.motionCalm, l10n.motionCalmHint),
+  (StageMotion.still, l10n.motionStill, l10n.motionStillHint),
+];
+
+/// Picks how much the stage moves on this device; it changes at once
+/// and is kept for the next start.
+void pickStageMotion(StageMotion motion) {
+  stageMotion.value = motion;
+  unawaited(const Store().setStageMotion(motion));
+}
+
+/// How much the stage moves, as a choice of three with the picked one
+/// explained.
+class StageMotionPicker extends StatelessWidget {
+  const StageMotionPicker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return ValueListenableBuilder(
+      valueListenable: stageMotion,
+      builder: (context, picked, _) => RadioGroup<StageMotion>(
+        groupValue: picked,
+        onChanged: (motion) {
+          if (motion != null) pickStageMotion(motion);
+        },
+        child: Column(
+          children: [
+            for (final (motion, title, hint) in stageMotionChoices(l10n))
+              RadioListTile<StageMotion>(
+                value: motion,
+                contentPadding: EdgeInsets.zero,
+                activeColor: Palette.lantern400,
+                title: Text(
+                  title,
+                  style: const TextStyle(color: Palette.moon100),
+                ),
+                subtitle: picked == motion
+                    ? Text(hint, style: const TextStyle(color: Palette.moon200))
+                    : null,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

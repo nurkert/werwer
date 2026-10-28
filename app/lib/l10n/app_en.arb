@@ -913,5 +913,21 @@
   "settingsAbout": "About Whowolf",
   "@settingsAbout": {"description": "Settings page: About Whowolf."},
   "settingsSaved": "Saved",
-  "@settingsSaved": {"description": "Settings page: Saved."}
+  "@settingsSaved": {"description": "Settings page: Saved."},
+  "settingsStage": "Stage & battery",
+  "@settingsStage": {"description": "Settings page: group for how much the stage moves."},
+  "motionFull": "Full stage",
+  "@motionFull": {"description": "Stage motion option: everything moves."},
+  "motionFullHint": "Flickering lights, drifting mist, a set that follows the tilt of your phone, figures that rock. The prettiest, and it costs the most battery.",
+  "@motionFullHint": {"description": "Hint under the full stage option."},
+  "motionCalm": "Battery saver",
+  "@motionCalm": {"description": "Stage motion option: only moves in answer to the game."},
+  "motionCalmHint": "The stage stands still and only moves when something happens: cards turn, the curtain falls. No tilt sensor. Good for a long evening.",
+  "@motionCalmHint": {"description": "Hint under the battery saver option."},
+  "motionStill": "Still",
+  "@motionStill": {"description": "Stage motion option: nothing moves."},
+  "motionStillHint": "Nothing moves at all, like the system's reduce motion. Uses the least battery.",
+  "@motionStillHint": {"description": "Hint under the still option."},
+  "motionMenu": "Stage & battery",
+  "@motionMenu": {"description": "Tooltip of the in-game button to pick how much the stage moves."}
 }

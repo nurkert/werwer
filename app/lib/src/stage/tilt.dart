@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:whowolf/src/stage/motion.dart';
 
 /// How far the phone is tilted from where it was held, -1 to 1 on both
 /// axes: the stage set's layers shift by it at their own depth (task 012),
@@ -58,7 +59,8 @@ class _StageTiltState extends State<StageTilt>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final still = MediaQuery.of(context).disableAnimations;
+    // The sensor and the glide cost battery: only on the full stage.
+    final still = !StageMotionScope.idles(context);
     if (still || !_hasSensor) {
       unawaited(_sensor?.cancel());
       _sensor = null;

@@ -5,13 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/stage/motion.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(_fontLicenses);
   await _phonesUpright();
-  final language = await const Store().language();
+  const store = Store();
+  final language = await store.language();
   if (language != null) appLanguage.value = Locale(language);
+  stageMotion.value = await store.stageMotion();
   runApp(const WhowolfApp());
 }
 
