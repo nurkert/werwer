@@ -229,7 +229,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 
 Die Reihenfolge ist ein Vorschlag und wird nach dem Feedback zu 0.1 neu bewertet.
 
-1. ~~**Beitritt im Browser ohne Installation**~~ im WLAN: erledigt in 0.1.2; offen ist der Beitritt im Browser über mobile Daten (Web-App z. B. auf whowolf.de, Spiel über das Relay).
+1. ~~**Beitritt im Browser ohne Installation**~~ im WLAN: erledigt in 0.1.2; offen ist der Beitritt im Browser über mobile Daten, geplant in [Task 017](tasks/017-browser-uebers-netz.md) (Web-App opt-in vom Server in mehreren Versionen, Rückfall auf die Oberfläche des Hosts durch das Relay).
 2. **Volle Wolfsspur** (früher M4, [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)): Uhrabgleich mit dem Host, synchrones Abspielen, Spur-Regel, Überdecken, Stummschalter auf iOS umgehen, Kopfhörer erkennen, Startwerte per Simulation mit Bots, eigene bzw. lizenzfreie Geräusche.
 3. **Mehr Spiel:**
    - Eulenspur und eigene Whowolf-Rollen (Fährtenleger, Lauscher, Stille Pfote)
