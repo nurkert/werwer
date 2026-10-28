@@ -142,12 +142,20 @@ class GameHost {
   /// With [takeOver] this device takes the room over from a host that went
   /// away: the epoch counts up (players never go back to the old host) and
   /// [newOwner], this device's player, becomes the room owner.
+  ///
+  /// The phase keeps its agreed end: times in the snapshot are on the
+  /// clock of the host that wrote it, [oldClockAhead] milliseconds ahead of
+  /// this one (from this device's clock sync with it; 0 for its own
+  /// snapshot). Without it, after a takeover, the phase goes on with the
+  /// time it had left when the copy was made. An end that passed while the
+  /// room was away comes after [restoreGrace], so everyone is back first.
   factory GameHost.restore(
     String snapshot, {
     required Random random,
     List<int>? roomSecret,
     bool takeOver = false,
     PlayerId? newOwner,
+    int? oldClockAhead,
     HostConfig config = const HostConfig(),
     StartTimer startTimer = _realTimer,
     Clock clock = _realClock,
@@ -189,17 +197,40 @@ class GameHost {
         if (s.owner) s.candidate = null;
       }
     }
-    final remaining = json.maybeInteger('phaseLeftMs');
-    return host
+    final offset = takeOver ? oldClockAhead : 0;
+    final now = clock();
+    final left = json.maybeInteger('phaseLeftMs', max: maxClock);
+    final endsAt = json.maybeInteger('endsAt', max: maxClock);
+    final startedAt = json.maybeInteger('phaseAt', max: maxClock);
+    final pausedLeft = json.maybeInteger('pausedLeftMs', max: maxClock);
+    final remaining = offset != null && endsAt != null
+        ? max(endsAt - offset - now, restoreGrace.inMilliseconds)
+        : left;
+    host
       .._state = state
       .._nextId = json.integer('nextId', min: 1, max: 1 << 20)
       .._version = json.maybeInteger('version', max: maxSeq) ?? 0
       ..epoch = takeOver ? epoch + 1 : epoch
       .._sessions.addAll(sessions)
-      .._schedulePhaseTimer(
+      .._phaseStartedAt = offset != null && startedAt != null && startedAt > 0
+          ? startedAt - offset
+          : now;
+    if (pausedLeft != null) {
+      // Paused by the game leader: it stays paused, with the same time.
+      host._pausedLeft = pausedLeft;
+    } else {
+      host._schedulePhaseTimer(
         remaining: remaining == null ? null : Duration(milliseconds: remaining),
+        sameStep: true,
+        beyondLimit: true,
       );
+    }
+    return host;
   }
+
+  /// After a restore, a phase whose end passed while the room was away
+  /// ends this much later: the players find the room again first.
+  static const restoreGrace = Duration(seconds: 2);
 
   /// What a new room starts with: werewolf as everyone knows it (the
   /// narrator calls the roles, eyes closed, no sheep). Whowolf's extras are
@@ -331,6 +362,9 @@ class GameHost {
     'nextId': _nextId,
     'version': _version,
     'phaseLeftMs': ?(_pausedLeft ?? _phaseLeft()),
+    'phaseAt': _phaseStartedAt,
+    'endsAt': ?_phaseDeadline,
+    'pausedLeftMs': ?_pausedLeft,
     'state': encodeState(_state),
     'sessions': [
       for (final s in _sessions.values)
@@ -1140,19 +1174,19 @@ class GameHost {
   void _sendState(_Session session) {
     final link = session.link;
     if (link == null) return;
+    // In the called night only whoever is called sees the time: its
+    // changes would tell the others when someone picked.
+    final hideTime =
+        _state.phase == Phase.night &&
+        _state.settings.nightMode == NightMode.called &&
+        nightTask(_state, session.player) == null;
     link.connection.send(
       StateMessage(
         version: _version,
         view: viewFor(_state, session.player),
         isOwner: session.owner,
-        // In the called night only whoever is called sees the time: its
-        // changes would tell the others when someone picked.
-        phaseEndsInMs:
-            _state.phase == Phase.night &&
-                _state.settings.nightMode == NightMode.called &&
-                nightTask(_state, session.player) == null
-            ? null
-            : _phaseLeft(),
+        phaseEndsInMs: hideTime ? null : _phaseLeft(),
+        phaseEndsAt: hideTime ? null : _phaseDeadline,
         phaseAt: _phaseStartedAt == 0 ? null : _phaseStartedAt,
         introSkippedAt: _state.phase == Phase.roleReveal
             ? _introSkippedAt

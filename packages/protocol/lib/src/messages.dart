@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 12;
+const protocolVersion = 13;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -688,6 +688,7 @@ sealed class HostMessage {
         view: decodeView(json.object('view')),
         isOwner: json.boolean('owner'),
         phaseEndsInMs: json.maybeInteger('endsIn'),
+        phaseEndsAt: json.maybeInteger('endsAt', max: maxClock),
         phaseAt: json.maybeInteger('phaseAt', max: maxClock),
         introSkippedAt: json.maybeInteger('skippedAt', max: maxClock),
         inBrowser: json.has('web')
@@ -986,6 +987,7 @@ final class StateMessage extends HostMessage {
     required this.isOwner,
     this.version = 0,
     this.phaseEndsInMs,
+    this.phaseEndsAt,
     this.phaseAt,
     this.introSkippedAt,
     this.pending = const [],
@@ -1039,6 +1041,11 @@ final class StateMessage extends HostMessage {
   /// Milliseconds until the phase timer runs out, if one runs.
   final int? phaseEndsInMs;
 
+  /// When the phase timer runs out, on the host's clock (milliseconds):
+  /// the agreed end, the same on every phone once the clocks are in step;
+  /// [phaseEndsInMs] serves until then.
+  final int? phaseEndsAt;
+
   @override
   String get _type => 'state';
 
@@ -1048,6 +1055,7 @@ final class StateMessage extends HostMessage {
     'owner': isOwner,
     'version': version,
     'endsIn': ?phaseEndsInMs,
+    'endsAt': ?phaseEndsAt,
     'phaseAt': ?phaseAt,
     'skippedAt': ?introSkippedAt,
     if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],

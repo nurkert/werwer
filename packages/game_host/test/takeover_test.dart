@@ -139,7 +139,11 @@ class Phone {
   GameHost? hosting;
 
   Future<void> _becomeHost(String room) async {
-    final host = table.takeOver(room, newOwner: link.you!);
+    final host = table.takeOver(
+      room,
+      newOwner: link.you!,
+      oldClockAhead: link.clock.offset,
+    );
     hosting = host;
     link.redirect(() async => host.connectOwner());
   }
@@ -186,12 +190,17 @@ class Table {
     }
   }
 
-  GameHost takeOver(String room, {required PlayerId newOwner}) {
+  GameHost takeOver(
+    String room, {
+    required PlayerId newOwner,
+    int? oldClockAhead,
+  }) {
     final next = GameHost.restore(
       room,
       random: Random(hosts.length + 10),
       takeOver: true,
       newOwner: newOwner,
+      oldClockAhead: oldClockAhead,
     )..custody = custody;
     hosts.add(next);
     final transport = MemoryTransport();
@@ -563,5 +572,60 @@ void main() {
             p.link.view?.round == host.state.round,
       ),
     );
+  });
+
+  test(
+    'a takeover keeps the agreed end of the phase and when it began',
+    () async {
+      await startGame(4);
+      final successor = table.phones.first;
+      final player = table.phones[2];
+      await until(() => successor.link.custody != null);
+      await until(() => table.phones[1].link.witness != null);
+      await until(
+        () =>
+            player.link.phaseEndsAtMs != null &&
+            player.link.phaseStartedAtMs != null,
+      );
+      final endsAt = player.link.phaseEndsAtMs!;
+      final startedAt = player.link.phaseStartedAtMs!;
+      // The successor's copy is made now; the host dies a while later.
+      table.sealer.hold = Completer<void>();
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      await table.crash();
+      table.ownerGone = true;
+      await until(() => successor.hosting != null, ms: 5000);
+      await until(
+        () =>
+            player.link.status == LinkStatus.connected &&
+            player.link.epoch == 1 &&
+            player.link.version >= 0 &&
+            player.link.phaseStartedAtMs != null,
+      );
+      // Not the time left in the copy from now (1.5 s and more later).
+      expect((player.link.phaseEndsAtMs! - endsAt).abs(), lessThan(400));
+      expect((player.link.phaseStartedAtMs! - startedAt).abs(), lessThan(400));
+    },
+  );
+
+  test('a paused phase stays paused after a takeover', () async {
+    await startGame(4);
+    final successor = table.phones.first;
+    await until(() => successor.link.custody != null);
+    await until(() => table.phones[1].link.witness != null);
+    table.owner.send(const LeaderIntent(LeaderAction.pause));
+    await until(() => table.phones.every((p) => p.link.paused));
+    // The pause reaches the successor's copy.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await table.crash();
+    table.ownerGone = true;
+    await until(() => successor.hosting != null, ms: 5000);
+    await until(
+      () => table.phones.every(
+        (p) => p.link.status == LinkStatus.connected && p.link.epoch == 1,
+      ),
+    );
+    await until(() => table.phones.every((p) => p.link.version >= 0));
+    expect(table.phones.every((p) => p.link.paused), isTrue);
   });
 }

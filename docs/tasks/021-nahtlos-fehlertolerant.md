@@ -1,6 +1,6 @@
 # Task 021 – Nahtlos weiterspielen: Fehlertoleranz nach Lehrbuch
 
-**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritt 1 erledigt.
+**Status:** in Arbeit (2026-10-28). Freigegeben vom Eigentümer: Schritte 1–4 vollständig; Sicherheit nur gegen Störer, die nicht mitspielen (Server und Nutzer dürfen nie Schlimmeres erleiden als ein abgebrochenes Spiel). Schritte 1 und 2 erledigt.
 **Bezug:** [ARCHITECTURE](../ARCHITECTURE.md), [SECURITY_DESIGN](../SECURITY_DESIGN.md), Task 002 (stabiles Netz), Task 008 (Host-Übernahme), Task 020 (Spielabend)
 
 ## Ziel
@@ -47,7 +47,11 @@ Sequenzierte, idempotente Absichten mit Ack (`host.dart` `_receive`), Snapshot v
 
 - `StateMessage` trägt `phaseEndsAt` in Host-Zeit (wie schon `phaseAt`), Anzeige über `ClockSync.toLocal`.
 - Der Snapshot speichert die Deadline absolut; der Nachfolger übernimmt sie über seinen Uhrabgleich zum alten Host. Die Phase endet wie geplant, ist sie schon vorbei, sofort.
-- Sichten werden über **(Epoche, Version)** verglichen, nie über die Version allein.
+- Sichten werden über **(Epoche, Version)** verglichen, nie über die Version allein (mit Schritt 1 erledigt).
+- Eine Pause des Spielleiters bleibt über Neustart und Übernahme bestehen (vorher lief die Uhr danach einfach weiter).
+- Der Uhrabgleich bleibt beim Wiederverbinden mit demselben Host erhalten; neu gemessen wird nur bei einem neuen Host. So stimmen Zeiten nach einem kurzen Aussetzer sofort.
+- Ein Ende, das während eines Ausfalls verstrichen ist, kommt `GameHost.restoreGrace` (2 s) nach der Rückkehr, damit alle wieder da sind.
+- **Erledigt (2026-10-28), Protokoll Version 13** (`StateMessage.phaseEndsAt`). Tests: `takeover_test.dart` (Ende und Beginn bleiben über die Übernahme, Pause bleibt), `host_test.dart` (Neustart hält das vereinbarte Ende).
 
 ### 3. Übergänge vorher vereinbaren
 

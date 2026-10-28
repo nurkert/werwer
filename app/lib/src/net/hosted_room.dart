@@ -111,11 +111,13 @@ class HostedRoom {
   /// This device takes over [room] (the successor's opened copy: snapshot
   /// and room keys) from a host that went away. Same code, same keys, so
   /// the players' apps find it by themselves; [newOwner] (this device's
-  /// player) runs the table from now on.
+  /// player) runs the table from now on. [oldClockAhead] is how far the old
+  /// host's clock was ahead of this device's: the phase keeps its agreed end.
   static Future<HostedRoom> takeOver(
     String room, {
     required PlayerId newOwner,
     required String hostName,
+    int? oldClockAhead,
     Uri? relayServer,
     String Function(String room)? notice,
   }) async {
@@ -130,6 +132,7 @@ class HostedRoom {
         roomSecret: keys.roomSecret,
         takeOver: true,
         newOwner: newOwner,
+        oldClockAhead: oldClockAhead,
       ),
       keys: keys,
       hostName: hostName,

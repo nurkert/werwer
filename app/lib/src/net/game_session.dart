@@ -102,6 +102,8 @@ class GameSession extends ChangeNotifier {
     final hosted = await HostedRoom.takeOver(
       room,
       newOwner: me,
+      // Still the old host's clock: this link has not met a new host yet.
+      oldClockAhead: _link.clock.offset,
       hostName: _link.name,
       relayServer: relayServer,
       notice: notice,

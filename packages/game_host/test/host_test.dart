@@ -912,7 +912,7 @@ void main() {
     expect(players[3].acks, [1]);
   });
 
-  test('a restored host goes on with the time the phase had left', () async {
+  test('a restored host keeps the agreed end of the phase', () async {
     String? saved;
     host.onSnapshot = (s) => saved = s;
     final players = await table(4);
@@ -922,16 +922,27 @@ void main() {
     players[1].send(NightIntent(players[2].id!));
     await settle();
     await host.close();
-    final timersAfter = FakeTimers();
-    final restored = GameHost.restore(
-      saved!,
-      random: Random(2),
-      startTimer: timersAfter.start,
-      clock: () => timersAfter.now,
-    );
-    final left = timersAfter.pending.map((e) => e.$1).toList();
-    expect(left, [const Duration(seconds: 30)]);
+    // The app is back 5 s later, on the same device's clock.
+    GameHost restoreAt(int now, FakeTimers after) {
+      after.now = now;
+      return GameHost.restore(
+        saved!,
+        random: Random(2),
+        startTimer: after.start,
+        clock: () => after.now,
+      );
+    }
+
+    final soon = FakeTimers();
+    final restored = restoreAt(timers.now + 5000, soon);
+    expect(soon.pending.map((e) => e.$1), [const Duration(seconds: 25)]);
     await restored.close();
+    // Back only after the end: the phase ends shortly after, once the
+    // players found the room again.
+    final late = FakeTimers();
+    final restoredLate = restoreAt(timers.now + 45000, late);
+    expect(late.pending.map((e) => e.$1), [GameHost.restoreGrace]);
+    await restoredLate.close();
   });
 
   test('a real WebSocket on localhost carries a lobby', () async {

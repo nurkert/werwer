@@ -203,8 +203,16 @@ class PlayerLink {
   /// This player is in a browser (the host shows it in the lobby).
   final bool web;
 
-  /// When the phase timer runs out, on this device's clock (milliseconds).
-  int? phaseEndsAtMs;
+  /// When the phase timer runs out, on this device's clock (milliseconds):
+  /// the host's agreed end once the clocks are in step, until then counted
+  /// from when the state arrived.
+  int? get phaseEndsAtMs {
+    final at = _phaseEndsAtHost;
+    return (at == null ? null : clock.toLocal(at)) ?? _phaseEndsAtArrival;
+  }
+
+  int? _phaseEndsAtHost;
+  int? _phaseEndsAtArrival;
 
   /// Joined without the QR code's secret: waiting for the host's check.
   bool waitingForHost = false;
@@ -339,8 +347,6 @@ class PlayerLink {
       }
     }
     _connection = connection;
-    // Possibly another host now (after a takeover): another clock.
-    clock.reset();
     _subscription = connection.messages.listen(
       (raw) => _receive(connection, raw),
       onDone: () => _dropped(connection),
@@ -438,6 +444,9 @@ class PlayerLink {
         if (hostEpoch > _versionEpoch) {
           _versionEpoch = hostEpoch;
           version = -1;
+          // Another host, another clock. The same host after a reconnect
+          // keeps its clock, so its times are right at once.
+          clock.reset();
           // The new host may be a few steps behind what we saw: what it
           // refuses of our replayed intents is no news for the player.
           _quietUntil = _clock() + config.resend.inMilliseconds * 3;
@@ -502,7 +511,8 @@ class PlayerLink {
         phaseStartedAtHostMs = message.phaseAt;
         introSkippedAtHostMs = message.introSkippedAt;
         final endsIn = message.phaseEndsInMs;
-        phaseEndsAtMs = endsIn == null ? null : _clock() + endsIn;
+        _phaseEndsAtArrival = endsIn == null ? null : _clock() + endsIn;
+        _phaseEndsAtHost = endsIn == null ? null : message.phaseEndsAt;
       case Refused(:final reason):
         if (reason == Violation.invalidName && _token == null) {
           nameRefused = true;
