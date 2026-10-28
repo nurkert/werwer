@@ -96,7 +96,12 @@ class _StartScreenState extends State<StartScreen> {
     if (!mounted) return;
     await playSession(
       context,
-      playerSession(name: name, room: room.room, lan: room.lan),
+      playerSession(
+        name: name,
+        room: room.room,
+        lan: room.lan,
+        keyPrint: room.keyPrint,
+      ),
     );
     await _loadResume();
   }

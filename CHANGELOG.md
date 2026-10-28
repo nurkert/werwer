@@ -8,6 +8,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 Every device at the table needs this version (protocol 12).
 
 ### Added
+- Back in a room within a few hours without comparing symbols again: the
+  device keeps the room's keys in its secure storage for six hours.
 - "My role": hold the button at the top to see your role, any time.
 - Narrator "Essentials": the voice only says what a table with closed
   eyes needs (falling asleep, who wakes, the village waking up).

@@ -65,7 +65,7 @@ Zuerst kommen die kleinen Fehler und Unklarheiten (A), die jeder Spieler sofort 
 
 ## D – Schneller Wiederbeitritt
 
-- [ ] **D1 Wer kurz geht und wiederkommt, braucht keine neue Bestätigung.** Nach dem Verlassen merkt sich das Gerät den Raumschlüssel und sein Token für einige Stunden (wie die 12 h im Browser). Kommt es zurück, sitzt es ohne Prüfbild und ohne Zulassen wieder an seinem Platz.
+- [x] **D1 Wer kurz geht und wiederkommt, braucht keine neue Bestätigung.** Nach dem Verlassen merkt sich das Gerät den Raumschlüssel und sein Token für einige Stunden (wie die 12 h im Browser). Kommt es zurück, sitzt es ohne Prüfbild und ohne Zulassen wieder an seinem Platz. (erledigt: `RememberedRoom` im sicheren Speicher, 6 h, höchstens 8; genutzt beim Schnellbeitritt über den Fingerabdruck der Ansage und beim Online-Code; nach `ByeReason.kicked` vergessen; Tests `remembered_rooms_test.dart`. Grenze: Der Host führt keine Sperrliste, wer den Schlüssel hat, kommt wie mit dem QR-Code wieder herein, der Spielleiter kann ihn erneut entfernen)
   - **Sicherheit:** Der Schlüssel und das Token liegen nur im sicheren Speicher (`flutter_secure_storage`, im Browser wie heute 12 h im `localStorage`). Sie laufen nach Zeit ab, und mit dem Raum verfallen sie. Ein Token geht nie über einen ungeprüften Kanal (das gilt heute schon). Der Spielleiter kann einen Platz weiter entfernen, dann gilt auch der gespeicherte Schlüssel nicht mehr. Test: Wiederbeitritt ohne Prüfbild klappt, nach Ablauf oder nach dem Entfernen nicht mehr.
 
 ## E – Der Erzähler gleitet (das große Stück)

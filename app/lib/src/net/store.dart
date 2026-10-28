@@ -106,6 +106,58 @@ class ResumeInfo {
   });
 }
 
+/// The keys of a room this device was let into, so it can come back
+/// within a few hours without being checked again (task 023 D1).
+class RememberedRoom {
+  const RememberedRoom({
+    required this.room,
+    required this.hostKey,
+    required this.roomSecret,
+    required this.savedAt,
+    this.relayRoom,
+  });
+
+  /// How long a room's keys are kept after the last welcome.
+  static const maxAge = Duration(hours: 6);
+
+  /// How many rooms are remembered at most (the newest).
+  static const most = 8;
+
+  final String room;
+  final List<int> hostKey;
+  final List<int> roomSecret;
+  final String? relayRoom;
+  final DateTime savedAt;
+
+  bool get isFresh => DateTime.now().difference(savedAt) < maxAge;
+
+  Map<String, Object?> toJson() => {
+    'room': room,
+    'hostKey': base64Url.encode(hostKey),
+    'roomSecret': base64Url.encode(roomSecret),
+    'relayRoom': ?relayRoom,
+    'savedAt': savedAt.millisecondsSinceEpoch,
+  };
+
+  static RememberedRoom? fromJson(Object? json) {
+    try {
+      final m = json! as Map<String, Object?>;
+      final key = base64Url.decode(m['hostKey']! as String);
+      final secret = base64Url.decode(m['roomSecret']! as String);
+      if (key.length != 32 || secret.length != 32) return null;
+      return RememberedRoom(
+        room: m['room']! as String,
+        hostKey: key,
+        roomSecret: secret,
+        relayRoom: m['relayRoom'] as String?,
+        savedAt: DateTime.fromMillisecondsSinceEpoch(m['savedAt']! as int),
+      );
+    } on Object {
+      return null;
+    }
+  }
+}
+
 /// Small persistent settings and the resume info. Every call tolerates a
 /// missing or locked keychain: the app then simply forgets.
 class Store {
@@ -118,7 +170,7 @@ class Store {
   /// file in the app's private folder, because a desktop build without a
   /// signed Keychain entitlement cannot write the Keychain at all (macOS
   /// refuses silently) and would forget every setting.
-  static const Set<String> _secret = {_resumeKey};
+  static const Set<String> _secret = {_resumeKey, _roomsKey};
 
   static Map<String, String>? _prefs;
   static Future<void> _writing = Future.value();
@@ -197,6 +249,7 @@ class Store {
   }
 
   static const _resumeKey = 'resume';
+  static const _roomsKey = 'rooms';
   static const _serverKey = 'relayServer';
   static const _relayOffKey = 'relayOff';
   static const _noticeKey = 'privacyNoticeSeen';
@@ -435,6 +488,49 @@ class Store {
       await _put(_resumeKey, info.toJson());
     } on Object {
       // Without a keychain there is no resume after a restart.
+    }
+  }
+
+  /// The rooms this device was let into lately, newest first; stale ones
+  /// are left out (and dropped with the next save).
+  Future<List<RememberedRoom>> rememberedRooms() async {
+    try {
+      final raw = await _get(_roomsKey);
+      if (raw == null) return const [];
+      return [
+        for (final r in jsonDecode(raw) as List<Object?>)
+          ?RememberedRoom.fromJson(r),
+      ].where((r) => r.isFresh).toList();
+    } on Object {
+      return const [];
+    }
+  }
+
+  /// Keeps [room] (replacing an older record of the same host key).
+  Future<void> rememberRoom(RememberedRoom room) async {
+    try {
+      final rooms = [
+        room,
+        ...(await rememberedRooms()).where(
+          (r) => base64Url.encode(r.hostKey) != base64Url.encode(room.hostKey),
+        ),
+      ].take(RememberedRoom.most);
+      await _put(_roomsKey, jsonEncode([for (final r in rooms) r.toJson()]));
+    } on Object {
+      // Not kept: the check comes again next time.
+    }
+  }
+
+  /// Forgets the room with [hostKey] (the player was removed from it).
+  Future<void> forgetRoom(List<int> hostKey) async {
+    try {
+      final key = base64Url.encode(hostKey);
+      final rooms = (await rememberedRooms()).where(
+        (r) => base64Url.encode(r.hostKey) != key,
+      );
+      await _put(_roomsKey, jsonEncode([for (final r in rooms) r.toJson()]));
+    } on Object {
+      // Nothing kept.
     }
   }
 

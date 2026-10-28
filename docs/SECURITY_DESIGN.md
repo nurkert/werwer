@@ -177,6 +177,7 @@
 - **Gespeichert wird nur das Nötigste:**
   - eigener Name
   - Sitzungstoken (im sicheren Speicher)
+  - die Schlüssel der Räume, in die das Gerät zuletzt eingelassen wurde (Host-Schlüssel und Raumgeheimnis, höchstens 8, je 6 Stunden, nur im sicheren Speicher), damit ein kurzer Wiederbeitritt ohne Prüfbild geht (Task 023 D1). Sie werden nur zum selben Host-Schlüssel (Fingerabdruck der Ansage) oder zum selben Online-Raum verwendet, nie zu einem Raumcode allein; nach einem Rauswurf vergisst das Gerät sie. Wer die Schlüssel hat, kommt so weit wie mit dem QR-Code, nicht weiter.
   - beim Host der laufende Spielstand
 - **Den Spielstand speichert der Host nur im App-Sandkasten.** Nach dem Spiel wird er gelöscht. Er enthält alle Rollen und wird deshalb nie exportiert oder geteilt.
 - **Keine Berechtigungen auf Vorrat:**

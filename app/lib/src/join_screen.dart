@@ -11,6 +11,7 @@ import 'package:whowolf/src/game/stage.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/dial.dart';
 import 'package:whowolf/src/net/discovery.dart';
+import 'package:whowolf/src/net/discovery.dart' as discovery show keyPrint;
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/net/takeover.dart';
@@ -30,15 +31,35 @@ Future<GameSession> playerSession({
   List<int>? roomSecret,
   String? token,
   String? seat,
+  String? keyPrint,
 }) async {
   const store = Store();
   unawaited(store.setLastRoom(room));
-  final keys = RoomKeys(hostKey: hostKey, roomSecret: roomSecret);
+  // Back in a room this device was let into lately (task 023 D1): its keys
+  // make the channel checked, so nobody compares symbols again. Only for
+  // the same host key (the fingerprint the room announces) or the same
+  // online room; a code alone could be another room by now.
+  final known = hostKey != null
+      ? null
+      : (await store.rememberedRooms())
+            .where(
+              (r) =>
+                  r.room == room &&
+                  ((keyPrint != null &&
+                          discovery.keyPrint(r.hostKey) == keyPrint) ||
+                      (relayRoom != null && r.relayRoom == relayRoom)),
+            )
+            .firstOrNull;
+  final keys = RoomKeys(
+    hostKey: hostKey ?? known?.hostKey,
+    roomSecret: roomSecret ?? known?.roomSecret,
+  );
   // Wi-Fi only means Wi-Fi only, whatever a link or an old game says.
   final off = await store.relayOff();
   final viaRelay = off ? null : relayRoom;
   final viaServer = off ? null : server;
-  return GameSession(
+  late final GameSession session;
+  return session = GameSession(
     name: name,
     roomCode: room,
     token: token,
@@ -56,22 +77,46 @@ Future<GameSession> playerSession({
     onRoomKeys: (hostKey, roomSecret) => keys
       ..hostKey = hostKey
       ..roomSecret = roomSecret,
-    onWelcome: (token, name) => unawaited(
-      store.saveResume(
-        ResumeInfo(
-          name: name,
-          room: room,
-          token: token,
-          lan: lan,
-          relayRoom: relayRoom,
-          server: server,
-          hostKey: keys.hostKey,
-          roomSecret: keys.roomSecret,
-          savedAt: DateTime.now(),
+    onWelcome: (token, name) {
+      final key = keys.hostKey;
+      final secret = keys.roomSecret;
+      if (key != null && secret != null) {
+        unawaited(
+          store.rememberRoom(
+            RememberedRoom(
+              room: room,
+              hostKey: key,
+              roomSecret: secret,
+              relayRoom: relayRoom,
+              savedAt: DateTime.now(),
+            ),
+          ),
+        );
+      }
+      unawaited(
+        store.saveResume(
+          ResumeInfo(
+            name: name,
+            room: room,
+            token: token,
+            lan: lan,
+            relayRoom: relayRoom,
+            server: server,
+            hostKey: keys.hostKey,
+            roomSecret: keys.roomSecret,
+            savedAt: DateTime.now(),
+          ),
         ),
-      ),
-    ),
-    onEnded: () => unawaited(store.clearResume()),
+      );
+    },
+    onEnded: () {
+      unawaited(store.clearResume());
+      // Removed from the room: its keys are no way back.
+      final key = keys.hostKey;
+      if (key != null && session.byeReason == ByeReason.kicked) {
+        unawaited(store.forgetRoom(key));
+      }
+    },
   );
 }
 
@@ -198,7 +243,12 @@ class _JoinScreenState extends State<JoinScreen> {
 
   Future<void> _joinNearby(NearbyRoom room) => playSession(
     context,
-    playerSession(name: widget.name, room: room.room, lan: room.lan),
+    playerSession(
+      name: widget.name,
+      room: room.room,
+      lan: room.lan,
+      keyPrint: room.keyPrint,
+    ),
   );
 
   Future<void> _join() async {
