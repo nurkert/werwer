@@ -590,6 +590,72 @@ abstract class AppLocalizations {
   /// **'Tell the village one more thing, the clock is running.'**
   String get lastWordsYouHint;
 
+  /// No description provided for @voteSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'The vote is coming …'**
+  String get voteSoon;
+
+  /// No description provided for @readyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{ready} of {alive} are ready.'**
+  String readyCount(int ready, int alive);
+
+  /// No description provided for @readyToVote.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re ready'**
+  String get readyToVote;
+
+  /// No description provided for @readyUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep talking'**
+  String get readyUndo;
+
+  /// No description provided for @offlineBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'not connected'**
+  String get offlineBadge;
+
+  /// No description provided for @pausedByLeader.
+  ///
+  /// In en, this message translates to:
+  /// **'The game leader paused. The clock stands still.'**
+  String get pausedByLeader;
+
+  /// No description provided for @leaderPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get leaderPause;
+
+  /// No description provided for @leaderResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Go on'**
+  String get leaderResume;
+
+  /// No description provided for @leaderExtend.
+  ///
+  /// In en, this message translates to:
+  /// **'+30 s'**
+  String get leaderExtend;
+
+  /// No description provided for @leaderEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End the vote'**
+  String get leaderEnd;
+
+  /// No description provided for @timesForTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Suited to {count} players'**
+  String timesForTable(int count);
+
   /// No description provided for @seerVisionTitle.
   ///
   /// In en, this message translates to:

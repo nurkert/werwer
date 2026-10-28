@@ -271,6 +271,24 @@ class GameHost {
   /// When the owner skipped the narrator's intro in this role reveal.
   int? _introSkippedAt;
 
+  /// In the discussion: who is ready to vote.
+  final _ready = <PlayerId>{};
+
+  /// Most of the living are ready: the vote follows shortly.
+  bool _voteSoon = false;
+
+  /// The game leader paused the clock with this much left.
+  int? _pausedLeft;
+
+  /// How much the leader added to this phase already.
+  Duration _extended = Duration.zero;
+
+  /// How long the table hears "the vote is coming" before it does.
+  static const voteWarning = Duration(seconds: 5);
+
+  /// Most the leader can add to one phase.
+  static const maxExtension = Duration(minutes: 5);
+
   /// The silent phones as of the start of this phase: the narrator's walk
   /// is planned from them, and a change in the middle of a night must not
   /// show (the lobby shows changes at once).
@@ -298,7 +316,7 @@ class GameHost {
     'epoch': epoch,
     'nextId': _nextId,
     'version': _version,
-    'phaseLeftMs': ?_phaseLeft(),
+    'phaseLeftMs': ?(_pausedLeft ?? _phaseLeft()),
     'state': encodeState(_state),
     'sessions': [
       for (final s in _sessions.values)
@@ -536,7 +554,15 @@ class GameHost {
     final before = _pending.length;
     _pending.removeWhere((_, p) => p.link == link);
     if (_pending.length != before && !_closed) _broadcast();
-    if (link.session?.link == link) link.session!.link = null;
+    if (link.session?.link == link) {
+      link.session!.link = null;
+      // By day the table sees who is missing (never at night).
+      final phase = _state.phase;
+      if (!_closed &&
+          (phase == Phase.lobby || phase == Phase.day || phase == Phase.vote)) {
+        _broadcast();
+      }
+    }
     unawaited(link.connection.close());
     _reviewSuccession();
   }
@@ -825,6 +851,11 @@ class GameHost {
           if (session.silent == silent) return;
           session.silent = silent;
           if (_state.phase == Phase.lobby) _broadcast();
+        case ReadyIntent(:final ready):
+          _readyToVote(me, ready: ready);
+        case LeaderIntent(:final action):
+          _ownerOnly(session);
+          _lead(action);
         case KickIntent(:final player):
           _ownerOnly(session);
           if (player == me) throw const RuleViolation(Violation.invalidTarget);
@@ -854,6 +885,75 @@ class GameHost {
     } on RuleViolation catch (violation) {
       link.connection.send(Refused(violation.reason).encode());
     }
+  }
+
+  /// A living player is (no longer) ready to vote. Once more than half
+  /// of the living are, everyone hears the vote is coming, and it starts
+  /// [voteWarning] later.
+  void _readyToVote(PlayerId player, {required bool ready}) {
+    if (_state.phase != Phase.day) {
+      throw const RuleViolation(Violation.wrongPhase);
+    }
+    if (!(_state.player(player)?.isAlive ?? false)) {
+      throw const RuleViolation(Violation.notYourAction);
+    }
+    final changed = ready ? _ready.add(player) : _ready.remove(player);
+    if (!changed) return;
+    final alive = _state.alive.length;
+    if (!_voteSoon && _ready.length * 2 > alive && _pausedLeft == null) {
+      _voteSoon = true;
+      final left = _phaseLeft();
+      if (left == null || left > voteWarning.inMilliseconds) {
+        _schedulePhaseTimer(remaining: voteWarning, sameStep: true);
+      }
+    }
+    _broadcast();
+  }
+
+  /// The game leader's clock: pause and resume any timed phase; extend or
+  /// end only the discussion and the vote (at night the leader may be one
+  /// of those called, and a night's length must tell nobody anything).
+  void _lead(LeaderAction action) {
+    final talk = _state.phase == Phase.day || _state.phase == Phase.vote;
+    switch (action) {
+      case LeaderAction.pause:
+        final left = _phaseLeft();
+        if (left == null || _pausedLeft != null) {
+          throw const RuleViolation(Violation.wrongPhase);
+        }
+        _cancelPhaseTimer?.call();
+        _cancelPhaseTimer = null;
+        _phaseDeadline = null;
+        _pausedLeft = left;
+      case LeaderAction.resume:
+        final left = _pausedLeft;
+        if (left == null) throw const RuleViolation(Violation.wrongPhase);
+        _pausedLeft = null;
+        _schedulePhaseTimer(
+          remaining: Duration(milliseconds: left),
+          sameStep: true,
+          beyondLimit: true,
+        );
+      case LeaderAction.extend:
+        final left = _phaseLeft();
+        if (!talk || left == null || _extended >= maxExtension) {
+          throw const RuleViolation(Violation.wrongPhase);
+        }
+        const more = Duration(seconds: 30);
+        _extended += more;
+        _voteSoon = false;
+        _schedulePhaseTimer(
+          remaining: Duration(milliseconds: left) + more,
+          sameStep: true,
+          beyondLimit: true,
+        );
+      case LeaderAction.end:
+        if (!talk) throw const RuleViolation(Violation.wrongPhase);
+        _pausedLeft = null;
+        _commit(apply(_state, const PhaseTimeout()));
+        return;
+    }
+    _broadcast();
   }
 
   void _ownerOnly(_Session session) {
@@ -891,6 +991,10 @@ class GameHost {
         before.runoff.isEmpty != _state.runoff.isEmpty) {
       if (before.phase != _state.phase) _introSkippedAt = null;
       _silentAtPhase = _silentNow;
+      _ready.clear();
+      _voteSoon = false;
+      _pausedLeft = null;
+      _extended = Duration.zero;
       _schedulePhaseTimer();
     } else if (_state.phase == Phase.night &&
         timeLimit(before) != timeLimit(_state)) {
@@ -908,7 +1012,11 @@ class GameHost {
     _broadcast();
   }
 
-  void _schedulePhaseTimer({Duration? remaining, bool sameStep = false}) {
+  void _schedulePhaseTimer({
+    Duration? remaining,
+    bool sameStep = false,
+    bool beyondLimit = false,
+  }) {
     if (!sameStep) _phaseStartedAt = _clock();
     _cancelPhaseTimer?.call();
     _cancelPhaseTimer = null;
@@ -917,7 +1025,9 @@ class GameHost {
         ? config.revealTime
         : timeLimit(_state);
     if (full == null) return;
-    final duration = remaining == null || remaining > full ? full : remaining;
+    final duration = remaining == null || (remaining > full && !beyondLimit)
+        ? full
+        : remaining;
     final (phase, round, step) = (
       _state.phase,
       _state.round,
@@ -971,6 +1081,19 @@ class GameHost {
         silent: [
           ...(_state.phase == Phase.lobby ? _silentNow : _silentAtPhase),
         ],
+        ready: _state.phase == Phase.day ? [..._ready] : const [],
+        // Who is missing shows by day, never at night (it could hint at
+        // who was awake).
+        offline:
+            _state.phase == Phase.lobby ||
+                _state.phase == Phase.day ||
+                _state.phase == Phase.vote
+            ? [
+                for (final s in _sessions.values)
+                  if (s.link == null) s.player,
+              ]
+            : const [],
+        paused: _pausedLeft != null,
         pending: session.owner
             ? [
                 for (final p in _pending.values)

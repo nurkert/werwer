@@ -313,6 +313,44 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tell the village one more thing, the clock is running.';
 
   @override
+  String get voteSoon => 'The vote is coming …';
+
+  @override
+  String readyCount(int ready, int alive) {
+    return '$ready of $alive are ready.';
+  }
+
+  @override
+  String get readyToVote => 'We\'re ready';
+
+  @override
+  String get readyUndo => 'Keep talking';
+
+  @override
+  String get offlineBadge => 'not connected';
+
+  @override
+  String get pausedByLeader =>
+      'The game leader paused. The clock stands still.';
+
+  @override
+  String get leaderPause => 'Pause';
+
+  @override
+  String get leaderResume => 'Go on';
+
+  @override
+  String get leaderExtend => '+30 s';
+
+  @override
+  String get leaderEnd => 'End the vote';
+
+  @override
+  String timesForTable(int count) {
+    return 'Suited to $count players';
+  }
+
+  @override
   String get seerVisionTitle => 'Your vision';
 
   @override

@@ -161,6 +161,14 @@ class _SettingsBody extends StatelessWidget {
         resetLabel: l10n.wolvesSuggested(suggested),
       ),
       _Section(l10n.settingsTimes),
+      if (s.timedFor(table) != s)
+        Align(
+          child: TextButton.icon(
+            onPressed: () => onChanged(s.timedFor(table)),
+            icon: const Icon(Icons.auto_fix_high_rounded),
+            label: Text(l10n.timesForTable(table)),
+          ),
+        ),
       _TimeSlider(
         label: l10n.timeNight,
         value: s.nightTime,

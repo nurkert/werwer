@@ -317,6 +317,43 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lastWordsYouHint => 'Sag dem Dorf noch etwas, die Zeit läuft.';
 
   @override
+  String get voteSoon => 'Gleich wird abgestimmt …';
+
+  @override
+  String readyCount(int ready, int alive) {
+    return '$ready von $alive sind so weit.';
+  }
+
+  @override
+  String get readyToVote => 'Wir sind so weit';
+
+  @override
+  String get readyUndo => 'Doch noch reden';
+
+  @override
+  String get offlineBadge => 'nicht verbunden';
+
+  @override
+  String get pausedByLeader => 'Der Spielleiter hat pausiert. Die Zeit steht.';
+
+  @override
+  String get leaderPause => 'Pause';
+
+  @override
+  String get leaderResume => 'Weiter';
+
+  @override
+  String get leaderExtend => '+30 s';
+
+  @override
+  String get leaderEnd => 'Abstimmung beenden';
+
+  @override
+  String timesForTable(int count) {
+    return 'Passend für $count Spieler';
+  }
+
+  @override
   String get seerVisionTitle => 'Deine Vision';
 
   @override

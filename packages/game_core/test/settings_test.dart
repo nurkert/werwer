@@ -46,6 +46,17 @@ void main() {
     });
   });
 
+  test('times suited to the table stay within the ranges and grow with '
+      'it', () {
+    for (var n = minPlayers; n <= maxPlayers; n++) {
+      const GameSettings().timedFor(n).validate();
+    }
+    expect(
+      const GameSettings().timedFor(4).dayTime,
+      lessThan(const GameSettings().timedFor(14).dayTime),
+    );
+  });
+
   group('presets', () {
     test('each preset is recognised, a change makes it custom', () {
       for (final preset in Preset.values) {

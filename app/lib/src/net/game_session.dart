@@ -210,6 +210,15 @@ class GameSession extends ChangeNotifier {
   /// Whose phones play no sound (as of this phase's start).
   List<PlayerId> get silent => _link.silent;
 
+  /// In the discussion: who is ready to vote.
+  List<PlayerId> get ready => _link.ready;
+
+  /// By day: whose device is not connected.
+  List<PlayerId> get offline => _link.offline;
+
+  /// The game leader paused the clock.
+  bool get paused => _link.paused;
+
   /// The newest view of the game (kept while the host is away).
   PlayerView? get view => _link.view;
 

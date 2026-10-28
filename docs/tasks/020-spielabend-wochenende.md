@@ -22,20 +22,22 @@ Wunsch des Eigentümers: Am Wochenende soll ein Spiel ohne Hänger laufen. Dafü
 
 ## 2. Tempo: niemand wartet unnötig
 
-- [ ] **Abstimmung** endet, sobald alle Lebenden gestimmt haben (oder sich enthalten).
-- [ ] **Diskussion:** Jeder kann „Wir sind so weit“ tippen. Bei Mehrheit der Lebenden geht es zur Abstimmung, nach kurzer Ankündigung („Gleich wird abgestimmt“, wenige Sekunden).
-- [ ] **Nacht** endet, sobald alle nötigen Aktionen da sind. Dabei die Anti-Tell-Regeln beachten: Die Dauer darf nichts verraten, also nie kürzer als eine Mindestzeit, gleich für jede Nacht (siehe DECISIONS 2026-10-26, Mindestdauer pro Schritt).
-- [ ] **Spielleiter-Knöpfe** (nur Spielleiter, vom Host geprüft): Pause/Weiter, Phase um 30 s verlängern, Phase beenden. Alle sehen eine ruhige Anzeige („Der Spielleiter hat pausiert“).
-- [ ] **Zeiten pro Spielerzahl** sinnvoll vorbelegen (Diskussion, Abstimmung, Nacht), in den Einstellungen änderbar.
+- [x] (gab es schon, `_castVote`) **Abstimmung** endet, sobald alle Lebenden gestimmt haben (oder sich enthalten).
+- [x] **Diskussion:** Jeder kann „Wir sind so weit“ tippen. Bei Mehrheit der Lebenden geht es zur Abstimmung, nach kurzer Ankündigung („Gleich wird abgestimmt“, wenige Sekunden).
+- [x] (gab es schon: Whowolf-Nacht sobald alle gewählt haben, klassischer Schritt nach mindestens 8 s) **Nacht** endet, sobald alle nötigen Aktionen da sind. Dabei die Anti-Tell-Regeln beachten: Die Dauer darf nichts verraten, also nie kürzer als eine Mindestzeit, gleich für jede Nacht (siehe DECISIONS 2026-10-26, Mindestdauer pro Schritt).
+- [x] **Spielleiter-Knöpfe** (nur Spielleiter, vom Host geprüft): Pause/Weiter, Phase um 30 s verlängern, Phase beenden. Alle sehen eine ruhige Anzeige („Der Spielleiter hat pausiert“).
+- [x] **Zeiten pro Spielerzahl** sinnvoll vorbelegen (Diskussion, Abstimmung, Nacht), in den Einstellungen änderbar.
 
 - [x] **Zeit zum Augenschließen** (Wunsch des Eigentümers, 2026-10-28): Wenn die Nacht beginnt, zeigt kein Bildschirm sofort, wer gerufen ist. Erst eine ruhige Übergangszeit auf allen Geräten gleich (Augen zu, Handy runter), dann erscheinen die Aktionen. Sonst sieht der Nachbar auf dem Handy daneben, dass jemand Werwolf ist. Gleiches beim Aufwachen der einzelnen Rollen in der klassischen Nacht. Umgesetzt in `NightPhase._holding`: zu Beginn der Nacht 6 s, bei jedem weiteren Schritt 4 s (klassisch) bzw. 3 s (Whowolf), gerechnet vom gemeinsamen Schrittbeginn, auf jedem Handy gleich. In der klassischen Nacht sehen auch die Gerufenen so lange den Mond, in der Whowolf-Nacht alle den Mond mit „Kurz die Augen zu“. Offen: am Tisch prüfen, ob die Zeiten passen.
 - [x] **Einstellungen denken mit** (Wunsch des Eigentümers, 2026-10-28): Mit 3 Leuten ließ sich keine Testrunde starten, weil zu viele Rollen gewählt waren. Die Rollen passen sich automatisch an die Spielerzahl an (zu viele werden abgewählt, beim Wachsen der Runde die gewünschten wieder zugeschaltet), und die Lobby sagt in einer Zeile, was angepasst wurde. Was der Spielleiter selbst gewählt hat, bleibt als Wunsch erhalten. Umgesetzt: `GameSettings.fittedFor`/`droppedFor` lassen beim Start die letzten Sonderrollen weg (Amor, Jäger, Hexe, dann Seherin) und fallen bei zu vielen Werwölfen auf die vorgeschlagene Zahl zurück. Lobby und Einstellungen sagen „Für 3 Spieler ohne: …“ (Tests in `settings_test.dart`).
 
 ## 3. Ausfälle: ein Akku darf kein Spiel beenden
 
-- [ ] **Wer fehlt, sieht man tagsüber:** In Diskussion und Abstimmung steht an einem getrennten Platz ein kleines Zeichen „nicht verbunden“. Nachts nie, weil es sonst ein Hinweis wäre.
+- [x] **Wer fehlt, sieht man tagsüber:** In Diskussion und Abstimmung steht an einem getrennten Platz ein kleines Zeichen „nicht verbunden“. Nachts nie, weil es sonst ein Hinweis wäre.
 - [ ] **Platz an ein anderes Gerät übergeben:** Der Spielleiter tippt auf den Platz und wählt „An anderes Gerät geben“. Es erscheint ein einmaliger QR-Code nur für diesen Platz. Das neue Gerät scannt ihn und sitzt mit Rolle und Stand am Platz, das alte Token wird ungültig.
 - [ ] Fehlt jemand in seiner Aktion (nachts, Abstimmung), läuft die Phase nach Zeit weiter wie bisher. Prüfen, dass das in jeder Phase und Rolle stimmt (Jäger, Hexe, Amor, Seherin).
+
+Umsetzung Tempo und Ausfälle (2026-10-28, Protokoll 11): `ReadyIntent` (nur Lebende, nur tagsüber; mehr als die Hälfte bereit verkürzt die Diskussion auf 5 s, alle sehen „Gleich wird abgestimmt“), `LeaderIntent` (nur Spielleiter: Pause und Weiter in jeder Phase mit Uhr, +30 s und Beenden nur in Diskussion und Abstimmung, höchstens 5 Minuten mehr pro Phase), `StateMessage.ready`, `.paused`, `.offline` (nur Lobby, Tag, Abstimmung). `GameSettings.timedFor` und ein Knopf „Passend für N Spieler“. Tests in `host_test.dart`.
 
 ## 3b. Mehr Spiel, schnell gebaut (Wunsch des Eigentümers, 2026-10-28)
 

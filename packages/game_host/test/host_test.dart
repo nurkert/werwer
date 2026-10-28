@@ -236,6 +236,106 @@ void main() {
     expect(players.first.last!.introSkippedAt, isNull);
   });
 
+  Future<List<Player>> toDay() async {
+    final players = await table(5);
+    await start(players);
+    final wolf = players.firstWhere((p) => p.view.yourRole == Role.werewolf);
+    final others = players.where((p) => p != wolf).toList();
+    wolf.send(NightIntent(others.last.id!));
+    for (final p in others) {
+      p.send(NightIntent(wolf.id!));
+    }
+    await settle();
+    expect(players.first.view.phase, Phase.day);
+    return players;
+  }
+
+  test('when most of the living are ready, the vote comes after a short '
+      'warning', () async {
+    final players = await toDay();
+    final living = players.where((p) => p.view.yourSeat.isAlive).toList();
+    expect(living, hasLength(4));
+    living[0].send(const ReadyIntent(ready: true));
+    living[1].send(const ReadyIntent(ready: true));
+    await settle();
+    expect(players.first.last!.ready, hasLength(2));
+    expect(timers.pending.any((t) => t.$1 == GameHost.voteWarning), isFalse);
+    living[2].send(const ReadyIntent(ready: true));
+    await settle();
+    expect(timers.pending.any((t) => t.$1 == GameHost.voteWarning), isTrue);
+    timers.fire(GameHost.voteWarning);
+    await settle();
+    expect(players.first.view.phase, Phase.vote);
+    expect(players.first.last!.ready, isEmpty);
+  });
+
+  test('the dead cannot say they are ready', () async {
+    final players = await toDay();
+    final dead = players.firstWhere((p) => !p.view.yourSeat.isAlive)
+      ..send(const ReadyIntent(ready: true));
+    await settle();
+    expect(dead.refused, [Violation.notYourAction]);
+    expect(players.first.last!.ready, isEmpty);
+  });
+
+  test('only the game leader controls the clock: pause, resume, more time, '
+      'end', () async {
+    final players = await toDay();
+    final owner = players.first;
+    final other = players[1]..send(const LeaderIntent(LeaderAction.pause));
+    await settle();
+    expect(other.refused, [Violation.notYourAction]);
+    expect(other.last!.paused, isFalse);
+
+    owner.send(const LeaderIntent(LeaderAction.pause));
+    await settle();
+    expect(other.last!.paused, isTrue);
+    expect(other.last!.phaseEndsInMs, isNull);
+    expect(
+      timers.pending.where((t) => t.$1 == const GameSettings().dayTime),
+      isEmpty,
+    );
+
+    owner.send(const LeaderIntent(LeaderAction.resume));
+    await settle();
+    expect(other.last!.paused, isFalse);
+    final left = other.last!.phaseEndsInMs!;
+
+    owner.send(const LeaderIntent(LeaderAction.extend));
+    await settle();
+    expect(other.last!.phaseEndsInMs, left + 30000);
+
+    owner.send(const LeaderIntent(LeaderAction.end));
+    await settle();
+    expect(other.view.phase, Phase.vote);
+  });
+
+  test('who is not connected shows by day, never at night', () async {
+    final night = await table(5);
+    await start(night);
+    await night.last.connection.close();
+    // Someone acts, so a fresh state goes out at night.
+    night.first.send(NightIntent(night[1].id!));
+    await settle();
+    expect(night.first.last!.offline, isEmpty);
+    await host.close();
+    timers = FakeTimers();
+    host = GameHost(
+      settings: const GameSettings(),
+      roomCode: room,
+      random: Random(9),
+      startTimer: timers.start,
+      clock: () => timers.now,
+    );
+    transport = MemoryTransport();
+    host.serve(transport);
+    final players = await toDay();
+    final gone = players.last;
+    await gone.connection.close();
+    await settle();
+    expect(players.first.last!.offline, [gone.id]);
+  });
+
   test('a whole game over the protocol, and nobody learns too much', () async {
     final players = await table(5);
     await start(players);

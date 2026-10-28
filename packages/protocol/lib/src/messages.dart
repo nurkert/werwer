@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 10;
+const protocolVersion = 11;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -167,6 +167,8 @@ sealed class ClientMessage {
       'endDiscussion' => const EndDiscussionIntent(),
       'skipIntro' => const SkipIntroIntent(),
       'silent' => SilentIntent(silent: json.boolean('on')),
+      'ready' => ReadyIntent(ready: json.boolean('on')),
+      'leader' => LeaderIntent(json.enumValue('do', LeaderAction.values)),
       'kick' => KickIntent(_readPlayerId(json, 'player')),
       'leave' => const LeaveIntent(),
       'rematch' => const RematchIntent(),
@@ -420,6 +422,52 @@ final class SilentIntent extends ClientMessage {
   Map<String, Object?> get _fields => {'on': silent};
 }
 
+/// In the discussion: I am ready to vote. With most of the living ready,
+/// the vote follows after a short warning.
+final class ReadyIntent extends ClientMessage {
+  /// Creates the message.
+  const ReadyIntent({required this.ready});
+
+  /// Whether this player is ready.
+  final bool ready;
+
+  @override
+  String get _type => 'ready';
+
+  @override
+  Map<String, Object?> get _fields => {'on': ready};
+}
+
+/// What the game leader can do with the clock.
+enum LeaderAction {
+  /// Stops the clock for everyone.
+  pause,
+
+  /// Runs it on.
+  resume,
+
+  /// Thirty seconds more for the discussion or the vote.
+  extend,
+
+  /// Ends the discussion or the vote now.
+  end,
+}
+
+/// Room owner: pause, resume, extend or end the current phase.
+final class LeaderIntent extends ClientMessage {
+  /// Creates the message.
+  const LeaderIntent(this.action);
+
+  /// What to do.
+  final LeaderAction action;
+
+  @override
+  String get _type => 'leader';
+
+  @override
+  Map<String, Object?> get _fields => {'do': action.name};
+}
+
 /// Room owner: remove a player from the lobby.
 final class KickIntent extends ClientMessage {
   /// Creates the message.
@@ -621,6 +669,9 @@ sealed class HostMessage {
                       : throw const ProtocolError('bad id in "web"'),
               ]
             : const [],
+        ready: _idList(json, 'ready'),
+        offline: _idList(json, 'offline'),
+        paused: json.maybeBoolean('paused') ?? false,
         silent: json.has('silent')
             ? [
                 for (final id in json.strings(
@@ -885,6 +936,15 @@ class PendingJoin {
 
 final _playerIds = RegExp(r'^[a-z0-9]{1,16}$');
 
+List<PlayerId> _idList(JsonReader json, String key) => json.has(key)
+    ? [
+        for (final id in json.strings(key, max: maxPlayers, maxLength: 16))
+          _playerIds.hasMatch(id)
+              ? PlayerId(id)
+              : throw ProtocolError('bad id in "$key"'),
+      ]
+    : const [];
+
 /// The game as you may see it.
 final class StateMessage extends HostMessage {
   /// Creates the message.
@@ -898,7 +958,20 @@ final class StateMessage extends HostMessage {
     this.pending = const [],
     this.inBrowser = const [],
     this.silent = const [],
+    this.ready = const [],
+    this.offline = const [],
+    this.paused = false,
   });
+
+  /// In the discussion: who is ready to vote.
+  final List<PlayerId> ready;
+
+  /// By day and in the lobby: whose device is not connected right now
+  /// (never at night, where it could be a hint).
+  final List<PlayerId> offline;
+
+  /// The game leader paused the clock.
+  final bool paused;
 
   /// In the lobby: who is playing in a browser, without the app.
   final List<PlayerId> inBrowser;
@@ -946,6 +1019,9 @@ final class StateMessage extends HostMessage {
     'skippedAt': ?introSkippedAt,
     if (inBrowser.isNotEmpty) 'web': [for (final p in inBrowser) p.value],
     if (silent.isNotEmpty) 'silent': [for (final p in silent) p.value],
+    if (ready.isNotEmpty) 'ready': [for (final p in ready) p.value],
+    if (offline.isNotEmpty) 'offline': [for (final p in offline) p.value],
+    if (paused) 'paused': true,
     'pending': [
       for (final p in pending)
         {

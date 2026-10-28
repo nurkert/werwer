@@ -175,6 +175,15 @@ class PlayerLink {
   /// Whose phones play no sound, as of this phase's start (the host's).
   List<PlayerId> silent = const [];
 
+  /// In the discussion: who is ready to vote.
+  List<PlayerId> ready = const [];
+
+  /// By day: whose device is not connected.
+  List<PlayerId> offline = const [];
+
+  /// The game leader paused the clock.
+  bool paused = false;
+
   /// This player is in a browser (the host shows it in the lobby).
   final bool web;
 
@@ -448,6 +457,9 @@ class PlayerLink {
         pending = message.pending;
         inBrowser = message.inBrowser;
         silent = message.silent;
+        ready = message.ready;
+        offline = message.offline;
+        paused = message.paused;
         phaseStartedAtHostMs = message.phaseAt;
         introSkippedAtHostMs = message.introSkippedAt;
         final endsIn = message.phaseEndsInMs;

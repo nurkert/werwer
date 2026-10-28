@@ -1507,6 +1507,10 @@ class DayPhase extends StatelessWidget {
     final yesterday = view.settings.openVotes
         ? votesOf(view, view.round - 1)
         : const <PlayerId, PlayerId?>{};
+    final ready = session.ready;
+    final alive = view.seats.where((s) => s.isAlive).length;
+    final imReady = ready.contains(view.you);
+    final voteSoon = ready.length * 2 > alive;
     return PhaseBody(
       action: session.isOwner
           ? PrimaryButton(
@@ -1521,9 +1525,22 @@ class DayPhase extends StatelessWidget {
         ),
         LastNews(view: view),
         CoupleNote(view: view),
+        if (session.paused) const _PausedNote(),
+        if (voteSoon)
+          Panel(highlight: true, child: Body(l10n.voteSoon))
+        else if (ready.isNotEmpty)
+          Body(l10n.readyCount(ready.length, alive), muted: true),
         if (!view.yourSeat.isAlive) GhostPanel(view: view),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
+        if (view.yourSeat.isAlive && !voteSoon)
+          SecondaryButton(
+            label: imReady ? l10n.readyUndo : l10n.readyToVote,
+            icon: imReady ? Icons.undo_rounded : Icons.how_to_vote_rounded,
+            selected: imReady,
+            onPressed: () => session.send(ReadyIntent(ready: !imReady)),
+          ),
+        if (session.isOwner) _LeaderBar(session: session, canEnd: false),
         if (sheep) Aside(child: Headline(l10n.sleepTitle, size: 28)),
         Aside(
           child: TableCircle(
@@ -1533,6 +1550,8 @@ class DayPhase extends StatelessWidget {
                 for (final MapEntry(:key, :value)
                     in view.lastNightSheep.entries)
                   key: l10n.sheepCount(value),
+              // Missing right now (shown by day only).
+              for (final id in session.offline) id: l10n.offlineBadge,
             },
           ),
         ),
@@ -1630,6 +1649,7 @@ class VotePhase extends StatelessWidget {
         else
           Headline(l10n.voteQuestion, eyebrow: l10n.eyebrowVote),
         CoupleNote(view: view),
+        if (session.paused) const _PausedNote(),
         if (!view.yourSeat.isAlive)
           GhostPanel(view: view)
         else ...[
@@ -1648,6 +1668,7 @@ class VotePhase extends StatelessWidget {
                   ? (seat) =>
                         view.runoff.contains(seat.id) && seat.id != view.you
                   : null,
+              badges: {for (final id in session.offline) id: l10n.offlineBadge},
               onTap: (seat) {
                 SoundScope.play(context, Sound.ballot);
                 session.send(VoteIntent(seat.id));
@@ -1669,7 +1690,69 @@ class VotePhase extends StatelessWidget {
             ),
           ),
         Body(l10n.waitingFor(view.waitingFor), muted: true),
+        if (session.isOwner) _LeaderBar(session: session, canEnd: true),
       ],
+    );
+  }
+}
+
+/// The clock stands still: the game leader paused it.
+class _PausedNote extends StatelessWidget {
+  const _PausedNote();
+
+  @override
+  Widget build(BuildContext context) => Panel(
+    highlight: true,
+    child: Row(
+      children: [
+        const Icon(Icons.pause_circle_rounded, color: Palette.lantern400),
+        const SizedBox(width: 10),
+        Expanded(child: Body(AppLocalizations.of(context).pausedByLeader)),
+      ],
+    ),
+  );
+}
+
+/// The game leader's clock: pause or go on, thirty seconds more, and in
+/// the vote end it now.
+class _LeaderBar extends StatelessWidget {
+  const _LeaderBar({required this.session, required this.canEnd});
+
+  final GameSession session;
+  final bool canEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final paused = session.paused;
+    void send(LeaderAction action) => session.send(LeaderIntent(action));
+    return Panel(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 4,
+        children: [
+          TextButton.icon(
+            onPressed: () =>
+                send(paused ? LeaderAction.resume : LeaderAction.pause),
+            icon: Icon(
+              paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+            ),
+            label: Text(paused ? l10n.leaderResume : l10n.leaderPause),
+          ),
+          TextButton.icon(
+            onPressed: paused ? null : () => send(LeaderAction.extend),
+            icon: const Icon(Icons.more_time_rounded),
+            label: Text(l10n.leaderExtend),
+          ),
+          if (canEnd)
+            TextButton.icon(
+              onPressed: () => send(LeaderAction.end),
+              icon: const Icon(Icons.stop_circle_outlined),
+              label: Text(l10n.leaderEnd),
+            ),
+        ],
+      ),
     );
   }
 }

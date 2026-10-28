@@ -250,6 +250,25 @@ class GameSettings {
     ];
   }
 
+  /// These settings with phase times that suit [playerCount] players: a
+  /// small table talks less than a big one. Always within the ranges.
+  GameSettings timedFor(int playerCount) {
+    final n = playerCount;
+    return copyWith(
+      dayTime: Duration(
+        minutes: n <= 5
+            ? 4
+            : n <= 8
+            ? 6
+            : n <= 12
+            ? 8
+            : 10,
+      ),
+      voteTime: Duration(seconds: n <= 6 ? 60 : (n <= 12 ? 90 : 120)),
+      nightTime: Duration(seconds: n <= 8 ? 60 : 90),
+    );
+  }
+
   /// These settings as [playerCount] players can play them: a werewolf
   /// count that would not be a minority falls back to the suggested one,
   /// and special roles that do not fit are left out, the last of

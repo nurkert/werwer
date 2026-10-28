@@ -411,12 +411,11 @@ void main() {
       for (final s in voters.take(2)) {
         expect(r.online[s]!.view.yourVote, r.ids[out], reason: 'seat $s');
       }
-      // The vote timer starts again from the beginning.
-      expect(timers.has(settings.voteTime), isTrue);
-      expect(
-        r.online[0]!.last!.phaseEndsInMs,
-        settings.voteTime.inMilliseconds,
-      );
+      // The vote timer goes on with the time it had left when the host
+      // last saved (players dropping by day are saved at once).
+      final left = r.online[0]!.last!.phaseEndsInMs!;
+      expect(left, greaterThan(0));
+      expect(left, lessThanOrEqualTo(settings.voteTime.inMilliseconds));
       r.expectViewsCurrent('after restoring the vote');
 
       for (final s in voters.skip(2)) {
