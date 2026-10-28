@@ -11,6 +11,7 @@ import 'package:game_host/relay.dart';
 import 'package:protocol/protocol.dart';
 import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/src/net/discovery.dart';
+import 'package:whowolf/src/net/invite_code.dart';
 import 'package:whowolf/src/net/keep_alive.dart';
 import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/web_app.dart';
@@ -315,16 +316,13 @@ class HostedRoom {
   /// is online and the server has it; else the host's own address when it
   /// serves the web app (a phone without the app opens it in the browser
   /// and joins); otherwise the usual link. The app reads all of them.
-  String get qrText {
-    final build = _webAppBuild;
-    if (!localOnly && _serverHasBuild && build != null) {
-      // One code for everyone: the app opens it (or dials it from its own
-      // scanner), a camera without the app opens the server's page.
-      final page = _link.encodeOnServer(build);
-      if (page != null) return page;
-    }
-    return (_webApp == null ? null : _link.encodeLocal()) ?? _link.encode();
-  }
+  String get qrText => inviteCode(
+    _link,
+    serverHasBuild: _serverHasBuild,
+    servesWebApp: _webApp != null,
+    localOnly: localOnly,
+    build: _webAppBuild,
+  );
 
   /// Whether a phone without the app can join with the QR code.
   bool get browserCanJoin => qrText != _link.encode();

@@ -49,6 +49,20 @@ void main() {
     expect(js.headers.contentType!.mimeType, 'text/javascript');
   });
 
+  test('a host that does not serve the web app gives no file at all', () async {
+    final bare = await LanTransport.bind(port: 0);
+    bare.connections.listen((_) {});
+    for (final method in ['GET', 'HEAD']) {
+      for (final path in ['/', '/join', '/main.dart.js']) {
+        final request = await client.open(method, '127.0.0.1', bare.port, path);
+        final response = await request.close();
+        await response.drain<void>();
+        expect(response.statusCode, isNot(200), reason: '$method $path');
+      }
+    }
+    await bare.close();
+  });
+
   test('nothing outside the site, and only reading', () async {
     for (final path in [
       '/missing.js',

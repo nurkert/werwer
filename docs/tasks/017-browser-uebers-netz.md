@@ -89,7 +89,7 @@ Möglichst wenig sichtbar, alles Weitere automatisch:
 - [ ] **Scanner im Stil der Bühne:** Kamerabild mit abgedunkeltem Rand, ein Rahmen aus Pappe und Messing um das Sichtfeld, Hinweis in Lilita One, Taschenlampe, eine freundliche Zeile bei fremden Codes. Der Scanner bleibt der direkte Weg in der App.
 - [x] Der Einladungstext richtet sich danach, ob der Browser möglich ist (`HostedRoom.browserCanJoin`), nicht mehr nach dem Schema des Links.
 - [ ] Ein kleines Browser-Symbol am Platz eines Browser-Spielers, **nur in der Lobby**, nie nachts (das Symbol hängt nicht an der Rolle, verrät also nichts).
-- [ ] Test: Mit abgeschalteter Auslieferung kommt im WLAN keine Datei mehr vom Host (auch nicht per `HEAD`). Der QR-Code folgt der Wahl in der Lobby.
+- [x] Test: Mit abgeschalteter Auslieferung gibt der Host im WLAN keine Datei heraus, weder per `GET` noch per `HEAD` (`packages/game_host/test/site_test.dart`). Der QR-Code folgt der Wahl: Server-Seite, WLAN-Code oder nur App-Link (`app/test/invite_code_test.dart`, Entscheidung in `inviteCode`).
 
 ### Phase 4 – Abschluss
 
