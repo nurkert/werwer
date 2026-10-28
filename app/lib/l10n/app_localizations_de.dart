@@ -1180,6 +1180,16 @@ class AppLocalizationsDe extends AppLocalizations {
       'Türzeichen (wer aufs Display schauen lässt, riskiert sein Leben)';
 
   @override
+  String get codeAdmitted => 'Der Gastgeber hat dich reingelassen!';
+
+  @override
+  String get codeAdmittedHint =>
+      'Siehst du auf seinem Bildschirm genau diese Zeichen? Dann bist du drin.';
+
+  @override
+  String get codeAdmittedGo => 'Stimmt, los geht’s';
+
+  @override
   String get codeConfirmHint =>
       'Fragt der Bildschirm des Gastgebers mit genau diesen Zeichen nach dir? Nur dann ist es wirklich der Gastgeber. Sieht er keine Anfrage von dir, bestätige nicht.';
 

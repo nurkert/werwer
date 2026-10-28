@@ -197,6 +197,10 @@ class GameSession extends ChangeNotifier {
   /// host's screen shows the same symbols.
   bool get needsCodeConfirmation => _link.needsCodeConfirmation;
 
+  /// The host says this player is let in; the code still needs the
+  /// player's own comparison (see [PlayerLink.hostSaysAdmitted]).
+  bool get hostSaysAdmitted => _link.hostSaysAdmitted;
+
   /// The host's screen shows the same symbols as ours.
   void confirmCheckCode() => _link.confirmCheckCode();
 

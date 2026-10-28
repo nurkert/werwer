@@ -12,6 +12,8 @@ Every device at the table needs this version (protocol 12).
   eyes needs (falling asleep, who wakes, the village waking up).
 
 ### Changed
+- Let in without the QR code: once the host admits you, one big
+  "They match, let’s go" finishes the symbol check.
 - The invitation says plainly when the code works in the app only.
 - The invitation page on an iPhone explains how to play in the browser
   instead of offering an app that is not in the App Store yet.

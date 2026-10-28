@@ -658,6 +658,23 @@ class _WaitingForHost extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final confirm = session.needsCodeConfirmation;
+    // Let in by the host: one last look at the symbols and one big tap.
+    // The tap stays, because only the player can tell that the host's
+    // screen really shows these symbols (see SECURITY_DESIGN.md).
+    if (confirm && session.hostSaysAdmitted) {
+      return PhaseBody(
+        children: [
+          const SizedBox(height: 32),
+          Headline(l10n.codeAdmitted),
+          CheckCode(code: session.checkCode),
+          Body(l10n.codeAdmittedHint),
+          PrimaryButton(
+            label: l10n.codeAdmittedGo,
+            onPressed: session.confirmCheckCode,
+          ),
+        ],
+      );
+    }
     return PhaseBody(
       children: [
         const SizedBox(height: 32),

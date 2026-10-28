@@ -2048,6 +2048,24 @@ abstract class AppLocalizations {
   /// **'Door signs (peeking at screens can cost a life)'**
   String get settingsDoorSigns;
 
+  /// No description provided for @codeAdmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'The host let you in!'**
+  String get codeAdmitted;
+
+  /// No description provided for @codeAdmittedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the host’s screen show exactly these symbols? Then you are in.'**
+  String get codeAdmittedHint;
+
+  /// No description provided for @codeAdmittedGo.
+  ///
+  /// In en, this message translates to:
+  /// **'They match, let’s go'**
+  String get codeAdmittedGo;
+
   /// No description provided for @codeConfirmHint.
   ///
   /// In en, this message translates to:

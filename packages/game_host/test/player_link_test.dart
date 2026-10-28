@@ -111,16 +111,19 @@ void main() {
     expect(ada.needsCodeConfirmation, isTrue);
     expect(ada.waitingForHost, isTrue);
     expect(ada.checkCode, [4, 2, 7, 1]);
+    expect(ada.hostSaysAdmitted, isFalse);
 
     // The owner lets her in; the welcome arrives but waits for her check.
     owner.send(AdmitIntent(owner.pending.single.id, admit: true));
     await settle();
+    expect(ada.hostSaysAdmitted, isTrue);
     expect(ada.view, isNull);
     expect(savedKey, isNull, reason: 'no keys before the code is confirmed');
 
     ada.confirmCheckCode();
     await settle();
     expect(ada.needsCodeConfirmation, isFalse);
+    expect(ada.hostSaysAdmitted, isFalse);
     expect(ada.view!.seats.map((s) => s.name), ['Owner', 'Ada']);
     expect(savedKey, List.filled(32, 9));
     owner.close();

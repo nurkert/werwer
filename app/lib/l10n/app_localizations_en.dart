@@ -1170,6 +1170,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Door signs (peeking at screens can cost a life)';
 
   @override
+  String get codeAdmitted => 'The host let you in!';
+
+  @override
+  String get codeAdmittedHint =>
+      'Does the host’s screen show exactly these symbols? Then you are in.';
+
+  @override
+  String get codeAdmittedGo => 'They match, let’s go';
+
+  @override
   String get codeConfirmHint =>
       'Does the host\'s screen ask about you with exactly these symbols? Only then is it really the host. If the host sees no request from you, do not confirm.';
 

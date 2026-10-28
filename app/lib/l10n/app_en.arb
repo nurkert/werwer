@@ -664,6 +664,9 @@
     }
   },
   "settingsDoorSigns": "Door signs (peeking at screens can cost a life)",
+  "codeAdmitted": "The host let you in!",
+  "codeAdmittedHint": "Does the host’s screen show exactly these symbols? Then you are in.",
+  "codeAdmittedGo": "They match, let’s go",
   "codeConfirmHint": "Does the host's screen ask about you with exactly these symbols? Only then is it really the host. If the host sees no request from you, do not confirm.",
   "codeConfirm": "The host sees the same symbols",
   "narrateNightCalled": "Night falls over the village. Everyone close your eyes.",

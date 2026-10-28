@@ -207,6 +207,11 @@ class PlayerLink {
   /// the host's place, skip the comparison and hand over keys of his own.
   bool get needsCodeConfirmation => _unchecked && !_codeConfirmed;
 
+  /// The host (or whoever answers in its place) says the player is let
+  /// in, while the code still waits for the player's own comparison. Only
+  /// for the wording on screen: nothing counts until [confirmCheckCode].
+  bool get hostSaysAdmitted => needsCodeConfirmation && _held.isNotEmpty;
+
   bool _unchecked = false;
   bool _codeConfirmed = false;
 
