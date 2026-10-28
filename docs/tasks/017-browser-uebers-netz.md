@@ -1,92 +1,114 @@
-# Task 017 – Im Browser mitspielen, auch über das Internet
+# Task 017 – Im Browser mitspielen, auch ohne WLAN
 
-**Status:** geplant (2026-10-28)
+**Status:** geplant (2026-10-28), nach Review überarbeitet
 **Bezug:** [ROADMAP](../ROADMAP.md) „Nach dem MVP“ Punkt 1 und 9, [SECURITY_DESIGN](../SECURITY_DESIGN.md) „Die Web-App vom Host“, Entscheidung vom 2026-10-26 „Beitritt im Browser im WLAN“
 
-Heute kann man im Browser nur im selben WLAN mitspielen: Das Host-Handy liefert die Web-App selbst aus, und die Seite verbindet sich nur mit dem Gerät, von dem sie kam (`dialPageHost()`). Der Wunsch des Eigentümers: Wer per QR-Code mit der Handykamera beitritt, soll auch über mobile Daten mitspielen können. Die Oberfläche soll dabei sauber übers Netz kommen, entweder vom Server (opt-in) oder vom Host selbst.
+Heute kann man im Browser nur im selben WLAN mitspielen. Das Host-Handy liefert die Web-App selbst aus, und die Seite verbindet sich nur mit dem Gerät, von dem sie kam (`dialPageHost()`). Wer am Tisch sitzt, aber nicht ins WLAN kann oder will (Gäste-WLAN, Client-Isolation, kein Passwort), braucht bisher die App.
 
-## Ziel
+## Ziel und Grenzen
 
-- Ein Spieler ohne App scannt den QR-Code mit der Kamera und spielt im Browser mit, egal ob er im WLAN ist oder über mobile Daten.
-- **Der Server liefert die Web-App aus, opt-in:** Ein eigener Schalter am Relay, auf `play.whowolf.de` an. Wer einen eigenen Server betreibt, entscheidet selbst.
-- **Mehrere Versionen auf dem Server:** Unter `/v/<Protokollversion>/` liegt jede veröffentlichte Version. Der QR-Link des Hosts zeigt auf genau seine, damit Host und Browser nie aneinander vorbeireden.
-- **Rückfall auf den Host:** Hat der Server die Version des Hosts nicht (eigener Server ohne Web-App, neue Version noch nicht ausgerollt), kommt die Oberfläche vom Host-Handy, durch das Relay getunnelt.
-- Im WLAN ändert sich nichts: Die App verbindet sich weiter zuerst direkt, das Relay nur, wenn es sein muss.
-- **Wer ausliefert, ist einstellbar:**
-  - **Eigene Einstellungen (global, opt-out):** „Browser-Spielern die Oberfläche von meinem Gerät ausliefern“, Standard an. Wer es abschaltet, spart mobile Daten und Akku, denn jeder Browser-Spieler lädt etwa 5 MB.
-  - **Lobby (nur Host, gilt nur für diese Runde):** „Oberfläche für den Browser kommt von“ *Automatisch* (Server, wenn er die Version hat, sonst dieses Gerät), *diesem Gerät* oder *dem Server*. Das überschreibt die globale Einstellung vorübergehend. Ist keine Quelle möglich, sagt die Lobby das, und der QR-Code ist dann nur für die App gedacht.
-  - **Nur Host oder Server, keine Mitspieler:** Wer die Seite ausliefert, könnte mit einer veränderten App die geheime Rolle des Browser-Spielers lesen. Der Host kennt sie ohnehin, der Server spielt nicht mit. Ein Mitspieler als Lieferant wäre dagegen ein Schummelweg.
-  - Die Wahl ist Sache des Host-Geräts und seines Transports, keine Spielregel. Sie gehört also weder in `GameSettings` noch ins Protokoll, sondern bleibt beim `HostedRoom` bzw. in den App-Einstellungen.
+- **Für wen:** Leute, die **mit am Tisch sitzen**, aber nicht im WLAN sind. Sie scannen den QR-Code mit der Kamera und spielen im Browser über mobile Daten mit.
+- **Nicht für Fernspieler:** Sitzkreis, Türzeichen, Wolfsspur und wandernder Erzähler setzen einen gemeinsamen Tisch voraus. Echtes Fernspiel wäre später ein eigenes Feature mit eigenen Regeln (Fernplatz ohne Sitz, ohne Türzeichen). Die Docs für Spieler sagen das so.
+- **Ein Code:** Die Browser-Version ist dieselbe Flutter-App, für das Web gebaut (`tool/build_webapp.sh`). Unterschiede nur an den Rändern (Verbindung, Speicher, Ton freischalten, Wake Lock), keine eigene Browser-Oberfläche und keine Browser-Logik in den Bildschirmen.
+- **Wer die Seite ausliefert:** über das Internet nur der **Server** (opt-in am Relay, auf `play.whowolf.de` an), im WLAN wie heute das **Host-Handy**. Keine Mitspieler, kein Tunnel vom Host durch das Relay (siehe Review unten).
+- Mit der App ändert sich nichts: zuerst das WLAN, das Relay nur, wenn es sein muss.
 
 ## Ablauf
 
-1. Der Host öffnet einen Raum mit Relay. Beim Anmelden (`/host`) sagt das Relay, ob es die Web-App für die Protokollversion des Hosts ausliefert.
-2. Der QR-Code zeigt dann, je nach Wahl in der Lobby:
-   - **Server hat die Version:** `https://<server>/v/<pv>/join?room=…&relay=…&lan=…#k=…&s=…`
-   - **Server hat sie nicht:** `https://<server>/r/<relayRoom>/join?…#k=…&s=…`. Das Relay holt jede Datei beim Host ab.
-   - **Kein Relay:** wie heute `http://<Host-IP>/join?…`
-3. Die App liest alle drei Formen und verbindet sich wie bisher: zuerst WLAN, nach 1,5 s das Relay.
-4. Der Browser lädt die Seite und verbindet sich:
-   - Kommt die Seite vom Host (`http://`), wählt sie den Host direkt an wie heute.
-   - Kommt sie über `https://` vom Server, geht sie über `wss://<server>/join/<relayRoom>`. Ein direkter Weg ins WLAN ist von einer HTTPS-Seite aus nicht möglich, weil Browser `ws://` dort sperren (Mixed Content). Browser-Spieler über den Server laufen also immer über das Relay. Die Datenmenge ist klein.
-5. Der Handshake (`secure_channel`) beweist wie immer, dass am anderen Ende der echte Host sitzt.
+1. Der Host öffnet einen Raum mit Relay. Beim Anmelden (`/host`) sagt das Relay, welche Builds der Web-App es ausliefert.
+2. Der QR-Code zeigt:
+   - **Server hat den Build des Hosts:** `https://<server>/v/<pv>/<build>/join?room=…&relay=…&lan=…#k=…&s=…`
+   - **Sonst, oder wenn der Host *dieses Handy* wählt:** wie heute `http://<Host-IP>/join?…` (nur im WLAN).
+   - **Weder noch:** der Link für die App. Die Lobby sagt dann in einer Zeile: „Ohne App kann gerade nur jemand im selben WLAN beitreten.“ bzw. „… niemand beitreten.“
+3. Der QR-Code wechselt nie von selbst, während die Lobby offen ist. Nur eine Wahl des Hosts oder der Verlust des Relays ändert ihn. Alte Links bleiben gültig, solange der Raum lebt.
+4. Die App liest alle Formen und verbindet sich wie bisher.
+5. Der Browser verbindet sich mit dem Ursprung, von dem die Seite kam:
+   - Seite vom Host (`http://`): direkt, wie heute.
+   - Seite vom Server (`https://`): nur `wss://<derselbe Server>/join/<relayRoom>`. Der Parameter `srv` im Link wird im Browser ignoriert. Ein direkter Weg ins WLAN ist von einer HTTPS-Seite aus nicht möglich (Mixed Content), deshalb laufen diese Spieler immer über das Relay.
+6. Der Handshake (`secure_channel`) beweist wie immer, dass am anderen Ende der echte Host sitzt.
+
+## Einstellungen
+
+Möglichst wenig sichtbar, alles Weitere automatisch:
+
+- **App-Einstellungen › Online-Spiel (global, opt-out):** „Browser-Spieler im WLAN laden die Seite von meinem Handy“, Standard an. Über das Internet liefert das Handy ohnehin nie aus, es kostet also keine mobilen Daten.
+- **Lobby, unter „Verbindungsdetails“ (nur Host, nur diese Runde):** eine Zeile mit dem aktuellen Stand, zum Beispiel „Ohne App laden Mitspieler die Seite von play.whowolf.de. *Ändern*“. Auswahl:
+  - *Automatisch:* Server, wenn er den Build hat, sonst dieses Handy im WLAN.
+  - *Vom Server:* klappt auch ohne WLAN.
+  - *Von diesem Handy:* nur im WLAN, klappt auch ohne Internet.
+
+  Die Auswahl ist mit der globalen Einstellung vorbelegt.
+- Die Wahl ist keine Spielregel. Sie kommt nicht in `GameSettings` und nicht ins Protokoll, sondern bleibt beim `HostedRoom` und in `Store`.
 
 ## Phasen
 
 ### Phase 1 – Browser über das Relay
 
-- [ ] `web_join_screen.dart`: Der Browser wählt je nach Herkunft der Seite den Host direkt oder das Relay (`wss://`), mit demselben `connectSecure` und denselben Schlüsseln aus dem Fragment.
-- [ ] Neuladen und Wiedereinstieg über `sessionStorage` funktionieren auch über das Relay.
-- [ ] Test: Ein Browser-Client (Chrome in `tool/check.sh`) spielt über ein lokales Relay eine Partie mit dem Host.
+- [ ] `web_join_screen.dart` / `browser_socket.dart`: Der Browser wählt den Weg nach dem Ursprung der Seite, mit demselben `connectSecure` und denselben Schlüsseln aus dem Fragment.
+- [ ] `forgetPageLink()` behält den Basispfad (heute fest `/join`, unter `/v/…/` würde ein Neuladen ins Leere führen). Gemerkt wird die Form relativ zum Ursprung.
+- [ ] **Wiedereinstieg:** Token pro Raum in `localStorage` mit Ablaufzeit statt nur `sessionStorage`. Ein neuer Tab oder ein erneutes Scannen fragt „Weiter als {Name}?“ statt einen zweiten Platz anzulegen. Am Spielende gelöscht.
+- [ ] **Ton:** ein Tipp „Ton an“ vor der ersten Nacht schaltet Web Audio frei (Autoplay-Sperre). Gähnen und Nachtgeräusche spielen auch im Browser zum gemeinsamen Zeitpunkt.
+- [ ] **Bildschirm an:** Screen Wake Lock API, wo vorhanden; sonst ein Satz „Lass den Bildschirm an, solange ihr spielt.“
+- [ ] **Pausen:** Fehlt der Host (iOS im Hintergrund), sieht der Browser die ruhige Pause wie in der App, nicht „Verbindung weg“.
+- [ ] Test: Ein Browser-Client (Chrome in `tool/check.sh`) spielt über ein lokales Relay eine Partie mit dem Host, inklusive Neuladen.
 
 ### Phase 2 – Der Server liefert die Web-App aus (opt-in)
 
-- [ ] Relay: Schalter `WEB_APP_DIR` bzw. `--web-app <Ordner>` (aus = heutiges Verhalten, nur WebSocket). Statische Auslieferung nur unter `/v/<pv>/…`, nur GET und HEAD, nur Dateien aus einer festen Liste (Manifest), keine Verzeichnislisten, keine Pfadtricks (`..`, `%2e`, doppelte Schrägstriche), gzip-Dateien wie auf dem Host.
-- [ ] Release-Pipeline: Die Web-App jeder Version geht als Release-Datei `whowolf-<version>-webapp.tar.gz` mit Prüfsumme und Provenance raus.
-- [ ] Docker-Image: `server/webapps.lock` listet je Protokollversion die neueste Web-App mit SHA-256. Der Image-Build lädt sie und prüft jede Prüfsumme. So hält das Image mehrere Versionen, und nichts Ungeprüftes kommt hinein.
-- [ ] Antwort-Header: strenge `Content-Security-Policy` (nur `self` und `wss://<server>`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, kein Cache für `index.html`, lange Cache-Zeit für versionierte Dateien.
-- [ ] Beim Anmelden des Hosts meldet das Relay, welche Protokollversionen es ausliefert. Der Host baut daraus den QR-Link.
-- [ ] `play.whowolf.de`: Schalter an, Caddy unverändert (URI bleibt aus den Logs).
+- [ ] Relay: `WEB_APP_DIR` bzw. `--web-app <Ordner>` (aus = heutiges Verhalten). Auslieferung nur unter `/v/<pv>/<build>/…`, nur GET und HEAD, nur Dateien aus dem Manifest des Builds, Medientyp aus einer festen Liste am Relay, keine Verzeichnislisten, keine Pfadtricks.
+- [ ] Antwort-Header auf jeder Datei: `Content-Security-Policy` mit `default-src 'self'`, `connect-src` genau `wss://<self>/join/`, `worker-src 'none'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'none'`, `frame-ancestors 'none'`, dazu was CanvasKit und wasm brauchen; `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`. `index.html` ohne Cache, die übrigen Dateien lange (der Build steht im Pfad).
+- [ ] Statische Seiten vor Flutter: `index.html` zeigt „Lädt… (ca. 5 MB)“ in reinem HTML. Fehlerseiten für „Diese Runde ist nicht mehr offen“ und „Diese Version gibt es hier nicht“ statt eines weißen Bildschirms. `lang`, Kontrast, echte Texte.
+- [ ] Grenzen pro Adresse auch für HTTP (heute zählen nur WebSocket-Upgrades). Das Relay schreibt keine Pfade ins Log.
+- [ ] Release-Pipeline: Web-App jedes Releases als `whowolf-<version>-webapp.tar.gz` mit Prüfsumme und Attestation.
+- [ ] `server/webapps.lock`: nur anhängen, ein Eintrag je Build mit SHA-256. Neue Einträge nur per Commit, nachdem die CI die Attestation geprüft hat (`gh attestation verify`, Identität `prerelease.yml` auf einem Tag). Ein Eintrag kann ausdrücklich zurückgezogen werden (Sicherheitslücke in einem alten Build).
+- [ ] Image-Build lädt jeden Build und bricht bei falscher Prüfsumme ab. **Release-Pflicht:** Jedes Release ergänzt `webapps.lock`, damit `play.whowolf.de` immer den Build der aktuellen App hat.
+- [ ] Die App versteht die neuen Links (`/v/…/join` auf beliebigem HTTPS-Host nur zusammen mit dem Schlüssel). Universal Links / App Links für `play.whowolf.de`, damit App-Besitzer, die mit der Kamera scannen, in der App landen.
+- [ ] `whowolf.de/join` ohne passende Quelle zeigt „Dieser Raum ist nur mit der App erreichbar“ und die Downloads.
 
-### Phase 3 – Rückfall: die Oberfläche vom Host durch das Relay
+### Phase 3 – Einstellungen und Lobby
 
-- [ ] Relay: `GET /r/<relayRoom>/<Pfad>` wird als Anfrage-Nachricht über die bestehende Host-Verbindung weitergereicht, die Antwort kommt in Stücken zurück. Nur Pfade aus dem Manifest des Hosts, harte Grenzen (Größe pro Datei, Bytes pro Raum und Minute, gleichzeitige Anfragen, Zeitlimit).
-- [ ] Host: beantwortet diese Anfragen aus demselben `Site` wie im WLAN, ohne neuen Code-Pfad für die Dateien.
-- [ ] Die Seite verbindet sich danach wie in Phase 1 über `wss://<server>/join/<relayRoom>`.
-- [ ] Test: Ein Relay ohne Web-App liefert die Seite des Hosts aus, ein Browser spielt damit mit.
+- [ ] Globaler Schalter in den App-Einstellungen, Auswahl unter „Verbindungsdetails“ (siehe oben). Eine Änderung baut den QR-Code sofort neu.
+- [ ] Der Einladungstext richtet sich danach, ob der Browser möglich ist, nicht nach dem Schema des Links (heute `startsWith('http:')`).
+- [ ] Ein kleines Browser-Symbol am Platz eines Browser-Spielers, **nur in der Lobby**, nie nachts (das Symbol hängt nicht an der Rolle, verrät also nichts).
+- [ ] Test: Mit abgeschalteter Auslieferung kommt im WLAN keine Datei mehr vom Host (auch nicht per `HEAD`). Der QR-Code folgt der Wahl in der Lobby.
 
-### Phase 4 – Einstellungen
+### Phase 4 – Abschluss
 
-- [ ] App-Einstellungen: Schalter „Browser-Spielern die Oberfläche von meinem Gerät ausliefern“ (Standard an), gespeichert wie die anderen Einstellungen in `Store`.
-- [ ] Lobby des Hosts: Auswahl *Automatisch* / *dieses Gerät* / *Server*, vorbelegt aus der globalen Einstellung. Eine Änderung gilt nur für diesen Raum und baut den QR-Code sofort neu.
-- [ ] *Server* ist nur wählbar, wenn das Relay verbunden ist und die Version des Hosts ausliefert. *Dieses Gerät* über das Netz nur mit Relay, im WLAN immer.
-- [ ] Ist die Auslieferung durch das Gerät aus, liefert der Host im WLAN auch keine Seite mehr aus (der LAN-Server antwortet dann nur noch auf WebSockets), und das Relay verweigert `/r/<relayRoom>/…` für diesen Raum.
-- [ ] Test: Mit abgeschalteter Auslieferung kommt keine Datei mehr vom Host, weder im WLAN noch über das Relay. Der QR-Code wechselt mit der Lobby-Wahl.
-
-### Phase 5 – Abschluss
-
-- [ ] SECURITY_DESIGN, Datenschutz (Website und App), Docs für Spieler und Server-Betreiber (`server/deploy/README.md`) ergänzen.
-- [ ] Auf echten Geräten: iPhone als Host, ein Handy über mobile Daten im Browser, eines im WLAN im Browser.
+- [ ] SECURITY_DESIGN, Datenschutz (Website und App: Betreiber als Verantwortlicher für die Auslieferung der Seite), Docs für Spieler (Mindestanforderungen: aktueller Browser, Ton an, Bildschirm an; „am Tisch, nicht aus der Ferne“) und für Server-Betreiber (`server/deploy/README.md`).
+- [ ] Auf echten Geräten: iPhone als Host; iOS Safari und Android Chrome über mobile Daten im Browser, eines im WLAN im Browser. Ton, Wake Lock, Neuladen, Host kurz im Hintergrund.
 
 ## Sicherheit
 
 **Was schiefgehen kann:**
 
-- **Wer die Seite ausliefert, sieht die Schlüssel.** Die Schlüssel stehen im Fragment, das der Browser nie sendet, aber das JavaScript der Seite liest sie. Ein Server, der eine veränderte Web-App ausliefert, kann deshalb mitlesen und mitspielen. Das gilt für beide Wege, denn auch beim Rückfall (Phase 3) ist der Server der Ursprung der Seite. Spieler mit der App sind davon nicht betroffen.
-- **Neue Angriffsfläche am Relay:** statische Dateien (Pfadtricks, Verzeichnislisten, große Dateien als Last) und HTTP-Weiterleitung zum Host (der Host als Lastquelle, offene Weiterleitung, Anfragen an fremde Räume).
-- **Falsche Version:** Ein Browser mit anderer Protokollversion bekommt Nachrichten, die er nicht versteht.
+- **Wer die Seite ausliefert, sieht die Schlüssel** (das JavaScript liest das Fragment). Ein Server mit veränderter Web-App könnte mitlesen und mitspielen. Spieler mit der App sind nicht betroffen.
+- **Statische Dateien am Relay:** Pfadtricks, Verzeichnislisten, Last durch große Dateien, alte Builds mit Lücken, die ewig ausgeliefert werden.
+- **Lieferkette:** eine manipulierte Release-Datei oder ein falscher Eintrag in `webapps.lock`.
+- **Gemischte Builds:** Ein Release mitten in der Runde mischt beim Neuladen alte und neue Dateien.
+- **Metadaten:** Das Relay sieht Größe und Zeitpunkt jeder Nachricht. Browser-Spieler laufen über das Internet immer über das Relay.
+- **Datenschutz:** Wer scannt, zeigt dem Betreiber Adresse und User-Agent, auch ohne beizutreten.
 
 **Was es verhindert:**
 
-- Die Web-App ist **opt-in** am Server. Die App sagt beim Eintragen eines eigenen Servers schon heute, dass dessen Betreiber verantwortlich ist. Die Docs nennen dieses Vertrauen ausdrücklich: „Im Browser vertraust du dem Server, der die Seite ausliefert. Wer das ausschließen will, nimmt die App.“
-- Auf `play.whowolf.de` kommt nur ausgeliefert, was die Release-Pipeline gebaut hat (Prüfsummen in `webapps.lock`, signiertes Image, Updates per Abruf und Signaturprüfung wie heute).
-- Strenge CSP, keine Drittanbieter, kein Service Worker. Die Seite nimmt den Schlüssel nach dem Lesen aus Adresszeile und Verlauf (wie heute).
-- Statische Auslieferung nur aus einem Manifest. Die Weiterleitung zum Host nur für offene Räume, nur Manifest-Pfade, mit Grenzen pro Raum und Adresse. Keine Header oder Cookies gehen weiter, das Relay schreibt keine Pfade ins Log.
-- Die Version steckt im Pfad, und die Protokollprüfung (`protocolVersion`) lehnt Abweichungen wie bisher ab.
+- Auslieferung **opt-in** am Server. Die App sagt beim Eintragen eines eigenen Servers schon heute, dass dessen Betreiber verantwortlich ist. Die Beitrittsseite sagt in einer Zeile: „Im Browser vertraust du dem Server, der diese Seite liefert. Mit der App nicht.“
+- Auf `play.whowolf.de` nur Builds aus der Release-Pipeline: Attestation geprüft, Prüfsumme gepinnt, signiertes Image, Updates per Abruf wie heute.
+- **Ein Ursprung, nur Builds aus der Pipeline:** Kein Host und kein Mitspieler kann Code auf dem Ursprung des Servers ausführen. Damit kann auch keine Seite Speicher oder Service Worker für andere Runden hinterlassen. Dafür ist der Tunnel vom Host gestrichen.
+- Strenge CSP ohne Service Worker und Drittanbieter. Der Browser verbindet sich nur mit seinem eigenen Ursprung. Der Schlüssel verschwindet nach dem Lesen aus Adresszeile und Verlauf.
+- Build-ID im Pfad. Die Protokollprüfung (`protocolVersion`) lehnt Abweichungen ab.
+- Bekannte Grenze, dokumentiert: QR-Link und Screenshots davon sind der Raumschlüssel. Nachrichtengrößen zu vereinheitlichen ist ein eigener späterer Schritt und betrifft auch App-Spieler über das Relay.
 
 **Welche Tests es beweisen (blockieren den Merge):**
 
-- Relay: Pfadtricks (`..`, `%2e%2e`, `//`, Backslash, Nullbyte), Dateien außerhalb des Manifests, POST/PUT, zu große Antworten, zu viele Anfragen und eine fremde `relayRoom` werden abgelehnt.
-- Relay: Antwort-Header (CSP, `nosniff`, `no-referrer`) sind auf jeder ausgelieferten Seite gesetzt.
-- Image-Build bricht ab, wenn eine Prüfsumme aus `webapps.lock` nicht stimmt.
-- Browser über Relay: Ein Client mit falschem Schlüssel kommt nicht durch den Handshake, ein Client mit anderer Protokollversion wird abgewiesen.
+- Relay: Pfadtricks (`..`, `%2e%2e`, `//`, Backslash, Nullbyte), Dateien außerhalb des Manifests, unbekannter Build, POST/PUT, zu viele Anfragen pro Adresse werden abgelehnt. Ist die Auslieferung aus, antwortet auch `HEAD` mit 404. Kein Pfad im Log.
+- Relay: CSP und die übrigen Header stehen auf jeder Datei. Der Browser-Test aus Phase 1 läuft **unter genau diesen Headern** (beweist, dass CanvasKit und wasm damit laufen).
+- Image-Build bricht bei falscher Prüfsumme ab. `webapps.lock` wird nur ergänzt, nie geändert (CI-Test).
+- Browser: Ein Client mit falschem Schlüssel kommt nicht durch den Handshake, einer mit anderer Protokollversion wird abgewiesen. Neuladen unter `/v/…/` landet wieder am Tisch.
+- App: Parser-Tests für die neuen Linkformen, kein HTTPS-Link ohne Schlüssel.
+
+## Review (2026-10-28)
+
+Der Plan wurde unabhängig aus drei Richtungen geprüft: Sicherheit, Bedienung, Spieldesign. Codex und Antigravity konnten nicht laufen (Sandbox bzw. fehlender Login). Eingearbeitet:
+
+- **Gestrichen: Seite vom Host durch das Relay** (`/r/<raum>/`). Fremder Code auf dem Ursprung des Servers hätte Speicher und Service Worker für andere Runden hinterlassen können. Neuladen hätte das Byte-Budget des Hosts gesprengt und die Runde beendet (4 MB auf einmal). Dazu viele MB über die mobilen Daten des Hosts. Ersatz: Der Server hat den aktuellen Build als Pflicht im Release, sonst gilt Browser nur im WLAN.
+- **Zielgruppe** auf „am Tisch, ohne WLAN“ festgelegt. Fernspieler würden Türzeichen, Sitzkreis und Wolfsspur aushebeln.
+- Lobby-Auswahl unter „Verbindungsdetails“ statt sichtbar. Der Opt-out schaltet das Browser-Spiel im WLAN nicht mehr ungewollt mit ab. Der QR-Code wechselt nicht von selbst.
+- Build-ID im Pfad, Attestation vor `webapps.lock`, Grenzen auch für HTTP, Basispfad beim Neuladen, Einladungstext nach Möglichkeit statt Schema, Wiedereinstieg per Token pro Raum, Ton freischalten und Wake Lock als Abnahmekriterium (sonst hätte ein Wolf eine Ausrede gegen den Gähn-Check), statische Lade- und Fehlerseiten.
