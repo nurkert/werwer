@@ -54,7 +54,7 @@ const en: Copy = {
     blackSheep: 'Black sheep',
     good: '+1 dream point',
     bad: 'Nightmare! −3',
-    paused: 'Paused',
+    paused: "You're awake. The sheep are gone until you fall asleep again.",
     start: 'Fall asleep',
     stop: 'Wake up',
     noScript: 'With JavaScript enabled you can count sheep here yourself.',

@@ -53,7 +53,7 @@ const de = {
     blackSheep: 'Schwarzes Schaf',
     good: '+1 Traumpunkt',
     bad: 'Albtraum! −3',
-    paused: 'Pausiert',
+    paused: 'Du bist wach. Die Schafe sind weg, bis du wieder einschläfst.',
     start: 'Einschlafen',
     stop: 'Aufwachen',
     noScript: 'Mit aktiviertem JavaScript kannst du hier selbst Schäfchen zählen.',

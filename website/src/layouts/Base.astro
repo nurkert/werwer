@@ -201,7 +201,10 @@ const jsonLd = {
           <div>
             <p class="site-footer__name">Whowolf</p>
             <p>{t.footer.tagline}</p>
-            <p class="site-footer__status"><span class="stamp stamp--status">{t.status.badge}</span></p>
+            <p class="site-footer__status">
+              <span class="stamp stamp--status">{t.status.badge}</span>
+              <a class="site-footer__report" href={`${repoUrl}/issues/new/choose`}>{t.status.report}</a>
+            </p>
           </div>
         </div>
         <nav aria-label="Footer">
@@ -726,7 +729,29 @@ const jsonLd = {
     color: var(--moon-100);
   }
   .site-footer__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.8rem;
     margin-top: 0.6rem;
+  }
+  /* Always here, also once the beta strip was closed. */
+  .site-footer__report {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--stage-brass);
+    color: var(--lantern-300);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+  .site-footer__report:hover,
+  .site-footer__report:focus-visible {
+    background: var(--lantern-400);
+    color: var(--ink);
   }
   .site-footer ul {
     display: flex;

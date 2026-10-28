@@ -21,6 +21,8 @@ export interface ScenePiece {
   mirror?: boolean;
   /** Only on wide windows. */
   wide?: boolean;
+  /** In front of the other pieces on its side. */
+  front?: boolean;
   /** Top pieces: how many lengths side by side, so it spans the width. */
   repeat?: number;
   /** Top pieces: hung over each seam between two lengths (a knot, a tassel). */
@@ -88,6 +90,7 @@ const loading = first ? 'eager' : 'lazy';
           piece.hidePhone && `--hide-phone: ${piece.hidePhone}`,
           piece.inset && (piece.at.includes('left') ? `margin-left: ${piece.inset}` : `margin-right: ${piece.inset}`),
           piece.at === 'top' && `--top-h: ${piece.h}`,
+          piece.front && 'z-index: 2',
         ]
           .filter(Boolean)
           .join('; ')}

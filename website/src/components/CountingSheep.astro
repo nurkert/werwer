@@ -52,6 +52,7 @@ const formats = ['avif', 'webp'] as const;
     <Picture class="fence" src={zaun} alt="" formats={formats} widths={[300, 600]} sizes="20vw" />
     <div class="flock" data-flock aria-label={t.sheep}></div>
     <p class="burst-layer" data-bursts aria-hidden="true"></p>
+    <p class="sheep-game__awake" data-awake hidden>{t.paused}</p>
     <noscript><p class="sheep-game__noscript">{t.noScript}</p></noscript>
   </div>
 
@@ -76,6 +77,7 @@ const formats = ['avif', 'webp'] as const;
     const scoreEl = root.querySelector<HTMLElement>('[data-score]')!;
     const bestEl = root.querySelector<HTMLElement>('[data-best]')!;
     const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]')!;
+    const awake = root.querySelector<HTMLElement>('[data-awake]')!;
     const d = root.dataset;
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -98,7 +100,8 @@ const formats = ['avif', 'webp'] as const;
     };
 
     const count = (sheep: HTMLButtonElement) => {
-      if (sheep.dataset.counted) return;
+      // Awake, nobody counts: a leaving sheep is no longer in the dream.
+      if (sheep.dataset.counted || sheep.disabled || (!running && !calm)) return;
       sheep.dataset.counted = 'true';
       const bad = sheep.dataset.kind === 'black';
       score = Math.max(0, score + (bad ? -3 : 1));
@@ -148,10 +151,28 @@ const formats = ['avif', 'webp'] as const;
       toggle.hidden = true;
     }
 
+    // Waking up ends the dream: the sheep on the field fade away (no frozen herd to keep
+    // tapping), and falling asleep again starts a new dream from zero.
+    const wake = () => {
+      flock.querySelectorAll<HTMLButtonElement>('.sheep:not(.sheep--still)').forEach((sheep) => {
+        sheep.disabled = true;
+        sheep.tabIndex = -1;
+        sheep.classList.add('is-leaving');
+        window.setTimeout(() => sheep.remove(), 450);
+      });
+    };
+
     toggle.addEventListener('click', () => {
       running = !running;
       toggle.textContent = running ? d.stop! : d.start!;
       root.classList.toggle('is-paused', !running);
+      awake.hidden = running;
+      if (running) {
+        score = 0;
+        scoreEl.textContent = '0';
+      } else {
+        wake();
+      }
       start();
     });
 
@@ -285,8 +306,11 @@ const formats = ['avif', 'webp'] as const;
       leap var(--speed, 5s) ease-in-out forwards,
       wrong 0.5s ease-in-out forwards;
   }
-  .is-paused .flock :global(.sheep),
-  .is-paused .flock :global(.sheep img),
+  .flock :global(.sheep.is-leaving) {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out);
+  }
   .is-offscreen .flock :global(.sheep),
   .is-offscreen .flock :global(.sheep img) {
     animation-play-state: paused;
@@ -375,6 +399,49 @@ const formats = ['avif', 'webp'] as const;
     to {
       opacity: 0;
       transform: translate(-50%, -160%) scale(1);
+    }
+  }
+
+  /* Awake: the night field dims behind the note. */
+  .sheep-game__field::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: rgb(8 10 28 / 0.45);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .is-paused .sheep-game__field::after {
+    opacity: 1;
+  }
+  .sheep-game__awake {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    z-index: 5;
+    width: min(26rem, 80%);
+    margin: 0;
+    padding: 0.7rem 1rem;
+    transform: translate(-50%, -50%);
+    border-radius: 14px;
+    border: 1.5px solid var(--stage-brass);
+    background: rgb(23 21 21 / 0.82);
+    color: var(--stage-ivory);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    line-height: 1.35;
+    text-align: center;
+    animation: awake-in 0.4s var(--ease-out) both;
+  }
+  .sheep-game__awake[hidden] {
+    display: none;
+  }
+  @keyframes awake-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -40%);
     }
   }
 
