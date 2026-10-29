@@ -5,7 +5,9 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
-Every device at the table needs the next version (protocol 18).
+## 0.3.0 – 2026-10-29
+
+Every device at the table needs this version (protocol 18).
 
 ### Added
 - Mayoral election with its own menu: the day shows who has voted and your
