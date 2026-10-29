@@ -755,7 +755,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyUpdates.
   ///
   /// In en, this message translates to:
-  /// **'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is our legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).'**
+  /// **'When it starts, the app reads the public list of versions on GitHub (github.com, run by GitHub Inc., USA) to tell you about a new version. GitHub sees your device\'s IP address, as with any web page. Nothing about you or your game is sent. You can switch this off in the settings. The legal basis is the operator\'s legitimate interest in pointing you to fixes and matching versions (Art. 6(1)(f) GDPR).'**
   String get privacyUpdates;
 
   /// No description provided for @handoverMenu.
@@ -2615,7 +2615,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyServer.
   ///
   /// In en, this message translates to:
-  /// **'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, by default only once it shows the QR code or has no Wi-Fi (games on the Wi-Fi stay unknown to the server), run by the project owner (see the imprint on whowolf.de). The server is located in Germany, hosted by ZAP-Hosting GmbH (Münster). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is our legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.'**
+  /// **'So that players without a shared Wi-Fi can join, the host\'s device connects to play.whowolf.de, by default only once it shows the QR code or has no Wi-Fi (games on the Wi-Fi stay unknown to the server), run by the project owner (see the imprint on whowolf.de). The server is located in Germany, hosted by ZAP-Hosting GmbH (Münster). The server only forwards end-to-end encrypted data and can read neither names nor roles nor moves. It necessarily processes the IP addresses of the connected devices, in memory only and only while connected, to forward messages and to limit abuse; they are neither stored nor logged. The legal basis is the operator\'s legitimate interest in providing the game you asked for and protecting the server (Art. 6(1)(f) GDPR). In the settings you can switch the server off or enter your own; its operator is then responsible.'**
   String get privacyServer;
 
   /// No description provided for @privacyDeviceTitle.
