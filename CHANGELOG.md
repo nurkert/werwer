@@ -5,6 +5,11 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.2.2 – 2026-10-29
+
+Plays with 0.2.1 (protocol 17). On Android, uninstall a debug-signed
+version once; from this release on updates install in place.
+
 ### Added
 
 - SideStore as a second way to the iPhone app: the download page lets you pick AltStore or SideStore, each explained step by step, with a one-tap "add source" button.
