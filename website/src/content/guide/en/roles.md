@@ -75,6 +75,10 @@ The app deals the roles to fit the number of players and the settings: about eve
 
 Many people know these three from werewolf rounds; in Whowolf their names and texts are written from scratch. The host decides in the settings which of them play: **Classic** and **Whowolf** play with seer, witch and hunter, the **Full stage** also with cupid.
 
+## The mayor
+
+If you like, the village also elects a [mayor](/en/docs/roles/mayor/). It is not a secret role but an office: the village elects them openly by day, and their vote counts twice. Every role has its own page; the names on the cards above lead there.
+
 ## Only in Whowolf (ideas)
 
 Trail layer, listener and silent paw play with the planned **wolf trail**, the quiet sounds that come from the phones at night. They only exist because in Whowolf everyone has their own phone in front of them. Exactly how they work will be tried out in test rounds.

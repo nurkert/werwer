@@ -3,7 +3,7 @@ page: docsHow
 lang: de
 title: Wie die App funktioniert
 short: Wie die App funktioniert
-description: "Wie Whowolf technisch funktioniert, in einfachen Worten: ein Handy ist Gastgeber, die anderen verbinden sich im WLAN, und ein Vermittlungsserver bringt Mitspieler von außen dazu."
+description: "Wie Whowolf funktioniert, einfach erklärt: Ein Handy ist Gastgeber, die anderen verbinden sich im WLAN, ein Server bringt Mitspieler von außen dazu."
 lead: "Bei Whowolf ist ein Handy am Tisch der Spielleiter, ganz ohne Rechenzentrum und Cloud. Hier steht in einfachen Worten, wie das funktioniert."
 figure: lauscherin
 ---

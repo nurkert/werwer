@@ -13,13 +13,17 @@ const figure = z.enum([
   'amor',
   'dorfbewohner',
   'faehrtenleger',
+  'grossvater',
   'hexe',
   'jaeger',
   'lauscherin',
   'magd',
   'seherin',
+  'spielmann',
   'stille_pfote',
+  'tueftler',
   'werwolf',
+  'wirtin',
 ]);
 
 // The player guide: one file per page and language, src/content/guide/<lang>/<page>.md.
@@ -47,6 +51,8 @@ const guide = defineCollection({
         }),
       )
       .optional(),
+    /** Questions and answers shown after the text, also as schema.org FAQPage (FAQ page). */
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
   }),
 });
 

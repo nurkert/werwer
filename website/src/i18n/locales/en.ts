@@ -3,10 +3,11 @@ import type { Copy } from './de';
 
 const en: Copy = {
   meta: {
-    title: 'Whowolf: the werewolf game your phones narrate',
+    title: 'Whowolf: the werewolf party game app that narrates',
     description:
-      'Whowolf is an open-source werewolf party game: you sit together, everyone plays on their own phone, and the app narrates.',
+      'Play werewolf with friends at the table: everyone on their own phone, the app narrates the night. Free, no account, no game master, 3 to 20 players.',
   },
+  seo: { h1: 'Whowolf: the werewolf party game app with a narrator, played on your phones.' },
   skip: 'Skip to content',
   nav: { play: 'Game', cast: 'Roles', sheep: 'Sheep', trail: 'Wolf trail', docs: 'Guide', download: 'Download', menu: 'Menu', close: 'Close', language: 'Language' },
   status: {
@@ -15,7 +16,7 @@ const en: Copy = {
     short: 'Early development, expect rough edges.',
     report: 'Report a bug',
   },
-  eyebrows: { play: 'The game', evening: 'An evening', night: 'The night', cast: 'The cast', trail: 'The wolf trail', rules: 'Backstage', finale: 'Curtain up' },
+  eyebrows: { play: 'Werewolf without a game master', evening: 'A werewolf evening', night: 'The werewolf night', cast: 'The werewolf roles', trail: 'The wolf trail', rules: 'Backstage', finale: 'Curtain up' },
   hero: {
     statement: 'The werewolf game for your table, narrated by the app.',
     sub: 'Everyone plays on their own phone, so nobody has to sit out as game master, and you need no role cards.',
@@ -419,6 +420,19 @@ const en: Copy = {
     planned: 'Planned',
     idea: 'Idea',
     now: 'In the game now',
+    topics: 'Around the game',
+    rolesNav: 'Roles in detail',
+    roleKicker: 'Role',
+    home: 'Home',
+    rolesLink: 'Every role in detail',
+    moreRole: 'More about this role',
+    cta: {
+      title: 'Playing tonight?',
+      text: 'One device per person is enough: the app for Android, Mac, Windows and Linux, or simply the browser, on the iPhone too. Free, no account.',
+      download: 'Get the app',
+      browser: 'Play in the browser',
+    },
+    links: { title: 'More for your werewolf night', rules: 'Werewolf rules', evening: 'Plan a game night', faq: 'Questions and answers', halloween: 'Werewolf for Halloween' },
     village: 'Village',
     wolves: 'Werewolves',
   },

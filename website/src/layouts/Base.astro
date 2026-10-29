@@ -30,11 +30,13 @@ interface Props {
   page?: Page;
   /** Keep the page out of search results. */
   noindex?: boolean;
+  /** More schema.org nodes for this page (breadcrumbs, questions), joined to the site's graph. */
+  schema?: Record<string, unknown>[];
   /** The stage set behind the page (task 012); home draws its own scenes. */
   backdrop?: 'village' | 'backstage' | 'theatre' | 'none';
 }
 
-const { lang, title, description, overlay = false, bare = false, page, noindex = false } = Astro.props;
+const { lang, title, description, overlay = false, bare = false, page, noindex = false, schema = [] } = Astro.props;
 const backdrop = Astro.props.backdrop ?? (overlay ? 'none' : 'backstage');
 const sets = { village, backstage, theatre };
 const wings = { village: [oak, house], backstage: [], theatre: [curtain, curtain] };
@@ -72,6 +74,7 @@ const jsonLd = {
       image: new URL('/og.jpg', site).toString(),
       inLanguage: langs,
     },
+    ...schema,
   ],
 };
 ---
@@ -89,7 +92,7 @@ const jsonLd = {
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#141a33" />
     <title>{title}</title>
-    {noindex && <meta name="robots" content="noindex" />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
     {overlay && <noscript><style is:inline>.site-header--overlay .brand--wordmark { visibility: visible !important; }</style></noscript>}
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />

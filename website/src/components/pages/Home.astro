@@ -77,13 +77,20 @@ const featuredDocs = ['vision', 'game_design', 'night_sounds', 'security_design'
 
 const screens = lang === 'de' ? { role: deRole, figure: deFigure } : { role: enRole, figure: enFigure };
 const roles = [
-  { id: 'villager', img: dorfbewohner, side: t.cast.village },
-  { id: 'werewolf', img: werwolf, side: t.cast.wolves },
-  { id: 'seer', img: seherin, side: t.cast.village },
-  { id: 'witch', img: hexe, side: t.cast.village },
-  { id: 'hunter', img: jaeger, side: t.cast.village },
-  { id: 'cupid', img: amor, side: t.cast.village },
+  { id: 'villager', img: dorfbewohner, side: t.cast.village, page: 'roleVillager' },
+  { id: 'werewolf', img: werwolf, side: t.cast.wolves, page: 'roleWerewolf' },
+  { id: 'seer', img: seherin, side: t.cast.village, page: 'roleSeer' },
+  { id: 'witch', img: hexe, side: t.cast.village, page: 'roleWitch' },
+  { id: 'hunter', img: jaeger, side: t.cast.village, page: 'roleHunter' },
+  { id: 'cupid', img: amor, side: t.cast.village, page: 'roleCupid' },
 ] as const;
+// Into the guide: the pages people look for before an evening of Werwolf.
+const guideLinks = [
+  { href: path('docsRules', lang), label: t.guide.links.rules },
+  { href: path('docsEvening', lang), label: t.guide.links.evening },
+  { href: path('docsFaq', lang), label: t.guide.links.faq },
+  { href: path('docsHalloween', lang), label: t.guide.links.halloween },
+];
 const ensemble = import.meta.glob<{ default: ImageMetadata }>('../../../../app/assets/figures/poses/*_2.webp', {
   eager: true,
 });
@@ -112,7 +119,8 @@ const download = latest ? path('download', lang) : repoUrl;
       <div class="hero">
         <div class="hero__copy">
           <h1 id="hero-title" class="hero__title">
-            <Picture src={wordmark} alt="Whowolf" formats={formats} widths={[360, 720, 1080]} sizes="(min-width: 900px) 34rem, 80vw" loading="eager" fetchpriority="high" />
+            <span class="visually-hidden">{t.seo.h1}</span>
+            <Picture src={wordmark} alt="" formats={formats} widths={[360, 720, 1080]} sizes="(min-width: 900px) 34rem, 80vw" loading="eager" fetchpriority="high" />
           </h1>
           <p class="hero__statement">{t.hero.statement}</p>
           <p class="stage-lead hero__sub">{t.hero.sub}</p>
@@ -199,6 +207,12 @@ const download = latest ? path('download', lang) : repoUrl;
           ))
         }
       </ol>
+      <nav class="guide-links" aria-label={t.guide.links.title}>
+        <p class="guide-links__title">{t.guide.links.title}</p>
+        <ul>
+          {guideLinks.map((link) => <li><a class="btn btn--plaque" href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </nav>
     </Scene>
 
     <!-- The lake at night: counting sheep. -->
@@ -267,7 +281,7 @@ const download = latest ? path('download', lang) : repoUrl;
                 <Picture src={r.img} alt="" formats={formats} widths={[160, 320]} sizes="8rem" loading="lazy" />
               </span>
               <div>
-                <h3>{t.cast.roles[r.id].name}</h3>
+                <h3><a class="role__link" href={path(r.page, lang)}>{t.cast.roles[r.id].name}</a></h3>
                 <p class="role__side">{r.side}</p>
                 <p>{t.cast.roles[r.id].text}</p>
               </div>
@@ -275,6 +289,9 @@ const download = latest ? path('download', lang) : repoUrl;
           ))
         }
       </ul>
+      <p class="guide-links guide-links--one">
+        <a class="btn btn--plaque" href={path('docsRoles', lang)}>{t.guide.rolesLink}</a>
+      </p>
       <ul class="ensemble" aria-label={t.cast.ensemble.title}>
         {
           people.map((p, i) =>
@@ -470,6 +487,38 @@ const download = latest ? path('download', lang) : repoUrl;
     z-index: -1;
     background: radial-gradient(closest-side, rgb(6 11 20 / 0.62), rgb(6 11 20 / 0));
     pointer-events: none;
+  }
+  .guide-links {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+    margin: clamp(1.5rem, 4vh, 2.5rem) auto 0;
+    text-align: center;
+  }
+  .guide-links__title {
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--stage-ivory);
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+  }
+  .guide-links ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .role__link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+    text-underline-offset: 0.18em;
   }
   .hero__title {
     margin: 0;

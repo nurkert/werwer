@@ -75,6 +75,10 @@ Die App verteilt die Rollen passend zur Spielerzahl und zu den Einstellungen: et
 
 Diese drei kennen viele aus Werwolf-Runden; bei Whowolf sind Namen und Texte selbst formuliert. Welche davon mitspielen, legt der Gastgeber in den Einstellungen fest: **Klassisch** und **Whowolf** spielen mit Seherin, Hexe und Jäger, die **Volle Bühne** auch mit Amor.
 
+## Der Bürgermeister
+
+Wer mag, wählt außerdem einen [Bürgermeister](/docs/rollen/buergermeister/). Er ist keine geheime Rolle, sondern ein Amt: Das Dorf wählt ihn tagsüber offen, und seine Stimme zählt doppelt. Jede Rolle hat eine eigene Seite, die Namen der Karten oben führen dorthin.
+
 ## Nur bei Whowolf (Ideen)
 
 Fährtenleger, Lauscherin und Stille Pfote spielen mit der geplanten **Wolfsspur**, den leisen Geräuschen, die nachts aus den Handys kommen. Sie gibt es nur, weil bei Whowolf jeder sein eigenes Handy vor sich liegen hat. Wie genau sie funktionieren, wird in Testrunden ausprobiert.

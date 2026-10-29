@@ -18,13 +18,17 @@ interface Props {
   headings?: { depth: number; slug: string; text: string }[];
   navLabel: string;
   tocLabel: string;
+  /** Keep the page out of search results (the developer area). */
+  noindex?: boolean;
+  /** More schema.org nodes for this page. */
+  schema?: Record<string, unknown>[];
 }
 
-const { lang, title, description, page, home, groups, aside, headings = [], navLabel, tocLabel } = Astro.props;
+const { lang, title, description, page, home, groups, aside, headings = [], navLabel, tocLabel, noindex = false, schema } = Astro.props;
 const toc = headings.filter((heading) => heading.depth === 2);
 ---
 
-<Base lang={lang} page={page} title={title} description={description}>
+<Base lang={lang} page={page} title={title} description={description} noindex={noindex} schema={schema}>
   <div class="docs container">
     <nav class="docs__nav" aria-label={navLabel}>
       <a class="docs__home" href={home.href} aria-current={home.current ? 'page' : undefined}>{home.label}</a>

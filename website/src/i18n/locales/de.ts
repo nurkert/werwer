@@ -2,10 +2,11 @@
 
 const de = {
   meta: {
-    title: 'Whowolf: das Werwolfspiel, das eure Handys erzählen',
+    title: 'Whowolf: Werwolf spielen mit dem Handy, ohne Spielleiter',
     description:
-      'Whowolf ist ein Open-Source-Werwolfspiel für den Spieleabend: Ihr sitzt zusammen, jeder spielt auf seinem eigenen Handy, und die App erzählt.',
+      'Werwolf mit Freunden am Tisch: Jeder spielt auf seinem Handy, die App erzählt die Nacht. Kostenlos, ohne Konto und ohne Spielleiter, für 3 bis 20 Leute.',
   },
+  seo: { h1: 'Whowolf: Werwolf spielen am Handy, ohne Spielleiter. Die App erzählt.' },
   skip: 'Zum Inhalt springen',
   nav: { play: 'Spiel', cast: 'Rollen', sheep: 'Schäfchen', trail: 'Wolfsspur', docs: 'Anleitung', download: 'Download', menu: 'Menü', close: 'Schließen', language: 'Sprache' },
   status: {
@@ -14,7 +15,7 @@ const de = {
     short: 'Früh in Entwicklung, es kann ruckeln.',
     report: 'Fehler melden',
   },
-  eyebrows: { play: 'Das Spiel', evening: 'Ein Abend', night: 'Die Nacht', cast: 'Die Besetzung', trail: 'Die Wolfsspur', rules: 'Hinter der Bühne', finale: 'Vorhang auf' },
+  eyebrows: { play: 'Werwolf ohne Spielleiter', evening: 'So läuft ein Werwolf-Abend', night: 'Die Werwolf-Nacht', cast: 'Die Werwolf-Rollen', trail: 'Die Wolfsspur', rules: 'Hinter der Bühne', finale: 'Vorhang auf' },
   hero: {
     statement: 'Das Werwolfspiel für euren Tisch, erzählt von der App.',
     sub: 'Jeder spielt auf seinem eigenen Handy. Darum muss niemand als Spielleiter aussetzen, und Rollenkarten braucht ihr auch keine.',
@@ -419,6 +420,19 @@ const de = {
     planned: 'Geplant',
     idea: 'Idee',
     now: 'Jetzt im Spiel',
+    topics: 'Rund ums Spiel',
+    rolesNav: 'Rollen im Detail',
+    roleKicker: 'Rolle',
+    home: 'Startseite',
+    rolesLink: 'Alle Rollen im Detail',
+    moreRole: 'Mehr zur Rolle',
+    cta: {
+      title: 'Heute Abend spielen?',
+      text: 'Ein Gerät pro Person reicht: die App für Android, Mac, Windows und Linux, oder einfach im Browser, auch auf dem iPhone. Kostenlos, ohne Konto.',
+      download: 'Zum Download',
+      browser: 'Im Browser mitspielen',
+    },
+    links: { title: 'Mehr zum Werwolf-Abend', rules: 'Werwolf-Regeln', evening: 'Spieleabend planen', faq: 'Häufige Fragen', halloween: 'Werwolf an Halloween' },
     village: 'Dorf',
     wolves: 'Werwölfe',
   },
