@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
+import 'package:whowolf/src/stage/wolf_title.dart';
 import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -32,5 +33,26 @@ void main() {
     await tester.tap(find.text('Join a room'));
     await tester.pump();
     expect(find.text('Enter your name first.'), findsOneWidget);
+  });
+
+  testWidgets('on a computer the title and the wolf stand still', (
+    tester,
+  ) async {
+    for (final size in [const Size(1400, 900), const Size(1200, 560)]) {
+      tester.view
+        ..physicalSize = size
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(host(const Locale('de')));
+      await tester.pump();
+      expect(
+        find.ancestor(
+          of: find.byType(WolfTitle),
+          matching: find.byType(Scrollable),
+        ),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    }
   });
 }

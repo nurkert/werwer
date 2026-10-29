@@ -441,13 +441,29 @@ class _StartScreenState extends State<StartScreen> {
               constraints: const BoxConstraints(maxWidth: 1180),
               child: Row(
                 children: [
+                  // The title and the wolf stand still: no scrolling, they
+                  // shrink with a low window instead.
                   Expanded(
                     flex: 6,
-                    child: StageScroll(
-                      maxWidth: 620,
-                      horizontal: 32,
-                      center: true,
-                      child: Column(children: stage),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        32,
+                        MediaQuery.paddingOf(context).top + 12,
+                        32,
+                        MediaQuery.paddingOf(context).bottom + 28,
+                      ),
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: SizedBox(
+                            width: 560,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: stage,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   // The form on its own plaque, level with the title.
