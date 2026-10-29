@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Changed
+
+- The new-version note now also shows on the iPhone (update in AltStore or SideStore), comes back the next day while the device is behind, and sits on a plaque of the stage.
+
 ### Fixed
 
 - Android: releases are signed with one fixed key (once the repository holds it), so the app updates in place instead of refusing a new signature. One last reinstall is needed when coming from a debug-signed version.

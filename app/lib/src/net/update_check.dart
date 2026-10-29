@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/store.dart';
+import 'package:whowolf/src/theme.dart';
 
 /// Where the releases are listed (GitHub's public API, no account).
 final Uri _releases = Uri.parse(
@@ -71,39 +73,102 @@ Future<String?> fetchNewestRelease() async {
   }
 }
 
-/// Once per app start: if the player has not switched it off and a newer
-/// version than [current] is out, a short note says so, once per version.
-/// Not in the browser (the page always matches its host) and not on iOS
-/// (TestFlight updates by itself), nor in a build without a version.
+/// How long "Later" keeps the note away before it asks again.
+const updateSnooze = Duration(hours: 20);
+
+/// Whether the note for [newest] should show, given what the store
+/// remembers ([seen]: `version|millis` of the last time it was shown).
+bool shouldRemind(String newest, String? seen, DateTime now) {
+  if (seen == null) return true;
+  final parts = seen.split('|');
+  if (parts.first != newest) return true;
+  final at = parts.length > 1 ? int.tryParse(parts[1]) : null;
+  // An old entry without a time: shown once already, ask again.
+  if (at == null) return true;
+  return now.difference(DateTime.fromMillisecondsSinceEpoch(at)) >=
+      updateSnooze;
+}
+
+/// On app start: if the player has not switched it off and a newer version
+/// than [current] is out, a note on the stage says so, again the next day
+/// as long as this device is behind (only equal versions play together).
+/// Not in the browser (the page always matches its host), nor in a build
+/// without a version. On the iPhone the update comes through AltStore or
+/// SideStore, which the note says.
 Future<void> checkForUpdate(BuildContext context, String current) async {
-  if (kIsWeb || Platform.isIOS || compareVersions(current, '0.0.0') == null) {
-    return;
-  }
+  if (kIsWeb || compareVersions(current, '0.0.0') == null) return;
   const store = Store();
   if (!await store.updateCheck()) return;
   final newest = await fetchNewestRelease();
   if (newest == null || compareVersions(newest, current)! <= 0) return;
-  if (await store.updateSeen() == newest || !context.mounted) return;
-  final l10n = AppLocalizations.of(context);
+  final now = DateTime.now();
+  if (!shouldRemind(newest, await store.updateSeen(), now)) return;
+  if (!context.mounted) return;
   final download = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.updateTitle(newest)),
-      content: Text(l10n.updateText(current)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l10n.updateLater),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l10n.updateGet),
-        ),
-      ],
+    builder: (context) => UpdateNote(
+      newest: newest,
+      current: current,
+      iPhone: Platform.isIOS,
     ),
   );
-  await store.setUpdateSeen(newest);
+  await store.setUpdateSeen('$newest|${now.millisecondsSinceEpoch}');
   if (download ?? false) {
     unawaited(launchUrl(downloadPage, mode: LaunchMode.externalApplication));
+  }
+}
+
+/// The note itself, on a plaque of the stage.
+class UpdateNote extends StatelessWidget {
+  const UpdateNote({
+    required this.newest,
+    required this.current,
+    this.iPhone = false,
+    super.key,
+  });
+
+  final String newest;
+  final String current;
+  final bool iPhone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Dialog(
+      backgroundColor: Palette.stagePlaque,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 460),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Headline(
+                l10n.updateTitle(newest),
+                eyebrow: l10n.updateEyebrow,
+                size: 28,
+              ),
+              const SizedBox(height: 10),
+              Body(l10n.updateText(current)),
+              if (iPhone) ...[
+                const SizedBox(height: 8),
+                Body(l10n.updateIphone, muted: true),
+              ],
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: l10n.updateGet,
+                onPressed: () => Navigator.pop(context, true),
+              ),
+              const SizedBox(height: 10),
+              SecondaryButton(
+                label: l10n.updateLater,
+                onPressed: () => Navigator.pop(context, false),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -385,8 +385,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String updateText(String current) {
-    return 'Du spielst noch mit $current. Am besten aktualisieren alle am Tisch, denn nur gleiche Versionen spielen zusammen.';
+    return 'Du spielst noch mit $current. Nur gleiche Versionen spielen zusammen, also aktualisiert am besten alle am Tisch vor der nächsten Runde.';
   }
+
+  @override
+  String get updateEyebrow => 'Neue Version';
+
+  @override
+  String get updateIphone =>
+      'Auf dem iPhone aktualisierst du in AltStore oder SideStore: unter „Meine Apps“ bzw. „My Apps“ auf „Aktualisieren“ tippen.';
 
   @override
   String get updateLater => 'Später';

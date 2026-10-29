@@ -382,8 +382,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String updateText(String current) {
-    return 'You are still playing $current. Best update everyone at the table: only the same versions play together.';
+    return 'You are still on $current. Only equal versions play together, so everyone at the table should update before the next round.';
   }
+
+  @override
+  String get updateEyebrow => 'New version';
+
+  @override
+  String get updateIphone =>
+      'On the iPhone, update in AltStore or SideStore: tap “Update” under “My Apps”.';
 
   @override
   String get updateLater => 'Later';

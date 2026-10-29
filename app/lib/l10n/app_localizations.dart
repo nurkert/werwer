@@ -707,8 +707,20 @@ abstract class AppLocalizations {
   /// No description provided for @updateText.
   ///
   /// In en, this message translates to:
-  /// **'You are still playing {current}. Best update everyone at the table: only the same versions play together.'**
+  /// **'You are still on {current}. Only equal versions play together, so everyone at the table should update before the next round.'**
   String updateText(String current);
+
+  /// Small label above the new-version note.
+  ///
+  /// In en, this message translates to:
+  /// **'New version'**
+  String get updateEyebrow;
+
+  /// New-version note, iPhone only: how to update via AltStore or SideStore.
+  ///
+  /// In en, this message translates to:
+  /// **'On the iPhone, update in AltStore or SideStore: tap “Update” under “My Apps”.'**
+  String get updateIphone;
 
   /// No description provided for @updateLater.
   ///
