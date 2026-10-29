@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:js_interop';
 
 import 'package:game_host/browser.dart';
 import 'package:game_host/game_host.dart';
@@ -12,6 +13,19 @@ Future<Connection> dialPage(JoinLink link) {
   final url = pageSocket(Uri.base, link);
   if (url == null) return Future.error(StateError('no way to the host'));
   return dialBrowser(url);
+}
+
+/// A small text file from this page's own server ([path] on the same
+/// origin), or `null` if it has none.
+Future<String?> fetchPageText(String path) async {
+  try {
+    final response = await web.window.fetch(path.toJS).toDart;
+    if (!response.ok) return null;
+    final text = (await response.text().toDart).toDart;
+    return text.length > 4096 ? null : text;
+  } on Object {
+    return null;
+  }
 }
 
 /// Removes the join link (with the room's key) from the address bar and

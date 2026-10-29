@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:whowolf_server/operator_legal.dart';
 import 'package:whowolf_server/relay_server.dart';
 import 'package:whowolf_server/web_apps.dart';
 
@@ -19,6 +20,11 @@ import 'package:whowolf_server/web_apps.dart';
 /// code; `MAX_DOOR_LOOKUPS_PER_MINUTE` (10 per address) limits guessing. To let
 /// QR codes open the installed app: `APPLE_APP_ID` (`TEAMID.de.whowolf.app`)
 /// and `ANDROID_CERT_SHA256` (fingerprints, comma-separated).
+///
+/// The operator's own legal pages are optional and off by default:
+/// `IMPRINT_URL`, `PRIVACY_URL` and, for English pages,
+/// `IMPRINT_URL_EN`, `PRIVACY_URL_EN` (https only). Set, the code page and
+/// the web app link to them; unset, they link to none.
 ///
 /// `server healthcheck` asks the running server for `/health` and exits with
 /// 0 or 1 (the container image has no shell or curl).
@@ -87,6 +93,12 @@ Future<void> _serve(List<String> args) async {
       r'^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,[0-9A-F]{2}(:[0-9A-F]{2}){31})*$',
     ),
   );
+  void ignored(String name) => stderr.writeln('$name is not valid, ignored');
+  final legal = OperatorLegal.fromEnvironment(
+    Platform.environment,
+    rejected: ignored,
+  );
+  if (legal.any) stdout.writeln('Legal pages: set');
   final relay = await RelayServer.start(
     webApps: webApps,
     port: env('PORT', 8080),
@@ -111,6 +123,7 @@ Future<void> _serve(List<String> args) async {
         RegExp(r'^[A-Z0-9]{10}\.[a-z0-9.]{1,100}$'),
       ),
       androidCertSha256: fingerprints?.split(','),
+      legal: legal,
     ),
   );
   stdout.writeln('Whowolf relay listening on port ${relay.port}');

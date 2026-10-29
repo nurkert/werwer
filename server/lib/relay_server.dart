@@ -12,6 +12,7 @@ import 'dart:math';
 
 import 'package:game_host/socket_guard.dart';
 import 'package:protocol/protocol.dart';
+import 'package:whowolf_server/operator_legal.dart';
 import 'package:whowolf_server/web_apps.dart';
 
 /// Limits of a relay server.
@@ -29,6 +30,7 @@ class RelayConfig {
     this.publicHost,
     this.appleAppId,
     this.androidCertSha256,
+    this.legal = const OperatorLegal(),
     this.maxDoorLookupsPerMinute = 10,
     this.doorLifetime = const Duration(minutes: 7),
     this.minDoorInterval = const Duration(seconds: 60),
@@ -97,6 +99,10 @@ class RelayConfig {
   /// SHA-256 fingerprint of the Android app's signing key (`AA:BB:…`), for
   /// Android App Links.
   final List<String>? androidCertSha256;
+
+  /// The operator's own imprint and privacy pages; none by default, and
+  /// then the server's pages link to none.
+  final OperatorLegal legal;
 }
 
 /// What a player's connection may cost: messages of a few hundred bytes
@@ -281,10 +287,15 @@ class RelayServer {
     if (!upgrade && _hasDoors && (path == '/' || path == '/c')) {
       return _doorPage(request, path == '/c');
     }
+    if (!upgrade && path == '/legal.json') return _legal(request);
     if (WebApps.owns(path) || path.startsWith('/.well-known/')) {
       if (path.startsWith('/.well-known/')) return _wellKnown(request, path);
       final host = config.publicHost;
-      return webApps.serve(request, host == null ? '' : 'wss://$host');
+      return webApps.serve(
+        request,
+        host == null ? '' : 'wss://$host',
+        footer: config.legal.footerHtml(german: true),
+      );
     }
     final joinMatch = RegExp(r'^/join/([a-z0-9]+)$').firstMatch(path);
     // Browsers always send an Origin with a WebSocket, the app never: no
@@ -429,7 +440,13 @@ class RelayServer {
         "default-src 'none'; style-src 'unsafe-inline'; "
             "frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
       );
-    final body = utf8.encode(_doorHtml(german: german, note: note));
+    final body = utf8.encode(
+      _doorHtml(
+        german: german,
+        note: note,
+        footer: config.legal.footerHtml(german: german),
+      ),
+    );
     response.contentLength = body.length;
     if (method == 'GET') response.add(body);
     await response.close();
@@ -522,6 +539,32 @@ class RelayServer {
         ..headers.set('X-Content-Type-Options', 'nosniff')
         ..write(jsonEncode(body));
     }
+    await response.close();
+  }
+
+  /// The operator's imprint and privacy pages for the web app (`null` where
+  /// not set), so a page served here never points to someone else's.
+  Future<void> _legal(HttpRequest request) async {
+    final response = request.response;
+    final method = request.method;
+    if (method != 'GET' && method != 'HEAD') {
+      response.statusCode = HttpStatus.methodNotAllowed;
+      await response.close();
+      return;
+    }
+    final body = utf8.encode(config.legal.toJson());
+    response
+      ..headers.contentType = ContentType.json
+      ..headers.set(HttpHeaders.cacheControlHeader, 'public, max-age=300')
+      ..headers.set('X-Content-Type-Options', 'nosniff')
+      ..headers.set('X-Frame-Options', 'DENY')
+      ..headers.set('Referrer-Policy', 'no-referrer')
+      ..headers.set(
+        'Content-Security-Policy',
+        "default-src 'none'; frame-ancestors 'none'",
+      )
+      ..contentLength = body.length;
+    if (method == 'GET') response.add(body);
     await response.close();
   }
 
@@ -677,7 +720,11 @@ class RelayServer {
 enum _DoorNote { none, unknown, version, tooMany }
 
 /// The code page: one field, no script, nothing from the request in it.
-String _doorHtml({required bool german, required _DoorNote note}) {
+String _doorHtml({
+  required bool german,
+  required _DoorNote note,
+  String footer = '',
+}) {
   final t = german
       ? (
           lang: 'de',
@@ -760,6 +807,7 @@ button:focus-visible{outline:3px solid #FFF6DA;outline-offset:3px}
 .note{margin-top:22px;padding:12px 16px;border-radius:14px;background:rgba(201,74,58,.18);
 border:1px solid rgba(232,120,98,.55);color:#FFE3D6}
 .hint{font-size:.9rem;color:#B9B09A}
+.legal{margin-top:28px;font-size:.85rem;color:#B9B09A}
 a{color:#F2B544}
 </style></head><body><main>
 <div class="moon" aria-hidden="true"></div>
@@ -775,6 +823,7 @@ placeholder="ABC 234">
 </form>
 <p class="hint">${t.hint}</p>
 <p class="hint"><a href="https://whowolf.de">${t.app}</a></p>
+$footer
 </main></body></html>
 ''';
 }

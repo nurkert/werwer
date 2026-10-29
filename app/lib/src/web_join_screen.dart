@@ -15,6 +15,7 @@ import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/browser_socket_stub.dart'
     if (dart.library.js_interop) 'package:whowolf/src/net/browser_socket.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/net/page_legal.dart';
 import 'package:whowolf/src/net/update_check.dart' show downloadPage;
 import 'package:whowolf/src/privacy_screen.dart';
 import 'package:whowolf/src/theme.dart';
@@ -30,6 +31,12 @@ class WebJoinScreen extends StatefulWidget {
 }
 
 class _WebJoinScreenState extends State<WebJoinScreen> {
+  /// What this page's own server says about its legal pages (asked once;
+  /// the official server is not asked).
+  late final Future<String?> _legalJson = Uri.base.host == officialRelayHost
+      ? Future.value()
+      : fetchPageText('/legal.json');
+
   /// The note that the app does more was closed.
   bool _appHintClosed = false;
 
@@ -220,13 +227,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(color: Palette.moon200, fontSize: 13),
             ),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
-              ),
-              child: Text(l10n.privacy),
-            ),
+            PageLegalLinks(page: Uri.base, legalJson: _legalJson),
             Text(
               l10n.webJoinApp,
               textAlign: TextAlign.center,
@@ -271,6 +272,66 @@ class _AppHint extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The page's legal links: the publisher's privacy notice where it applies
+/// (official server, the host's phone), else only what the server's
+/// operator set, and nothing if they set nothing.
+class PageLegalLinks extends StatelessWidget {
+  const PageLegalLinks({
+    required this.page,
+    required this.legalJson,
+    super.key,
+  });
+
+  final Uri page;
+
+  /// The server's `/legal.json`, `null` if it has none.
+  final Future<String?> legalJson;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final german = Localizations.localeOf(context).languageCode == 'de';
+    return FutureBuilder<String?>(
+      future: legalJson,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const SizedBox(height: 48);
+        }
+        final pages = pageLegal(
+          page: page,
+          legalJson: snapshot.data,
+          german: german,
+        );
+        if (!pages.operator) {
+          return TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
+            ),
+            child: Text(l10n.privacy),
+          );
+        }
+        final links = [
+          if (pages.imprint case final url?) (l10n.imprint, url),
+          if (pages.privacy case final url?) (l10n.privacy, url),
+        ];
+        if (links.isEmpty) return const SizedBox.shrink();
+        return Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            for (final (label, url) in links)
+              TextButton(
+                onPressed: () =>
+                    launchUrl(url, mode: LaunchMode.externalApplication),
+                child: Text(label),
+              ),
+          ],
+        );
+      },
     );
   }
 }

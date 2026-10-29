@@ -1439,6 +1439,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get privacy => 'Datenschutz';
 
   @override
+  String get imprint => 'Impressum';
+
+  @override
   String get privacyNoticeTitle => 'Kurz zum Datenschutz';
 
   @override

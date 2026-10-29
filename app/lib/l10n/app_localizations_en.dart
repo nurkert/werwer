@@ -1427,6 +1427,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacy => 'Privacy';
 
   @override
+  String get imprint => 'Imprint';
+
+  @override
   String get privacyNoticeTitle => 'A word on privacy';
 
   @override

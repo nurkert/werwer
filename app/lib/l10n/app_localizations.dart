@@ -2474,6 +2474,12 @@ abstract class AppLocalizations {
   /// **'Privacy'**
   String get privacy;
 
+  /// Link to the imprint (legal notice) of the server operator.
+  ///
+  /// In en, this message translates to:
+  /// **'Imprint'**
+  String get imprint;
+
   /// No description provided for @privacyNoticeTitle.
   ///
   /// In en, this message translates to:

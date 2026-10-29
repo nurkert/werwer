@@ -116,8 +116,14 @@ class WebApps {
   static bool owns(String path) => path.startsWith('/v/');
 
   /// Answers one request for the web app. [socket] is the WebSocket origin
-  /// the page may reach (`wss://<this server>`).
-  Future<void> serve(HttpRequest request, String socket) async {
+  /// the page may reach (`wss://<this server>`); [footer] goes under the
+  /// page shown for a build this server does not have (the operator's
+  /// imprint and privacy links, if any).
+  Future<void> serve(
+    HttpRequest request,
+    String socket, {
+    String footer = '',
+  }) async {
     final response = request.response;
     try {
       final match = _page.firstMatch(request.uri.path);
@@ -133,7 +139,7 @@ class WebApps {
         // No page may install a service worker that outlives the game.
         response.statusCode = HttpStatus.forbidden;
       } else if (file == null) {
-        _missing(response);
+        _missing(response, footer);
       } else {
         _send(request, file, rest == 'index.html', socket);
         return;
@@ -192,7 +198,7 @@ class WebApps {
 
   /// A plain page instead of a blank screen: this server does not have the
   /// build the QR code asks for.
-  static void _missing(HttpResponse response) {
+  static void _missing(HttpResponse response, String footer) {
     response
       ..statusCode = HttpStatus.notFound
       ..headers.contentType = ContentType.html
@@ -204,7 +210,7 @@ class WebApps {
         "default-src 'none'; style-src 'unsafe-inline'; "
             "frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
       )
-      ..add(utf8.encode(_missingPage));
+      ..add(utf8.encode(_missingPage.replaceFirst('<!--footer-->', footer)));
   }
 }
 
@@ -215,11 +221,12 @@ const _missingPage = '''
 <title>Whowolf</title>
 <style>body{font:17px/1.5 system-ui,sans-serif;background:#141A33;color:#F4EEDC;
 margin:0;padding:12vh 24px;text-align:center}p{max-width:30em;margin:1em auto}
-a{color:#F2B544}</style></head><body>
+a{color:#F2B544}.legal{font-size:.85rem}</style></head><body>
 <p><b>Diese Runde geht hier nicht im Browser.</b><br>
 Spielt mit der Whowolf-App, oder fragt am Tisch nach einem neuen Code.</p>
 <p lang="en"><b>This game cannot be joined in the browser here.</b><br>
 Play with the Whowolf app, or ask the table for a new code.</p>
 <p><a href="https://whowolf.de">whowolf.de</a></p>
+<!--footer-->
 </body></html>
 ''';

@@ -5,6 +5,9 @@ import 'package:protocol/protocol.dart';
 Future<Connection> dialPage(JoinLink link) =>
     Future.error(UnsupportedError('only in the browser'));
 
+/// A small text file from this page's own server: only on the web.
+Future<String?> fetchPageText(String path) async => null;
+
 /// Removes the join link (with the room's key) from the address bar.
 void forgetPageLink() {}
 
