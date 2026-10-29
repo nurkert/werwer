@@ -13,12 +13,13 @@ import 'package:game_host/game_host.dart';
 import 'package:game_host/lan.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:protocol/protocol.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:secure_channel/secure_channel.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
+import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/game_screen.dart';
 import 'package:whowolf/src/game/sheep.dart';
+import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/net/discovery.dart';
 import 'package:whowolf/src/net/game_session.dart';
 import 'package:whowolf/src/net/hosted_room.dart';
@@ -87,6 +88,13 @@ Future<void> pastStageCard(WidgetTester tester) async {
   for (var i = 0; i < 22; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+}
+
+/// Taps [finder] once it is on screen: a new phase shows only at its
+/// announced time, after the stage card.
+Future<void> tapWhenThere(WidgetTester tester, Finder finder) async {
+  await until(tester, () => finder.evaluate().isNotEmpty);
+  await tester.tap(finder.first);
 }
 
 Future<void> until(
@@ -229,8 +237,9 @@ void main() {
       ),
     );
     await until(tester, () => session.view != null);
-    // The host's lobby shows the room's QR code.
-    expect(find.byType(QrImageView), findsOneWidget);
+    // The host's lobby offers to invite the others (the QR code opens
+    // from there).
+    expect(find.text('Mitspieler einladen'), findsOneWidget);
 
     final bots = <Bot>[];
     await tester.runAsync(() async {
@@ -241,23 +250,31 @@ void main() {
       }
     });
     await until(tester, () => session.view!.seats.length == 5);
-    expect(find.text('Holt die anderen dazu'), findsOneWidget);
 
-    // Owner starts through the UI.
-    await tester.scrollUntilVisible(find.text('Rollen verteilen'), 300);
+    // Owner starts through the UI (the button stays below the pages).
     await tester.tap(find.text('Rollen verteilen'));
     await until(tester, () => session.view!.phase == Phase.roleReveal);
     await pastStageCard(tester);
-    await tester.tap(find.textContaining('Tippe, um deine Rolle'));
+    // The figure turns around to show the role; then the role is confirmed.
+    await tapWhenThere(tester, find.byType(TurningFigure));
     await tester.pump();
-    await tester.tap(find.text('Verstanden'));
-    await until(tester, () => session.view!.phase == Phase.night);
+    await tapWhenThere(
+      tester,
+      find.widgetWithText(PrimaryButton, 'Verstanden'),
+    );
+    // The narrator's opening may still be speaking.
+    await until(
+      tester,
+      () => session.view!.phase == Phase.night,
+      seconds: 90,
+    );
     await pastStageCard(tester);
 
-    // Night: the narrator speaks, everyone has a meadow with a flock.
+    // Night: the narrator speaks. A new room plays the classic night
+    // (called roles, no sheep).
     expect(find.textContaining('Die Nacht legt sich'), findsOneWidget);
-    expect(find.byType(SheepMeadow), findsOneWidget);
-    expect(session.view!.yourFlock, isNotNull);
+    expect(session.view!.settings.sheepInPlay, isFalse);
+    expect(find.byType(SheepMeadow), findsNothing);
     final me = session.view!;
     if (me.yourRole != Role.villager) {
       final target = me.seats.firstWhere(
@@ -268,17 +285,18 @@ void main() {
       await tester.tap(find.text(target.name).first);
     }
     // Villagers' decoy pick goes out by itself after a few seconds.
-    await until(tester, () => session.view!.phase != Phase.night, seconds: 40);
+    await until(
+      tester,
+      () => session.view!.phase != Phase.night,
+      seconds: 180,
+    );
 
     // Shows in the test log which path (role) this run took.
     // ignore: avoid_print
     print('host was ${me.yourRole?.name}, now ${session.view!.phase.name}');
     if (session.view!.phase == Phase.day) {
-      // Morning: everyone sees how well everyone slept.
-      expect(find.text('Wie gut habt ihr geschlafen?'), findsOneWidget);
-      expect(find.textContaining('Schäfchen'), findsWidgets);
+      // Morning: the sun rises for everyone.
       expect(find.textContaining('Die Sonne geht'), findsOneWidget);
-      expect(session.view!.lastNightSheep.length, greaterThanOrEqualTo(4));
     }
 
     await tester.pumpWidget(const SizedBox());
@@ -292,13 +310,19 @@ void main() {
     final room = await HostedRoom.open(hostName: 'Ada');
     Bot.room = room.roomCode;
     final bots = <Bot>[];
+    late Bot owner;
     await tester.runAsync(() async {
+      owner = Bot('Ada', room.host.connectOwner());
       for (final name in ['Bo', 'Cem', 'Dina']) {
         bots.add(Bot(name, await dialRoom(room)));
       }
       await Future<void>.delayed(const Duration(milliseconds: 800));
+      // Only a game under way is worth bringing back.
+      owner.connection.send(const StartGameIntent().encode());
+      await Future<void>.delayed(const Duration(milliseconds: 500));
     });
-    expect(bots.every((b) => b.view?.seats.length == 3), isTrue);
+    expect(bots.every((b) => b.view?.seats.length == 4), isTrue);
+    expect(owner.view?.phase, isNot(Phase.lobby));
 
     // Simulate a crash: the host stops without cleaning up its saved room.
     await tester.runAsync(() async {
@@ -320,7 +344,7 @@ void main() {
     });
     for (var i = 0; i < bots.length; i++) {
       expect(back[i].view?.you, bots[i].view?.you);
-      expect(back[i].view?.seats.length, 3);
+      expect(back[i].view?.seats.length, 4);
     }
     expect(restored!.roomCode, room.roomCode);
     await tester.runAsync(restored.close);

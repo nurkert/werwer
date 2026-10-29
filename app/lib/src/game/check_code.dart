@@ -29,29 +29,33 @@ class CheckCode extends StatelessWidget {
   final List<int> code;
   final double size;
 
+  // One row, shrunk to fit: the symbols are compared in order.
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (final c in code)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Palette.stagePlaque,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Palette.stageBrassLight, width: 2),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Icon(
-                checkSymbols[c % checkSymbols.length],
-                size: size,
-                color: Palette.stageIvory,
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final c in code)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Palette.stagePlaque,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Palette.stageBrassLight, width: 2),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Icon(
+                  checkSymbols[c % checkSymbols.length],
+                  size: size,
+                  color: Palette.stageIvory,
+                ),
               ),
             ),
           ),
-        ),
-    ],
+      ],
+    ),
   );
 }
