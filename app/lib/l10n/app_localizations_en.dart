@@ -1886,6 +1886,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing moves at all, like the system\'s reduce motion. Uses the least battery.';
 
   @override
+  String get motionPowerSaving =>
+      'Battery saver is on, so the stage saves too. When it goes off, your choice comes back.';
+
+  @override
   String get motionMenu => 'Stage & battery';
 
   @override

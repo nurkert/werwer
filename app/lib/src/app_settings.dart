@@ -251,8 +251,10 @@ List<(StageMotion, String, String)> stageMotionChoices(
 /// Picks how much the stage moves on this device; it changes at once
 /// and is kept for the next start.
 void pickStageMotion(StageMotion motion) {
-  stageMotion.value = motion;
-  unawaited(const Store().setStageMotion(motion));
+  // While the battery saver is on, a pick holds only until it goes off.
+  if (pickStageChoice(motion)) {
+    unawaited(const Store().setStageMotion(motion));
+  }
 }
 
 /// How much the stage moves, as a choice of three with the picked one
@@ -272,6 +274,31 @@ class StageMotionPicker extends StatelessWidget {
         },
         child: Column(
           children: [
+            // The battery saver is on: say why the stage calmed down.
+            ValueListenableBuilder(
+              valueListenable: powerSaving,
+              builder: (context, saving, _) => saving
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.battery_alert_outlined,
+                            size: 18,
+                            color: Palette.lantern400,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.motionPowerSaving,
+                              style: const TextStyle(color: Palette.moon200),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
             for (final (motion, title, hint) in stageMotionChoices(l10n))
               RadioListTile<StageMotion>(
                 value: motion,

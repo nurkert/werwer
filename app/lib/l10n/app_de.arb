@@ -549,6 +549,7 @@
   "motionCalmHint": "Die Bühne steht still und bewegt sich nur, wenn etwas passiert: Karten drehen sich, der Vorhang fällt. Kein Neigungssensor. Gut für einen langen Abend.",
   "motionStill": "Ruhig",
   "motionStillHint": "Gar nichts bewegt sich, wie bei „Bewegung reduzieren“ im System. Braucht am wenigsten Akku.",
+  "motionPowerSaving": "Der Akku-Sparmodus ist an, darum spart die Bühne mit. Geht er aus, kommt deine Wahl zurück.",
   "motionMenu": "Bühne & Akku",
   "byeLocked": "Der Raum ist abgeschlossen. Wer schon mitspielt, kommt weiter rein, neu dazukommen geht gerade nicht.",
   "waitingForDayHint": "Die Runde läuft schon. Der Spielleiter lässt dich rein, sobald es Tag ist.",

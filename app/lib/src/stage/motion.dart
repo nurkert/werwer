@@ -16,9 +16,78 @@ enum StageMotion {
   still,
 }
 
-/// The choice on this device, loaded at start; the app follows changes
-/// at once.
+/// The stage this device shows right now ([StageChoice.shown]); the app
+/// follows changes at once.
 final stageMotion = ValueNotifier<StageMotion>(StageMotion.full);
+
+/// Whether the device's battery saver is on (where the system tells).
+final powerSaving = ValueNotifier<bool>(false);
+
+/// The player's stage and the battery saver together. The pick is kept;
+/// while the saver is on, a full stage calms down by itself, and a pick
+/// made meanwhile only lasts until the saver goes off again, then the
+/// kept one is back.
+class StageChoice {
+  StageChoice(this.preferred);
+
+  /// What the player picked (or the first start set), kept on the device.
+  StageMotion preferred;
+
+  /// Whether the battery saver is on.
+  bool get saving => _saving;
+  bool _saving = false;
+
+  StageMotion? _forNow;
+
+  /// What the stage shows now.
+  StageMotion get shown => !_saving
+      ? preferred
+      : _forNow ??
+            (preferred == StageMotion.full ? StageMotion.calm : preferred);
+
+  /// The player picks [motion]; returns whether it is to be kept (not while
+  /// the saver is on: then it holds only until the saver goes off).
+  bool pick(StageMotion motion) {
+    if (_saving) {
+      _forNow = motion;
+      return false;
+    }
+    preferred = motion;
+    return true;
+  }
+
+  /// The battery saver went on or off.
+  void saver({required bool on}) {
+    if (on == _saving) return;
+    _saving = on;
+    _forNow = null;
+  }
+}
+
+/// This device's choice, set up at start.
+StageChoice stageChoice = StageChoice(StageMotion.full);
+
+void _showChoice() {
+  stageMotion.value = stageChoice.shown;
+  powerSaving.value = stageChoice.saving;
+}
+
+/// Starts with [preferred] and follows the battery saver from [saver].
+void startStageChoice(StageMotion preferred, Stream<bool> saver) {
+  stageChoice = StageChoice(preferred);
+  _showChoice();
+  saver.listen((on) {
+    stageChoice.saver(on: on);
+    _showChoice();
+  }, onError: (Object _) {});
+}
+
+/// The player picks [motion]; returns whether to keep it on the device.
+bool pickStageChoice(StageMotion motion) {
+  final keep = stageChoice.pick(motion);
+  _showChoice();
+  return keep;
+}
 
 /// What a device starts with before anyone picked (set once on the very
 /// first start, then kept like a choice): nothing moves if the system asks

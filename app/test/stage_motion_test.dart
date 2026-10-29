@@ -98,4 +98,40 @@ void main() {
     final icons = {for (final m in StageMotion.values) stageMotionIcon(m)};
     expect(icons, hasLength(StageMotion.values.length));
   });
+
+  group('the battery saver', () {
+    test('calms a full stage and gives it back afterwards', () {
+      final choice = StageChoice(StageMotion.full)..saver(on: true);
+      expect(choice.shown, StageMotion.calm);
+      choice.saver(on: false);
+      expect(choice.shown, StageMotion.full);
+    });
+
+    test('leaves a calmer pick alone', () {
+      final still = StageChoice(StageMotion.still)..saver(on: true);
+      expect(still.shown, StageMotion.still);
+      final calm = StageChoice(StageMotion.calm)..saver(on: true);
+      expect(calm.shown, StageMotion.calm);
+    });
+
+    test('a pick while it is on lasts only until it goes off', () {
+      final choice = StageChoice(StageMotion.full)..saver(on: true);
+      expect(choice.pick(StageMotion.full), isFalse);
+      expect(choice.shown, StageMotion.full);
+      choice.saver(on: false);
+      expect(choice.preferred, StageMotion.full);
+      // And the next time it comes on, it calms down again.
+      choice.saver(on: true);
+      expect(choice.shown, StageMotion.calm);
+    });
+
+    test('a pick while it is off is kept', () {
+      final choice = StageChoice(StageMotion.full);
+      expect(choice.pick(StageMotion.still), isTrue);
+      choice
+        ..saver(on: true)
+        ..saver(on: false);
+      expect(choice.shown, StageMotion.still);
+    });
+  });
 }

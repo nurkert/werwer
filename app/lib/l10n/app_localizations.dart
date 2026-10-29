@@ -3284,6 +3284,12 @@ abstract class AppLocalizations {
   /// **'Nothing moves at all, like the system\'s reduce motion. Uses the least battery.'**
   String get motionStillHint;
 
+  /// Stage settings note while the device battery saver is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver is on, so the stage saves too. When it goes off, your choice comes back.'**
+  String get motionPowerSaving;
+
   /// Tooltip of the in-game button to pick how much the stage moves.
   ///
   /// In en, this message translates to:

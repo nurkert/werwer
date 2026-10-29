@@ -1898,6 +1898,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gar nichts bewegt sich, wie bei „Bewegung reduzieren“ im System. Braucht am wenigsten Akku.';
 
   @override
+  String get motionPowerSaving =>
+      'Der Akku-Sparmodus ist an, darum spart die Bühne mit. Geht er aus, kommt deine Wahl zurück.';
+
+  @override
   String get motionMenu => 'Bühne & Akku';
 
   @override

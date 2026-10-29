@@ -974,6 +974,8 @@
   "@motionStill": {"description": "Stage motion option: nothing moves."},
   "motionStillHint": "Nothing moves at all, like the system's reduce motion. Uses the least battery.",
   "@motionStillHint": {"description": "Hint under the still option."},
+  "motionPowerSaving": "Battery saver is on, so the stage saves too. When it goes off, your choice comes back.",
+  "@motionPowerSaving": {"description": "Stage settings note while the device battery saver is on."},
   "motionMenu": "Stage & battery",
   "@motionMenu": {"description": "Tooltip of the in-game button to pick how much the stage moves."},
   "byeLocked": "The room is locked. Players who are in can come back, but nobody new can join right now.",

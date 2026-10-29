@@ -7,6 +7,7 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ### Changed
 
+- The battery saver (Android power saving, low power mode on iPhone and Mac) calms a full stage by itself while it is on; you can still switch, and when it goes off your own choice is back.
 - Stage & battery: each of the three levels has its own icon, in the settings and the app bar. The very first start picks one that fits (still with the system's reduced motion, battery-saving in the browser, the full stage in the app); a later choice always stays.
 
 ## 0.2.2 – 2026-10-29

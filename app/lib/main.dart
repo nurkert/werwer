@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/stage/motion.dart';
+import 'package:whowolf/src/stage/power_saver.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,18 +17,17 @@ Future<void> main() async {
   if (language != null) appLanguage.value = Locale(language);
   // The very first start picks a fitting stage once and keeps it like a
   // choice; whatever the player picks later stays.
-  final motion = await store.stageMotion();
+  var motion = await store.stageMotion();
   if (motion == null) {
-    final first = initialStageMotion(
+    motion = initialStageMotion(
       web: kIsWeb,
       reduceMotion:
           PlatformDispatcher.instance.accessibilityFeatures.disableAnimations,
     );
-    stageMotion.value = first;
-    await store.setStageMotion(first);
-  } else {
-    stageMotion.value = motion;
+    await store.setStageMotion(motion);
   }
+  // The battery saver calms the full stage while it is on.
+  startStageChoice(motion, powerSaverChanges());
   runApp(const WhowolfApp());
 }
 
