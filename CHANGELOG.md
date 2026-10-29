@@ -5,12 +5,15 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.2.1 – 2026-10-29
+
+Every device at the table needs this version (protocol 17).
+
 ### Added
-
-- iPhone app via AltStore Classic: every release ships an unsigned `.ipa`, and whowolf.de/altstore.json lists it so AltStore installs and updates Whowolf without an Apple developer account.
-
-### Added
-
+- iPhone app via AltStore Classic: every release ships an unsigned `.ipa`,
+  and whowolf.de/altstore.json lists it, so AltStore installs and updates
+  Whowolf with your own Apple ID, no developer account needed. The
+  download page walks you through setting up AltStore.
 - Join a running game by day: the game leader lets newcomers in with the
   check symbols; they come in as a ghost (default) or as a villager, as
   the table chooses in the settings.
@@ -20,9 +23,21 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
   start screen's quick buttons.
 
 ### Changed
-
+- The narrator tells every death exactly once and in story order: the
+  morning after each night (also the last one), the verdict after each
+  vote, the hunter's arrow, then the role. No more repeated or missing
+  lines.
+- Natural pacing: long silences inside the recordings are shortened,
+  short breaths between sentences, longer pauses only before news and
+  when eyes close; shorter walks around the table. A clip that loads late
+  starts late instead of being dropped, so no half sentences.
 - Remove the protector role again.
-- Protocol version 17.
+- On a computer the start screen's title and wolf stand still.
+- The website explains what playing in the browser needs.
+
+### Fixed
+- The check symbols and the admit buttons no longer overflow in narrow
+  windows.
 
 ## 0.2.0 – 2026-10-28
 
