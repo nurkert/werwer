@@ -28,6 +28,7 @@ Codex CLI 0.164.0 (built-in image generation), 2026-10-27, one call per persona:
 - `sheets/poses/spinnerin.png`: 1. spinning wool on a spinning wheel she carries (small, standing); 2. untangling a ball of yarn; 3. holding up a knitted sock.
 - `sheets/poses/schuster.png`: 1. hammering a sole onto a boot; 2. trying a shoe for size, looking pleased; 3. holding up a pair of tall boots.
 - `sheets/poses/blumenmaedchen.png`: 1. smelling a big bouquet; 2. tossing petals in the air; 3. putting a flower wreath on her own head.
-- `sheets/poses/buergermeister.png`: 1. reading a scroll proclamation aloud; 2. ringing a big hand bell; 3. pointing importantly, chest out.
+- `sheets/poses/buergermeister.png` (left the cast 2026-10-29, not shipped): 1. reading a scroll proclamation aloud; 2. ringing a big hand bell; 3. pointing importantly, chest out.
+- `sheets/poses/tueftler.png` (2026-10-29, Codex CLI 0.165.0): 1. tightening a bolt on a wobbly wooden gadget with a big wrench, tongue out in concentration, a loose spring flying off; 2. leaning back with a soot-blackened face and singed frizzy hair, grinning, a harmless little puff of smoke rising from the gadget in his hands; 3. proudly holding a small hand-cranked propeller gadget high above his head, its propeller spinning, delighted.
 - `sheets/poses/grossmutter.png`: 1. carrying a steaming pie; 2. knitting while walking; 3. wagging her finger, smiling.
 - `sheets/poses/grossvater.png`: 1. telling a story with wide arms, pipe in hand; 2. leaning on his walking stick, laughing; 3. feeding a little bird from his hand.

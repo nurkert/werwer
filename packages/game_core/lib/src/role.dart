@@ -129,8 +129,8 @@ enum Persona {
   /// The flower girl.
   flowerGirl,
 
-  /// The mayor with his chain of office.
-  mayor,
+  /// The village's crackpot tinkerer with a pot for a helmet.
+  tinkerer,
 
   /// The knitting grandmother.
   grandmother,

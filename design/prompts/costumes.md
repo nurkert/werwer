@@ -13,3 +13,6 @@ Codex CLI 0.164.0 (built-in image generation), 2026-10-26. One call per persona:
 > The other attached images show the role figures of the same set (werewolf, seer, witch, hunter, cupid) for the props and the style; do not copy their faces.
 > 
 > Style must match the attached figures exactly: 2000s cartoon look but refined, bold dark-brown outlines, expressive faces, warm stage light from the upper left, painted textures, each figure printed on a flat cardboard cutout with an even light cardboard rim (pale beige border) around the whole silhouette. Figures stand freely: NO stick, NO base, NO ground, NO shadow, NO glow, NO text. All figures face to the RIGHT (three-quarter view). Same scale for all five. Original designs only: no resemblance to existing games, card editions, series or characters.
+
+
+`sheets/roles/tueftler.png` (2026-10-29, Codex CLI 0.165.0): the same prompt, the tinkerer as the first image.

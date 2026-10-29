@@ -25,3 +25,11 @@ Same shared style text plus: "They are ordinary villagers: no magic, no weapons,
 - `sheets/cast_village_d.png` → `{waescherin,spinnerin,blumenmaedchen}`: 1. a washerwoman (woman) with rolled sleeves carrying a wicker laundry basket on her hip; 2. a young woman spinner holding a drop spindle and a tuft of wool; 3. a cheerful flower girl with a flower basket and a daisy in her hair.
 - `sheets/cast_village_e.png` → `{grossmutter,schaefer,zimmermann}`: 1. a kind grandmother (woman) with round glasses and a shawl, knitting a long scarf; 2. a young shepherd (man) with a shepherd's crook and a lamb at his feet; 3. a sturdy carpenter (man) with a wood saw over his shoulder and a pencil behind his ear.
 - `sheets/cast_village_f.png` → `{schuster,buergermeister,grossvater}`: 1. a thin cobbler (man) with a leather apron holding a boot and a small hammer; 2. a pompous portly mayor (man) with a golden chain of office and a tall hat; 3. an old grandfather (man) with a white beard, a walking stick and a smoking pipe.
+
+## The tinkerer (2026-10-29, replaces the mayor)
+
+Codex CLI 0.165.0 (built-in image generation), run as `codex exec -i magd.png -i schuster.png -i grossvater.png -i jaeger.png < prompt` from `source/figures/`. One figure instead of three: the shared style text above with "exactly ONE full-body cartoon cardboard puppet figure standing in the middle" and "He is an ordinary villager: no magic, no weapons, no role attributes." Cut with `tool/assets/slice_sheet.py` (one name); `app/assets/figures/tueftler.webp` at 640 px high, WebP quality 78.
+
+- `sheets/cast_village_g.png` → `source/figures/tueftler.png`: the village's wild crackpot tinkerer (a man, middle-aged, lanky): wild frizzy grey-ginger hair sticking out from under an upturned copper cooking pot he wears as a helmet, big round brass goggles pushed up on the pot, a gleeful gap-toothed grin, a patched leather apron full of tools (a wrench, a screwdriver, a spoon), one striped and one dotted sock in mismatched boots, holding up a small smoking homemade contraption made of wood, springs, cogs and a tiny propeller, a puff of grey smoke above it.
+
+The mayor (`buergermeister`) left the cast on 2026-10-29: the mayor is an office the village elects (task 027). Its sources stay in `source/figures/` as history and are not shipped.

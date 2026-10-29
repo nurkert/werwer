@@ -10,6 +10,7 @@ import 'package:whowolf/src/game/reveal_phase.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
 import 'package:whowolf/src/net/game_session.dart';
+import 'package:whowolf/src/stage/mayor_mark.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/theme.dart';
 
@@ -96,12 +97,23 @@ class _CurtainCall extends StatelessWidget {
               children: [
                 SizedBox(
                   height: height,
-                  child: Image.asset(
-                    seat.role == null
-                        ? personaAsset(seat.persona)
-                        : personaRoleAsset(seat.persona, seat.role!),
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomCenter,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        seat.role == null
+                            ? personaAsset(seat.persona)
+                            : personaRoleAsset(seat.persona, seat.role!),
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomCenter,
+                      ),
+                      if (isMayor(view, seat))
+                        Positioned(
+                          left: 0,
+                          top: 0,
+                          child: MayorPlaque(label: l10n.mayorBadge),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 4),

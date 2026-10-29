@@ -500,10 +500,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mayorBallotTitle => 'Who becomes mayor?';
 
   @override
-  String get mayorBallotHint =>
-      'Open, like a show of hands: tap whoever you like, yourself too. Whoever leads alone at the end wears the chain, and their vote counts twice.';
-
-  @override
   String mayorBackers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -512,6 +508,61 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 vote',
     );
     return '$_temp0';
+  }
+
+  @override
+  String mayorProgress(int count, int total) {
+    return '$count of $total have voted';
+  }
+
+  @override
+  String mayorYourPick(String name) {
+    return 'Your vote: $name';
+  }
+
+  @override
+  String get mayorElect => 'Elect a mayor';
+
+  @override
+  String get mayorChange => 'Change your vote';
+
+  @override
+  String get mayorWatch => 'Watch the election';
+
+  @override
+  String get mayorSheetTitle => 'Mayoral election';
+
+  @override
+  String get mayorSheetHint =>
+      'Open, like a show of hands: everyone sees who backs whom, and you may choose yourself too. Once everyone has voted and one person leads alone, they get the chain of office at once; otherwise the standing at the end of the talk counts. A tie means no mayor until tomorrow. The mayor\'s vote counts twice in the vote.';
+
+  @override
+  String get mayorWhoBacksWhom => 'Who backs whom';
+
+  @override
+  String get mayorReadOnly => 'Only the living vote. You are watching.';
+
+  @override
+  String mayorConfirm(String name) {
+    return 'Vote for $name';
+  }
+
+  @override
+  String get mayorPickHint => 'Tap a card, then confirm.';
+
+  @override
+  String get mayorCeremonyTitle => 'New mayor';
+
+  @override
+  String get mayorCeremonyYou => 'You are the mayor';
+
+  @override
+  String get mayorCeremonyHint =>
+      'now wears the chain of office. This vote counts twice in the vote.';
+
+  @override
+  String chronicleMayor(String name) {
+    return '$name becomes mayor.';
   }
 
   @override
@@ -1255,7 +1306,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get persona_flowerGirl => 'Flower girl';
 
   @override
-  String get persona_mayor => 'Mayor';
+  String get persona_tinkerer => 'Tinkerer';
 
   @override
   String get persona_grandmother => 'Grandmother';

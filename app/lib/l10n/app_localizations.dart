@@ -896,17 +896,101 @@ abstract class AppLocalizations {
   /// **'Who becomes mayor?'**
   String get mayorBallotTitle;
 
-  /// No description provided for @mayorBallotHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Open, like a show of hands: tap whoever you like, yourself too. Whoever leads alone at the end wears the chain, and their vote counts twice.'**
-  String get mayorBallotHint;
-
   /// No description provided for @mayorBackers.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 vote} other{{count} votes}}'**
   String mayorBackers(int count);
+
+  /// Mayor election: how many living players have backed someone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} have voted'**
+  String mayorProgress(int count, int total);
+
+  /// Mayor election: whom you back.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vote: {name}'**
+  String mayorYourPick(String name);
+
+  /// No description provided for @mayorElect.
+  ///
+  /// In en, this message translates to:
+  /// **'Elect a mayor'**
+  String get mayorElect;
+
+  /// No description provided for @mayorChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your vote'**
+  String get mayorChange;
+
+  /// No description provided for @mayorWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the election'**
+  String get mayorWatch;
+
+  /// No description provided for @mayorSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mayoral election'**
+  String get mayorSheetTitle;
+
+  /// No description provided for @mayorSheetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open, like a show of hands: everyone sees who backs whom, and you may choose yourself too. Once everyone has voted and one person leads alone, they get the chain of office at once; otherwise the standing at the end of the talk counts. A tie means no mayor until tomorrow. The mayor\'s vote counts twice in the vote.'**
+  String get mayorSheetHint;
+
+  /// No description provided for @mayorWhoBacksWhom.
+  ///
+  /// In en, this message translates to:
+  /// **'Who backs whom'**
+  String get mayorWhoBacksWhom;
+
+  /// No description provided for @mayorReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the living vote. You are watching.'**
+  String get mayorReadOnly;
+
+  /// Mayor election: confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Vote for {name}'**
+  String mayorConfirm(String name);
+
+  /// No description provided for @mayorPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a card, then confirm.'**
+  String get mayorPickHint;
+
+  /// No description provided for @mayorCeremonyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New mayor'**
+  String get mayorCeremonyTitle;
+
+  /// No description provided for @mayorCeremonyYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the mayor'**
+  String get mayorCeremonyYou;
+
+  /// Under the new mayor's name in the ceremony.
+  ///
+  /// In en, this message translates to:
+  /// **'now wears the chain of office. This vote counts twice in the vote.'**
+  String get mayorCeremonyHint;
+
+  /// Chronicle line: the village elected a mayor.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} becomes mayor.'**
+  String chronicleMayor(String name);
 
   /// No description provided for @mayorBadge.
   ///
@@ -2186,11 +2270,11 @@ abstract class AppLocalizations {
   /// **'Flower girl'**
   String get persona_flowerGirl;
 
-  /// No description provided for @persona_mayor.
+  /// No description provided for @persona_tinkerer.
   ///
   /// In en, this message translates to:
-  /// **'Mayor'**
-  String get persona_mayor;
+  /// **'Tinkerer'**
+  String get persona_tinkerer;
 
   /// No description provided for @persona_grandmother.
   ///

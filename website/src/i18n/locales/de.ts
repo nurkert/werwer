@@ -103,7 +103,7 @@ const de = {
         { id: 'spinnerin', name: 'Spinnerin' },
         { id: 'schuster', name: 'Schuster' },
         { id: 'blumenmaedchen', name: 'Blumenmädchen' },
-        { id: 'buergermeister', name: 'Bürgermeister' },
+        { id: 'tueftler', name: 'Tüftler' },
         { id: 'grossmutter', name: 'Großmutter' },
         { id: 'grossvater', name: 'Großvater' },
       ],

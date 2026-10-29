@@ -6,6 +6,7 @@ import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
 import 'package:whowolf/src/layout.dart';
+import 'package:whowolf/src/stage/mayor_mark.dart';
 import 'package:whowolf/src/theme.dart';
 
 /// Who voted for whom: one line per player voted for, most votes first,
@@ -192,7 +193,7 @@ class ChroniclePanel extends StatelessWidget {
       ];
       final night = [
         for (final e in entries)
-          if (e.kind != ChronicleKind.vote) e,
+          if (e.kind != ChronicleKind.vote && e.kind != ChronicleKind.mayor) e,
       ];
       if (night.isNotEmpty) {
         children.add(_Chapter(l10n.chronicleNight(round)));
@@ -228,7 +229,9 @@ class ChroniclePanel extends StatelessWidget {
               name(e.actor),
               name(e.target),
             ),
-            ChronicleKind.link || ChronicleKind.vote => null,
+            ChronicleKind.link ||
+            ChronicleKind.vote ||
+            ChronicleKind.mayor => null,
           };
           if (line != null) lines.add(line);
         }
@@ -248,11 +251,27 @@ class ChroniclePanel extends StatelessWidget {
         );
       }
       final votes = votesOf(view, round);
-      if (votes.isNotEmpty) {
-        children
-          ..add(_Chapter(l10n.chronicleDay(round)))
-          ..add(VotesPanel(view: view, votes: votes));
+      final mayors = [
+        for (final e in entries)
+          if (e.kind == ChronicleKind.mayor) e,
+      ];
+      if (votes.isNotEmpty || mayors.isNotEmpty) {
+        children.add(_Chapter(l10n.chronicleDay(round)));
       }
+      for (final e in mayors) {
+        children.add(
+          Panel(
+            child: Row(
+              children: [
+                MayorMark(label: l10n.mayorBadge),
+                const SizedBox(width: 10),
+                Expanded(child: Body(l10n.chronicleMayor(name(e.target)))),
+              ],
+            ),
+          ),
+        );
+      }
+      if (votes.isNotEmpty) children.add(VotesPanel(view: view, votes: votes));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

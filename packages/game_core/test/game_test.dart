@@ -163,6 +163,8 @@ void main() {
 
     test('a full table has a persona for everyone', () {
       expect(Persona.values, hasLength(maxPlayers));
+      // The mayor is an office the village elects, not a figure.
+      expect(Persona.values.map((p) => p.name), isNot(contains('mayor')));
       var state = GameState.lobby();
       for (var i = 0; i < maxPlayers; i++) {
         state = apply(state, AddPlayer(id(i), 'P$i')).state;

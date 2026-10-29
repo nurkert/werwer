@@ -21,7 +21,7 @@ export const personaFiles = [
   'spinnerin',
   'schuster',
   'blumenmaedchen',
-  'buergermeister',
+  'tueftler',
   'grossmutter',
   'grossvater',
 ] as const;
@@ -37,7 +37,7 @@ export const costumeRoles = roles.filter((role): role is CostumeRole => role !==
 export const roleCast: Record<Role, PersonaFile[]> = {
   villager: ['dorfbewohner', 'magd', 'grossvater', 'wirtin'],
   werewolf: ['baeckerin', 'schmied', 'grossmutter'],
-  seer: ['spielmann', 'fischerin', 'buergermeister'],
+  seer: ['spielmann', 'fischerin', 'tueftler'],
   witch: ['schneiderin', 'imker', 'blumenmaedchen'],
   hunter: ['gaensehirtin', 'mueller', 'schaefer'],
   cupid: ['zimmermann', 'spinnerin', 'schuster', 'waescherin'],

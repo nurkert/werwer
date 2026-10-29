@@ -258,6 +258,12 @@ class Atmosphere {
     _later(Duration(milliseconds: wait < 0 ? 0 : wait), sound);
   }
 
+  /// A public moment now (the village elected its mayor): on every
+  /// speaker that is not muted, the same for everyone.
+  void cheer() {
+    if (!_silent) _sounds.play(Sound.cheer);
+  }
+
   /// A sound only this player hears, for their own taps (never at night:
   /// taps there must sound like nothing, whatever the role).
   void own(Sound sound) {

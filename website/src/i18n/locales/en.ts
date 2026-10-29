@@ -104,7 +104,7 @@ const en: Copy = {
         { id: 'spinnerin', name: 'Spinner' },
         { id: 'schuster', name: 'Cobbler' },
         { id: 'blumenmaedchen', name: 'Flower girl' },
-        { id: 'buergermeister', name: 'Mayor' },
+        { id: 'tueftler', name: 'Tinkerer' },
         { id: 'grossmutter', name: 'Grandmother' },
         { id: 'grossvater', name: 'Grandfather' },
       ],

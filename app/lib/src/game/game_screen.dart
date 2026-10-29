@@ -15,6 +15,7 @@ import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/help.dart';
+import 'package:whowolf/src/game/mayor_election.dart';
 import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/narrator.dart';
 import 'package:whowolf/src/game/news.dart';
@@ -349,6 +350,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         deathAt: deathAt,
       );
       _lastWords(before, view);
+      _mayorCeremony(before, view);
       if (view.phase != Phase.roleReveal) _followIntro(const []);
       _followSkip(view);
     } else if (view != null && mounted) {
@@ -382,6 +384,28 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         unawaited(showLastWords(context, dead: dead, you: view.you));
+      }
+    });
+  }
+
+  /// The village chose its mayor: the chain of office lands on them, on
+  /// every phone at once (the result is public), with a cheer on the
+  /// table's speakers.
+  void _mayorCeremony(PlayerView? before, PlayerView view) {
+    final mayor = view.mayor;
+    if (before == null ||
+        mayor == null ||
+        before.mayor == mayor ||
+        !view.settings.mayor ||
+        (view.phase != Phase.day && view.phase != Phase.vote)) {
+      return;
+    }
+    final seat = view.seats.where((s) => s.id == mayor).firstOrNull;
+    if (seat == null || !seat.isAlive) return;
+    _atmosphere.cheer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(showMayorCeremony(context, mayor: seat, you: view.you));
       }
     });
   }

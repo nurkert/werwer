@@ -85,6 +85,7 @@ class TableCircle extends StatelessWidget {
                         ?badges[seat.id],
                       ].join(' · '),
                       onTap: onTap == null ? null : () => onTap!(seat),
+                      mayor: isMayor(view, seat) ? l10n.mayorBadge : null,
                     ),
                   );
                 }(),

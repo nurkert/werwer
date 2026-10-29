@@ -50,7 +50,7 @@ extension RoleText on AppLocalizations {
     Persona.spinner => persona_spinner,
     Persona.cobbler => persona_cobbler,
     Persona.flowerGirl => persona_flowerGirl,
-    Persona.mayor => persona_mayor,
+    Persona.tinkerer => persona_tinkerer,
     Persona.grandmother => persona_grandmother,
     Persona.grandfather => persona_grandfather,
   };
@@ -368,6 +368,11 @@ class Stamp extends StatelessWidget {
 /// The role to print on [seat]'s card for everyone to see. A ghost knows
 /// every role, but shows openly only its own and those revealed at death:
 /// the rest stays behind the held ghost sight, away from the neighbours.
+/// Whether [seat] is the living mayor (see `GameSettings.mayor`): their
+/// card wears the chain of office.
+bool isMayor(PlayerView view, SeatView seat) =>
+    seat.isAlive && view.mayor != null && seat.id == view.mayor;
+
 String? openRole(PlayerView view, SeatView seat, AppLocalizations l10n) {
   final role = seat.role;
   if (role == null) return null;
@@ -475,6 +480,7 @@ class SeatGrid extends StatelessWidget {
                       ].where((part) => part.isNotEmpty).join(' · '),
                       deadLabel: l10n.dead,
                       trailing: trailing?.call(seat),
+                      mayor: isMayor(view, seat) ? l10n.mayorBadge : null,
                     );
                     // Alive but out of this choice (outside a runoff): dimmed.
                     // A small lock says why it cannot be tapped.

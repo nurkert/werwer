@@ -65,6 +65,20 @@ void main() {
     expect(day2.electsMayor, isTrue);
   });
 
+  test('the chronicle tells everyone who became mayor, during the game', () {
+    var day = firstDay();
+    day = apply(day, BackMayor(id(1), id(2))).state;
+    day = apply(day, const EndDiscussion()).state;
+    expect(day.settings.openVotes, isFalse);
+    for (final p in day.players) {
+      final entries = viewFor(day, p.id).chronicle;
+      expect(entries, hasLength(1), reason: 'only the public election');
+      expect(entries.single.kind, ChronicleKind.mayor);
+      expect(entries.single.target, id(2));
+      expect(entries.single.round, day.round);
+    }
+  });
+
   test('without the setting there is no ballot', () {
     final day = playNight(night(roles), {0: 5}).state;
     expect(day.electsMayor, isFalse);

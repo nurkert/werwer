@@ -15,7 +15,7 @@ import zimmermann from '../../../design/source/figures/zimmermann.png';
 import spinnerin from '../../../design/source/figures/spinnerin.png';
 import schuster from '../../../design/source/figures/schuster.png';
 import blumenmaedchen from '../../../design/source/figures/blumenmaedchen.png';
-import buergermeister from '../../../design/source/figures/buergermeister.png';
+import tueftler from '../../../design/source/figures/tueftler.png';
 import grossmutter from '../../../design/source/figures/grossmutter.png';
 import grossvater from '../../../design/source/figures/grossvater.png';
 import baeckerin from '../../../design/source/figures/baeckerin.png';
@@ -45,7 +45,7 @@ export const figures = {
   spinnerin,
   schuster,
   blumenmaedchen,
-  buergermeister,
+  tueftler,
   grossmutter,
   grossvater,
   baeckerin,

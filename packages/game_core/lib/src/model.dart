@@ -153,6 +153,10 @@ enum ChronicleKind {
   /// Cupid linked `actor`'s pick: the lovers are `target` and the other
   /// entry of the pair (only in a view of the ended game).
   link,
+
+  /// The village elected `target` mayor, openly by day (see
+  /// `GameSettings.mayor`); public at once.
+  mayor,
 }
 
 /// One line of the game's chronicle, told to everyone when the game is

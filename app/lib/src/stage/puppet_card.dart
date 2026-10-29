@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/widgets.dart';
+import 'package:whowolf/src/stage/mayor_mark.dart';
 import 'package:whowolf/src/stage/stage_kit.dart';
 import 'package:whowolf/src/stage/tappable.dart';
 import 'package:whowolf/src/theme.dart';
@@ -25,6 +26,7 @@ class PuppetCard extends StatelessWidget {
     this.deadLabel,
     this.trailing,
     this.pose = 0,
+    this.mayor,
   });
 
   /// Which villager pose (see `poseFor`); 0 is the figure itself.
@@ -46,6 +48,10 @@ class PuppetCard extends StatelessWidget {
 
   /// Something extra in the corner (e.g. a remove button).
   final Widget? trailing;
+
+  /// Set for the living mayor: the chain of office in the corner, and
+  /// this word for screen readers.
+  final String? mayor;
 
   static const _greyscale = ColorFilter.matrix([
     0.30, 0.59, 0.11, 0, 0, //
@@ -104,7 +110,11 @@ class PuppetCard extends StatelessWidget {
       );
     }
     final reduce = MediaQuery.of(context).disableAnimations;
-    final label = [name, if (subtitle.isNotEmpty) subtitle].join(', ');
+    final label = [
+      name,
+      ?mayor,
+      if (subtitle.isNotEmpty) subtitle,
+    ].join(', ');
     return Semantics(
       button: onTap != null,
       selected: selected,
@@ -240,6 +250,15 @@ class PuppetCard extends StatelessWidget {
                         deadLabel!,
                         color: Palette.curtain400,
                         angle: -0.18,
+                      ),
+                    ),
+                  if (mayor != null)
+                    Positioned(
+                      left: -6,
+                      top: -6,
+                      child: MayorPlaque(
+                        label: mayor!,
+                        size: width < 90 ? 26 : 32,
                       ),
                     ),
                   if (trailing != null)

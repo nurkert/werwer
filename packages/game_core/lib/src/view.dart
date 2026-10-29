@@ -355,16 +355,16 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
 }
 
 /// What the chronicle may tell everyone now: all of it once the game is
-/// over (with the seer's looks and cupid's pair), before that only the
-/// votes, and those only with open voting.
+/// over (with the seer's looks and cupid's pair), before that only what
+/// everyone saw: the elected mayors, and the votes with open voting.
 List<ChronicleEntry> chronicleFor(GameState state) {
   if (state.phase != Phase.ended) {
-    return state.settings.openVotes
-        ? [
-            for (final e in state.chronicle)
-              if (e.kind == ChronicleKind.vote) e,
-          ]
-        : const [];
+    return [
+      for (final e in state.chronicle)
+        if (e.kind == ChronicleKind.mayor ||
+            (e.kind == ChronicleKind.vote && state.settings.openVotes))
+          e,
+    ];
   }
   final cupid = state.players
       .where((p) => p.role == Role.cupid)
@@ -403,6 +403,7 @@ List<ChronicleEntry> chronicleFor(GameState state) {
     ChronicleKind.look,
     ChronicleKind.heal,
     ChronicleKind.poison,
+    ChronicleKind.mayor,
     ChronicleKind.vote,
   ];
   final indexed = all.indexed.toList()

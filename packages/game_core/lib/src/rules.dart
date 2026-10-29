@@ -966,7 +966,18 @@ GameUpdate? _elect(GameState state) {
   final leaders = _leaders(state, state.mayorVotes.values);
   if (leaders.length != 1) return null;
   return GameUpdate(
-    state.copyWith(mayor: leaders.single, mayorVotes: const {}),
+    state.copyWith(
+      mayor: leaders.single,
+      mayorVotes: const {},
+      chronicle: [
+        ...state.chronicle,
+        ChronicleEntry(
+          round: state.round,
+          kind: ChronicleKind.mayor,
+          target: leaders.single,
+        ),
+      ],
+    ),
     [MayorElected(leaders.single)],
   );
 }

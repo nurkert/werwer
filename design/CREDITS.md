@@ -26,6 +26,7 @@ All artwork in this folder is original to the Whowolf project. AI-generated asse
 | `source/stage/box-tray.png` (open box interior for the unboxing animation) | Codex CLI 0.164.0 | 2026-10-25 | prompt embedded in the PNG |
 | `sheets/cast_village_{a,b,c}.png` → `source/figures/{baeckerin,fischerin,schneiderin,gaensehirtin,wirtin,schmied,mueller,spielmann,imker}.png` (village ensemble) | Codex CLI 0.164.0 (image generation) | 2026-10-26 | [`prompts/village_ensemble.md`](prompts/village_ensemble.md) |
 | `sheets/cast_village_{d,e,f}.png` → nine more villagers; `sheets/roles/<persona>.png` → `source/figures/roles/<persona>_<role>.png` (every persona in every role's costume) | Codex CLI 0.164.0 (image generation) | 2026-10-26 | [`prompts/village_ensemble.md`](prompts/village_ensemble.md), [`prompts/costumes.md`](prompts/costumes.md) |
+| `sheets/cast_village_g.png` → `source/figures/tueftler.png`; `sheets/poses/tueftler.png` → `source/figures/poses/tueftler_{1,2,3}.png`; `sheets/roles/tueftler.png` → `source/figures/roles/tueftler_<role>.png` (the tinkerer, replacing the mayor) | Codex CLI 0.165.0 (image generation) | 2026-10-29 | [`prompts/village_ensemble.md`](prompts/village_ensemble.md), [`prompts/poses.md`](prompts/poses.md), [`prompts/costumes.md`](prompts/costumes.md) |
 
 ## Third-party icons
 

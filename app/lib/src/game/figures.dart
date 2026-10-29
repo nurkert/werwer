@@ -40,7 +40,7 @@ const _personaFiles = <Persona, String>{
   Persona.spinner: 'spinnerin',
   Persona.cobbler: 'schuster',
   Persona.flowerGirl: 'blumenmaedchen',
-  Persona.mayor: 'buergermeister',
+  Persona.tinkerer: 'tueftler',
   Persona.grandmother: 'grossmutter',
   Persona.grandfather: 'grossvater',
 };
@@ -128,7 +128,7 @@ const _faces = <Persona, (double, double, double)>{
   Persona.spinner: (0.55, 0.07, 298 / 640),
   Persona.cobbler: (0.62, 0.12, 312 / 640),
   Persona.flowerGirl: (0.58, 0.08, 298 / 640),
-  Persona.mayor: (0.55, 0.13, 364 / 640),
+  Persona.tinkerer: (0.46, 0.17, 387 / 640),
   Persona.grandmother: (0.50, 0.13, 374 / 640),
   Persona.grandfather: (0.62, 0.13, 324 / 640),
 };

@@ -503,10 +503,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mayorBallotTitle => 'Wer wird Bürgermeister?';
 
   @override
-  String get mayorBallotHint =>
-      'Offen wie per Handzeichen: Tippe auf wen du willst, auch dich selbst. Wer am Ende allein vorn liegt, trägt die Kette, und seine Stimme zählt doppelt.';
-
-  @override
   String mayorBackers(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -515,6 +511,61 @@ class AppLocalizationsDe extends AppLocalizations {
       one: '1 Stimme',
     );
     return '$_temp0';
+  }
+
+  @override
+  String mayorProgress(int count, int total) {
+    return '$count von $total haben gewählt';
+  }
+
+  @override
+  String mayorYourPick(String name) {
+    return 'Deine Stimme: $name';
+  }
+
+  @override
+  String get mayorElect => 'Bürgermeister wählen';
+
+  @override
+  String get mayorChange => 'Stimme ändern';
+
+  @override
+  String get mayorWatch => 'Wahl ansehen';
+
+  @override
+  String get mayorSheetTitle => 'Bürgermeisterwahl';
+
+  @override
+  String get mayorSheetHint =>
+      'Offen wie per Handzeichen: Alle sehen, wer wen unterstützt, und du kannst auch dich selbst wählen. Haben alle gewählt und liegt einer allein vorn, bekommt er sofort die Amtskette, sonst zählt der Stand am Ende der Diskussion. Bei Gleichstand gibt es bis morgen keinen. Die Stimme des Bürgermeisters zählt bei der Abstimmung doppelt.';
+
+  @override
+  String get mayorWhoBacksWhom => 'Wer wen unterstützt';
+
+  @override
+  String get mayorReadOnly => 'Nur die Lebenden wählen. Du schaust zu.';
+
+  @override
+  String mayorConfirm(String name) {
+    return 'Stimme für $name geben';
+  }
+
+  @override
+  String get mayorPickHint => 'Tippe auf eine Karte und bestätige dann.';
+
+  @override
+  String get mayorCeremonyTitle => 'Neuer Bürgermeister';
+
+  @override
+  String get mayorCeremonyYou => 'Du bist Bürgermeister';
+
+  @override
+  String get mayorCeremonyHint =>
+      'trägt jetzt die Amtskette. Diese Stimme zählt bei der Abstimmung doppelt.';
+
+  @override
+  String chronicleMayor(String name) {
+    return '$name wird Bürgermeister.';
   }
 
   @override
@@ -1265,7 +1316,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get persona_flowerGirl => 'Blumenmädchen';
 
   @override
-  String get persona_mayor => 'Bürgermeister';
+  String get persona_tinkerer => 'Tüftler';
 
   @override
   String get persona_grandmother => 'Großmutter';

@@ -6,6 +6,7 @@ import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/chronicle.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/ghost_sight.dart';
+import 'package:whowolf/src/game/mayor_election.dart';
 import 'package:whowolf/src/game/phase_body.dart';
 import 'package:whowolf/src/game/reveal_phase.dart';
 import 'package:whowolf/src/game/table_circle.dart';
@@ -52,7 +53,7 @@ class DayPhase extends StatelessWidget {
           Body(l10n.readyCount(ready.length, alive), muted: true),
         if (!view.yourSeat.isAlive) GhostPanel(view: view),
         // No living mayor: the table elects one openly while it talks.
-        if (electsMayor(view)) MayorBallot(session: session),
+        if (electsMayor(view)) MayorEntry(session: session),
         Body(l10n.discuss),
         Countdown(endsAt: session.phaseEndsAt),
         if (view.yourSeat.isAlive && !voteSoon)
@@ -82,7 +83,6 @@ class DayPhase extends StatelessWidget {
                   key: l10n.sheepCount(value),
               // Missing right now (shown by day only).
               for (final id in session.offline) id: l10n.offlineBadge,
-              ...mayorBadge(view, l10n),
             },
           ),
         ),
@@ -239,7 +239,6 @@ class _VotePhaseState extends State<VotePhase> {
                   : null,
               badges: {
                 for (final id in session.offline) id: l10n.offlineBadge,
-                ...mayorBadge(view, l10n),
               },
               onTap: (seat) =>
                   setState(() => _draft = _draft == seat.id ? null : seat.id),
@@ -361,58 +360,6 @@ class LeaderBar extends StatelessWidget {
               icon: const Icon(Icons.stop_circle_outlined),
               label: Text(l10n.leaderEnd),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Whether today's talk elects a mayor (as `GameState.electsMayor`).
-bool electsMayor(PlayerView view) =>
-    view.settings.mayor &&
-    view.phase == Phase.day &&
-    !view.seats.any((s) => s.id == view.mayor && s.isAlive);
-
-/// "Mayor" under the living mayor's card.
-Map<PlayerId, String> mayorBadge(PlayerView view, AppLocalizations l10n) => {
-  if (view.mayor case final mayor?
-      when view.seats.any((s) => s.id == mayor && s.isAlive))
-    mayor: l10n.mayorBadge,
-};
-
-/// Today's open ballot for mayor: everyone sees who backs whom, a tap
-/// backs someone (oneself too) and can be changed until the talk ends.
-class MayorBallot extends StatelessWidget {
-  const MayorBallot({required this.session, super.key});
-
-  final GameSession session;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final view = session.view!;
-    final backers = <PlayerId, int>{};
-    for (final candidate in view.mayorVotes.values) {
-      backers[candidate] = (backers[candidate] ?? 0) + 1;
-    }
-    final alive = view.yourSeat.isAlive;
-    return Panel(
-      child: Column(
-        children: [
-          Headline(l10n.mayorBallotTitle, size: 24),
-          const SizedBox(height: 6),
-          Body(l10n.mayorBallotHint, muted: true),
-          const SizedBox(height: 12),
-          SeatGrid(
-            view: view,
-            selected: view.mayorVotes[view.you],
-            enabled: (seat) => seat.isAlive,
-            badges: {
-              for (final MapEntry(:key, :value) in backers.entries)
-                key: l10n.mayorBackers(value),
-            },
-            onTap: alive ? (seat) => session.send(MayorIntent(seat.id)) : null,
-          ),
         ],
       ),
     );

@@ -94,7 +94,7 @@ final _join = _Scene(
   const Alignment(0, 0.3),
   [
     _Actor(_pose('dorfbewohner_3'), cue: _Cue.phone),
-    _Actor(_pose('buergermeister_1'), cue: _Cue.qr),
+    _Actor(_pose('tueftler_3'), cue: _Cue.qr),
     _Actor(_pose('gaensehirtin_2'), mirror: true, cue: _Cue.phone),
   ],
   spotlight: 1,
@@ -172,7 +172,7 @@ final _talk = _Scene(
   'dusk',
   const Alignment(0, 0.6),
   [
-    _Actor(_pose('buergermeister_3'), cue: _Cue.accuse),
+    _Actor(_pose('grossvater_1'), cue: _Cue.accuse),
     _Actor(_pose('spielmann_3'), mirror: true, cue: _Cue.innocent),
     _Actor(_pose('wirtin_2'), mirror: true, cue: _Cue.doubt),
   ],
