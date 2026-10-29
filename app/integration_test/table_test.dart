@@ -255,7 +255,13 @@ void main() {
     await tester.tap(find.text('Rollen verteilen'));
     await until(tester, () => session.view!.phase == Phase.roleReveal);
     await pastStageCard(tester);
-    // The figure turns around to show the role; then the role is confirmed.
+    // After the narrator's opening the figure turns around to show the
+    // role; then the role is confirmed.
+    await until(
+      tester,
+      () => find.textContaining('Tippe, um deine Rolle').evaluate().isNotEmpty,
+      seconds: 60,
+    );
     await tapWhenThere(tester, find.byType(TurningFigure));
     await tester.pump();
     await tapWhenThere(
@@ -276,15 +282,8 @@ void main() {
     expect(session.view!.settings.sheepInPlay, isFalse);
     expect(find.byType(SheepMeadow), findsNothing);
     final me = session.view!;
-    if (me.yourRole != Role.villager) {
-      final target = me.seats.firstWhere(
-        (s) =>
-            s.id != me.you &&
-            !(me.yourRole == Role.werewolf && s.role == Role.werewolf),
-      );
-      await tester.tap(find.text(target.name).first);
-    }
-    // Villagers' decoy pick goes out by itself after a few seconds.
+    // The host's own step (if any) runs out by time: the classic night
+    // calls the roles one by one and goes on without them.
     await until(
       tester,
       () => session.view!.phase != Phase.night,
