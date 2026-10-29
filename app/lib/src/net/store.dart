@@ -421,16 +421,16 @@ class Store {
 
   static const _motionKey = 'stageMotion';
 
-  /// How much the stage moves on this device ([StageMotion]).
-  Future<StageMotion> stageMotion() async {
+  /// How much the stage moves on this device ([StageMotion]); `null`
+  /// before anything was saved (the very first start).
+  Future<StageMotion?> stageMotion() async {
     try {
       final raw = await _get(_motionKey);
-      return StageMotion.values.firstWhere(
-        (motion) => motion.name == raw,
-        orElse: () => StageMotion.full,
-      );
+      return StageMotion.values
+          .where((motion) => motion.name == raw)
+          .firstOrNull;
     } on Object {
-      return StageMotion.full;
+      return null;
     }
   }
 

@@ -1032,17 +1032,15 @@ class _MotionMenu extends StatelessWidget {
         tooltip: l10n.motionMenu,
         position: PopupMenuPosition.under,
         onSelected: pickStageMotion,
-        icon: Icon(
-          picked == StageMotion.full
-              ? Icons.auto_awesome_outlined
-              : Icons.battery_saver_outlined,
-        ),
+        icon: Icon(stageMotionIcon(picked)),
         itemBuilder: (_) => [
           for (final (motion, title, _) in stageMotionChoices(l10n))
             PopupMenuItem(
               value: motion,
               child: Row(
                 children: [
+                  Icon(stageMotionIcon(motion), size: 20),
+                  const SizedBox(width: 12),
                   Expanded(child: Text(title)),
                   if (motion == picked)
                     const Icon(

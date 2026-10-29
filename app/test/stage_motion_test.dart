@@ -74,4 +74,28 @@ void main() {
     );
     expect(seen, StageMotion.still);
   });
+
+  test('the first start picks a fitting stage', () {
+    expect(
+      initialStageMotion(web: false, reduceMotion: false),
+      StageMotion.full,
+    );
+    expect(
+      initialStageMotion(web: true, reduceMotion: false),
+      StageMotion.calm,
+    );
+    expect(
+      initialStageMotion(web: false, reduceMotion: true),
+      StageMotion.still,
+    );
+    expect(
+      initialStageMotion(web: true, reduceMotion: true),
+      StageMotion.still,
+    );
+  });
+
+  test('every level has a sign of its own', () {
+    final icons = {for (final m in StageMotion.values) stageMotionIcon(m)};
+    expect(icons, hasLength(StageMotion.values.length));
+  });
 }

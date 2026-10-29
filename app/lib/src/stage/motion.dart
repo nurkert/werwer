@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 /// How much the stage moves on this device: a battery choice, kept on the
 /// device and never sent to the host.
@@ -19,6 +19,25 @@ enum StageMotion {
 /// The choice on this device, loaded at start; the app follows changes
 /// at once.
 final stageMotion = ValueNotifier<StageMotion>(StageMotion.full);
+
+/// What a device starts with before anyone picked (set once on the very
+/// first start, then kept like a choice): nothing moves if the system asks
+/// for reduced motion, a browser saves its battery, apps get the full stage.
+StageMotion initialStageMotion({
+  required bool web,
+  required bool reduceMotion,
+}) => reduceMotion
+    ? StageMotion.still
+    : web
+    ? StageMotion.calm
+    : StageMotion.full;
+
+/// Each level's own sign, in the settings and the app bar.
+IconData stageMotionIcon(StageMotion motion) => switch (motion) {
+  StageMotion.full => Icons.auto_awesome_outlined,
+  StageMotion.calm => Icons.battery_saver_outlined,
+  StageMotion.still => Icons.motion_photos_off_outlined,
+};
 
 /// Hands [motion] down the tree; with [StageMotion.still] it also asks
 /// every animation for reduced motion, the way the system setting does.

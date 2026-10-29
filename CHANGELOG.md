@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Changed
+
+- Stage & battery: each of the three levels has its own icon, in the settings and the app bar. The very first start picks one that fits (still with the system's reduced motion, battery-saving in the browser, the full stage in the app); a later choice always stays.
+
 ## 0.2.2 – 2026-10-29
 
 Plays with 0.2.1 (protocol 17). On Android, uninstall a debug-signed

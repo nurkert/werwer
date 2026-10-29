@@ -277,6 +277,12 @@ class StageMotionPicker extends StatelessWidget {
                 value: motion,
                 contentPadding: EdgeInsets.zero,
                 activeColor: Palette.lantern400,
+                secondary: Icon(
+                  stageMotionIcon(motion),
+                  color: picked == motion
+                      ? Palette.lantern400
+                      : Palette.moon200,
+                ),
                 title: Text(
                   title,
                   style: const TextStyle(color: Palette.moon100),
