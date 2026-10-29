@@ -271,8 +271,6 @@ class _Table {
           case NightAbility.hunt:
             final prey = others.where((s) => s.role != Role.werewolf);
             send(NightIntent(prey.first.id));
-          case NightAbility.protect:
-            send(NightIntent(v.you));
           case NightAbility.inspect || NightAbility.decoy:
             send(NightIntent(first));
           case null:

@@ -66,7 +66,6 @@ String _wake(NightStep step, AppLocalizations l10n) => switch (step) {
   NightStep.hunt => l10n.narrateStepHunt,
   NightStep.inspect => l10n.narrateStepInspect,
   NightStep.brew => l10n.narrateStepBrew,
-  NightStep.protect => l10n.narrateStepProtect,
 };
 
 /// Who is awake in a called night's [step], for everyone else's screen.
@@ -75,7 +74,6 @@ String awakeIn(NightStep step, AppLocalizations l10n) => switch (step) {
   NightStep.hunt => l10n.nightWerewolves,
   NightStep.inspect => l10n.role(Role.seer),
   NightStep.brew => l10n.role(Role.witch),
-  NightStep.protect => l10n.role(Role.protector),
 };
 
 /// Speaks narrator lines on the host device. Platforms without speech

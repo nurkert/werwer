@@ -606,12 +606,6 @@ Future<void> _simulate(int seed) async {
             if (poisonable.isNotEmpty && random.nextInt(3) == 0)
               pick(poisonable),
           ]),
-          NightAbility.protect => NightIntent(
-            pick([
-              for (final p in state.alive)
-                if (p.id != state.lastGuarded) p,
-            ]).id,
-          ),
           NightAbility.inspect || NightAbility.decoy => NightIntent(
             pick(others).id,
           ),

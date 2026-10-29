@@ -465,13 +465,7 @@ enum Preset {
   /// Everything there is: all roles and the wolf trail.
   fullStage(
     GameSettings(
-      roles: {
-        Role.seer,
-        Role.witch,
-        Role.protector,
-        Role.hunter,
-        Role.cupid,
-      },
+      roles: {Role.seer, Role.witch, Role.hunter, Role.cupid},
       atmosphere: true,
       wolfTrail: true,
       doorSigns: true,

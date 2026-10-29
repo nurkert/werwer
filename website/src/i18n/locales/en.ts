@@ -75,7 +75,6 @@ const en: Copy = {
       witch: { name: 'Witch', text: 'One healing potion and one poison, each once per game. Sees whom the werewolves take and decides after them.' },
       hunter: { name: 'Hunter', text: 'If the hunter falls, at night or by the vote, he takes someone with him at once.' },
       cupid: { name: 'Cupid', text: 'Binds two players as lovers on the first night. If one dies, so does the other.' },
-      protector: { name: 'Protector', text: 'Shields one person from the werewolves each night, himself too, but never the same one two nights in a row.' },
     },
     doorSigns: {
       title: 'Door signs.',

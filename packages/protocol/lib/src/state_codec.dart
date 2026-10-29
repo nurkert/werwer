@@ -58,8 +58,6 @@ Map<String, Object?> encodeState(GameState state) => {
       },
   ],
   'nightVictim': ?state.nightVictim?.value,
-  'guarded': ?state.guarded?.value,
-  'lastGuarded': ?state.lastGuarded?.value,
   'packMark': ?switch (state.packMark) {
     null => null,
     (:final target, :final correct) => {
@@ -143,8 +141,6 @@ GameState decodeState(JsonReader json) {
         _pid(c, 'player'): _ids(c, 'targets', max: 2),
     },
     nightVictim: _maybePid(json, 'nightVictim'),
-    guarded: _maybePid(json, 'guarded'),
-    lastGuarded: _maybePid(json, 'lastGuarded'),
     packMark: json.has('packMark')
         ? (
             target: _pid(json.object('packMark'), 'target'),

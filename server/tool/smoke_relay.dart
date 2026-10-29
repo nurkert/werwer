@@ -130,11 +130,6 @@ Future<void> main(List<String> args) async {
             ),
             NightAbility.link => NightIntent.of([v.you, pick()]),
             NightAbility.brew => NightIntent.of(const []),
-            NightAbility.protect => NightIntent(
-              v.seats
-                  .firstWhere((s) => s.isAlive && s.id != v.guardedBefore)
-                  .id,
-            ),
             NightAbility.inspect || NightAbility.decoy => NightIntent(pick()),
           };
           if (message != null) once(link, 'night/$step', message);

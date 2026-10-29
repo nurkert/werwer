@@ -74,7 +74,6 @@ const de = {
       witch: { name: 'Hexe', text: 'Ein Heiltrank und ein Gifttrank, jeder einmal pro Spiel. Sie sieht, wen die Werwölfe holen, und entscheidet nach ihnen.' },
       hunter: { name: 'Jäger', text: 'Fällt er, nachts oder bei der Abstimmung, nimmt er sofort jemanden mit.' },
       cupid: { name: 'Amor', text: 'Verbindet in der ersten Nacht zwei Spieler als Liebespaar. Stirbt einer, stirbt auch der andere.' },
-      protector: { name: 'Beschützer', text: 'Schützt jede Nacht einen Menschen vor den Werwölfen, auch sich selbst, aber nie zweimal hintereinander denselben.' },
     },
     doorSigns: {
       title: 'Türzeichen.',

@@ -453,21 +453,6 @@ class _NightPhaseState extends State<NightPhase> {
                 onSeeAgain: () => _vision(r),
               ),
         ];
-      case NightAbility.protect:
-        final choice = view.yourNightChoice;
-        return [
-          Body(l10n.nightProtect),
-          if (!view.settings.sheepInPlay) countdown,
-          const SizedBox(height: 12),
-          SeatGrid(
-            view: view,
-            selected: _draft ?? choice,
-            // Himself too, but not last night's again.
-            enabled: (seat) => seat.isAlive && seat.id != view.guardedBefore,
-            onTap: (seat) => _pick(seat.id),
-          ),
-          if (choice == null) _choose(choice),
-        ];
       case NightAbility.link:
         final linked = view.yourNightTargets;
         if (view.youActed && linked.length == 2) {

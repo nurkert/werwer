@@ -228,10 +228,6 @@ class ChroniclePanel extends StatelessWidget {
               name(e.actor),
               name(e.target),
             ),
-            ChronicleKind.protect => l10n.chronicleProtect(
-              name(e.actor),
-              name(e.target),
-            ),
             ChronicleKind.link || ChronicleKind.vote => null,
           };
           if (line != null) lines.add(line);

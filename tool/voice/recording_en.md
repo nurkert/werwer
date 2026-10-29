@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (en)
 
-204 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -45,11 +45,6 @@
 | `wake_cupid_3_en.mp3` | Cupid is awake and chooses two people who belong together from now on. | Soft, almost tender. |
 | `wake_cupid_4_en.mp3` | Cupid wakes. Tonight, someone is going to fall in love. | Soft, almost tender. |
 | `wake_cupid_5_en.mp3` | Cupid opens their eyes and draws the little bow. | Soft, almost tender. |
-| `wake_protector_1_en.mp3` | The protector wakes up and holds a guarding hand over someone. | Calm, steady, a quiet guardian. |
-| `wake_protector_2_en.mp3` | The protector opens his eyes. Whom will he keep from the wolves tonight? | Calm, steady, a quiet guardian. |
-| `wake_protector_3_en.mp3` | The protector is awake. Someone in the village shall sleep safely tonight. | Calm, steady, a quiet guardian. |
-| `wake_protector_4_en.mp3` | The protector wakes up and stands before a door. | Calm, steady, a quiet guardian. |
-| `wake_protector_5_en.mp3` | The protector opens his eyes and watches over someone, just not the same one as last night. | Calm, steady, a quiet guardian. |
 | `wake_wolves_1_en.mp3` | The werewolves wake up and look for a victim. | Low and close, a touch of menace. |
 | `wake_wolves_2_en.mp3` | The werewolves open their eyes. They are hungry. | Low and close, a touch of menace. |
 | `wake_wolves_3_en.mp3` | Now the werewolves wake. Without a sound, they agree on a victim. | Low and close, a touch of menace. |
@@ -137,11 +132,6 @@
 | `role_cupid_3_en.mp3` | With that, the village has lost its Cupid. | Soft. |
 | `role_cupid_4_en.mp3` | Here sat Cupid. The love they created lives on. | Soft. |
 | `role_cupid_5_en.mp3` | Cupid is no longer among you. | Soft. |
-| `role_protector_1_en.mp3` | At this seat sat the protector. | Quiet, respectful. |
-| `role_protector_2_en.mp3` | That was the protector. Who watches over the village now? | Quiet, respectful. |
-| `role_protector_3_en.mp3` | With that, the village has lost its protector. | Quiet, respectful. |
-| `role_protector_4_en.mp3` | Here sat the protector. For nights he kept the wolves away. | Quiet, respectful. |
-| `role_protector_5_en.mp3` | The protector is no longer among you. | Quiet, respectful. |
 | `discuss_1_en.mp3` | Now talk to each other. Who is one of the werewolves? | Energetic, stirring it up. |
 | `discuss_2_en.mp3` | Now talk to each other. Who is the werewolf? | Energetic, stirring it up. |
 | `discuss_3_en.mp3` | The floor is yours. Who was it? | Energetic, stirring it up. |

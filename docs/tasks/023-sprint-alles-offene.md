@@ -1,6 +1,6 @@
 # Task 023 – Sprint: alles Offene bis 0.2.0
 
-**Status:** A bis F und G1 erledigt (2026-10-28), offen: G2 Generalprobe sowie die Aufnahmen für den Beschützer, Ziel: alles in diesem Sprint, Abschluss mit Release 0.2.0 und einer Generalprobe am Tisch
+**Status:** A bis F und G1 erledigt (2026-10-28), offen: G2 Generalprobe (der Beschützer ist seit 2026-10-29 wieder entfernt, Protokoll Version 16), Ziel: alles in diesem Sprint, Abschluss mit Release 0.2.0 und einer Generalprobe am Tisch
 **Bezug:** [Task 018](018-klang-modi.md) (Klang), [Task 020](020-spielabend-wochenende.md) (Spielabend), [Task 021](021-nahtlos-fehlertolerant.md) (Fehlertoleranz, eigener Agent), [Task 022](022-code-beitritt.md) (Beitritt per Code, läuft), [ROADMAP](../ROADMAP.md) 6d, [SECURITY_DESIGN](../SECURITY_DESIGN.md)
 
 Wunsch des Eigentümers (2026-10-28): Alles, was offen ist, auch was nur am Rand erwähnt oder für später vorgemerkt wurde, kommt in diesen Sprint und wird Schritt für Schritt abgearbeitet.
@@ -97,10 +97,8 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
   - Freiwillig, jederzeit abschaltbar und nur auf dem eigenen Gerät.
   - **Sicherheit:** Die Berechtigung für „Nicht stören“ (Android `ACCESS_NOTIFICATION_POLICY`) ist neu. Die App fragt nur bei Bedarf und stellt den alten Zustand am Ende wieder her. Datenschutzerklärung prüfen.
 - [x] **F2 Bürgermeister** (optionale Rolle bzw. Einstellung): Am ersten Tag wählt das Dorf einen Bürgermeister. Seine Stimme zählt doppelt, oder er entscheidet bei Gleichstand (das klärt das Konzept). Stirbt er, bestimmt er einen Nachfolger. Alle Regeln liegen nur in `game_core`, die Texte sind eigene. Tests spielen ganze Partien. (erledigt: offene Wahl während der Diskussion statt eigener Phase, doppelte Stimme, Neuwahl nach seinem Tod; Tests `mayor_test.dart`)
-- [x] **F3 Beschützer** (neue Rolle): Er schützt jede Nacht eine Person vor den Werwölfen, nicht zweimal hintereinander dieselbe. Regeln in `game_core`, eigener Name und Text. (erledigt: Regeln, Protokoll, Host, App, Website; Tests `protector_test.dart`; offen: Aufnahmen für `wake_protector` und `role_protector` (im Skript, `recording_*.md`), Kostüme je Persona)
-  - **Wartet auf neue Sprachaufnahmen des Eigentümers** (Weck- und Schlafsatz des Beschützers, eventuell Sätze für den Bürgermeister). Ich bereite die Satzliste vor, den ElevenLabs-Schlüssel setzt nur der Eigentümer.
-  - Bis die Aufnahmen da sind, läuft die Rolle mit Text.
-- [x] **F4 Erzählersätze für F2 und F3** ins Skript und ins Manifest, sobald die Aufnahmen da sind. (vorbereitet: `wake_protector` und `role_protector` mit je fünf Varianten in `tool/voice/script.json`, `recording_de/en.md` neu erzeugt; der Bürgermeister braucht keine Sätze. Offen beim Eigentümer: die Aufnahmen, dann `verify.py` und `encode.py`)
+- [x] **F3 Beschützer** (neue Rolle): Er schützt jede Nacht eine Person vor den Werwölfen, nicht zweimal hintereinander dieselbe. (umgesetzt am 2026-10-28, am 2026-10-29 auf Wunsch des Eigentümers wieder entfernt, Protokoll Version 16)
+- [x] **F4 Erzählersätze für F2 und F3:** Der Bürgermeister braucht keine Sätze, der Beschützer ist wieder entfernt. Keine Aufnahmen offen.
 
 ## G – Abschluss
 
@@ -110,11 +108,11 @@ Ziel des Eigentümers: Die Stimme spielt auf den Geräten gleichzeitig. Die Übe
   **Vorbereitet (2026-10-28):** Mac-App 0.2.0 läuft, iPhone hat 0.2.0 installiert. Release v0.2.0 ist veröffentlicht (Android, Linux, macOS, Windows, Web-App); der erste Lauf scheiterte an einem Test, der den Mac-Text erwartete (CI läuft auf Linux), der Tag wurde danach auf den reparierten Stand gesetzt. play.whowolf.de liefert `/v/15/0.2.0/` und die Code-Seite aus (unbekannter Code: 404, CSP gesetzt). **Automatische Probe gegen den echten Server (2026-10-29):** `cd server && dart run tool/smoke_relay.dart` eröffnet einen Raum auf play.whowolf.de, holt einen Tür-Code, prüft die Weiterleitung der Code-Seite auf `/v/15/0.2.0/join` und die Beitrittsseite, dann spielen sechs Bots (fünf über den Relay) „Volle Bühne“ mit Bürgermeister bis zum Ende. Zwei Läufe grün (einmal gewann das Dorf, einmal die Werwölfe; Bürgermeister gewählt; alle sahen dasselbe Ende). Was nur Menschen prüfen können (Erzähler hören, echte Handys, Kamera, Ruhemodus, Ausfälle am Tisch), bleibt für die Probe am Tisch.
 
   Checkliste für die Probe (je Punkt ankreuzen, Auffälliges als Issue):
-  1. Alle Geräte auf 0.2.0; ein Gerät mit 0.1.9 bekommt die Versions-Meldung (A2).
+  1. Alle Geräte auf derselben Version (nach 0.2.0 mit Protokoll 16); ein Gerät mit 0.1.9 bekommt die Versions-Meldung (A2).
   2. Raum auf dem Mac öffnen, Einladung aufklappen: QR zeigt play.whowolf.de, darunter der Tür-Code (Task 022).
   3. iPhone im Browser über QR, ein Laptop über den Code auf play.whowolf.de, Android mit App; Prüfbild bestätigen (Option 1), danach einmal raus und wieder rein ohne Prüfbild (D1).
   4. Ruhemodus auf Android einschalten, nach dem Spiel ist „Nicht stören“ wieder wie vorher (F1).
-  5. „Volle Bühne“: Beschützer, Bürgermeisterwahl am ersten Tag, doppelte Stimme; Hexe sieht kein Opfer, wenn der Beschützer es hält.
+  5. „Volle Bühne“: Bürgermeisterwahl am ersten Tag, doppelte Stimme.
   6. Erzähler „Lebendig“ und „Theater“ anhören: Wechsel nur in Pausen hörbar sauber? Schritte zu laut oder zu schnell (0,32, 450 ms)? Nachts von einem festen Platz? Lautstärke nach −20 LUFS ausreichend?
   7. Ein Handy mitten in der Nacht ausschalten: Phase läuft weiter, Erzähler übernimmt ein anderes Gerät; Host-Handy kurz offline: Nachfolger übernimmt, nichts Bestätigtes geht verloren (Task 021).
   8. Desktop: Pfeile, Überschrift über beiden Spalten, Karten passen ins Fenster; Tastatur (Tab, Enter) wählt Karten.

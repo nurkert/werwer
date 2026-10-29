@@ -233,9 +233,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nightInspect => 'In wessen Seele blickst du?';
 
   @override
-  String get nightProtect => 'Wen beschützt du heute Nacht?';
-
-  @override
   String get nightDecoy => 'Wem traust du am wenigsten?';
 
   @override
@@ -314,11 +311,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String chroniclePoison(String witch, String name) {
     return '$witch vergiftete $name.';
-  }
-
-  @override
-  String chronicleProtect(String protector, String name) {
-    return '$protector beschützte $name.';
   }
 
   @override
@@ -893,9 +885,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get roleCupid => 'Amor';
 
   @override
-  String get roleProtector => 'Beschützer';
-
-  @override
   String get roleWitchText =>
       'Du hast einen Heiltrank und einen Gifttrank, jeden für einmal. Nachts siehst du, wen die Werwölfe holen, und entscheidest nach ihnen.';
 
@@ -906,10 +895,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get roleCupidText =>
       'In der ersten Nacht verbindest du zwei Menschen als Liebespaar. Stirbt einer, stirbt auch der andere.';
-
-  @override
-  String get roleProtectorText =>
-      'Jede Nacht schützt du einen Menschen vor den Werwölfen, auch dich selbst, aber nie zweimal hintereinander denselben.';
 
   @override
   String get factionLovers => 'Liebespaar';
@@ -1353,10 +1338,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get narrateStepBrew =>
       'Die Hexe erwacht. Sie sieht, wen es heute Nacht treffen soll, und greift zu ihren Tränken.';
-
-  @override
-  String get narrateStepProtect =>
-      'Der Beschützer erwacht und wählt, wen er heute Nacht beschützt.';
 
   @override
   String get narrateStepSleep => 'Augen wieder zu.';

@@ -115,8 +115,6 @@ class CliPlayer {
           final action = switch (v.yourNightTask) {
             NightAbility.hunt => '"pick <name>" for whom the pack takes',
             NightAbility.inspect => '"pick <name>" for whose role you see',
-            NightAbility.protect =>
-              '"pick <name>" for whom you shield from the pack tonight',
             NightAbility.link => '"pick <name> <name>" for the two lovers',
             NightAbility.brew =>
               '"pick" with the victim to heal and/or someone to poison, '

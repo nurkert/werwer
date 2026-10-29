@@ -56,12 +56,6 @@ GameUpdate apply(GameState state, GameAction action) => switch (action) {
     [target],
   ),
   BackMayor() => _backMayor(state, action),
-  ProtectorGuard(:final protector, :final target) => _night(
-    state,
-    protector,
-    NightAbility.protect,
-    [target],
-  ),
   CupidLink(:final cupid, :final first, :final second) => _night(
     state,
     cupid,
@@ -109,10 +103,7 @@ Duration? timeLimit(GameState state) => switch (state.phase) {
         : state.settings.nightTime,
   Phase.night => switch (state.nightStep) {
     NightStep.hunt => state.settings.nightTime,
-    NightStep.brew ||
-    NightStep.link ||
-    NightStep.inspect ||
-    NightStep.protect => brewTime,
+    NightStep.brew || NightStep.link || NightStep.inspect => brewTime,
   },
   // The night's dead speak their last words first: the talk starts after.
   Phase.day =>
@@ -167,7 +158,6 @@ List<NightStep> calledSteps(GameState state) {
   bool has(Role role) => state.players.any((p) => p.role == role);
   return [
     if (state.round == 1 && has(Role.cupid)) NightStep.link,
-    if (has(Role.protector)) NightStep.protect,
     NightStep.hunt,
     if (has(Role.seer)) NightStep.inspect,
     if (has(Role.witch)) NightStep.brew,
@@ -193,15 +183,13 @@ NightAbility? nightTask(GameState state, PlayerId player) {
       NightAbility.hunt => NightStep.hunt,
       NightAbility.inspect => NightStep.inspect,
       NightAbility.brew => NightStep.brew,
-      NightAbility.protect => NightStep.protect,
       NightAbility.decoy => null,
     };
     return step == state.nightStep ? ability : null;
   }
   final applies = switch (ability) {
     NightAbility.hunt ||
-    NightAbility.inspect ||
-    NightAbility.protect => state.nightStep == NightStep.hunt,
+    NightAbility.inspect => state.nightStep == NightStep.hunt,
     NightAbility.link => state.nightStep == NightStep.hunt && state.round == 1,
     NightAbility.brew => state.nightStep == NightStep.brew,
     NightAbility.decoy => true,
@@ -231,7 +219,6 @@ GameAction nightAction(
   return switch (task) {
     NightAbility.hunt => WerewolfVote(actor, single()),
     NightAbility.inspect => SeerInspect(actor, single()),
-    NightAbility.protect => ProtectorGuard(actor, single()),
     NightAbility.decoy => NightDecoy(actor, single()),
     NightAbility.link => switch (targets) {
       [final a, final b] => CupidLink(actor, a, b),
@@ -244,7 +231,7 @@ GameAction nightAction(
 /// The witch's pick: tonight's victim means the healing potion, anyone else
 /// the poison.
 WitchBrew _brewAction(GameState state, PlayerId witch, List<PlayerId> picks) {
-  final victim = state.unguardedVictim;
+  final victim = state.nightVictim;
   final others = [
     for (final t in picks)
       if (t != victim) t,
@@ -436,10 +423,7 @@ GameUpdate _night(
   ];
   if (targets.any((t) => !t.isAlive)) _refuse(Violation.invalidTarget);
   final once = switch (ability) {
-    NightAbility.inspect ||
-    NightAbility.link ||
-    NightAbility.brew ||
-    NightAbility.protect => true,
+    NightAbility.inspect || NightAbility.link || NightAbility.brew => true,
     NightAbility.hunt || NightAbility.decoy => false,
   };
   if (once && state.nightChoices.containsKey(actor.id)) {
@@ -452,8 +436,6 @@ GameUpdate _night(
       targets.single.id != actor.id &&
           targets.single.role?.faction != Faction.werewolves,
     NightAbility.inspect || NightAbility.decoy => targets.single.id != actor.id,
-    // Himself too, but not last night's again.
-    NightAbility.protect => targets.single.id != state.lastGuarded,
     // Checked by _brew.
     NightAbility.brew => true,
   };
@@ -498,7 +480,7 @@ GameUpdate _brew(GameState state, WitchBrew action) {
   if (nightTask(state, witch.id) != NightAbility.brew) {
     _refuse(Violation.notYourAction);
   }
-  final victim = state.unguardedVictim;
+  final victim = state.nightVictim;
   if (action.heal) {
     if (victim == null) _refuse(Violation.invalidTarget);
     if (state.potionsUsed.contains(Potion.heal)) {
@@ -528,10 +510,9 @@ GameUpdate _endStep(GameState state) {
   if (_called(state)) return _endCalledStep(state);
   return switch (state.nightStep) {
     NightStep.hunt => _endHunt(state),
-    NightStep.brew ||
-    NightStep.link ||
-    NightStep.inspect ||
-    NightStep.protect => _resolveNight(state),
+    NightStep.brew || NightStep.link || NightStep.inspect => _resolveNight(
+      state,
+    ),
   };
 }
 
@@ -541,10 +522,6 @@ GameUpdate _endCalledStep(GameState state) {
   final events = <GameEvent>[];
   var next = state;
   switch (state.nightStep) {
-    case NightStep.protect:
-      next = next.copyWith(
-        guarded: _picks(state, NightAbility.protect).firstOrNull?.first,
-      );
     case NightStep.link:
       for (final MapEntry(:key, :value) in state.nightChoices.entries) {
         if (nightTask(state, key) == NightAbility.link) {
@@ -597,7 +574,6 @@ GameUpdate _endHunt(GameState state) {
   }
   final next = state.copyWith(
     nightVictim: victim,
-    guarded: _picks(state, NightAbility.protect).firstOrNull?.first,
     lovers: lovers,
     nightChoices: const {},
   );
@@ -733,13 +709,7 @@ GameUpdate _countSheep(GameState state, CountSheep action) {
 /// poison kills, a right door sign may kill, and the sheep counts become
 /// public.
 GameUpdate _resolveNight(GameState state) {
-  // Shielded by the protector, the pack's victim lives (the witch did not
-  // even see them).
-  final victim = state.unguardedVictim;
-  final protector = state.players
-      .where((p) => p.role == Role.protector)
-      .firstOrNull
-      ?.id;
+  final victim = state.nightVictim;
   final brew = state.nightStep == NightStep.brew
       ? _picks(state, NightAbility.brew).firstOrNull ?? const <PlayerId>[]
       : const <PlayerId>[];
@@ -758,15 +728,8 @@ GameUpdate _resolveNight(GameState state) {
       ChronicleEntry(
         round: state.round,
         kind: ChronicleKind.hunt,
-        target: state.nightVictim,
+        target: victim,
       ),
-      if (state.guarded != null)
-        ChronicleEntry(
-          round: state.round,
-          kind: ChronicleKind.protect,
-          actor: protector,
-          target: state.guarded,
-        ),
       if (healed)
         ChronicleEntry(
           round: state.round,
@@ -786,8 +749,6 @@ GameUpdate _resolveNight(GameState state) {
     nightChoices: const {},
     nightVictim: null,
     packMark: null,
-    guarded: null,
-    lastGuarded: state.guarded,
     potionsUsed: {
       ...state.potionsUsed,
       if (healed) Potion.heal,

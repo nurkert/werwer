@@ -45,7 +45,7 @@ void main() {
     var state = GameState.lobby(
       settings: Preset.fullStage.settings.copyWith(werewolves: 2),
     );
-    for (var i = 0; i < 9; i++) {
+    for (var i = 0; i < 8; i++) {
       state = apply(state, AddPlayer(PlayerId('p$i'), 'P$i')).state;
     }
     state = apply(state, StartGame(random: Random(3))).state;

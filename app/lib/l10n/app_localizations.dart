@@ -464,12 +464,6 @@ abstract class AppLocalizations {
   /// **'Whose soul do you look into?'**
   String get nightInspect;
 
-  /// No description provided for @nightProtect.
-  ///
-  /// In en, this message translates to:
-  /// **'Whom do you shield tonight?'**
-  String get nightProtect;
-
   /// No description provided for @nightDecoy.
   ///
   /// In en, this message translates to:
@@ -589,12 +583,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{witch} poisoned {name}.'**
   String chroniclePoison(String witch, String name);
-
-  /// No description provided for @chronicleProtect.
-  ///
-  /// In en, this message translates to:
-  /// **'{protector} shielded {name}.'**
-  String chronicleProtect(String protector, String name);
 
   /// No description provided for @chronicleLink.
   ///
@@ -1532,12 +1520,6 @@ abstract class AppLocalizations {
   /// **'Cupid'**
   String get roleCupid;
 
-  /// No description provided for @roleProtector.
-  ///
-  /// In en, this message translates to:
-  /// **'Protector'**
-  String get roleProtector;
-
   /// No description provided for @roleWitchText.
   ///
   /// In en, this message translates to:
@@ -1555,12 +1537,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In the first night you bind two people as lovers. If one of them dies, so does the other.'**
   String get roleCupidText;
-
-  /// No description provided for @roleProtectorText.
-  ///
-  /// In en, this message translates to:
-  /// **'Each night you shield one person from the werewolves, yourself too, but never the same one two nights in a row.'**
-  String get roleProtectorText;
 
   /// No description provided for @factionLovers.
   ///
@@ -2329,12 +2305,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The witch wakes up. She sees who is to die tonight and reaches for her potions.'**
   String get narrateStepBrew;
-
-  /// No description provided for @narrateStepProtect.
-  ///
-  /// In en, this message translates to:
-  /// **'The protector wakes up and chooses whom to shield tonight.'**
-  String get narrateStepProtect;
 
   /// No description provided for @narrateStepSleep.
   ///

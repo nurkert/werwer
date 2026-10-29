@@ -33,7 +33,7 @@ Das Spiel wechselt zwischen **Nacht** (geheime Aktionen) und **Tag** (Diskussion
 
 - **Whowolf-Nacht** (`NightMode.together`, ab Stufe „Whowolf“): Alle haben ihr Handy in der Hand und tippen gleichzeitig. Wer nichts zu tun hat, bekommt eine Tarnaufgabe (Schäfchen oder eine neutrale Wahl), damit das Tippen niemanden verrät. Nur hier gibt es Schäfchen und Türzeichen.
 - **Klassische Nacht** (`NightMode.called`, Stufe „Klassisch“): Werwolf, wie man es kennt.
-  - **Ablauf:** Alle schließen die Augen, der Erzähler ruft die Rollen nacheinander auf: Amor (nur in der ersten Nacht), der Beschützer, die Werwölfe, die Seherin, die Hexe.
+  - **Ablauf:** Alle schließen die Augen, der Erzähler ruft die Rollen nacheinander auf: Amor (nur in der ersten Nacht), die Werwölfe, die Seherin, die Hexe.
   - **Handys:** Nur wer aufgerufen ist, nimmt sein Handy. Alle anderen sehen „Augen zu“ und welche Rolle gerade wach ist.
   - **Erzähler:** Die App erzählt laut (Stimme in dieser Stufe an).
   - **Tote Rollen:** Ein Schritt endet, sobald alle Lebenden der Rolle gewählt haben. Ist die Rolle tot, wird sie trotzdem kurz (8 s) aufgerufen, damit niemand am Ablauf hört, wer fehlt.
@@ -58,7 +58,6 @@ Jeder Spieler wählt in der Lobby eine Persona: zwanzig ganz normale Leute aus d
 | Jäger | Nimmt beim Tod eine Person mit. |
 | Amor | Verbindet in Nacht 1 zwei Personen. Stirbt einer, stirbt der andere. |
 | Bürgermeister (umgesetzt, Task 023 F2, Einstellung) | Gibt es keinen lebenden Bürgermeister, wählt das Dorf tagsüber offen einen (wie per Handzeichen, umwählen erlaubt). Liegt einer allein vorn, sobald alle gewählt haben oder spätestens am Ende der Diskussion, trägt er die Kette; bei Gleichstand bleibt das Dorf bis morgen ohne. Seine Stimme zählt bei der Abstimmung doppelt. Stirbt er, wählt der nächste Tag neu. |
-| Beschützer (umgesetzt, Task 023 F3) | Schützt jede Nacht eine Person vor den Werwölfen, auch sich selbst, aber nie zweimal hintereinander dieselbe. Ist das Opfer geschützt, stirbt niemand durch die Wölfe, und die Hexe sieht kein Opfer. In der gerufenen Nacht kommt er vor den Werwölfen. Ein Türzeichen-Treffer des Rudels zählt nicht als Angriff, den er abwehrt. |
 | Eigene Rollen | Ideen für Whowolf-eigene Rollen sammeln, das macht die App besonders. |
 
 ## Türzeichen

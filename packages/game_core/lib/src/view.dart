@@ -116,7 +116,6 @@ class PlayerView {
     this.packMark,
     this.couple = const [],
     this.victim,
-    this.guardedBefore,
     this.potions = const {},
     this.shooter,
     this.winner,
@@ -223,11 +222,8 @@ class PlayerView {
   final List<PlayerId> couple;
 
   /// For the witch in her night step: tonight's victim of the werewolves
-  /// (`null` if they did not agree, or the protector shields them).
+  /// (`null` if they did not agree).
   final PlayerId? victim;
-
-  /// For the protector: whom he shielded last night (not again tonight).
-  final PlayerId? guardedBefore;
 
   /// For the witch: her potions still unused.
   final Set<Potion> potions;
@@ -337,12 +333,7 @@ PlayerView viewFor(GameState state, PlayerId viewer) {
         : null,
     packMark: isWolf && me.isAlive ? state.packMark : null,
     couple: knowsCouple ? state.lovers : const [],
-    victim: isWitch && state.phase == Phase.night
-        ? state.unguardedVictim
-        : null,
-    guardedBefore: me.role == Role.protector && me.isAlive
-        ? state.lastGuarded
-        : null,
+    victim: isWitch && state.phase == Phase.night ? state.nightVictim : null,
     potions: isWitch
         ? {
             for (final p in Potion.values)

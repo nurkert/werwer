@@ -31,10 +31,6 @@ enum NightAbility {
   /// and poison someone with the other, each once per game.
   brew,
 
-  /// Shields one player from the werewolves tonight; never the same one
-  /// two nights in a row.
-  protect,
-
   /// Picks someone too, without any effect.
   decoy,
 }
@@ -60,10 +56,7 @@ enum Role {
   hunter(Faction.village, NightAbility.decoy),
 
   /// Links two players as lovers in the first night.
-  cupid(Faction.village, NightAbility.link),
-
-  /// Shields one player each night from the werewolves.
-  protector(Faction.village, NightAbility.protect);
+  cupid(Faction.village, NightAbility.link);
 
   const Role(this.faction, this.nightAbility);
 
@@ -78,13 +71,7 @@ enum Role {
 
 /// Roles a game can have besides werewolves and villagers, each at most
 /// once.
-const Set<Role> specialRoles = {
-  Role.seer,
-  Role.witch,
-  Role.protector,
-  Role.hunter,
-  Role.cupid,
-};
+const Set<Role> specialRoles = {Role.seer, Role.witch, Role.hunter, Role.cupid};
 
 /// A character a player appears as at the table: twenty ordinary villagers,
 /// ten women and ten men, alternating so a new table starts mixed. Any

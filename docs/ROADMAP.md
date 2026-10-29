@@ -266,7 +266,7 @@ Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit
 - [x] **F – Neue Inhalte:**
   - Ruhemodus am Tisch (6d)
   - Bürgermeister
-  - Beschützer (wartet auf Sprachaufnahmen des Eigentümers)
+  - ~~Beschützer~~ (umgesetzt, am 2026-10-29 auf Wunsch des Eigentümers wieder entfernt)
 - [x] **G1 – Release 0.2.0** (2026-10-28)
 - [ ] **G2 – Generalprobe am Tisch** mit echten Geräten (mit dem Eigentümer)
 

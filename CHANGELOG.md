@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Changed
+
+- Remove the protector role again; protocol version 16.
+
 ## 0.2.0 – 2026-10-28
 
 Every device at the table needs this version (protocol 15).
