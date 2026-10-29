@@ -32,6 +32,7 @@ class HostConfig {
     this.maxMessagesPerSecond = 20,
     this.maxBadMessages = 3,
     this.maxPending = 6,
+    this.lateJoinWait = const Duration(minutes: 20),
     this.switchLead = const Duration(milliseconds: 1200),
     this.leaseTime = const Duration(seconds: 4),
   });
@@ -67,8 +68,13 @@ class HostConfig {
   /// More malformed messages than this end the connection.
   final int maxBadMessages;
 
-  /// Most joins without the QR code waiting for the owner at once.
+  /// Most joins waiting for the owner at once (without the QR code, or
+  /// into a running game).
   final int maxPending;
+
+  /// How long someone who asked to join a running game may wait: the game
+  /// leader only decides by day, so the wait may last through a night.
+  final Duration lateJoinWait;
 }
 
 class _Session {
@@ -229,6 +235,7 @@ class GameHost {
       .._version = json.maybeInteger('version', max: maxSeq) ?? 0
       ..epoch = takeOver ? epoch + 1 : epoch
       .._sessions.addAll(sessions)
+      .._locked = json.maybeBoolean('locked') ?? false
       .._phaseStartedAt = offset != null && startedAt != null && startedAt > 0
           ? startedAt - offset
           : now;
@@ -294,6 +301,16 @@ class GameHost {
 
   /// Whether the game stands still: this host may have been replaced.
   bool get frozen => _outstanding != null;
+
+  /// Whether the game leader locked the room: nobody new may ask to join;
+  /// players who were let in come back with their token as always.
+  bool get locked => _locked;
+  bool _locked = false;
+
+  /// Called when the room was locked or unlocked, so the app's
+  /// announcement says so (a hint for the join screen; the host refuses
+  /// either way).
+  void Function({required bool locked})? onLocked;
 
   /// Called when the epoch changed without a takeover (see
   /// [_reviewSuccession]), so the app announces the new one.
@@ -412,6 +429,7 @@ class GameHost {
     'phaseAt': _phaseStartedAt,
     'endsAt': ?_phaseDeadline,
     'pausedLeftMs': ?_pausedLeft,
+    if (_locked) 'locked': true,
     'state': encodeState(_state),
     'sessions': [
       for (final s in _sessions.values)
@@ -859,9 +877,16 @@ class GameHost {
       _bind(link, again, candidate: hello.candidate);
       return;
     }
-    if (_state.phase != Phase.lobby) return _bye(link, ByeReason.gameRunning);
-    // Joined without the QR code's secret: the host checks the code first.
-    if (!link.owner && unverified) {
+    // Locked: nobody new, before any name check or prompt (players who were
+    // let in came back above, with their token).
+    if (_locked && !link.owner) return _bye(link, ByeReason.locked);
+    final running = _state.phase != Phase.lobby;
+    if (_state.phase == Phase.ended || (running && link.owner)) {
+      return _bye(link, ByeReason.gameRunning);
+    }
+    // Joined without the QR code's secret, or into a running game: the
+    // game leader checks the code first (in a running game only by day).
+    if (!link.owner && (unverified || running)) {
       if (!_nameAvailable(link, hello.name)) return;
       final waiting = _pending.values.where((p) => p.link == link).firstOrNull;
       if (waiting != null) {
@@ -876,11 +901,14 @@ class GameHost {
         _pending[id] = _Pending(id, link, hello.name);
         link
           ..cancelHello?.call()
-          ..cancelHello = _startTimer(config.renameTimeout, () {
-            if (link.session == null) _drop(link);
-          });
+          ..cancelHello = _startTimer(
+            running ? config.lateJoinWait : config.renameTimeout,
+            () {
+              if (link.session == null) _drop(link);
+            },
+          );
       }
-      connection.send(const Waiting().encode());
+      connection.send(Waiting(running: running).encode());
       _broadcast();
       return;
     }
@@ -890,7 +918,7 @@ class GameHost {
   /// Checks [name] without joining; on a taken name the player may retry.
   bool _nameAvailable(_Link link, String name) {
     try {
-      apply(_state, AddPlayer(const PlayerId('probe'), name));
+      checkNewPlayer(_state, name);
       return true;
     } on RuleViolation catch (violation) {
       if (violation.reason != Violation.invalidName) {
@@ -916,11 +944,20 @@ class GameHost {
       return _broadcast();
     }
     if (pending.link.session != null) return _broadcast();
-    if (_state.phase != Phase.lobby) {
-      _bye(pending.link, ByeReason.gameRunning);
-      return _broadcast();
+    switch (_state.phase) {
+      case Phase.lobby:
+        _join(pending.link, pending.name);
+      case Phase.day:
+        _join(pending.link, pending.name, late: true);
+      case Phase.ended:
+        _bye(pending.link, ByeReason.gameRunning);
+        _broadcast();
+      case Phase.roleReveal || Phase.night || Phase.vote || Phase.hunterShot:
+        // The day ended while the leader decided: they wait for the next
+        // one and are asked again then.
+        _pending[id] = pending;
+        _broadcast();
     }
-    _join(pending.link, pending.name);
   }
 
   void _join(
@@ -928,10 +965,14 @@ class GameHost {
     String name, {
     String? join,
     Candidate? candidate,
+    bool late = false,
   }) {
     final id = PlayerId('p${_nextId++}');
     try {
-      _state = apply(_state, AddPlayer(id, name)).state;
+      _state = apply(
+        _state,
+        late ? JoinLate(id, name) : AddPlayer(id, name),
+      ).state;
     } on RuleViolation catch (violation) {
       if (violation.reason != Violation.invalidName) {
         return _bye(link, ByeReason.refused);
@@ -1203,6 +1244,18 @@ class GameHost {
         _pausedLeft = null;
         _commit(apply(_state, const PhaseTimeout()));
         return;
+      case LeaderAction.lock || LeaderAction.unlock:
+        final lock = action == LeaderAction.lock;
+        if (_locked == lock) return;
+        _locked = lock;
+        if (lock) {
+          // Whoever still waits is turned away now, not let in later.
+          for (final p in _pending.values.toList()) {
+            _bye(p.link, ByeReason.locked);
+          }
+          _pending.clear();
+        }
+        onLocked?.call(locked: lock);
     }
     _broadcast();
   }
@@ -1423,7 +1476,13 @@ class GameHost {
               ]
             : const [],
         paused: _pausedLeft != null,
-        pending: session.owner
+        locked: _locked,
+        // Asked only in the lobby and by day, the same on every phone's
+        // clock: never at night, where the leader's phone lighting up
+        // could look like a role at work.
+        pending:
+            session.owner &&
+                (_state.phase == Phase.lobby || _state.phase == Phase.day)
             ? [
                 for (final p in _pending.values)
                   PendingJoin(

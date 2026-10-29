@@ -262,6 +262,13 @@ class GameSession extends ChangeNotifier {
   /// Joined without the QR code's secret: waiting for the host's check.
   bool get waitingForHost => _link.waitingForHost;
 
+  /// While [waitingForHost]: the game is under way; the game leader
+  /// decides by day.
+  bool get waitingForDay => _link.waitingForDay;
+
+  /// The game leader locked the room: nobody new may ask to join.
+  bool get locked => _link.locked;
+
   /// Joined without the QR code: the player still has to confirm that the
   /// host's screen shows the same symbols.
   bool get needsCodeConfirmation => _link.needsCodeConfirmation;

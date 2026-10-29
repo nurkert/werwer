@@ -195,6 +195,7 @@ class HostedRoom {
       port: lan.port,
       hostKey: roomKeys.publicKey,
       epoch: host.epoch,
+      locked: host.locked,
     );
     final keptAlive =
         notice != null &&
@@ -227,8 +228,12 @@ class HostedRoom {
   /// The host claimed the room anew (its successor and witness were out
   /// of reach, the rest of the table still here): the announcement says
   /// so, or phones that saw the new epoch would pass this host by.
+  ///
+  /// Locking or opening the room shows in the announcement too, so the
+  /// join screen can say so (the host refuses either way).
   void _followEpoch() {
     host.onEpoch = (_) => unawaited(_announceAgain());
+    host.onLocked = ({required locked}) => unawaited(_announceAgain());
   }
 
   Future<void> _announceAgain() async {
@@ -241,6 +246,7 @@ class HostedRoom {
       port: _port,
       hostKey: _keys.publicKey,
       epoch: host.epoch,
+      locked: host.locked,
     );
     _announcer = announcer;
     // Closed while announcing: close() already stopped the old announcer.
@@ -452,6 +458,7 @@ class HostedRoom {
       port: lan.port,
       hostKey: _keys.publicKey,
       epoch: host.epoch,
+      locked: host.locked,
     );
     _announcer = announcer;
     // Closed while announcing: close() already stopped the old announcer.

@@ -26,6 +26,19 @@ final class AddPlayer extends GameAction {
   final String name;
 }
 
+/// Someone joins a running game by day, after the game leader let them in.
+/// They come in as [GameSettings.lateJoin] says.
+final class JoinLate extends GameAction {
+  /// Creates the action.
+  const JoinLate(this.player, this.name);
+
+  /// New player's id.
+  final PlayerId player;
+
+  /// Display name.
+  final String name;
+}
+
 /// A player leaves (or is removed from) the lobby.
 final class RemovePlayer extends GameAction {
   /// Creates the action.

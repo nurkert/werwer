@@ -27,6 +27,7 @@ class RoomAnnouncer {
     required List<int> hostKey,
     int epoch = 0,
     bool candidate = false,
+    bool locked = false,
   }) async {
     try {
       final print = keyPrint(hostKey);
@@ -47,6 +48,7 @@ class RoomAnnouncer {
             'v': '$protocolVersion',
             if (epoch > 0) 'epoch': '$epoch',
             if (candidate) 'cand': '1',
+            if (locked) 'lock': '1',
           },
         ),
       );
@@ -105,6 +107,7 @@ class NearbyRoom {
     this.keyPrint,
     this.epoch = 0,
     this.candidate = false,
+    this.locked = false,
   });
 
   final String id;
@@ -120,6 +123,10 @@ class NearbyRoom {
 
   /// A successor's entrance during a takeover, not a room to join.
   final bool candidate;
+
+  /// The game leader locked the room: shown, but not offered to join (a
+  /// hint only; the host refuses newcomers either way).
+  final bool locked;
 }
 
 /// Answers whether a host listens at an address.
@@ -367,6 +374,7 @@ class RoomFinder extends ChangeNotifier {
             )?.clamp(0, maxEpoch) ??
             0,
         candidate: service.attributes['cand'] == '1',
+        locked: service.attributes['lock'] == '1',
       ),
     );
   }

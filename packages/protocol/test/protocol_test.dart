@@ -42,6 +42,9 @@ void main() {
         const PersonaIntent(Persona.smith),
         const SwapSeatsIntent(PlayerId('p1'), PlayerId('p2')),
         const AdmitIntent(3, admit: true),
+        const LeaderIntent(LeaderAction.lock),
+        const LeaderIntent(LeaderAction.unlock),
+        const SettingsIntent(GameSettings(lateJoin: LateJoin.villager)),
         const PingIntent(12),
       ];
       for (final m in messages) {
@@ -167,6 +170,7 @@ void main() {
         isOwner: true,
         phaseEndsInMs: 4200,
         version: 17,
+        locked: true,
         pending: const [
           PendingJoin(id: 2, name: 'Eve', checkCode: [3, 15, 0]),
         ],
@@ -175,6 +179,7 @@ void main() {
       expect(back.encode(), message.encode());
       expect(back.view.packChoices, {wolf.id: victim.id});
       expect(back.view.yourRole, Role.werewolf);
+      expect(back.locked, isTrue);
     });
 
     test('every view of a game with all roles round-trips', () {
@@ -289,6 +294,8 @@ void main() {
         const Refused(Violation.invalidTarget),
         const Bye(ByeReason.kicked),
         const Waiting(),
+        const Waiting(running: true),
+        const Bye(ByeReason.locked),
         const Ack(4, version: 9),
         const Pong(3),
       ]) {

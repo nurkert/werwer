@@ -98,6 +98,20 @@ enum NarratorStage {
   theater,
 }
 
+/// How someone who joins a running game comes in (only by day, and only
+/// when the game leader lets them in).
+enum LateJoin {
+  /// As a ghost: dead from the start, no role of their own to play, sees
+  /// what the dead see ([GameSettings.ghosts]). Changes nothing about who
+  /// can win.
+  ghost,
+
+  /// As a living villager: votes from the next vote on. Everyone knows the
+  /// newcomer is a villager (the setting is public), so they are a
+  /// confirmed innocent.
+  villager,
+}
+
 /// Which phones play the narrator and the shared sounds.
 enum SoundMode {
   /// Every phone at the table.
@@ -141,6 +155,7 @@ class GameSettings {
     this.tieRule = TieRule.runoff,
     this.openVotes = false,
     this.mayor = false,
+    this.lateJoin = LateJoin.ghost,
   });
 
   /// The special roles in play (a subset of [specialRoles]), each dealt
@@ -219,6 +234,9 @@ class GameSettings {
   /// the talk.
   final bool mayor;
 
+  /// How someone who joins a running game comes in.
+  final LateJoin lateJoin;
+
   /// Whether sheep are counted: they need the phones in hand at night, so
   /// not when the narrator calls the roles.
   bool get sheepInPlay => sheepCounting && nightMode == NightMode.together;
@@ -234,10 +252,11 @@ class GameSettings {
       .firstOrNull;
 
   /// These settings with the table's own choices from [other]: the
-  /// narrator's language, where sound plays and the phase times (a preset
-  /// keeps them).
+  /// narrator's language, where sound plays, the phase times and how
+  /// latecomers come in (a preset keeps them).
   GameSettings withTableOf(GameSettings other) => copyWith(
     narratorLanguage: other.narratorLanguage,
+    lateJoin: other.lateJoin,
     soundMode: other.soundMode,
     soundSeats: other.soundSeats,
     nightTime: other.nightTime,
@@ -361,6 +380,7 @@ class GameSettings {
     TieRule? tieRule,
     bool? openVotes,
     bool? mayor,
+    LateJoin? lateJoin,
   }) => GameSettings(
     roles: roles ?? this.roles,
     werewolves: suggestWerewolves ? null : werewolves ?? this.werewolves,
@@ -383,6 +403,7 @@ class GameSettings {
     tieRule: tieRule ?? this.tieRule,
     openVotes: openVotes ?? this.openVotes,
     mayor: mayor ?? this.mayor,
+    lateJoin: lateJoin ?? this.lateJoin,
   );
 
   @override
@@ -410,7 +431,8 @@ class GameSettings {
       other.ghosts == ghosts &&
       other.tieRule == tieRule &&
       other.openVotes == openVotes &&
-      other.mayor == mayor;
+      other.mayor == mayor &&
+      other.lateJoin == lateJoin;
 
   @override
   int get hashCode => Object.hashAll([
@@ -435,6 +457,7 @@ class GameSettings {
     tieRule,
     openVotes,
     mayor,
+    lateJoin,
   ]);
 }
 

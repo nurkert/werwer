@@ -59,7 +59,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get byeWrongRoom => 'The room code is wrong.';
 
   @override
-  String get byeGameRunning => 'This game has already started.';
+  String get byeGameRunning => 'This round is already over.';
 
   @override
   String get byeUnknownSession => 'The host no longer knows you.';
@@ -1880,4 +1880,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get motionMenu => 'Stage & battery';
+
+  @override
+  String get byeLocked =>
+      'The room is locked. Players who are in can come back, but nobody new can join right now.';
+
+  @override
+  String get waitingForDayHint =>
+      'The round is already under way. The game leader lets you in once it is day.';
+
+  @override
+  String get settingsRoom => 'Room';
+
+  @override
+  String get lockRoom => 'Lock the room';
+
+  @override
+  String get lockRoomOn =>
+      'Nobody new can join. Players who are in can always come back.';
+
+  @override
+  String get lockRoomOff =>
+      'Whoever comes along asks to be let in, and you let them in with the symbols.';
+
+  @override
+  String get settingsLateJoin => 'Latecomers play as';
+
+  @override
+  String get lateJoinGhost => 'Ghost';
+
+  @override
+  String get lateJoinVillager => 'Villager';
+
+  @override
+  String get lateJoinGhostHint =>
+      'Someone can join by day and watch as a ghost, without a role or a vote. That way arriving gives nothing away.';
+
+  @override
+  String get lateJoinVillagerHint =>
+      'Someone can join by day as a living villager and vote. Then everyone knows they are not a werewolf.';
+
+  @override
+  String get lateJoinAsGhost => 'Joins as a ghost.';
+
+  @override
+  String get lateJoinAsVillager => 'Joins as a villager.';
+
+  @override
+  String get roomLocked => 'Locked';
+
+  @override
+  String moreWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more are waiting.',
+      one: 'One more is waiting.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unlockRoom => 'Unlock the room';
 }

@@ -220,6 +220,9 @@ class PlayerLink {
   /// The game leader paused the clock.
   bool paused = false;
 
+  /// The game leader locked the room: nobody new may ask to join.
+  bool locked = false;
+
   /// This player is in a browser (the host shows it in the lobby).
   final bool web;
 
@@ -234,8 +237,13 @@ class PlayerLink {
   int? _phaseEndsAtHost;
   int? _phaseEndsAtArrival;
 
-  /// Joined without the QR code's secret: waiting for the host's check.
+  /// Joined without the QR code's secret, or into a running game: waiting
+  /// for the game leader's check.
   bool waitingForHost = false;
+
+  /// While [waitingForHost]: the game is under way, so the game leader
+  /// decides by day; the wait may last through a night.
+  bool waitingForDay = false;
 
   /// Symbols to compare with the host, from the encrypted handshake.
   List<int> checkCode = const [];
@@ -448,8 +456,9 @@ class PlayerLink {
       _expectAnswer(connection);
     }
     switch (message) {
-      case Waiting():
+      case Waiting(:final running):
         waitingForHost = true;
+        waitingForDay = running;
       case Welcome(
         :final token,
         :final roomSecret,
@@ -584,6 +593,7 @@ class PlayerLink {
     ready = message.ready;
     offline = message.offline;
     paused = message.paused;
+    locked = message.locked;
     phaseStartedAtHostMs = message.phaseAt;
     introSkippedAtHostMs = message.introSkippedAt;
     final endsIn = message.phaseEndsInMs;
@@ -598,6 +608,7 @@ class PlayerLink {
     int lastSeq,
   ) {
     waitingForHost = false;
+    waitingForDay = false;
     nameRefused = false;
     if (connection case PeerTrust(
       verified: false,

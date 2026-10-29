@@ -467,9 +467,10 @@ class _Nearby extends StatelessWidget {
                       horizontal: 18,
                       vertical: 6,
                     ),
-                    leading: const Icon(
-                      Icons.nightlight_round,
-                      color: Palette.lantern400,
+                    // A locked room shows, but takes nobody new: no tap.
+                    leading: Icon(
+                      room.locked ? Icons.lock_rounded : Icons.nightlight_round,
+                      color: room.locked ? Palette.moon200 : Palette.lantern400,
                     ),
                     title: Text(
                       room.hostName.isEmpty
@@ -482,13 +483,15 @@ class _Nearby extends StatelessWidget {
                       ),
                     ),
                     trailing: Text(
-                      l10n.connect,
-                      style: const TextStyle(
-                        color: Palette.lantern400,
+                      room.locked ? l10n.roomLocked : l10n.connect,
+                      style: TextStyle(
+                        color: room.locked
+                            ? Palette.moon200
+                            : Palette.lantern400,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    onTap: () => onJoin(room),
+                    onTap: room.locked ? null : () => onJoin(room),
                   ),
                 ),
               ),

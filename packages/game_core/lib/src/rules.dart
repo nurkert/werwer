@@ -37,6 +37,7 @@ class GameUpdate {
 /// Throws a [RuleViolation] for an action that breaks the rules.
 GameUpdate apply(GameState state, GameAction action) => switch (action) {
   AddPlayer() => _addPlayer(state, action),
+  JoinLate() => _joinLate(state, action),
   RemovePlayer() => _removePlayer(state, action),
   ChoosePersona() => _choosePersona(state, action),
   SwapSeats() => _swapSeats(state, action),
@@ -256,20 +257,29 @@ Player _living(GameState state, PlayerId id) {
   return player;
 }
 
+/// Throws a [RuleViolation] unless someone named [name] could sit down at
+/// this table now: [Violation.gameFull] when every seat is taken,
+/// [Violation.invalidName] for an empty, too long, unprintable or taken
+/// name. Says nothing about the phase.
+void checkNewPlayer(GameState state, String name) {
+  if (state.players.length >= maxPlayers) _refuse(Violation.gameFull);
+  final trimmed = name.trim();
+  final taken = state.players.any(
+    (p) => p.name.toLowerCase() == trimmed.toLowerCase(),
+  );
+  if (trimmed.isEmpty ||
+      trimmed.length > maxNameLength ||
+      taken ||
+      _unprintable.hasMatch(trimmed)) {
+    _refuse(Violation.invalidName);
+  }
+}
+
 GameUpdate _addPlayer(GameState state, AddPlayer action) {
   _expectPhase(state, Phase.lobby);
   if (state.player(action.player) != null) _refuse(Violation.duplicatePlayer);
-  if (state.players.length >= maxPlayers) _refuse(Violation.gameFull);
+  checkNewPlayer(state, action.name);
   final name = action.name.trim();
-  final taken = state.players.any(
-    (p) => p.name.toLowerCase() == name.toLowerCase(),
-  );
-  if (name.isEmpty ||
-      name.length > maxNameLength ||
-      taken ||
-      _unprintable.hasMatch(name)) {
-    _refuse(Violation.invalidName);
-  }
   final count = state.players.length;
   return GameUpdate(
     state.copyWith(
@@ -280,6 +290,30 @@ GameUpdate _addPlayer(GameState state, AddPlayer action) {
           id: action.player,
           name: name,
           persona: _persona(state, action.player, action.persona),
+        ),
+      ],
+    ),
+    [PlayerJoined(action.player)],
+  );
+}
+
+/// Someone joins by day: as a ghost (dead, a villager who never played) or
+/// as a living villager, as the table set it. Nobody is told more than that
+/// a seat was added; the newcomer's view is filtered like everyone's.
+GameUpdate _joinLate(GameState state, JoinLate action) {
+  _expectPhase(state, Phase.day);
+  if (state.player(action.player) != null) _refuse(Violation.duplicatePlayer);
+  checkNewPlayer(state, action.name);
+  return GameUpdate(
+    state.copyWith(
+      players: [
+        ...state.players,
+        Player(
+          id: action.player,
+          name: action.name.trim(),
+          persona: _persona(state, action.player, null),
+          role: Role.villager,
+          isAlive: state.settings.lateJoin == LateJoin.villager,
         ),
       ],
     ),

@@ -52,6 +52,12 @@ class GameSettingsPanel extends StatelessWidget {
         seats: view.seats,
         you: view.you,
         onChanged: (settings) => session.send(SettingsIntent(settings)),
+        locked: session.locked,
+        onLock: session.isOwner
+            ? (lock) => session.send(
+                LeaderIntent(lock ? LeaderAction.lock : LeaderAction.unlock),
+              )
+            : null,
       );
     },
   );
@@ -64,10 +70,17 @@ class _SettingsBody extends StatelessWidget {
     required this.onChanged,
     this.seats = const [],
     this.you,
+    this.locked = false,
+    this.onLock,
   });
 
   final GameSettings settings;
   final int players;
+
+  /// Whether the room is locked; [onLock] locks or opens it (the game
+  /// leader only).
+  final bool locked;
+  final ValueChanged<bool>? onLock;
 
   /// Who sits at the table (to pick where sound plays) and this player.
   final List<SeatView> seats;
@@ -347,6 +360,33 @@ class _SettingsBody extends StatelessWidget {
         ),
       ],
       _SoundPlaces(settings: s, seats: seats, you: you, onChanged: onChanged),
+      SettingsSection(l10n.settingsRoom),
+      if (onLock case final lock?)
+        SettingsSwitch(
+          label: l10n.lockRoom,
+          hint: locked ? l10n.lockRoomOn : l10n.lockRoomOff,
+          value: locked,
+          onChanged: lock,
+        ),
+      SettingsChoice<LateJoin>(
+        label: l10n.settingsLateJoin,
+        segments: [
+          ButtonSegment(value: LateJoin.ghost, label: Text(l10n.lateJoinGhost)),
+          ButtonSegment(
+            value: LateJoin.villager,
+            label: Text(l10n.lateJoinVillager),
+          ),
+        ],
+        selected: s.lateJoin,
+        onChanged: (v) => onChanged(s.copyWith(lateJoin: v)),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Body(switch (s.lateJoin) {
+          LateJoin.ghost => l10n.lateJoinGhostHint,
+          LateJoin.villager => l10n.lateJoinVillagerHint,
+        }, muted: true),
+      ),
     ];
     // Each section on its own plaque, so it reads on any stage set; the
     // quick picks are plaques already. With room for it (tablet, desktop)

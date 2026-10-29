@@ -17,7 +17,7 @@ import 'package:protocol/src/view_codec.dart';
 /// 6: the narrator's intro (the owner may skip it; when, in the state).
 /// 7: ghosts and the runoff (both settings, what ghosts see, the runoff's
 /// candidates in the view).
-const protocolVersion = 16;
+const protocolVersion = 17;
 
 /// Largest clock value a message may carry (milliseconds since the epoch;
 /// safely below what JavaScript numbers hold exactly).
@@ -525,9 +525,17 @@ enum LeaderAction {
 
   /// Ends the discussion or the vote now.
   end,
+
+  /// Locks the room: nobody new may ask to join (players who were let in
+  /// still come back with their token).
+  lock,
+
+  /// Opens a locked room again.
+  unlock,
 }
 
-/// Room owner: pause, resume, extend or end the current phase.
+/// Room owner: pause, resume, extend or end the current phase, or lock and
+/// unlock the room.
 final class LeaderIntent extends ClientMessage {
   /// Creates the message.
   const LeaderIntent(this.action);
@@ -693,6 +701,10 @@ enum ByeReason {
   /// Host and player speak different versions of the protocol (never
   /// sent: the player ends with it after a version notice).
   version,
+
+  /// The game leader locked the room: only players who were let in before
+  /// may come back.
+  locked,
 }
 
 /// Something the host sends to a player.
@@ -754,6 +766,7 @@ sealed class HostMessage {
         offline: _idList(json, 'offline'),
         voices: _idList(json, 'voices'),
         paused: json.maybeBoolean('paused') ?? false,
+        locked: json.maybeBoolean('locked') ?? false,
         silent: json.has('silent')
             ? [
                 for (final id in json.strings(
@@ -778,7 +791,7 @@ sealed class HostMessage {
             ),
         ],
       ),
-      'waiting' => const Waiting(),
+      'waiting' => Waiting(running: json.maybeBoolean('running') ?? false),
       'pong' => Pong(
         json.integer('version', max: maxSeq),
         echo: json.maybeInteger('echo', max: maxClock),
@@ -1047,7 +1060,11 @@ final class StateMessage extends HostMessage {
     this.ready = const [],
     this.offline = const [],
     this.paused = false,
+    this.locked = false,
   });
+
+  /// The game leader locked the room: nobody new may ask to join.
+  final bool locked;
 
   /// In the discussion: who is ready to vote.
   final List<PlayerId> ready;
@@ -1133,6 +1150,7 @@ final class StateMessage extends HostMessage {
     if (ready.isNotEmpty) 'ready': [for (final p in ready) p.value],
     if (offline.isNotEmpty) 'offline': [for (final p in offline) p.value],
     if (paused) 'paused': true,
+    if (locked) 'locked': true,
     'pending': [
       for (final p in pending)
         {
@@ -1144,16 +1162,21 @@ final class StateMessage extends HostMessage {
   };
 }
 
-/// You are encrypted but not verified: wait until the host lets you in.
+/// Wait until the game leader lets you in (you joined without the QR
+/// code, or the game is already under way).
 final class Waiting extends HostMessage {
   /// Creates the message.
-  const Waiting();
+  const Waiting({this.running = false});
+
+  /// The game is under way: the game leader decides by day, so the wait
+  /// may last until the next morning.
+  final bool running;
 
   @override
   String get _type => 'waiting';
 
   @override
-  Map<String, Object?> get _fields => const {};
+  Map<String, Object?> get _fields => {if (running) 'running': true};
 }
 
 /// Your last intent was refused; nothing changed.

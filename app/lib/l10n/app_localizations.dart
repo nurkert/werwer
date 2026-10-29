@@ -191,7 +191,7 @@ abstract class AppLocalizations {
   /// No description provided for @byeGameRunning.
   ///
   /// In en, this message translates to:
-  /// **'This game has already started.'**
+  /// **'This round is already over.'**
   String get byeGameRunning;
 
   /// No description provided for @byeUnknownSession.
@@ -3277,6 +3277,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stage & battery'**
   String get motionMenu;
+
+  /// No description provided for @byeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The room is locked. Players who are in can come back, but nobody new can join right now.'**
+  String get byeLocked;
+
+  /// No description provided for @waitingForDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The round is already under way. The game leader lets you in once it is day.'**
+  String get waitingForDayHint;
+
+  /// No description provided for @settingsRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Room'**
+  String get settingsRoom;
+
+  /// No description provided for @lockRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock the room'**
+  String get lockRoom;
+
+  /// No description provided for @lockRoomOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody new can join. Players who are in can always come back.'**
+  String get lockRoomOn;
+
+  /// No description provided for @lockRoomOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever comes along asks to be let in, and you let them in with the symbols.'**
+  String get lockRoomOff;
+
+  /// No description provided for @settingsLateJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Latecomers play as'**
+  String get settingsLateJoin;
+
+  /// No description provided for @lateJoinGhost.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghost'**
+  String get lateJoinGhost;
+
+  /// No description provided for @lateJoinVillager.
+  ///
+  /// In en, this message translates to:
+  /// **'Villager'**
+  String get lateJoinVillager;
+
+  /// No description provided for @lateJoinGhostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone can join by day and watch as a ghost, without a role or a vote. That way arriving gives nothing away.'**
+  String get lateJoinGhostHint;
+
+  /// No description provided for @lateJoinVillagerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone can join by day as a living villager and vote. Then everyone knows they are not a werewolf.'**
+  String get lateJoinVillagerHint;
+
+  /// No description provided for @lateJoinAsGhost.
+  ///
+  /// In en, this message translates to:
+  /// **'Joins as a ghost.'**
+  String get lateJoinAsGhost;
+
+  /// No description provided for @lateJoinAsVillager.
+  ///
+  /// In en, this message translates to:
+  /// **'Joins as a villager.'**
+  String get lateJoinAsVillager;
+
+  /// No description provided for @roomLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get roomLocked;
+
+  /// Late join prompt: how many more wait behind this one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One more is waiting.} other{{count} more are waiting.}}'**
+  String moreWaiting(int count);
+
+  /// No description provided for @unlockRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock the room'**
+  String get unlockRoom;
 }
 
 class _AppLocalizationsDelegate

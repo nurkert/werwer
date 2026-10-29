@@ -19,6 +19,7 @@ import 'package:whowolf/src/net/room_store.dart';
 import 'package:whowolf/src/net/store.dart';
 import 'package:whowolf/src/net/update_check.dart';
 import 'package:whowolf/src/privacy_screen.dart';
+import 'package:whowolf/src/quick_join.dart';
 import 'package:whowolf/src/stage/stage_pages.dart';
 import 'package:whowolf/src/stage/wolf_title.dart';
 import 'package:whowolf/src/theme.dart';
@@ -341,31 +342,13 @@ class _StartScreenState extends State<StartScreen> {
             // Tables open nearby: one tap, the last one first.
             ListenableBuilder(
               listenable: _finder,
-              builder: (context, _) {
-                final rooms = [..._finder.rooms]
-                  ..sort(
-                    (a, b) =>
-                        (b.room == _lastRoom ? 1 : 0) -
-                        (a.room == _lastRoom ? 1 : 0),
-                  );
-                return Column(
-                  children: [
-                    for (final room in rooms.take(2)) ...[
-                      SecondaryButton(
-                        label: room.hostName.isEmpty
-                            ? l10n.joinRoom
-                            : l10n.quickJoin(room.hostName),
-                        icon: room.room == _lastRoom
-                            ? Icons.history_rounded
-                            : Icons.wifi_rounded,
-                        selected: room.room == _lastRoom,
-                        onPressed: () => _quickJoin(room),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ],
-                );
-              },
+              builder: (context, _) => QuickJoinButtons(
+                rooms: _finder.rooms,
+                lastRoom: _lastRoom,
+                resume: _resume,
+                onJoin: _quickJoin,
+                onResume: _continue,
+              ),
             ),
             TextField(
               controller: _name,

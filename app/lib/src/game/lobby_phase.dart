@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:game_core/game_core.dart';
 import 'package:protocol/protocol.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
-import 'package:whowolf/src/game/check_code.dart';
+import 'package:whowolf/src/game/admit_card.dart';
 import 'package:whowolf/src/game/figures.dart';
 import 'package:whowolf/src/game/help.dart';
 import 'package:whowolf/src/game/lobby_figures.dart';
@@ -387,48 +387,8 @@ class _PendingPanel extends StatelessWidget {
   final PendingJoin join;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Panel(
-      highlight: true,
-      child: Column(
-        children: [
-          Headline(l10n.wantsToJoin(join.name)),
-          const SizedBox(height: 8),
-          Body(l10n.compareSymbols),
-          const SizedBox(height: 12),
-          CheckCode(code: join.checkCode, size: 32),
-          const SizedBox(height: 14),
-          LayoutBuilder(
-            builder: (context, box) {
-              final refuse = SecondaryButton(
-                label: l10n.refuse,
-                onPressed: () =>
-                    session.send(AdmitIntent(join.id, admit: false)),
-              );
-              final letIn = PrimaryButton(
-                label: l10n.letIn,
-                onPressed: () =>
-                    session.send(AdmitIntent(join.id, admit: true)),
-              );
-              // Side by side only where both labels fit on one line.
-              if (box.maxWidth < 360) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [letIn, const SizedBox(height: 10), refuse],
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: refuse),
-                  const SizedBox(width: 12),
-                  Expanded(child: letIn),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => AdmitCard(
+    join: join,
+    onAnswer: (admit) => session.send(AdmitIntent(join.id, admit: admit)),
+  );
 }

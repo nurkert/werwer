@@ -10,6 +10,7 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app_settings.dart';
+import 'package:whowolf/src/game/admit_card.dart';
 import 'package:whowolf/src/game/atmosphere.dart';
 import 'package:whowolf/src/game/check_code.dart';
 import 'package:whowolf/src/game/chronicle.dart';
@@ -500,6 +501,27 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                     onPressed: () =>
                         handOverSeat(context, session: session, link: link),
                   ),
+                // The game leader locks or opens the room mid-game too (in
+                // the lobby it sits with the settings).
+                if (view != null &&
+                    session.isOwner &&
+                    view.phase != Phase.lobby &&
+                    view.phase != Phase.ended)
+                  IconButton(
+                    tooltip: session.locked ? l10n.unlockRoom : l10n.lockRoom,
+                    icon: Icon(
+                      session.locked
+                          ? Icons.lock_rounded
+                          : Icons.lock_open_rounded,
+                    ),
+                    onPressed: () => session.send(
+                      LeaderIntent(
+                        session.locked
+                            ? LeaderAction.unlock
+                            : LeaderAction.lock,
+                      ),
+                    ),
+                  ),
                 // Everyone's own role, while held (the same for all).
                 if (view != null &&
                     view.yourRole != null &&
@@ -543,36 +565,39 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               child: _Paused(
                 paused: session.status == SessionStatus.reconnecting,
                 onLeave: _leave,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 380),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(
-                      scale: Tween<double>(
-                        begin: 0.97,
-                        end: 1,
-                      ).animate(animation),
-                      child: child,
+                child: _WithLateJoin(
+                  session: session,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 380),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(
+                        scale: Tween<double>(
+                          begin: 0.97,
+                          end: 1,
+                        ).animate(animation),
+                        child: child,
+                      ),
                     ),
-                  ),
-                  child: KeyedSubtree(
-                    key: ValueKey(_screenKey(view)),
-                    child: session.status == SessionStatus.ended
-                        ? _Ended(
-                            reason: session.byeReason,
-                            hostVersion: session.hostVersion,
-                          )
-                        : session.nameRefused
-                        ? _Rename(session: session)
-                        : (session.waitingForHost ||
-                                  session.needsCodeConfirmation) &&
-                              view == null
-                        ? _WaitingForHost(session: session)
-                        : view == null
-                        ? const Center(child: CircularProgressIndicator())
-                        : _phase(view),
+                    child: KeyedSubtree(
+                      key: ValueKey(_screenKey(view)),
+                      child: session.status == SessionStatus.ended
+                          ? _Ended(
+                              reason: session.byeReason,
+                              hostVersion: session.hostVersion,
+                            )
+                          : session.nameRefused
+                          ? _Rename(session: session)
+                          : (session.waitingForHost ||
+                                    session.needsCodeConfirmation) &&
+                                view == null
+                          ? _WaitingForHost(session: session)
+                          : view == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : _phase(view),
+                    ),
                   ),
                 ),
               ),
@@ -701,6 +726,26 @@ class _NarratorLine extends StatelessWidget {
   }
 }
 
+/// The game's screen with the late-join prompt for the game leader on
+/// top (by day only, see [LateJoinPrompt]).
+class _WithLateJoin extends StatelessWidget {
+  const _WithLateJoin({required this.session, required this.child});
+
+  final GameSession session;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      Positioned.fill(child: child),
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: LateJoinPrompt(session: session),
+      ),
+    ],
+  );
+}
+
 /// Joined without the QR code: wait until the host has compared the code.
 class _WaitingForHost extends StatelessWidget {
   const _WaitingForHost({required this.session});
@@ -737,12 +782,16 @@ class _WaitingForHost extends StatelessWidget {
           // Both sides compare: only if the host's screen asks about you
           // with these very symbols is it really the host.
           Body(l10n.codeConfirmHint),
+          if (session.waitingForDay) Body(l10n.waitingForDayHint, muted: true),
           PrimaryButton(
             label: l10n.codeConfirm,
             onPressed: session.confirmCheckCode,
           ),
         ] else ...[
-          Body(l10n.waitingHint, muted: true),
+          Body(
+            session.waitingForDay ? l10n.waitingForDayHint : l10n.waitingHint,
+            muted: true,
+          ),
           const CircularProgressIndicator(),
         ],
       ],
@@ -816,6 +865,7 @@ class _Ended extends StatelessWidget {
       ByeReason.replaced => l10n.byeReplaced,
       ByeReason.closed => l10n.byeClosed,
       ByeReason.misbehaved => l10n.byeMisbehaved,
+      ByeReason.locked => l10n.byeLocked,
       ByeReason.version =>
         (hostVersion ?? 0) > protocolVersion
             ? l10n.byeVersionNewer

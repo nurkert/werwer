@@ -5,9 +5,20 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Added
+
+- Join a running game by day: the game leader lets newcomers in with the
+  check symbols; they come in as a ghost (default) or as a villager, as
+  the table chooses in the settings.
+- Lock the room, in the lobby settings or from the top bar during the
+  game: nobody new can join, players who are in can always come back.
+  Locked rooms show with a lock in the room list and stay out of the
+  start screen's quick buttons.
+
 ### Changed
 
-- Remove the protector role again; protocol version 16.
+- Remove the protector role again.
+- Protocol version 17.
 
 ## 0.2.0 – 2026-10-28
 

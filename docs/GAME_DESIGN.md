@@ -71,7 +71,7 @@ Bisher hätten nur Werwölfe einen Grund, ihr Display zu verbergen, und genau da
 - **Keine Vibration und keine Töne, die etwas über den Besitzer verraten.** Kein Gerät darf nachts wegen der Rolle oder Aktion seines Besitzers anders klingen oder vibrieren.
 - **Erzähler und Nacht-Soundscape** (siehe unten) laufen synchron über **alle** Geräte, gesteuert vom Host.
 - **Reconnect:** Wer kurz rausfliegt (Bildschirm aus, Netzwerk weg, App abgestürzt), kommt mit **genau seinem Status** zurück ins Spiel (Rolle, lebendig/tot, offene Aktion).
-- **Später dazukommen:** Neue Spieler müssen auch während einer laufenden Partie beitreten können (Regel noch offen, siehe unten).
+- **Später dazukommen:** Wer während einer laufenden Partie kommt, bittet um Einlass. Der Spielleiter lässt nur **tagsüber** herein, immer mit dem Prüfbild; nachts wartet der Neue bis zum Morgen. Der Tisch wählt in den Einstellungen, wie Neue hereinkommen: als **Geist** (Standard: tot, ohne Rolle zum Spielen, ohne Stimme, sieht, was die Toten sehen) oder als **lebender Dorfbewohner**. Alle sehen den neuen Platz. Abwägung: Weil die Einstellung öffentlich ist, ist ein Neuer als Dorfbewohner ein bestätigter Unschuldiger, das verschiebt das Spiel zugunsten des Dorfes; als Geist verrät die Ankunft nichts. Der Spielleiter kann den Raum **abschließen**: Dann kommt niemand Neues mehr herein, wer schon mitspielt, kommt jederzeit zurück (Task 025).
 - **Spielleiter = normaler Spieler,** der den Raum aufmacht. Er hat keinen Wissensvorteil. Später soll auch der Server Spielleiter sein können (siehe ARCHITECTURE).
 - **Tote Spieler** sehen optional alles (Geistermodus), dürfen aber nicht mehr abstimmen.
 
@@ -95,7 +95,6 @@ Ausgearbeitet in **[NIGHT_SOUNDS.md](NIGHT_SOUNDS.md)**. Kurz: Wählen die Werw�
 
 ## Offene Fragen
 
-- **Später dazukommen während einer Partie:** Vorschlag: Wer mitten im Spiel beitritt, ist erst **Zuschauer** und wird zu Beginn der nächsten Nacht mit einer Rolle eingemischt (Host bestätigt), oder spielt erst die nächste Partie mit. Was ist fair?
 - Wolfsspur: offene Fragen siehe [NIGHT_SOUNDS.md](NIGHT_SOUNDS.md).
 - Rollen beim Tod aufdecken: Standard ja oder nein?
 - Eigene Rollennamen und eine eigene Welt (Lore) für Whowolf?

@@ -574,26 +574,36 @@ void main() {
     expect(twin.id, players[1].id);
   });
 
-  test('wrong room, unknown token and late joiners are turned away', () async {
-    final players = await table(3);
-    final wrong = Player(transport.connect())
-      ..send(const Hello(name: 'X', room: '0000'));
-    final unknown = Player(transport.connect())
-      ..send(
-        const Hello(
-          name: 'X',
-          room: room,
-          token: '00000000000000000000000000000000',
-        ),
-      );
-    await settle();
-    expect(wrong.bye, ByeReason.wrongRoom);
-    expect(unknown.bye, ByeReason.unknownSession);
+  test(
+    'wrong room and unknown token are turned away; a latecomer waits',
+    () async {
+      final players = await table(3);
+      final wrong = Player(transport.connect())
+        ..send(const Hello(name: 'X', room: '0000'));
+      final unknown = Player(transport.connect())
+        ..send(
+          const Hello(
+            name: 'X',
+            room: room,
+            token: '00000000000000000000000000000000',
+          ),
+        );
+      await settle();
+      expect(wrong.bye, ByeReason.wrongRoom);
+      expect(unknown.bye, ByeReason.unknownSession);
 
-    await start(players);
-    final late = await join('Late');
-    expect(late.bye, ByeReason.gameRunning);
-  });
+      await start(players);
+      final late = await join('Late');
+      expect(late.bye, isNull);
+      expect(late.waiting, isTrue);
+      expect(late.id, isNull);
+      expect(
+        late.received.whereType<Waiting>().single.running,
+        isTrue,
+        reason: 'the game is under way: the wait may last until the day',
+      );
+    },
+  );
 
   test('a taken name can be changed without reconnecting', () async {
     await table(2);
@@ -645,6 +655,206 @@ void main() {
       expect(sneaky.id, isNull);
     },
   );
+
+  group('joining a running game', () {
+    /// A game with five players at night, and someone asking to join.
+    Future<(List<Player>, Player)> lateAtNight({
+      GameSettings settings = const GameSettings(),
+    }) async {
+      final players = await table(5);
+      players.first.send(SettingsIntent(settings));
+      await settle();
+      await start(players);
+      expect(players.first.view.phase, Phase.night);
+      final late = await join('Late');
+      return (players, late);
+    }
+
+    /// Plays the night to its end (the werewolf takes the last other seat).
+    Future<void> toMorning(List<Player> players) async {
+      final wolf = players.firstWhere((p) => p.view.yourRole == Role.werewolf);
+      final others = players.where((p) => p != wolf).toList();
+      wolf.send(NightIntent(others.last.id!));
+      for (final p in others) {
+        p.send(NightIntent(wolf.id!));
+      }
+      await settle();
+      timers.fire(togetherHuntTime);
+      await settle();
+      expect(players.first.view.phase, Phase.day);
+    }
+
+    test('the game leader is asked by day only, never at night', () async {
+      final (players, late) = await lateAtNight();
+      final owner = players.first;
+      expect(late.waiting, isTrue);
+      expect(owner.last!.pending, isEmpty, reason: 'no prompt at night');
+      expect(
+        players.every((p) => p.view.seats.length == 5),
+        isTrue,
+        reason: 'nobody sees the newcomer before they are let in',
+      );
+      await toMorning(players);
+      expect(owner.last!.pending.map((p) => p.name), ['Late']);
+      for (final p in players.skip(1)) {
+        expect(p.last!.pending, isEmpty, reason: 'only the leader is asked');
+      }
+    });
+
+    test('let in by day, a latecomer sits down as a ghost', () async {
+      final (players, late) = await lateAtNight();
+      final owner = players.first;
+      await toMorning(players);
+      owner.send(AdmitIntent(owner.last!.pending.single.id, admit: true));
+      await settle();
+      expect(late.id, isNotNull);
+      expect(late.token, isNotNull);
+      expect(late.view.phase, Phase.day);
+      expect(late.view.yourRole, Role.villager);
+      expect(late.view.yourSeat.isAlive, isFalse);
+      expect(owner.view.seats, hasLength(6));
+      expect(owner.last!.pending, isEmpty);
+      expect(host.state.alive, hasLength(4), reason: 'one died at night');
+
+      // Comes back with the token like everyone else.
+      final back = Player(transport.connect())
+        ..send(Hello(name: 'Late', room: room, token: late.token));
+      await settle();
+      expect(back.id, late.id);
+    });
+
+    test('as a villager the latecomer plays on and sees only their own '
+        'role', () async {
+      final (players, late) = await lateAtNight(
+        settings: const GameSettings(lateJoin: LateJoin.villager),
+      );
+      final owner = players.first;
+      await toMorning(players);
+      owner.send(AdmitIntent(owner.last!.pending.single.id, admit: true));
+      await settle();
+      expect(late.view.yourSeat.isAlive, isTrue);
+      expect(late.view.yourRole, Role.villager);
+      for (final seat in late.view.seats) {
+        if (seat.id != late.id && seat.isAlive) {
+          expect(seat.role, isNull, reason: 'sees ${seat.name}');
+        }
+      }
+      expect(host.state.alive, hasLength(5));
+    });
+
+    test('refused, a latecomer leaves no trace', () async {
+      final (players, late) = await lateAtNight();
+      final owner = players.first;
+      await toMorning(players);
+      owner.send(AdmitIntent(owner.last!.pending.single.id, admit: false));
+      await settle();
+      expect(late.bye, ByeReason.refused);
+      expect(owner.view.seats, hasLength(5));
+      expect(owner.last!.pending, isEmpty);
+      expect(host.snapshot(), isNot(contains('Late')));
+    });
+
+    test(
+      'an answer that arrives after the day waits for the next one',
+      () async {
+        final (players, late) = await lateAtNight();
+        final owner = players.first;
+        await toMorning(players);
+        final id = owner.last!.pending.single.id;
+        owner.send(const LeaderIntent(LeaderAction.end));
+        await settle();
+        expect(owner.view.phase, Phase.vote);
+        owner.send(AdmitIntent(id, admit: true));
+        await settle();
+        expect(late.id, isNull, reason: 'not let in during the vote');
+        expect(late.bye, isNull);
+        expect(owner.last!.pending, isEmpty, reason: 'asked again by day');
+      },
+    );
+
+    test('only the game leader lets latecomers in', () async {
+      final (players, late) = await lateAtNight();
+      final owner = players.first;
+      await toMorning(players);
+      players[1].send(AdmitIntent(owner.last!.pending.single.id, admit: true));
+      await settle();
+      expect(players[1].refused, [Violation.notYourAction]);
+      expect(late.id, isNull);
+    });
+  });
+
+  group('a locked room', () {
+    test('turns new people away before any prompt, but the table comes '
+        'back', () async {
+      final players = await table(3);
+      final owner = players.first;
+      final open = UnverifiedTransport();
+      host.serve(open);
+      final waiting = Player(open.connect())
+        ..send(const Hello(name: 'Eve', room: room));
+      await settle();
+      expect(owner.last!.pending, hasLength(1));
+
+      final changes = <bool>[];
+      host.onLocked = ({required locked}) => changes.add(locked);
+      owner.send(const LeaderIntent(LeaderAction.lock));
+      await settle();
+      expect(host.locked, isTrue);
+      expect(changes, [true]);
+      expect(players.every((p) => p.last!.locked), isTrue);
+      expect(waiting.bye, ByeReason.locked, reason: 'not let in later');
+      expect(owner.last!.pending, isEmpty);
+
+      final stranger = await join('Stranger');
+      expect(stranger.bye, ByeReason.locked);
+      final unchecked = Player(open.connect())
+        ..send(const Hello(name: 'Mallory', room: room));
+      await settle();
+      expect(unchecked.bye, ByeReason.locked);
+      expect(owner.last!.pending, isEmpty);
+      expect(owner.view.seats, hasLength(3));
+
+      // A player who was let in comes back with the token.
+      await players[1].connection.close();
+      await settle();
+      final back = Player(transport.connect())
+        ..send(Hello(name: 'P1', room: room, token: players[1].token));
+      await settle();
+      expect(back.bye, isNull);
+      expect(back.id, players[1].id);
+
+      // Still locked after a host crash.
+      final restored = GameHost.restore(
+        host.snapshot(),
+        random: Random(1),
+        config: noLead,
+        startTimer: timers.start,
+        clock: () => timers.now,
+      );
+      expect(restored.locked, isTrue);
+      await restored.close();
+
+      owner.send(const LeaderIntent(LeaderAction.unlock));
+      await settle();
+      expect(changes, [true, false]);
+      final welcome = await join('Welcome');
+      expect(welcome.id, isNotNull);
+    });
+
+    test('also in a running game, and only the game leader locks', () async {
+      final players = await table(5);
+      players[1].send(const LeaderIntent(LeaderAction.lock));
+      await settle();
+      expect(players[1].refused, [Violation.notYourAction]);
+      expect(host.locked, isFalse);
+      await start(players);
+      players.first.send(const LeaderIntent(LeaderAction.lock));
+      await settle();
+      final late = await join('Late');
+      expect(late.bye, ByeReason.locked);
+      expect(late.waiting, isFalse);
+    });
+  });
 
   test('the owner kicks a player from the lobby', () async {
     final players = await table(3);

@@ -59,7 +59,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get byeWrongRoom => 'Der Raumcode stimmt nicht.';
 
   @override
-  String get byeGameRunning => 'Dieses Spiel läuft schon.';
+  String get byeGameRunning => 'Diese Runde ist schon vorbei.';
 
   @override
   String get byeUnknownSession => 'Der Gastgeber kennt dich nicht mehr.';
@@ -1892,4 +1892,66 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get motionMenu => 'Bühne & Akku';
+
+  @override
+  String get byeLocked =>
+      'Der Raum ist abgeschlossen. Wer schon mitspielt, kommt weiter rein, neu dazukommen geht gerade nicht.';
+
+  @override
+  String get waitingForDayHint =>
+      'Die Runde läuft schon. Der Spielleiter lässt dich rein, sobald es Tag ist.';
+
+  @override
+  String get settingsRoom => 'Raum';
+
+  @override
+  String get lockRoom => 'Raum abschließen';
+
+  @override
+  String get lockRoomOn =>
+      'Niemand Neues kann beitreten. Wer schon mitspielt, kommt jederzeit zurück.';
+
+  @override
+  String get lockRoomOff =>
+      'Wer dazukommt, bittet um Einlass, und du lässt ihn mit den Zeichen rein.';
+
+  @override
+  String get settingsLateJoin => 'Wer später kommt, spielt mit als';
+
+  @override
+  String get lateJoinGhost => 'Geist';
+
+  @override
+  String get lateJoinVillager => 'Dorfbewohner';
+
+  @override
+  String get lateJoinGhostHint =>
+      'Tagsüber kann jemand dazukommen und schaut als Geist zu, ohne Rolle und ohne Stimme. So verrät die Ankunft nichts.';
+
+  @override
+  String get lateJoinVillagerHint =>
+      'Tagsüber kann jemand als lebender Dorfbewohner dazukommen und mit abstimmen. Dann wissen alle, dass diese Person kein Werwolf ist.';
+
+  @override
+  String get lateJoinAsGhost => 'Kommt als Geist dazu.';
+
+  @override
+  String get lateJoinAsVillager => 'Kommt als Dorfbewohner dazu.';
+
+  @override
+  String get roomLocked => 'Abgeschlossen';
+
+  @override
+  String moreWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Noch $count Personen warten.',
+      one: 'Noch eine Person wartet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unlockRoom => 'Raum aufschließen';
 }
