@@ -2480,6 +2480,18 @@ abstract class AppLocalizations {
   /// **'Imprint'**
   String get imprint;
 
+  /// Button: open the terms of use on the website.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get termsRead;
+
+  /// About section: no warranty, self-hosters are responsible.
+  ///
+  /// In en, this message translates to:
+  /// **'Provided as is (Apache 2.0). Whoever runs their own server is responsible for it.'**
+  String get asIs;
+
   /// No description provided for @privacyNoticeTitle.
   ///
   /// In en, this message translates to:

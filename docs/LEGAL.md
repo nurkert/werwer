@@ -49,8 +49,9 @@ Noch offiziell zu prüfen:
 ## Impressum und Datenschutz der Website
 
 - Das Impressum steht **nicht im Repo**. Der offizielle Build liest es aus `https://nurkert.de/impressum` (Details in DECISIONS.md). Forks brauchen ein eigenes.
-- Die Datenschutzerklärung liegt unter `website/src/pages/datenschutz/`: keine Cookies, kein Tracking, keine Dritt-Inhalte, Hosting über GitHub Pages.
-- Vor einer breiten Bekanntmachung beide Texte rechtlich prüfen lassen.
+- Die Datenschutzerklärung steht in `website/src/i18n/locales/` (`privacy`): keine Cookies, kein Tracking, keine Dritt-Inhalte, Hosting über GitHub Pages.
+- Datenschutz und Nutzungsbedingungen (`/nutzungsbedingungen/`) zeigt nur der offizielle Build (`OFFICIAL_SITE`, Task 029); Forks verlinken eigene Seiten (`PRIVACY_URL`, `TERMS_URL`) oder zeigen eine kurze Zeile. Ein Relay verlinkt optional die Seiten seines Betreibers, nie die des Eigentümers.
+- Vor einer breiten Bekanntmachung die Texte rechtlich prüfen lassen.
 
 ## KI-generierte Assets
 

@@ -74,6 +74,12 @@ cd app && flutter run  # on a device or desktop of your choice
 
 Playing helps most: tell us what got stuck at your game night. Bug reports, ideas and pull requests are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately as described in [SECURITY.md](SECURITY.md).
 
+## No warranty, self-hosting
+
+Whowolf is a free hobby project. The software is provided as is under the Apache License 2.0, without warranty of any kind (sections 7 and 8 of the license). The official services (whowolf.de, play.whowolf.de, the releases in this repository) may change, pause or end at any time; their [terms of use](https://whowolf.de/en/terms/) apply.
+
+Anyone may run their own relay, website or build. Whoever does is responsible for that deployment and for its own imprint, privacy policy and terms where the law asks for them; copies never show the official site's legal pages. See [server/deploy/README.md](server/deploy/README.md) for the optional legal links of a relay.
+
 ## License
 
 Code under the [Apache License 2.0](LICENSE). All artwork in `design/` was made for this project, see the [design credits](design/CREDITS.md).

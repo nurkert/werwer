@@ -5,8 +5,15 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Changed
+
+- Relay operators can link their own imprint and privacy pages (`IMPRINT_URL`, `PRIVACY_URL`, optional English variants); without them the relay's pages and the web app on that server show no legal links, and never the official site's.
+- The app's "About Whowolf" names the terms of use and says it is provided as is (Apache 2.0).
+
 ### Website
 
+- Terms of use (`/nutzungsbedingungen/`, `/en/terms/`), linked in the footer.
+- Privacy policy and terms show only on the official site; copies link their own or say so. The imprint is fetched with retries, so a short outage of its source no longer fails a release build.
 - Pages for people who want to play werewolf: the rules, a page per role (villager, werewolf, seer, witch, hunter, cupid, mayor), planning a game night, questions and answers and werewolf for Halloween, in German and English, linked from the home page and the guide.
 - The home page names what people search for in its headings; the developer pages are kept out of search results.
 

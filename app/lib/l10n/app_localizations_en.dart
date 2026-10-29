@@ -1430,6 +1430,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imprint => 'Imprint';
 
   @override
+  String get termsRead => 'Terms of use';
+
+  @override
+  String get asIs =>
+      'Provided as is (Apache 2.0). Whoever runs their own server is responsible for it.';
+
+  @override
   String get privacyNoticeTitle => 'A word on privacy';
 
   @override

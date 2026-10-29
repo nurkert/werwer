@@ -85,6 +85,29 @@ APPLE_APP_ID=<TEAMID>.de.whowolf.app
 ANDROID_CERT_SHA256=<AA:BB:… fingerprint of the release signing key>
 ```
 
+## Your own legal pages (optional)
+
+You run your relay, so you are responsible for it, not the Whowolf project.
+A relay for your own table at home usually needs nothing here. If you run one
+publicly and the law asks you for an imprint or privacy policy (in Germany for
+example § 5 DDG and Art. 13 GDPR; this is not legal advice), link your own
+pages by adding to `domain.env`:
+
+```
+IMPRINT_URL=https://example.org/imprint
+PRIVACY_URL=https://example.org/privacy
+# Optional, if the pages also exist in English:
+IMPRINT_URL_EN=https://example.org/en/imprint
+PRIVACY_URL_EN=https://example.org/en/privacy
+```
+
+Only `https` addresses are taken (others are ignored with a line in the log).
+The code page and the page for a missing build then show the links, and the
+web app reads them from `/legal.json` on your server. Without them the
+relay's pages show no legal links at all, and the web app never shows the
+official site's privacy notice on your server. Restart the relay after a
+change (`sudo ./update.sh` or `docker compose up -d`).
+
 ## Limits
 
 The relay protects itself and the machine:

@@ -405,6 +405,8 @@
   "settingsNightTogetherHint": "Whowolf-Nacht: Alle haben ihr Handy in der Hand, und das Tippen verrät niemanden.",
   "privacy": "Datenschutz",
   "imprint": "Impressum",
+  "termsRead": "Nutzungsbedingungen",
+  "asIs": "Bereitgestellt ohne Gewähr (Apache 2.0). Wer einen eigenen Server betreibt, ist dafür selbst verantwortlich.",
   "privacyNoticeTitle": "Kurz zum Datenschutz",
   "privacyNotice": "Whowolf hat keine Konten, keine Werbung und kein Tracking. Am Tisch gehen die Spieldaten Ende-zu-Ende verschlüsselt nur zwischen euren Geräten hin und her. Damit auch Spieler ohne gemeinsames WLAN mitmachen können, verbindet sich das Gastgeber-Gerät mit dem Server play.whowolf.de, aber erst wenn es den QR-Code zeigt oder kein WLAN hat; der leitet nur Verschlüsseltes weiter und sieht dabei, wie jeder Server, die IP-Adressen. In den Einstellungen kannst du ihn abschalten.",
   "privacyRead": "Datenschutz lesen",

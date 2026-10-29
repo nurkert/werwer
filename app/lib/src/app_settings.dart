@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:protocol/protocol.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
 import 'package:whowolf/src/game/widgets.dart';
@@ -230,6 +231,17 @@ class _AppSettingsState extends State<AppSettings> {
                 icon: Icons.shield_outlined,
                 onPressed: () => showPrivacy(context),
               ),
+              const SizedBox(height: 10),
+              SecondaryButton(
+                label: l10n.termsRead,
+                icon: Icons.gavel_rounded,
+                onPressed: () => launchUrl(
+                  termsPage(Localizations.localeOf(context)),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Body(l10n.asIs, muted: true),
             ],
           ),
         ),
@@ -237,6 +249,13 @@ class _AppSettingsState extends State<AppSettings> {
     );
   }
 }
+
+/// The terms of use on whowolf.de, in the app's language.
+Uri termsPage(Locale locale) => Uri.parse(
+  locale.languageCode == 'de'
+      ? 'https://whowolf.de/nutzungsbedingungen/'
+      : 'https://whowolf.de/en/terms/',
+);
 
 /// The three ways the stage may move ([StageMotion]), with their names
 /// and what each costs.

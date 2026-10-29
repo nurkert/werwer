@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
 import 'package:whowolf/src/app.dart';
+import 'package:whowolf/src/app_settings.dart';
 import 'package:whowolf/src/stage/wolf_title.dart';
 import 'package:whowolf/src/start_screen.dart';
 import 'package:whowolf/src/theme.dart';
@@ -54,5 +55,16 @@ void main() {
       );
       expect(tester.takeException(), isNull);
     }
+  });
+
+  test('the terms of use open in the app language', () {
+    expect(
+      termsPage(const Locale('de')).toString(),
+      'https://whowolf.de/nutzungsbedingungen/',
+    );
+    expect(
+      termsPage(const Locale('en')).toString(),
+      'https://whowolf.de/en/terms/',
+    );
   });
 }

@@ -233,6 +233,7 @@
   - Die Grenzen werden nach dem Upgrade erneut geprüft.
 - **Echte Adressen:** Hinter Caddy kommt die Adresse aus `X-Forwarded-For`, aber nur mit `TRUST_PROXY=1`. Das ist sicher, weil der Relay-Port nicht öffentlich ist und Caddy den Header des Clients überschreibt.
 - **Betrieb:** Container read-only, ohne Capabilities, `no-new-privileges`, Speicher- und CPU-Grenze. Updates nur als signiertes Image aus dem Release-Workflow (Sigstore, gegen die Workflow-Identität geprüft), gestartet über den Digest. Der Server bietet dafür keinen Endpunkt an.
+- **Rechtsangaben des Betreibers:** optional über `IMPRINT_URL`/`PRIVACY_URL` (+ `_EN`), nur https mit Host und ohne Zugangsdaten, höchstens 300 Zeichen, im HTML maskiert; `/legal.json` liefert nur diese Adressen (`nosniff`, `default-src 'none'`). Die Web-App prüft sie erneut und zeigt auf fremden Servern nie die Angaben des Eigentümers (Task 029, `server/test/operator_legal_test.dart`, `app/test/page_legal_test.dart`).
 - **Tests:** `server/test/relay_test.dart` (riesiger Frame, Grenzen pro Adresse, Raum-IDs raten, Proxy-Adresse), `server/test/guard_test.dart` (doppelter Header, endlose Fragmente, liegengelassene Nachricht, Spieler, der nicht liest), `packages/game_host/test/player_link_test.dart` (ein ungeprüfter Host kann einen Spieler am Prüfbild nicht fluten).
 
 ## Sicherheit im Entwicklungsablauf

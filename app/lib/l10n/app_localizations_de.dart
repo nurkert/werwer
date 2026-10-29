@@ -1442,6 +1442,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get imprint => 'Impressum';
 
   @override
+  String get termsRead => 'Nutzungsbedingungen';
+
+  @override
+  String get asIs =>
+      'Bereitgestellt ohne Gewähr (Apache 2.0). Wer einen eigenen Server betreibt, ist dafür selbst verantwortlich.';
+
+  @override
   String get privacyNoticeTitle => 'Kurz zum Datenschutz';
 
   @override
