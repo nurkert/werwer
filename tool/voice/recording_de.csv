@@ -149,6 +149,11 @@ vote_late_2_de.mp3,Diese Abstimmung kann alles entscheiden. Wählt mit Bedacht.,
 vote_late_3_de.mp3,Nur noch wenige Stimmen sind übrig. Gebt sie jetzt ab.,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_4_de.mp3,Es wird ernst. Wer soll gehen?,"Grave, slow, the weight of it.",The vote in the endgame.
 vote_late_5_de.mp3,Jetzt entscheidet sich vielleicht alles. Gebt eure Stimme ab.,"Grave, slow, the weight of it.",The vote in the endgame.
+mayor_1_de.mp3,"Das Dorf hat gewählt. Hier sitzt jetzt der Bürgermeister, und diese Stimme zählt doppelt.","Ceremonial, a little proud, with a wink: a chain of office is handed over.",The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.
+mayor_2_de.mp3,Die Amtskette hat einen neuen Platz gefunden. Ab jetzt zählt diese Stimme doppelt.,"Ceremonial, a little proud, with a wink: a chain of office is handed over.",The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.
+mayor_3_de.mp3,Das Dorf hat sich entschieden. Die Kette des Bürgermeisters wechselt an diesen Platz.,"Ceremonial, a little proud, with a wink: a chain of office is handed over.",The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.
+mayor_4_de.mp3,"Ein neuer Bürgermeister für das Dorf. Überlegt gut, wem ihr folgt.","Ceremonial, a little proud, with a wink: a chain of office is handed over.",The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.
+mayor_5_de.mp3,"So sei es. Wer hier sitzt, trägt jetzt die Kette, und diese Stimme wiegt doppelt.","Ceremonial, a little proud, with a wink: a chain of office is handed over.",The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.
 runoff_1_de.mp3,Gleichstand! Jetzt entscheidet eine Stichwahl.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
 runoff_2_de.mp3,"Das Dorf ist sich uneins. Stimmt noch einmal ab, nur zwischen den Gleichplatzierten.","Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
 runoff_3_de.mp3,Es steht unentschieden. Eine zweite Abstimmung muss her.,"Tense, a little surprised, quick.",The vote was tied: a runoff between the tied only follows (the screen names them).
@@ -169,6 +174,11 @@ hunter_2_de.mp3,Der Jäger hebt ein letztes Mal seinen Bogen.,"Tense, slow.",The
 hunter_3_de.mp3,Mit letzter Kraft spannt der Jäger den Bogen. Wen trifft der Pfeil?,"Tense, slow.",The hunter has died and takes aim (the narrator walks to the hunter).
 hunter_4_de.mp3,Der Jäger nimmt sein Ziel ins Auge. Jetzt zählt ein einziger Pfeil.,"Tense, slow.",The hunter has died and takes aim (the narrator walks to the hunter).
 hunter_5_de.mp3,"Bevor der Jäger geht, darf er noch einmal schießen.","Tense, slow.",The hunter has died and takes aim (the narrator walks to the hunter).
+shot_1_de.mp3,Der Pfeil des Jägers hat getroffen.,"Sharp and sudden, then quiet: the arrow has struck.",The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).
+shot_2_de.mp3,Der letzte Schuss des Jägers trifft sein Ziel.,"Sharp and sudden, then quiet: the arrow has struck.",The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).
+shot_3_de.mp3,Ein Pfeil zischt durch die Luft und trifft.,"Sharp and sudden, then quiet: the arrow has struck.",The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).
+shot_4_de.mp3,Der Jäger hat geschossen. Hier ist sein Pfeil gelandet.,"Sharp and sudden, then quiet: the arrow has struck.",The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).
+shot_5_de.mp3,Mit seinem letzten Pfeil nimmt der Jäger jemanden mit.,"Sharp and sudden, then quiet: the arrow has struck.",The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).
 grief_1_de.mp3,Vor Kummer folgt die große Liebe in den Tod.,"Very soft, sad.",A lover dies of grief.
 grief_2_de.mp3,Allein will dieses Herz nicht weiterschlagen.,"Very soft, sad.",A lover dies of grief.
 grief_3_de.mp3,Ein gebrochenes Herz fordert ein zweites Leben.,"Very soft, sad.",A lover dies of grief.

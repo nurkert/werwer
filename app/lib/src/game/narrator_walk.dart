@@ -313,9 +313,11 @@ class NarratorWalk {
     }
   }
 
-  /// Where the voice goes between two lines, if it moves: from [from] to a
-  /// seat at least two away, by public dice, more often on a livelier
-  /// [stage]; `null` to stay. Never at night (see [moonSeat]).
+  /// Where the voice goes between two lines, if it moves: from [from] two
+  /// or three seats on, either way round, by public dice, more often on a
+  /// livelier [stage]; `null` to stay. A short walk: a few footsteps fill
+  /// the breath between two sentences, a long one would be dead air.
+  /// Never at night (see [moonSeat]).
   static int? relocate({
     required int seats,
     required String room,
@@ -329,7 +331,8 @@ class NarratorWalk {
     final dice = _Dice('$room/$round/$line/$occurrence/enter');
     final share = stage == NarratorStage.theater ? 0.6 : 0.3;
     if (dice.next() >= share) return null;
-    return (from + 2 + dice.below(seats - 3)) % seats;
+    final hop = 2 + dice.below(seats >= 6 ? 2 : 1);
+    return (from + (dice.next() < 0.5 ? hop : -hop)) % seats;
   }
 
   /// The seats passed walking the shorter way from [from] to [to], [to]

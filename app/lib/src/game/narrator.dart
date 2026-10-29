@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/l10n/app_localizations.dart';
+import 'package:whowolf/src/game/narration_script.dart';
 import 'package:whowolf/src/game/news.dart';
 import 'package:whowolf/src/game/widgets.dart';
 
@@ -31,7 +32,8 @@ String? narration(
     }
     return null;
   }
-  final deaths = freshDeaths(after);
+  // Only what is new since the last screen (see [newDeaths]).
+  final deaths = newDeaths(before, after);
   return switch (after.phase) {
     Phase.lobby => null,
     Phase.roleReveal => l10n.narrateReveal,

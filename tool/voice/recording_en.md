@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (en)
 
-194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+204 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -154,6 +154,11 @@
 | `vote_late_3_en.mp3` | Only a few votes are left. Cast them now. | Grave, slow, the weight of it. |
 | `vote_late_4_en.mp3` | This is serious now. Who should go? | Grave, slow, the weight of it. |
 | `vote_late_5_en.mp3` | This may decide everything. Cast your vote. | Grave, slow, the weight of it. |
+| `mayor_1_en.mp3` | The village has chosen. The mayor sits here now, and this vote counts twice. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_2_en.mp3` | The chain of office has found a new place. From now on, this vote counts double. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_3_en.mp3` | The village has decided. The mayor's chain passes to this seat. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_4_en.mp3` | A new mayor for the village. Think carefully about whom you follow. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_5_en.mp3` | So be it. Whoever sits here wears the chain now, and their vote weighs double. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
 | `runoff_1_en.mp3` | A tie! A runoff decides now. | Tense, a little surprised, quick. |
 | `runoff_2_en.mp3` | The village is divided. Vote again, only between the tied. | Tense, a little surprised, quick. |
 | `runoff_3_en.mp3` | It is a draw. A second vote is needed. | Tense, a little surprised, quick. |
@@ -174,6 +179,11 @@
 | `hunter_3_en.mp3` | With the last of their strength, the hunter draws the bow. Whom will the arrow hit? | Tense, slow. |
 | `hunter_4_en.mp3` | The hunter takes aim. One single arrow counts now. | Tense, slow. |
 | `hunter_5_en.mp3` | Before the hunter goes, there is one last shot. | Tense, slow. |
+| `shot_1_en.mp3` | The hunter's arrow has found its mark. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_2_en.mp3` | The hunter's last shot hits home. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_3_en.mp3` | An arrow whistles through the air, and it hits. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_4_en.mp3` | The hunter has fired. This is where the arrow landed. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_5_en.mp3` | With a final arrow, the hunter takes someone along. | Sharp and sudden, then quiet: the arrow has struck. |
 | `grief_1_en.mp3` | Out of grief, their true love follows them into death. | Very soft, sad. |
 | `grief_2_en.mp3` | Alone, this heart will not go on beating. | Very soft, sad. |
 | `grief_3_en.mp3` | A broken heart claims a second life. | Very soft, sad. |

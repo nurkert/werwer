@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/narrator_walk.dart';
 import 'package:whowolf/src/game/walking_narrator.dart';
 
 class _Player implements ClipPlayer {
-  _Player(this.log);
+  _Player(this.log, [this.loading]);
   final List<String> log;
+
+  /// Loading takes until this completes (a first play, a slow browser).
+  final Future<void>? loading;
   String? asset;
   final volumes = <double>[];
   bool started = false;
@@ -15,6 +20,7 @@ class _Player implements ClipPlayer {
   Future<void> prepare(String asset, double volume) async {
     this.asset = asset;
     volumes.add(volume);
+    await loading;
   }
 
   @override
@@ -69,7 +75,7 @@ void main() {
   });
 
   ({WalkingNarrator narrator, List<_Player> players, void Function(int) run})
-  table() {
+  table({Future<void>? loading}) {
     var now = 0;
     final timers = <(int, void Function())>[];
     final players = <_Player>[];
@@ -79,7 +85,7 @@ void main() {
       room: '4711',
       clock: () => now,
       player: () {
-        final p = _Player(log);
+        final p = _Player(log, loading);
         players.add(p);
         return p;
       },
@@ -124,6 +130,63 @@ void main() {
     t.run(6000);
     expect(t.players.single.volumes.first, 1);
     expect(t.players.single.stopped, isTrue);
+  });
+
+  test('a clip still loading when it is due begins a moment late, never '
+      'not at all; past the grace it would run into the next line', () async {
+    final start = startOf('discuss');
+    for (final (loadedAt, plays) in [(1300, true), (1700, false)]) {
+      final loaded = Completer<void>();
+      final t = table(loading: loaded.future);
+      t.narrator.speak(
+        moments: const [(key: 'discuss', to: null)],
+        language: NarratorLanguage.de,
+        round: 1,
+        startMs: 1000,
+        speakers: seats,
+        me: seats[start],
+      );
+      t.run(loadedAt);
+      expect(t.players.single.started, isFalse);
+      loaded.complete();
+      await Future<void>.delayed(Duration.zero);
+      t.run(loadedAt + 50);
+      expect(t.players.single.started, plays, reason: 'loaded at $loadedAt');
+      if (plays) {
+        // It plays to its own end, counted from its late start.
+        t.run(loadedAt + 3900);
+        expect(t.players.single.stopped, isFalse);
+        t.run(loadedAt + 4100);
+      }
+      expect(t.players.single.stopped, isTrue);
+    }
+  });
+
+  test('queued moments wait for what is still being said', () async {
+    final t = table();
+    t.narrator.speak(
+      moments: const [(key: 'discuss', to: null)],
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 1000,
+      speakers: seats,
+      me: seats.first,
+      stage: NarratorStage.calm,
+    );
+    t.run(2000);
+    final planned = t.narrator.speak(
+      moments: const [(key: 'vote', to: null)],
+      language: NarratorLanguage.de,
+      round: 1,
+      startMs: 2000,
+      speakers: seats,
+      me: seats.first,
+      queued: true,
+      stage: NarratorStage.calm,
+    );
+    // After the 4 s line that began at 1000, and a breath.
+    expect(planned.single.at, 5000 + WalkingNarrator.gap('', 'vote'));
+    expect(t.players.where((p) => p.stopped), isEmpty);
   });
 
   test('a phone the voice never reaches plays nothing at all', () async {
@@ -251,8 +314,9 @@ void main() {
       ))
         p.at,
     ];
-    expect(starts(['died_one', 'role_seer', 'discuss']), [0, 1650, 3550]);
-    expect(starts(['sleep', 'wake_seer']), [0, 2600]);
+    expect(starts(['died_one', 'role_seer', 'discuss']), [0, 1650, 3500]);
+    // Time to close the eyes before the next role is woken.
+    expect(starts(['sleep', 'wake_seer']), [0, 2800]);
   });
 
   test('a line that names a detail plays only when it is true', () {

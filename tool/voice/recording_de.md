@@ -1,6 +1,6 @@
 # Erzähler-Aufnahmen (de)
 
-194 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
+204 Dateien. Pro Zeile eine Datei, genau unter diesem Namen speichern.
 
 | Datei | Text | Regie |
 |---|---|---|
@@ -154,6 +154,11 @@
 | `vote_late_3_de.mp3` | Nur noch wenige Stimmen sind übrig. Gebt sie jetzt ab. | Grave, slow, the weight of it. |
 | `vote_late_4_de.mp3` | Es wird ernst. Wer soll gehen? | Grave, slow, the weight of it. |
 | `vote_late_5_de.mp3` | Jetzt entscheidet sich vielleicht alles. Gebt eure Stimme ab. | Grave, slow, the weight of it. |
+| `mayor_1_de.mp3` | Das Dorf hat gewählt. Hier sitzt jetzt der Bürgermeister, und diese Stimme zählt doppelt. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_2_de.mp3` | Die Amtskette hat einen neuen Platz gefunden. Ab jetzt zählt diese Stimme doppelt. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_3_de.mp3` | Das Dorf hat sich entschieden. Die Kette des Bürgermeisters wechselt an diesen Platz. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_4_de.mp3` | Ein neuer Bürgermeister für das Dorf. Überlegt gut, wem ihr folgt. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
+| `mayor_5_de.mp3` | So sei es. Wer hier sitzt, trägt jetzt die Kette, und diese Stimme wiegt doppelt. | Ceremonial, a little proud, with a wink: a chain of office is handed over. |
 | `runoff_1_de.mp3` | Gleichstand! Jetzt entscheidet eine Stichwahl. | Tense, a little surprised, quick. |
 | `runoff_2_de.mp3` | Das Dorf ist sich uneins. Stimmt noch einmal ab, nur zwischen den Gleichplatzierten. | Tense, a little surprised, quick. |
 | `runoff_3_de.mp3` | Es steht unentschieden. Eine zweite Abstimmung muss her. | Tense, a little surprised, quick. |
@@ -174,6 +179,11 @@
 | `hunter_3_de.mp3` | Mit letzter Kraft spannt der Jäger den Bogen. Wen trifft der Pfeil? | Tense, slow. |
 | `hunter_4_de.mp3` | Der Jäger nimmt sein Ziel ins Auge. Jetzt zählt ein einziger Pfeil. | Tense, slow. |
 | `hunter_5_de.mp3` | Bevor der Jäger geht, darf er noch einmal schießen. | Tense, slow. |
+| `shot_1_de.mp3` | Der Pfeil des Jägers hat getroffen. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_2_de.mp3` | Der letzte Schuss des Jägers trifft sein Ziel. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_3_de.mp3` | Ein Pfeil zischt durch die Luft und trifft. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_4_de.mp3` | Der Jäger hat geschossen. Hier ist sein Pfeil gelandet. | Sharp and sudden, then quiet: the arrow has struck. |
+| `shot_5_de.mp3` | Mit seinem letzten Pfeil nimmt der Jäger jemanden mit. | Sharp and sudden, then quiet: the arrow has struck. |
 | `grief_1_de.mp3` | Vor Kummer folgt die große Liebe in den Tod. | Very soft, sad. |
 | `grief_2_de.mp3` | Allein will dieses Herz nicht weiterschlagen. | Very soft, sad. |
 | `grief_3_de.mp3` | Ein gebrochenes Herz fordert ein zweites Leben. | Very soft, sad. |

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:game_core/game_core.dart';
 import 'package:whowolf/src/game/narration_script.dart';
@@ -70,7 +71,27 @@ class VoiceBank {
   /// Whether there are recordings in [language] at all.
   bool speaks(NarratorLanguage language) =>
       _clips[language.name]?.isNotEmpty ?? false;
+
+  /// Every file of [language] (for loading them ahead).
+  List<String> files(NarratorLanguage language) => [
+    for (final variants in _clips[language.name]?.values ?? <List<Clip>>[])
+      for (final clip in variants) 'voice/${clip.file}',
+  ];
 }
+
+/// Loads every recording of [language] ahead in the app (not in the
+/// browser, where that would cost mobile data): a first play then starts
+/// on time instead of a moment late. Once per language and run.
+Future<void> warmVoice(VoiceBank bank, NarratorLanguage language) async {
+  if (kIsWeb || !_warmed.add(language)) return;
+  try {
+    await AudioCache.instance.loadAll(bank.files(language));
+  } on Object {
+    // Then each clip loads when it is first planned, as before.
+  }
+}
+
+final _warmed = <NarratorLanguage>{};
 
 /// Plays one clip; the app uses audioplayers, tests a fake.
 abstract interface class ClipPlayer {
@@ -149,26 +170,45 @@ class WalkingNarrator {
   /// Clips planned but not begun yet, with what stops them.
   final _waiting = <ClipPlayer, void Function()>{};
 
-  /// The pause between two moments, as one speaker would leave it: short
-  /// within one thought (who died, then what they were), longer when the
-  /// story moves on, and time to close and open eyes between two roles.
+  /// The pause between two moments, as one storyteller would leave it:
+  /// a breath within one thought (who died, then what they were), a beat
+  /// when the story moves on, time to close the eyes before a role is
+  /// called, and a held breath before the end.
   static int gap(String before, String after) {
     if (before == 'intro') return 1400;
-    if (before == 'sleep') return 1600;
-    if (after.startsWith('role_') || after == 'grief') return 650;
-    return 900;
+    // Eyes close before anyone is woken.
+    if (before == 'sleep' || after.startsWith('wake_')) return 1800;
+    if (after.startsWith('win_')) return 1500;
+    // The death drum falls into this pause, before the news.
+    if (after.startsWith('died_') || after == 'voted_out') return 1100;
+    if (after.startsWith('role_') || after == 'grief' || after == 'shot') {
+      return 650;
+    }
+    return 850;
   }
 
   /// A clip that should have begun this long ago stays silent: joining
   /// in mid-sentence would be out of step.
   static const _late = 250;
 
+  /// A clip still loading when it is due may begin this much later (a
+  /// first play, a slow browser): a moment late beats a sentence missing.
+  /// The pauses between moments are longer, so nothing overlaps.
+  static const _grace = 600;
+
+  /// How often a late clip checks whether it has loaded.
+  static const _poll = Duration(milliseconds: 25);
+
+  /// When the last planned clip ends (this device's clock), or 0.
+  int get busyUntil => _busyUntil;
+  int _busyUntil = 0;
+
   /// How often the volume follows the walk during a handover (between
   /// handovers it does not change, and nothing ticks).
   static const _step = Duration(milliseconds: 12);
 
-  /// Between two footsteps (about two steps a second).
-  static const stepMs = 450;
+  /// Between two footsteps (a storyteller's brisk walk).
+  static const stepMs = 380;
 
   /// How loud a footstep plays: about 10 dB under the voice.
   static const stepVolume = 0.32;
@@ -196,26 +236,35 @@ class WalkingNarrator {
     int? deadlineMs,
     Set<String> facts = const {},
     bool goingOn = false,
+    bool queued = false,
     NarratorStage stage = NarratorStage.lively,
     bool night = false,
   }) {
     final now = _clock();
+    // Queued, the new moments wait for what is still being said: they
+    // never cut a sentence off.
+    final busy = queued && _busyUntil > now;
     if (goingOn) {
       _stopWaiting();
-    } else {
+    } else if (!busy) {
       stop();
     }
     final planned = plan(
       moments: moments,
       language: language,
       round: round,
-      startMs: startMs,
+      startMs: busy
+          ? max(startMs, _busyUntil + gap('', moments.firstOrNull?.key ?? ''))
+          : startMs,
       speakers: speakers,
       deadlineMs: deadlineMs,
       facts: facts,
       stage: stage,
       night: night,
     );
+    if (planned.isNotEmpty) {
+      _busyUntil = planned.last.at + planned.last.clip.ms;
+    }
     final mine = speakers.indexOf(me);
     if (muted || mine < 0) return planned;
     for (final p in planned) {
@@ -340,36 +389,54 @@ class WalkingNarrator {
           Duration(milliseconds: wait < 0 ? 0 : wait),
           () {
             _waiting.remove(player);
-            if (!prepared) {
-              // Not loaded in time: better silent than late and out of step.
-              _playing.remove(player);
-              player.stop();
-              return;
-            }
-            player.start();
-            final fades = walk.fades;
-            void tick() {
-              final ms = _clock() - startMs;
-              if (ms > clip.ms) {
-                _playing.remove(player);
-                player.stop();
-                return;
+            var began = startMs;
+            void begin() {
+              player.start();
+              final fades = walk.fades;
+              void tick() {
+                final ms = _clock() - began;
+                if (ms > clip.ms) {
+                  _playing.remove(player);
+                  player.stop();
+                  return;
+                }
+                player.volume(walk.gainAt(seat, ms));
+                // Fine steps through a handover; otherwise asleep until the
+                // next one (or the end of the clip).
+                final inFade = fades.any((f) => f.from <= ms && ms < f.until);
+                final next = fades
+                    .where((f) => f.from > ms)
+                    .map((f) => f.from)
+                    .fold(clip.ms + 1, min);
+                follow = _startTimer(
+                  inFade ? _step : Duration(milliseconds: max(1, next - ms)),
+                  tick,
+                );
               }
-              player.volume(walk.gainAt(seat, ms));
-              // Fine steps through a handover; otherwise asleep until the
-              // next one (or the end of the clip).
-              final inFade = fades.any((f) => f.from <= ms && ms < f.until);
-              final next = fades
-                  .where((f) => f.from > ms)
-                  .map((f) => f.from)
-                  .fold(clip.ms + 1, min);
-              follow = _startTimer(
-                inFade ? _step : Duration(milliseconds: max(1, next - ms)),
-                tick,
-              );
+
+              tick();
             }
 
-            tick();
+            // Still loading: wait a little (a first play, a slow
+            // browser) rather than drop the sentence; past the grace it
+            // stays silent, or it would run into the next one.
+            void whenLoaded() {
+              if (prepared) {
+                began = _clock();
+                begin();
+              } else if (_clock() - startMs > _grace) {
+                _playing.remove(player);
+                player.stop();
+              } else {
+                follow = _startTimer(_poll, whenLoaded);
+              }
+            }
+
+            if (prepared) {
+              begin();
+            } else {
+              whenLoaded();
+            }
           },
         ),
       )
@@ -424,6 +491,7 @@ class WalkingNarrator {
 
   /// Stops the voice at once.
   void stop() {
+    _busyUntil = 0;
     for (final cancel in _cancels) {
       cancel();
     }

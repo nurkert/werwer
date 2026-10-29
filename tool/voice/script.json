@@ -736,6 +736,25 @@
    ]
   },
   {
+   "key": "mayor",
+   "when": "The village has chosen its mayor (the narrator walks to that seat). During the day or as the vote begins.",
+   "direction": "Ceremonial, a little proud, with a wink: a chain of office is handed over.",
+   "de": [
+    "Das Dorf hat gewählt. Hier sitzt jetzt der Bürgermeister, und diese Stimme zählt doppelt.",
+    "Die Amtskette hat einen neuen Platz gefunden. Ab jetzt zählt diese Stimme doppelt.",
+    "Das Dorf hat sich entschieden. Die Kette des Bürgermeisters wechselt an diesen Platz.",
+    "Ein neuer Bürgermeister für das Dorf. Überlegt gut, wem ihr folgt.",
+    "So sei es. Wer hier sitzt, trägt jetzt die Kette, und diese Stimme wiegt doppelt."
+   ],
+   "en": [
+    "The village has chosen. The mayor sits here now, and this vote counts twice.",
+    "The chain of office has found a new place. From now on, this vote counts double.",
+    "The village has decided. The mayor's chain passes to this seat.",
+    "A new mayor for the village. Think carefully about whom you follow.",
+    "So be it. Whoever sits here wears the chain now, and their vote weighs double."
+   ]
+  },
+  {
    "key": "runoff",
    "when": "The vote was tied: a runoff between the tied only follows (the screen names them).",
    "direction": "Tense, a little surprised, quick.",
@@ -809,6 +828,25 @@
     "With the last of their strength, the hunter draws the bow. Whom will the arrow hit?",
     "The hunter takes aim. One single arrow counts now.",
     "Before the hunter goes, there is one last shot."
+   ]
+  },
+  {
+   "key": "shot",
+   "when": "The hunter's arrow hit someone (the narrator walks to that seat; their role may follow).",
+   "direction": "Sharp and sudden, then quiet: the arrow has struck.",
+   "de": [
+    "Der Pfeil des Jägers hat getroffen.",
+    "Der letzte Schuss des Jägers trifft sein Ziel.",
+    "Ein Pfeil zischt durch die Luft und trifft.",
+    "Der Jäger hat geschossen. Hier ist sein Pfeil gelandet.",
+    "Mit seinem letzten Pfeil nimmt der Jäger jemanden mit."
+   ],
+   "en": [
+    "The hunter's arrow has found its mark.",
+    "The hunter's last shot hits home.",
+    "An arrow whistles through the air, and it hits.",
+    "The hunter has fired. This is where the arrow landed.",
+    "With a final arrow, the hunter takes someone along."
    ]
   },
   {

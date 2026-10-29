@@ -20,6 +20,7 @@ void main() {
     Faction? winner,
     PlayerId? shooter,
     List<PlayerId> runoff = const [],
+    PlayerId? mayor,
   }) => PlayerView(
     you: ada,
     phase: phase,
@@ -37,6 +38,7 @@ void main() {
     winner: winner,
     shooter: shooter,
     runoff: runoff,
+    mayor: mayor,
   );
   final classic = Preset.classic.settings.copyWith(
     narratorMode: NarratorMode.always,
@@ -141,6 +143,125 @@ void main() {
     );
     expect(spoken.first, (key: 'voted_out', to: bo));
     expect(spoken.last.key, 'night_together');
+  });
+
+  test('the hunter: the verdict first, the shot told once, no morning '
+      'twice', () {
+    const cem = PlayerId('p3');
+    const outHunter = DeathView(
+      player: bo,
+      round: 2,
+      cause: DeathCause.vote,
+      role: Role.hunter,
+    );
+    const shot = DeathView(
+      player: cem,
+      round: 2,
+      cause: DeathCause.shot,
+      role: Role.seer,
+    );
+    // Voted out, the hunter takes aim: the village's verdict first; the
+    // hunter's line says who it was.
+    final aim = spokenMoments(
+      view(Phase.vote, 2),
+      view(Phase.hunterShot, 2, deaths: const [outHunter], shooter: bo),
+    );
+    expect(keys(aim), ['voted_out', 'hunter']);
+    // After the shot only the arrow is news, not the verdict again.
+    final after = spokenMoments(
+      view(Phase.hunterShot, 2, deaths: const [outHunter], shooter: bo),
+      view(Phase.night, 3, deaths: const [outHunter, shot]),
+    );
+    expect(keys(after), ['shot', 'role_seer', 'night_together']);
+    expect(after.first.to, cem);
+    // Taken at night: the morning, then the shot; the next screen does
+    // not greet the morning again.
+    const nightHunter = DeathView(
+      player: bo,
+      round: 2,
+      cause: DeathCause.night,
+      role: Role.hunter,
+    );
+    const shotByDay = DeathView(
+      player: cem,
+      round: 2,
+      cause: DeathCause.shot,
+      role: Role.villager,
+    );
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.night, 2),
+          view(Phase.hunterShot, 2, deaths: const [nightHunter], shooter: bo),
+        ),
+      ),
+      ['morning', 'died_one', 'hunter'],
+    );
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.hunterShot, 2, deaths: const [nightHunter], shooter: bo),
+          view(Phase.day, 2, deaths: const [nightHunter, shotByDay]),
+        ),
+      ),
+      ['shot', 'role_villager', 'discuss'],
+    );
+  });
+
+  test('the last vote is told before the end, and the last night with '
+      'its morning', () {
+    const out = DeathView(
+      player: bo,
+      round: 3,
+      cause: DeathCause.vote,
+      role: Role.werewolf,
+    );
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.vote, 3),
+          view(
+            Phase.ended,
+            3,
+            deaths: const [out],
+            winner: Faction.village,
+          ),
+        ),
+      ),
+      ['voted_out', 'role_werewolf', 'win_village'],
+    );
+    const eaten = DeathView(player: bo, round: 3, cause: DeathCause.night);
+    expect(
+      keys(
+        spokenMoments(
+          view(Phase.night, 3),
+          view(
+            Phase.ended,
+            3,
+            deaths: const [eaten],
+            winner: Faction.werewolves,
+          ),
+        ),
+      ),
+      ['morning', 'died_one', 'win_wolves'],
+    );
+  });
+
+  test('the mayor is named when the village chooses, mid-talk or as the '
+      'vote begins; the clock restarts only with a new phase', () {
+    final talk = view(Phase.day, 2);
+    final chosen = view(Phase.day, 2, mayor: bo);
+    expect(spokenMoments(talk, chosen), [(key: 'mayor', to: bo)]);
+    expect(restartsClock(talk, chosen), isFalse);
+    expect(
+      spokenMoments(chosen, view(Phase.vote, 2, mayor: bo)).single.key,
+      'vote',
+    );
+    expect(keys(spokenMoments(talk, view(Phase.vote, 2, mayor: bo))), [
+      'mayor',
+      'vote',
+    ]);
+    expect(restartsClock(talk, view(Phase.vote, 2)), isTrue);
   });
 
   test('the game opens with the intro, then the roles', () {
@@ -255,6 +376,8 @@ void main() {
       'vote_tie',
       'runoff',
       'hunter',
+      'shot',
+      'mayor',
       'win_village',
       'win_wolves',
       'win_lovers',

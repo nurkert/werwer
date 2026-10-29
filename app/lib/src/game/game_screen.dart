@@ -289,6 +289,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       // shows on every screen.
       final settings = view.settings;
       final walker = _walker;
+      // Loaded ahead while the table still gathers.
+      if (walker != null && settings.narratorVoice && _volumeKnown) {
+        unawaited(warmVoice(walker.bank, settings.narratorLanguage));
+      }
       if (!settings.narratorVoice) {
         // Silent table.
       } else if (walker != null &&
@@ -298,9 +302,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
         // the same moment (just after the phase began, by the host's
         // clock).
         final started = session.phaseStartedAtMs;
+        final now = DateTime.now().millisecondsSinceEpoch;
+        // A new phase (or called role, or runoff) counts from the shared
+        // start; something said within a phase (the mayor chosen) right
+        // away, after whatever is still being said.
+        final fresh = restartsClock(before, view);
         final startMs =
-            (started ?? DateTime.now().millisecondsSinceEpoch) +
-            narratorLeadIn(before, view);
+            (fresh ? started ?? now : now) + narratorLeadIn(before, view);
         final facts = storyFacts(view);
         List<Planned> speak(List<PlayerId> over, {bool goingOn = false}) =>
             walker.speak(
@@ -313,6 +321,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
               deadlineMs: _deadline(view, started),
               facts: facts,
               goingOn: goingOn,
+              queued: !fresh,
               stage: settings.narratorStage,
               // At night every call comes from one place (task 023 E5).
               night: view.phase == Phase.night,
