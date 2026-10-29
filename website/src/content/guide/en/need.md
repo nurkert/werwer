@@ -18,7 +18,7 @@ Everyone needs their own device: a phone, a tablet or a laptop, with the Whowolf
 
 | Device | Requirement | Status |
 |---|---|---|
-| iPhone and iPad | iOS 15 or later | in the browser (Safari) or as an app via [AltStore](/en/download/) |
+| iPhone and iPad | iOS 15 or later | in the browser (Safari) or as an app via [AltStore or SideStore](/en/download/) |
 | Android | Android 7 or later | APK download |
 | Mac | macOS 12 or later | download |
 | Windows | Windows 10 or 11, 64-bit | download |

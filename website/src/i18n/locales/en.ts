@@ -327,17 +327,37 @@ const en: Copy = {
     getIt: 'Download',
     platforms: {
       ios: {
-        req: 'iOS 15 or later, plus a Mac or Windows PC for AltStore',
-        steps: [
-          'Set up AltStore Classic: install AltServer on your Mac or PC and use it to put AltStore on your iPhone. AltStore’s guide walks you through it: <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos">with a Mac</a> or <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows">with Windows</a>.',
-          'On iOS 16 or later, turn on Developer Mode: Settings › Privacy & Security › Developer Mode. The iPhone restarts once.',
-          'On the iPhone, tap “Add to AltStore” above and install Whowolf. You sign in with your own Apple ID; no developer account needed.',
-          'AltStore renews the app every 7 days by itself while AltServer runs on the same Wi-Fi. New versions of Whowolf show up there automatically.',
-        ],
-        altstore: {
-          add: 'Add to AltStore',
-          addNote: 'If the button does nothing, add this address under “Sources” in AltStore:',
-          browser: 'No install needed either: play in the browser (Safari) as soon as the game leader shows you the code.',
+        req: 'iOS 15 or later, plus a Mac or PC once',
+        tabsLabel: 'Install with',
+        copy: 'Copy',
+        copied: 'Copied',
+        browser: 'No install needed either: play in the browser (Safari) as soon as the game leader shows you the code.',
+        ways: {
+          altstore: {
+            tab: 'AltStore',
+            lede: 'The classic: AltServer on your Mac or PC signs the app with your Apple ID and renews it every 7 days while both are on the same Wi-Fi.',
+            add: 'Add to AltStore',
+            addNote: 'If the button does nothing, add this address under “Sources” in AltStore:',
+            steps: [
+              'Install AltServer on your Mac or PC and use it to put AltStore on your iPhone. AltStore’s guide walks you through it: <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos">with a Mac</a> (including the <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos/enable-mail-plug-in">Mail plug-in</a>) or <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows">with Windows</a>.',
+              'On iOS 16 or later, turn on Developer Mode: Settings › Privacy & Security › Developer Mode. The iPhone restarts once.',
+              'On the iPhone, tap “Add to AltStore” above and install Whowolf. You sign in with your own Apple ID; no developer account needed.',
+              'AltStore renews the app every 7 days by itself while AltServer runs on the same Wi-Fi. If AltStore says “AltServer could not be found”, start AltServer or connect the iPhone by cable.',
+            ],
+          },
+          sidestore: {
+            tab: 'SideStore',
+            lede: 'You need the computer only once: afterwards SideStore installs and renews the app right on the iPhone, on Wi-Fi with LocalDevVPN switched on.',
+            add: 'Add to SideStore',
+            addNote: 'If the button does nothing, add this address under “Sources” in SideStore:',
+            steps: [
+              'On the iPhone, turn on Developer Mode (Settings › Privacy & Security › Developer Mode) and get LocalDevVPN from the App Store.',
+              'On the computer, install <a href="https://github.com/nab138/iloader/releases">iloader</a> (Mac, Windows or Linux; officially only from GitHub or iloader.app), sign in with your Apple ID, connect the iPhone by cable and install SideStore. iloader places the pairing file for you. In detail: <a href="https://docs.sidestore.io/docs/installation/prerequisites">SideStore’s guide</a>.',
+              'Open SideStore, switch on LocalDevVPN and let SideStore refresh itself once first.',
+              'Tap “Add to SideStore” above and install Whowolf.',
+              'SideStore renews every 7 days in the background, on Wi-Fi with LocalDevVPN. A free Apple ID fits 3 apps, SideStore included. After an iOS update you may need to place the pairing file again with iloader (<a href="https://docs.sidestore.io/docs/faq">FAQ</a>).',
+            ],
+          },
         },
       },
       macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the test version is not notarized yet).'] },

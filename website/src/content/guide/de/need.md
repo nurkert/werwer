@@ -18,7 +18,7 @@ Jeder braucht ein eigenes Gerät: ein Handy, ein Tablet oder ein Laptop, mit der
 
 | Gerät | Voraussetzung | Stand |
 |---|---|---|
-| iPhone und iPad | iOS 15 oder neuer | im Browser (Safari) oder als App über [AltStore](/download/) |
+| iPhone und iPad | iOS 15 oder neuer | im Browser (Safari) oder als App über [AltStore oder SideStore](/download/) |
 | Android | Android 7 oder neuer | APK zum Herunterladen |
 | Mac | macOS 12 oder neuer | Download |
 | Windows | Windows 10 oder 11, 64 Bit | Download |

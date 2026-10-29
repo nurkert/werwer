@@ -5,9 +5,14 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Added
+
+- SideStore as a second way to the iPhone app: the download page lets you pick AltStore or SideStore, each explained step by step, with a one-tap "add source" button.
+
 ### Changed
 
 - The new-version note now also shows on the iPhone (update in AltStore or SideStore), comes back the next day while the device is behind, and sits on a plaque of the stage.
+- The download page folds each platform's install steps away, open only for your own system.
 
 ### Fixed
 

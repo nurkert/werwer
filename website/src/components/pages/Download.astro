@@ -45,6 +45,7 @@ const number = (value: number) => value.toLocaleString(languages[lang].locale);
 const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, { day: 'numeric', month: 'long', year: 'numeric' });
 const formats = ['avif', 'webp'] as const;
 const altstoreSource = new URL('/altstore.json', Astro.site).toString();
+const neutralSource = new URL('/ios-source.json', Astro.site).toString();
 ---
 
 <Base lang={lang} page="download" title={`${d.title} – Whowolf`} description={d.metaDescription} backdrop="village">
@@ -108,75 +109,124 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
           platforms.map((platform, i) => {
             const files = shown?.downloads.filter((file) => file.platform === platform.id) ?? [];
             const info = x.platforms[platform.id];
+            const ready = files.length > 0;
             return (
               <li
-                class:list={['card', { 'card--ready': files.length > 0 }]}
+                class:list={['card', `card--${platform.id}`, { 'card--ready': ready }]}
                 data-reveal
                 data-platform={platform.id}
                 style={`--i: ${i}`}
               >
-                <p class="card__badge">{x.recommended}</p>
-                <div class="card__top">
-                  <span class="card__token">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d={platformIcons[platform.icon]} /></svg>
-                  </span>
-                  <h2>{platform.name}</h2>
-                </div>
-                <p class="card__req">
-                  <span>{x.requirements}:</span> {info.req}
-                </p>
-                <div class="card__files">
-                  {'altstore' in info && files.length > 0 ? (
-                    // The iPhone app comes through AltStore Classic: the
-                    // source lists every release (pages/altstore.json.ts).
-                    <a class="card__download" href={`altstore://source?url=${encodeURIComponent(altstoreSource)}`}>
-                      <Icon name="download" />
-                      <span>
-                        <strong>{info.altstore.add}</strong>
-                        <small>
-                          {files[0].name} · {files[0].sizeMb} MB
-                        </small>
-                      </span>
-                    </a>
-                  ) : files.length > 0 ? (
-                    files.map((file) => (
-                      <a class="card__download" href={file.url}>
-                        <Icon name="download" />
-                        <span>
-                          <strong>{x.getIt}</strong>
-                          <small>
-                            {file.name} · {file.sizeMb} MB
-                          </small>
-                        </span>
-                      </a>
-                    ))
-                  ) : (
-                    <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
-                  )}
-                </div>
-                {'altstore' in info && files.length > 0 && (
-                  <div class="card__apt">
-                    <p class="card__apt-note">{info.altstore.addNote}</p>
-                    <code>{altstoreSource}</code>
+                <div class="card__head">
+                  <p class="card__badge">{x.recommended}</p>
+                  <div class="card__top">
+                    <span class="card__token">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d={platformIcons[platform.icon]} /></svg>
+                    </span>
+                    <h2>{platform.name}</h2>
                   </div>
-                )}
-                {'apt' in info && (
-                  <div class="card__apt">
-                    <p class="card__steps-title">{info.apt.title}</p>
-                    <code>{info.apt.cmd}</code>
-                    <p class="card__apt-note">{info.apt.note}</p>
-                  </div>
-                )}
-                <div class="card__steps">
-                  <p class="card__steps-title">{x.install}</p>
-                  <ol>
-                    {info.steps.map((step) => (
-                      // Our own texts; the iPhone steps carry links to AltStore's guide.
-                      <li set:html={step} />
-                    ))}
-                  </ol>
-                  {'altstore' in info && <p class="card__apt-note">{info.altstore.browser}</p>}
+                  <p class="card__req">
+                    <span>{x.requirements}:</span> {info.req}
+                  </p>
                 </div>
+                {'ways' in info ? (
+                  // The iPhone: one tab per store, each with its own way in.
+                  // Without script both stand one below the other.
+                  <div class="ways" data-ways>
+                    <div class="ways__tabs" role="tablist" aria-label={info.tabsLabel} hidden>
+                      {Object.entries(info.ways).map(([id, way], n) => (
+                        <button
+                          type="button"
+                          role="tab"
+                          id={`way-tab-${id}`}
+                          aria-controls={`way-${id}`}
+                          aria-selected={n === 0 ? 'true' : 'false'}
+                          tabindex={n === 0 ? 0 : -1}
+                        >
+                          {way.tab}
+                        </button>
+                      ))}
+                    </div>
+                    {Object.entries(info.ways).map(([id, way]) => {
+                      const sourceUrl = id === 'altstore' ? altstoreSource : neutralSource;
+                      return (
+                        <section class="way" id={`way-${id}`} role="tabpanel" aria-labelledby={`way-tab-${id}`}>
+                          <h3 class="way__name">{way.tab}</h3>
+                          <p class="way__lede">{way.lede}</p>
+                          {ready ? (
+                            <>
+                              <a class="card__download" href={`${id}://source?url=${encodeURIComponent(sourceUrl)}`}>
+                                <Icon name="download" />
+                                <span>
+                                  <strong>{way.add}</strong>
+                                  <small>
+                                    {files[0].name} · {files[0].sizeMb} MB
+                                  </small>
+                                </span>
+                              </a>
+                              <div class="card__code">
+                                <p class="card__note">{way.addNote}</p>
+                                <div class="card__copy">
+                                  <code>{sourceUrl}</code>
+                                  <button type="button" data-copy={sourceUrl} data-done={info.copied} hidden>
+                                    {info.copy}
+                                  </button>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
+                          )}
+                          <details class="card__more" data-more>
+                            <summary>{x.install}</summary>
+                            <ol class="card__steps">
+                              {way.steps.map((step) => (
+                                // Our own texts, with links to the stores' guides.
+                                <li set:html={step} />
+                              ))}
+                            </ol>
+                          </details>
+                        </section>
+                      );
+                    })}
+                    <p class="card__note ways__browser">{info.browser}</p>
+                  </div>
+                ) : (
+                  <>
+                    <div class="card__files">
+                      {ready ? (
+                        files.map((file) => (
+                          <a class="card__download" href={file.url}>
+                            <Icon name="download" />
+                            <span>
+                              <strong>{x.getIt}</strong>
+                              <small>
+                                {file.name} · {file.sizeMb} MB
+                              </small>
+                            </span>
+                          </a>
+                        ))
+                      ) : (
+                        <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
+                      )}
+                    </div>
+                    <details class="card__more" data-more>
+                      <summary>{x.install}</summary>
+                      <ol class="card__steps">
+                        {info.steps.map((step) => (
+                          <li>{step}</li>
+                        ))}
+                      </ol>
+                      {'apt' in info && (
+                        <div class="card__code">
+                          <p class="card__note card__note--strong">{info.apt.title}</p>
+                          <code>{info.apt.cmd}</code>
+                          <p class="card__note">{info.apt.note}</p>
+                        </div>
+                      )}
+                    </details>
+                  </>
+                )}
               </li>
             );
           })
@@ -260,7 +310,74 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
     if (card) {
       card.classList.add('is-yours');
       cards.dataset.os = os!;
+      // On your own card the steps stand open.
+      card.querySelectorAll<HTMLDetailsElement>('[data-more]').forEach((more) => (more.open = true));
     }
+  }
+
+  // The iPhone's ways in as tabs (without script both stay visible).
+  const ways = document.querySelector<HTMLElement>('[data-ways]');
+  const tablist = ways?.querySelector<HTMLElement>('[role="tablist"]');
+  if (ways && tablist) {
+    const tabs = [...tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement, focus = false) => {
+      for (const other of tabs) {
+        const on = other === tab;
+        other.setAttribute('aria-selected', String(on));
+        other.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(other.getAttribute('aria-controls')!);
+        if (panel) panel.hidden = !on;
+      }
+      if (focus) tab.focus();
+      try {
+        localStorage.setItem('whowolf-ios-way', tab.id);
+      } catch {
+        // Private mode: the choice is just not remembered.
+      }
+    };
+    let remembered: string | null = null;
+    try {
+      remembered = localStorage.getItem('whowolf-ios-way');
+    } catch {
+      remembered = null;
+    }
+    tablist.hidden = false;
+    ways.classList.add('is-tabbed');
+    select(tabs.find((tab) => tab.id === remembered) ?? tabs[0]);
+    tablist.addEventListener('click', (event) => {
+      const tab = (event.target as HTMLElement).closest<HTMLButtonElement>('[role="tab"]');
+      if (tab) select(tab);
+    });
+    tablist.addEventListener('keydown', (event) => {
+      const at = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      if (at < 0) return;
+      const next = {
+        ArrowRight: (at + 1) % tabs.length,
+        ArrowLeft: (at - 1 + tabs.length) % tabs.length,
+        Home: 0,
+        End: tabs.length - 1,
+      }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      select(tabs[next], true);
+    });
+  }
+
+  // Copy buttons next to the source addresses, where the clipboard works.
+  if (navigator.clipboard) {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+      const label = button.textContent ?? '';
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy!);
+          button.textContent = button.dataset.done ?? label;
+          setTimeout(() => (button.textContent = label), 2000);
+        } catch {
+          // The address stays selectable by hand.
+        }
+      });
+    });
   }
 </script>
 
@@ -434,6 +551,8 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-3);
+    /* Each card as tall as it needs: the iPhone's tabs make it the tallest. */
+    align-items: start;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -450,28 +569,13 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+  /* The visitor's own card: large, with the steps open beside the download. */
   .card.is-yours {
     order: -2;
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--space-4);
-    align-items: start;
     padding: 1.8rem 2rem;
     outline: 3px solid #f5aa42;
     outline-offset: 4px;
-  }
-  .card.is-yours > :not(.card__steps) {
-    grid-column: 1;
-  }
-  .card.is-yours .card__steps {
-    grid-column: 2;
-    grid-row: 1 / span 4;
-    margin-top: 0;
-    padding-top: 0;
-    padding-left: var(--space-4);
-    border-top: 0;
-    border-left: 1px dashed rgb(42 27 18 / 0.25);
   }
   .card.is-yours .card__badge {
     display: block;
@@ -486,6 +590,31 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
   }
   .card.is-yours .card__download {
     padding-block: 1.1rem;
+  }
+  @media (min-width: 760px) {
+    .card.is-yours:not(.card--ios) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      column-gap: var(--space-4);
+      align-items: start;
+    }
+    .card.is-yours:not(.card--ios) > .card__more,
+    .card--ios.is-yours .way > .card__more {
+      grid-column: 2;
+      grid-row: 1 / span 4;
+      margin: 0;
+      padding: 0 0 0 var(--space-4);
+      border-top: 0;
+      border-left: 1px dashed rgb(42 27 18 / 0.25);
+    }
+    .card--ios.is-yours .way {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      column-gap: var(--space-4);
+      align-items: start;
+    }
+    .card--ios.is-yours .way > :not(.card__more) {
+      grid-column: 1;
+    }
   }
   [data-os] .cards__others {
     display: block;
@@ -508,6 +637,10 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
     background-size: 600px, 220px;
     background-blend-mode: multiply, soft-light;
     box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.4);
+  }
+  .card__head {
+    display: grid;
+    gap: 0.7rem;
   }
   .card__top {
     display: flex;
@@ -589,13 +722,13 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
     font-size: var(--step-small);
     font-weight: 600;
   }
-  .card__apt {
+  .card__code {
     display: grid;
     gap: 0.4rem;
-    margin-top: var(--space-3);
   }
-  .card__apt code {
+  .card__code code {
     display: block;
+    min-width: 0;
     padding: 0.6rem 0.75rem;
     border-radius: 10px;
     background: rgb(38 26 18);
@@ -604,30 +737,88 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
     overflow-wrap: anywhere;
     user-select: all;
   }
-  .card__apt-note {
+  .card__copy {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .card__copy code {
+    flex: 1;
+  }
+  .card__copy button {
+    flex: none;
+    min-height: 44px;
+    padding: 0 0.9rem;
+    border: 0;
+    border-radius: 10px;
+    background: var(--ink);
+    color: #f5aa42;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .card__copy button[hidden] {
+    display: none;
+  }
+  .card__note {
     margin: 0;
     font-size: var(--step-small);
     opacity: 0.85;
   }
-  .card__steps {
-    margin-top: 0.2rem;
-    padding-top: 0.9rem;
+  .card__note--strong {
+    font-weight: 800;
+    opacity: 1;
+  }
+
+  /* How to install: folded away, open on the visitor's own card. */
+  .card__more {
+    display: grid;
+    gap: 0.8rem;
+    padding-top: 0.4rem;
     border-top: 1px dashed rgb(42 27 18 / 0.25);
   }
-  .card__steps-title {
+  .card__more > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    list-style: none;
+    cursor: pointer;
     font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--curtain-600);
   }
-  .card__steps ol {
-    margin: 0.5rem 0 0;
+  .card__more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .card__more > summary::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.3rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-25%) rotate(45deg);
+    transition: transform 0.25s var(--ease-out);
+  }
+  .card__more[open] > summary::after {
+    transform: translateY(25%) rotate(225deg);
+  }
+  .card__more > summary:focus-visible {
+    outline: 2px solid var(--curtain-600);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .card__steps {
+    margin: 0;
     padding: 0;
     list-style: none;
     counter-reset: step;
     font-size: 0.86rem;
-    line-height: 1.4;
+    line-height: 1.45;
     color: var(--ink-soft);
   }
   .card__steps li {
@@ -653,8 +844,81 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
   .card__steps li + li {
     margin-top: 0.45rem;
   }
+  .card__steps :global(a) {
+    color: var(--curtain-600);
+    font-weight: 700;
+  }
   .card__req {
     min-height: 2.9em;
+  }
+
+  /* The iPhone's two ways in, one tab each. */
+  .ways {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .ways__tabs {
+    display: flex;
+    gap: 0.3rem;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: rgb(42 27 18 / 0.1);
+  }
+  .ways__tabs[hidden] {
+    display: none;
+  }
+  .ways__tabs button {
+    min-height: 44px;
+    padding: 0 1.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-soft);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .ways__tabs button[aria-selected='true'] {
+    background: var(--ink);
+    color: #f5aa42;
+  }
+  .ways__tabs button:focus-visible {
+    outline: 2px solid var(--curtain-600);
+    outline-offset: 2px;
+  }
+  .way {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .way[hidden] {
+    display: none;
+  }
+  .way + .way {
+    padding-top: 0.9rem;
+    border-top: 1px dashed rgb(42 27 18 / 0.25);
+  }
+  .way__name {
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+  .way__lede {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  /* With the tabs working, the tab names the way. */
+  .ways.is-tabbed .way__name {
+    display: none;
+  }
+  .ways.is-tabbed .way + .way {
+    padding-top: 0;
+    border-top: 0;
   }
 
   /* Verification as a page of the rule booklet. */
@@ -754,14 +1018,7 @@ const altstoreSource = new URL('/altstore.json', Astro.site).toString();
 
   @media (max-width: 700px) {
     .card.is-yours {
-      display: flex;
       padding: 1.4rem;
-    }
-    .card.is-yours .card__steps {
-      padding-left: 0;
-      padding-top: 0.9rem;
-      border-left: 0;
-      border-top: 1px dashed rgb(42 27 18 / 0.25);
     }
   }
   @media (max-width: 900px) {
