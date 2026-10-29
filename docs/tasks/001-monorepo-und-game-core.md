@@ -89,14 +89,14 @@ Zusätzlich eine öffentliche Sicht (`publicView`), z. B. für einen geteilten B
 
 ## 6. Tests (Akzeptanzkriterien)
 
-- [ ] Jede Regel aus Abschnitt 3 hat mindestens einen Test, auch die ungültigen Aktionen (falsche Phase, tote Spieler, Werwolf wählt Werwolf, Seherin zweimal …).
-- [ ] Komplette Partien, durchgespielt über die öffentliche API: ein Dorf-Sieg und ein Werwolf-Sieg.
-- [ ] Gleichstand bei Werwölfen und bei der Tagesabstimmung.
-- [ ] `PhaseTimeout` mit unvollständigen Aktionen.
-- [ ] Gleicher `Random`-Seed → identische Rollenverteilung.
-- [ ] Sichten: Test, der für **jeden** Spieler sicherstellt, dass keine fremden Rollen oder Nachtaktionen enthalten sind.
-- [ ] `suggestRoles` für 5–20 Spieler.
-- [ ] `dart analyze` ohne Meldungen, `dart format` sauber, alle Tests grün.
+- [x] Jede Regel aus Abschnitt 3 hat mindestens einen Test, auch die ungültigen Aktionen (falsche Phase, tote Spieler, Werwolf wählt Werwolf, Seherin zweimal …).
+- [x] Komplette Partien, durchgespielt über die öffentliche API: ein Dorf-Sieg und ein Werwolf-Sieg.
+- [x] Gleichstand bei Werwölfen und bei der Tagesabstimmung.
+- [x] `PhaseTimeout` mit unvollständigen Aktionen.
+- [x] Gleicher `Random`-Seed → identische Rollenverteilung.
+- [x] Sichten: Test, der für **jeden** Spieler sicherstellt, dass keine fremden Rollen oder Nachtaktionen enthalten sind.
+- [x] `suggestRoles` für 5–20 Spieler.
+- [x] `dart analyze` ohne Meldungen, `dart format` sauber, alle Tests grün.
 
 ## Für später mitdenken (nicht bauen, aber nicht verbauen)
 

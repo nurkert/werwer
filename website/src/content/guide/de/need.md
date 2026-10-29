@@ -3,7 +3,7 @@ page: docsNeed
 lang: de
 title: Was ihr braucht
 short: Was ihr braucht
-description: "Was ihr für eine Runde Whowolf braucht: 3 bis 20 Leute, ein Gerät pro Person, dasselbe WLAN oder Internet für Mitspieler von außen, und die App."
+description: "Was ihr für eine Runde Whowolf braucht: 3 bis 20 Leute, ein Gerät pro Person mit der App oder einem Browser, dasselbe WLAN oder Internet über den Server."
 lead: "Ein Tisch, ein paar Leute und für jeden ein Gerät. Ein Konto, Karten oder auch nur Internet braucht ihr nicht."
 figure: dorfbewohner
 ---
@@ -14,17 +14,30 @@ Whowolf startet ab **3 Spielern**, damit ihr auch zu zweit oder dritt ausprobier
 
 ## Ein Gerät pro Person
 
-Jeder braucht ein eigenes Gerät mit der Whowolf-App. Das kann ein Handy sein, aber auch ein Tablet oder ein Laptop:
+Jeder braucht ein eigenes Gerät: ein Handy, ein Tablet oder ein Laptop, mit der Whowolf-App oder einfach im Browser. Den Raum eröffnet immer jemand mit der App.
 
 | Gerät | Voraussetzung | Stand |
 |---|---|---|
-| iPhone und iPad | iOS 15 oder neuer | über TestFlight, sobald die Einladung veröffentlicht ist |
+| iPhone und iPad | iOS 15 oder neuer | im Browser (Safari); die App folgt über TestFlight |
 | Android | Android 7 oder neuer | APK zum Herunterladen |
 | Mac | macOS 12 oder neuer | Download |
 | Windows | Windows 10 oder 11, 64 Bit | Download |
 | Linux | Debian, Ubuntu oder verwandt, 64 Bit | Debian-Paket |
 
-Alle Downloads und die Installationsschritte stehen auf der [Download-Seite](/download/). Im Browser ohne Installation mitspielen ist geplant, geht aber noch nicht. Den QR-Code scannen können iPhone, Android und Mac; an Windows- und Linux-Geräten tretet ihr über „Räume in der Nähe“ oder von Hand bei.
+Alle Downloads und die Installationsschritte stehen auf der [Download-Seite](/download/). Den QR-Code scannen können iPhone, Android und Mac; an Windows- und Linux-Geräten tretet ihr über „Räume in der Nähe“ oder von Hand bei.
+
+## Im Browser mitspielen
+
+Wer nichts installieren mag, spielt im Browser mit: Der Spielleiter zeigt in seiner Einladung den QR-Code, ihr scannt ihn mit der Kamera, gebt euren Namen ein und sitzt am Tisch. Im selben WLAN kommt die Seite direkt von seinem Handy, sonst von play.whowolf.de. Beim ersten Mal lädt sie etwa 5 MB.
+
+Damit der Abend klappt:
+
+- **Ein aktueller Browser:** Safari, Chrome, Firefox oder Edge in einer neuen Version.
+- **Ton an:** Der Erzähler und die Klänge kommen auch aus eurem Gerät. Schaltet den Stummschalter aus und dreht die Lautstärke auf.
+- **Bildschirm an:** Lasst die Seite offen und im Vordergrund. Geht das Gerät in den Ruhezustand, verpasst ihr vielleicht euren Zug; ein Neuladen bringt euch an euren Platz zurück.
+- **Am Tisch, nicht aus der Ferne:** Whowolf ist ein Spiel für Leute, die zusammensitzen. Über das Internet mitzuspielen ist für die da, die am Tisch kein WLAN haben, nicht als Ersatz für den Spieleabend.
+
+Der Browser kann keinen Raum eröffnen; dafür braucht eine Person am Tisch die App.
 
 ## Dasselbe WLAN
 
@@ -39,7 +52,7 @@ Manche Gäste-WLANs, etwa in Cafés oder Hotels, lassen Geräte nicht miteinande
 
 ## Mitspieler, die nicht am Tisch sitzen
 
-Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) dazukommen. Die App nutzt dafür von sich aus den offiziellen Server play.whowolf.de, der nur verschlüsselte Nachrichten weiterreicht. In den Einstellungen könnt ihr ihn abschalten („nur WLAN“) oder einen [eigenen Server](https://github.com/nurkert/whowolf/tree/main/server/deploy) eintragen. Mehr dazu unter [Wie die App funktioniert](/docs/wie-die-app-funktioniert/).
+Wer nicht im selben WLAN ist, kann über einen **Vermittlungsserver** (Relay) dazukommen. Die App nutzt dafür von sich aus den offiziellen Server play.whowolf.de, der nur verschlüsselte Nachrichten weiterreicht. Standardmäßig öffnet die App den Raum dort erst, wenn der Spielleiter den QR-Code zeigt. In den Einstellungen unter „Online-Spiel“ könnt ihr ihn ganz abschalten („Kein Online-Server“) oder einen [eigenen Server](https://github.com/nurkert/whowolf/tree/main/server/deploy) eintragen. Mehr dazu unter [Wie die App funktioniert](/docs/wie-die-app-funktioniert/).
 
 ## Gut zu wissen: Es ist eine Entwickler-Beta
 
