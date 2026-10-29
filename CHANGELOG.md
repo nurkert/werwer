@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Fixed
+
+- Android: releases are signed with one fixed key (once the repository holds it), so the app updates in place instead of refusing a new signature. One last reinstall is needed when coming from a debug-signed version.
+
 ## 0.2.1 – 2026-10-29
 
 Every device at the table needs this version (protocol 17).

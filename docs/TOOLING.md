@@ -58,6 +58,24 @@ Repository → **Settings**:
 
 Neue Umgebung prüfen: `tool/doctor.sh`.
 
+## Android: fester Release-Schlüssel
+
+Android installiert ein Update nur, wenn es mit demselben Schlüssel signiert ist wie die installierte App. Ohne festen Schlüssel signiert jeder CI-Lauf mit einem frischen Debug-Schlüssel, und jedes Update scheitert (man müsste deinstallieren). Darum signiert der Release-Workflow mit einem festen Schlüssel aus den **Repository-Secrets**, sobald es sie gibt (Schritt „Android release key“, `app/android/app/build.gradle.kts` liest die git-ignorierte `app/android/key.properties`). Ohne Secrets warnt der Lauf und signiert wie bisher mit dem Debug-Schlüssel.
+
+1. Einmal den Schlüssel erzeugen, außerhalb des Repos: `tool/android_release_key.sh` (legt `~/whowolf-release.jks` an, 30 Jahre gültig, und zeigt das Passwort einmal an).
+2. **Schlüssel und Passwort sichern**, etwa im Passwortmanager. Wer beides verliert, kann nie wieder ein Update über die installierte App spielen.
+3. Secrets eintragen:
+
+| Secret | Inhalt |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | `base64 -i ~/whowolf-release.jks \| pbcopy`, dann einfügen |
+| `ANDROID_KEY_ALIAS` | `whowolf` |
+| `ANDROID_KEY_PASSWORD` | das Passwort aus Schritt 1 (Store und Schlüssel teilen es) |
+
+Danach genügt ein neuer Tag. Der Build-Log zeigt den SHA-256 des Zertifikats (öffentlich), der von Release zu Release gleich bleiben muss; ist der Schlüssel eingetragen, aber die APK trotzdem debug-signiert, bricht der Lauf ab. Der SHA-256 ist auch der Wert für `ANDROID_CERT_SHA256` am Relay (App Links). **Einmalig** müssen alle, die eine debug-signierte Version haben, noch ein letztes Mal deinstallieren; ab dann gehen Updates direkt.
+
+**Sicherheit:** Gefährlich wäre ein geleakter Schlüssel (jemand könnte „Updates“ unterschieben) oder ein verlorener (nie mehr Updates). Dagegen: Der Schlüssel liegt nur in den Secrets und im Passwortmanager des Eigentümers, nie im Repo (`.gitignore`: `*.jks`, `*.keystore`, `key.properties`; das Skript verweigert Pfade im Repo), im Runner nur in `$RUNNER_TEMP` und nur im Android-Job; GitHub maskiert die Werte im Log, ausgegeben wird nur das öffentliche Zertifikat. Die Prüfung mit `apksigner` im Release bricht ab, wenn trotz Schlüssel debug-signiert wurde. Die Secrets stehen Läufen aus Forks nicht zur Verfügung, und der Release-Workflow läuft nur auf Tags.
+
 ## Apple: TestFlight und signiertes macOS
 
 Der Release-Workflow signiert macOS mit Developer ID, lässt es notarisieren und lädt iOS zu TestFlight hoch, sobald diese vier **Repository-Secrets** existieren (GitHub → Settings → Secrets and variables → Actions). Ohne sie baut er wie bisher unsigniert. Die Logik steckt in `tool/apple_release.sh`; Zertifikate und Profile holt Xcode selbst (cloud-verwaltet), im Repo liegt nichts davon.
