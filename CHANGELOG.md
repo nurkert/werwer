@@ -5,10 +5,22 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
-### Changed
+Every device at the table needs the next version (protocol 18).
 
+### Added
+- Mayoral election with its own menu: the day shows who has voted and your
+  pick; the election opens as a sheet (a dialog on a computer) with every
+  candidate's backers, pick and confirm. The new mayor appears on every
+  phone with the chain of office dropping onto their shoulders.
+- The mayor's chain of office: a small wordless emblem on the mayor's card
+  wherever players are shown, and the election in the chronicle.
+- A new figure, the crackpot tinkerer, with poses and all role costumes.
+
+### Changed
 - The battery saver (Android power saving, low power mode on iPhone and Mac) calms a full stage by itself while it is on; you can still switch, and when it goes off your own choice is back.
 - Stage & battery: each of the three levels has its own icon, in the settings and the app bar. The very first start picks one that fits (still with the system's reduced motion, battery-saving in the browser, the full stage in the app); a later choice always stays.
+- The mayor figure is gone (the mayor is an office now); the tinkerer takes
+  its place.
 
 ## 0.2.2 – 2026-10-29
 

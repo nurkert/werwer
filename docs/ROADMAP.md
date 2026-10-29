@@ -271,6 +271,7 @@ Wunsch des Eigentümers: alles Offene in einem Sprint, Schritt für Schritt, mit
 - [x] **G1 – Release 0.2.0** (2026-10-28)
 - [ ] **G2 – Generalprobe am Tisch** mit echten Geräten (mit dem Eigentümer)
 
+- [x] **Bürgermeisterwahl** ([Task 027](tasks/027-buergermeisterwahl.md), 2026-10-29): eigenes Wahlmenü, Amtskette als Zeichen, Zeremonie, Chronik; die Persona Bürgermeister wird zum Tüftler (Protokoll 18)
 - [x] **Später beitreten und Raum abschließen** ([Task 025](tasks/025-spaeter-beitreten-und-abschliessen.md), 2026-10-29): tagsüber dazukommen als Geist oder Dorfbewohner, Spielleiter bestätigt mit den Zeichen, Raum abschließbar
 
 Parallel laufen [Task 021](tasks/021-nahtlos-fehlertolerant.md) (Fehlertoleranz, eigener Agent) und [Task 022](tasks/022-code-beitritt.md) (Beitritt per Code auf play.whowolf.de).
