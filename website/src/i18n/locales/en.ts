@@ -180,6 +180,7 @@ const en: Copy = {
     security: 'Security',
     imprint: 'Imprint',
     privacy: 'Privacy',
+    terms: 'Terms of use',
   },
   download: {
     title: 'Download',
@@ -208,8 +209,25 @@ const en: Copy = {
   legal: {
     imprintTitle: 'Imprint',
     privacyTitle: 'Privacy policy',
+    termsTitle: 'Terms of use',
+    forkPrivacyNote: 'This site was built from a copy (fork) of Whowolf. Its operator can link their privacy policy here (repository variable PRIVACY_URL).',
+    forkTermsNote: 'This site was built from a copy (fork) of Whowolf. Its operator can link their terms of use here (repository variable TERMS_URL).',
     forkNote:
       'This site was built from a copy (fork) of the Whowolf project. Whoever runs it publicly usually needs their own imprint. Operators set the repository variable IMPRINT_URL to the address of their imprint page.',
+  },
+  terms: {
+    description: 'Terms of use for whowolf.de, the play.whowolf.de server and the downloads: free of charge, provided as is, liability only as far as the law requires.',
+    updated: 'Last updated: 29 October 2026',
+    sections: [
+      { title: 'What this is about', html: 'Whowolf is a free open-source project run as a hobby by a private person (see the <a href="/en/imprint/">imprint</a>). These terms apply to the website whowolf.de, the relay server play.whowolf.de and the downloads offered here and at <a href="https://github.com/nurkert/whowolf">github.com/nurkert/whowolf</a>. No paid contract comes about.' },
+      { title: 'Free, with no entitlement', html: 'Whowolf costs nothing. There is no entitlement to the website, the server or the downloads being available or having particular features. Any of it may change, pause or end at any time without notice. Whowolf is a developer beta: expect bugs.' },
+      { title: 'Software provided as is', html: 'The software is licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> and provided as is. Sections 7 and 8 of the license govern warranty and liability, as far as the law allows.' },
+      { title: 'Liability', html: 'For this free service I am liable only for intent and gross negligence. Liability for injury to life, body or health and under the German Product Liability Act remains unlimited. Otherwise liability is excluded.' },
+      { title: 'Own servers, copies and other sources', html: 'Anyone may run, change and share Whowolf under its license. Whoever runs their own relay server, a copy (fork), a modified build or a third-party offer, such as someone else\'s AltStore or SideStore source, is solely responsible for it. I have no influence on these and am not responsible for them. Only whowolf.de, play.whowolf.de and the releases in the nurkert/whowolf repository come from me.' },
+      { title: 'Play fair', html: 'Please use the server only to play: no attacks, no flooding with connections or messages, no attempts to get around its limits. You choose your player names and are responsible for them; unlawful or insulting names are not allowed. In case of abuse I may limit or block connections.' },
+      { title: 'Links', html: 'The operators of linked third-party sites are responsible for their content.' },
+      { title: 'Law', html: 'German law applies. Mandatory consumer protection rules of the country you live in remain unaffected.' },
+    ],
   },
   privacy: {
     updated: 'Last updated: 28 October 2026',

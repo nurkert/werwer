@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ui, type Lang } from '../../i18n/ui';
+import { officialSite, operatorPage } from '../../lib/official';
+import '../../styles/prose.css';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+// The owner's terms cover the owner's services only; a fork links its own or says so.
+const own = officialSite ? null : operatorPage('TERMS_URL');
+---
+
+<Base lang={lang} page="terms" title={`${t.legal.termsTitle} – Whowolf`} description={t.terms.description}>
+  <main class="paper legal">
+    <article class="container prose prose--paper">
+      <h1>{t.legal.termsTitle}</h1>
+      {
+        officialSite ? (
+          <>
+            <p>{t.terms.updated}</p>
+            {t.terms.sections.map((section) => (
+              <>
+                <h2>{section.title}</h2>
+                <p set:html={section.html} />
+              </>
+            ))}
+          </>
+        ) : own ? (
+          <p>
+            <a href={own}>{own}</a>
+          </p>
+        ) : (
+          <p>{t.legal.forkTermsNote}</p>
+        )
+      }
+    </article>
+  </main>
+</Base>
+
+<style>
+  .legal {
+    margin-top: var(--space-3);
+  }
+</style>

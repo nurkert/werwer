@@ -179,6 +179,7 @@ const de = {
     security: 'Sicherheit',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
+    terms: 'Nutzungsbedingungen',
   },
   download: {
     title: 'Download',
@@ -207,8 +208,25 @@ const de = {
   legal: {
     imprintTitle: 'Impressum',
     privacyTitle: 'Datenschutzerklärung',
+    termsTitle: 'Nutzungsbedingungen',
+    forkPrivacyNote: 'Diese Seite wurde aus einer Kopie (Fork) von Whowolf gebaut. Ihr Betreiber kann hier seine Datenschutzerklärung verlinken (Repository-Variable PRIVACY_URL).',
+    forkTermsNote: 'Diese Seite wurde aus einer Kopie (Fork) von Whowolf gebaut. Ihr Betreiber kann hier seine Nutzungsbedingungen verlinken (Repository-Variable TERMS_URL).',
     forkNote:
       'Diese Seite wurde aus einer Kopie (Fork) des Whowolf-Projekts gebaut. Wer sie öffentlich betreibt, braucht in der Regel ein eigenes Impressum. Betreiber hinterlegen dafür in ihrem Repository die Variable IMPRINT_URL mit der Adresse ihrer Impressums-Seite.',
+  },
+  terms: {
+    description: 'Nutzungsbedingungen für whowolf.de, den Server play.whowolf.de und die Downloads: kostenlos, ohne Gewähr, Haftung nur im gesetzlichen Rahmen.',
+    updated: 'Stand: 29. Oktober 2026',
+    sections: [
+      { title: 'Worum es geht', html: 'Whowolf ist ein kostenloses Open-Source-Projekt einer Privatperson (siehe <a href="/impressum/">Impressum</a>), betrieben als Hobby. Diese Bedingungen gelten für die Website whowolf.de, den Vermittlungsserver play.whowolf.de und die Downloads, die hier und unter <a href="https://github.com/nurkert/whowolf">github.com/nurkert/whowolf</a> angeboten werden. Ein entgeltlicher Vertrag entsteht nicht.' },
+      { title: 'Kostenlos und ohne Anspruch', html: 'Whowolf kostet nichts. Es besteht kein Anspruch darauf, dass Website, Server oder Downloads erreichbar sind oder bestimmte Funktionen haben. Alles davon kann sich jederzeit und ohne Ankündigung ändern, pausieren oder enden. Whowolf ist eine Entwickler-Beta: Rechnet mit Fehlern.' },
+      { title: 'Software ohne Gewähr', html: 'Die Software steht unter der <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> und wird so bereitgestellt, wie sie ist. Für Gewährleistung und Haftung gelten die Abschnitte 7 und 8 der Lizenz, soweit das Gesetz es zulässt.' },
+      { title: 'Haftung', html: 'Für die unentgeltliche Bereitstellung hafte ich nur bei Vorsatz und grober Fahrlässigkeit. Unbeschränkt bleibt die Haftung für Schäden aus der Verletzung von Leben, Körper oder Gesundheit und nach dem Produkthaftungsgesetz. Im Übrigen ist die Haftung ausgeschlossen.' },
+      { title: 'Eigene Server, Kopien und andere Quellen', html: 'Jeder darf Whowolf nach der Lizenz selbst betreiben, verändern und weitergeben. Für eigene Vermittlungsserver, Kopien (Forks), veränderte Fassungen und Angebote Dritter, etwa fremde AltStore- oder SideStore-Quellen, ist allein verantwortlich, wer sie betreibt. Darauf habe ich keinen Einfluss, und dafür bin ich nicht verantwortlich. Von mir stammen nur whowolf.de, play.whowolf.de und die Releases im Repository nurkert/whowolf.' },
+      { title: 'Fair spielen', html: 'Nutzt den Server bitte nur zum Spielen: keine Angriffe, kein Überfluten mit Verbindungen oder Nachrichten, keine Versuche, seine Grenzen zu umgehen. Spielernamen wählt ihr selbst und seid dafür verantwortlich; rechtswidrige oder beleidigende Namen sind nicht erlaubt. Bei Missbrauch kann ich Verbindungen begrenzen oder sperren.' },
+      { title: 'Links', html: 'Für die Inhalte verlinkter fremder Seiten sind deren Betreiber verantwortlich.' },
+      { title: 'Recht', html: 'Es gilt deutsches Recht. Zwingende Verbraucherschutzvorschriften des Landes, in dem du lebst, bleiben unberührt.' },
+    ],
   },
   privacy: {
     updated: 'Stand: 28. Oktober 2026',

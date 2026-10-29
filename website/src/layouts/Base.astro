@@ -218,6 +218,7 @@ const jsonLd = {
             <li><a href={`${repoUrl}/blob/main/SECURITY.md`}>{t.footer.security}</a></li>
             <li><a href={path('imprint', lang)}>{t.footer.imprint}</a></li>
             <li><a href={path('privacy', lang)}>{t.footer.privacy}</a></li>
+            <li><a href={path('terms', lang)}>{t.footer.terms}</a></li>
             {others.map((version) => (
               <li><a href={version.href} hreflang={version.lang} lang={version.lang}>{languages[version.lang].label}</a></li>
             ))}

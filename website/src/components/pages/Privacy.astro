@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { ui, type Lang } from '../../i18n/ui';
+import { officialSite, operatorPage } from '../../lib/official';
 import '../../styles/prose.css';
 
 interface Props {
@@ -8,20 +9,32 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = ui[lang];
+// The owner's policy describes the owner's services; a fork links its own or says so.
+const own = officialSite ? null : operatorPage('PRIVACY_URL');
 ---
 
 <Base lang={lang} page="privacy" title={`${t.legal.privacyTitle} – Whowolf`} description={t.legal.privacyTitle}>
   <main class="paper legal">
     <article class="container prose prose--paper">
       <h1>{t.legal.privacyTitle}</h1>
-      <p>{t.privacy.updated}</p>
       {
-        t.privacy.sections.map((section) => (
+        officialSite ? (
           <>
-            <h2>{section.title}</h2>
-            <p set:html={section.html} />
+            <p>{t.privacy.updated}</p>
+            {t.privacy.sections.map((section) => (
+              <>
+                <h2>{section.title}</h2>
+                <p set:html={section.html} />
+              </>
+            ))}
           </>
-        ))
+        ) : own ? (
+          <p>
+            <a href={own}>{own}</a>
+          </p>
+        ) : (
+          <p>{t.legal.forkPrivacyNote}</p>
+        )
       }
     </article>
   </main>

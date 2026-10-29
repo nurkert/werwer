@@ -22,6 +22,7 @@ export const pages = {
   download: { de: 'download', en: 'download' },
   privacy: { de: 'datenschutz', en: 'privacy' },
   imprint: { de: 'impressum', en: 'imprint' },
+  terms: { de: 'nutzungsbedingungen', en: 'terms' },
   join: { de: 'join', en: 'join' },
   // The player guide (the "Docs"); its texts live in src/content/guide/<lang>/<page>.md.
   docs: { de: 'docs', en: 'docs' },

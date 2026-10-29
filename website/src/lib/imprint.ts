@@ -26,6 +26,27 @@ export function sanitize(html: string): string {
     .trim();
 }
 
+/**
+ * The imprint page, tried a few times with growing pauses: a short outage of the owner's
+ * site must not fail the release build, but the site is never published without an imprint.
+ */
+async function fetchWithRetry(url: URL, attempts = 4): Promise<string> {
+  let last: unknown;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (attempt > 0) await new Promise((done) => setTimeout(done, 2_000 * 2 ** (attempt - 1)));
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(15_000), redirect: 'error' });
+      if (response.ok) return await response.text();
+      last = new Error(`Imprint could not be loaded (${response.status}) from ${url}`);
+      // A missing page will not come back by waiting.
+      if (response.status === 404) break;
+    } catch (error) {
+      last = error;
+    }
+  }
+  throw last instanceof Error ? last : new Error(`Imprint could not be loaded from ${url}`);
+}
+
 export interface Imprint {
   html: string;
   source: string;
@@ -37,9 +58,7 @@ export async function loadImprint(): Promise<Imprint | null> {
   const url = new URL(source);
   if (url.protocol !== 'https:') throw new Error('IMPRINT_URL must use https');
 
-  const response = await fetch(url, { signal: AbortSignal.timeout(15_000), redirect: 'error' });
-  if (!response.ok) throw new Error(`Imprint could not be loaded (${response.status}) from ${url}`);
-  const page = await response.text();
+  const page = await fetchWithRetry(url);
 
   // Content of the page after its <h1> heading, up to the end of the body.
   const afterHeading = page.split(/<\/h1>/i)[1] ?? '';

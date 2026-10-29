@@ -40,12 +40,21 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci --no-audit --no-fund
+      # A fork's build must never show the owner's imprint, privacy policy or terms.
+      - run: npm run check:fork
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
         env:
           # Read-only token, only to avoid API rate limits when listing releases.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # The imprint lives on the owner's site, not in the repo. Forks set their own repo variable.
           IMPRINT_URL: ${{ github.repository == 'nurkert/whowolf' && 'https://nurkert.de/impressum' || vars.IMPRINT_URL }}
+          # Only the official build shows the owner's privacy policy and terms; forks link
+          # their own through these repository variables or show a short note.
+          OFFICIAL_SITE: ${{ github.repository == 'nurkert/whowolf' && 'true' || '' }}
+          PRIVACY_URL: ${{ vars.PRIVACY_URL }}
+          TERMS_URL: ${{ vars.TERMS_URL }}
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
