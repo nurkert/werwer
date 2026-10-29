@@ -25,7 +25,9 @@ twice in a row) and lets the voice walk around the table
    `--remove` deletes the ones that say something else; run step 2 again to
    make them anew. Changed lines in the script are made anew on the next
    run of step 2 by themselves (each file keeps its text next to it).
-4. **Encode:** `python3 tool/voice/encode.py de` trims, normalises and writes
+4. **Encode:** `python3 tool/voice/encode.py de` trims, normalises, shortens
+   every pause between sentences to at most 700 ms (longer ones sound like
+   the voice broke off) and writes
    `app/assets/voice/<lang>/` plus `manifest.json` (lengths for the walk and
    the facts a line needs). It takes only verified files.
    It also writes each clip's inner pauses (at least 250 ms) into the
