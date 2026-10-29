@@ -44,6 +44,7 @@ const byPlatform = platforms
 const number = (value: number) => value.toLocaleString(languages[lang].locale);
 const date = (value: Date) => value.toLocaleDateString(languages[lang].locale, { day: 'numeric', month: 'long', year: 'numeric' });
 const formats = ['avif', 'webp'] as const;
+const altstoreSource = new URL('/altstore.json', Astro.site).toString();
 ---
 
 <Base lang={lang} page="download" title={`${d.title} – Whowolf`} description={d.metaDescription} backdrop="village">
@@ -125,7 +126,19 @@ const formats = ['avif', 'webp'] as const;
                   <span>{x.requirements}:</span> {info.req}
                 </p>
                 <div class="card__files">
-                  {files.length > 0 ? (
+                  {'altstore' in info && files.length > 0 ? (
+                    // The iPhone app comes through AltStore Classic: the
+                    // source lists every release (pages/altstore.json.ts).
+                    <a class="card__download" href={`altstore://source?url=${encodeURIComponent(altstoreSource)}`}>
+                      <Icon name="download" />
+                      <span>
+                        <strong>{info.altstore.add}</strong>
+                        <small>
+                          {files[0].name} · {files[0].sizeMb} MB
+                        </small>
+                      </span>
+                    </a>
+                  ) : files.length > 0 ? (
                     files.map((file) => (
                       <a class="card__download" href={file.url}>
                         <Icon name="download" />
@@ -141,6 +154,12 @@ const formats = ['avif', 'webp'] as const;
                     <span class="card__soon">{shown ? d.notInRelease : d.soon}</span>
                   )}
                 </div>
+                {'altstore' in info && files.length > 0 && (
+                  <div class="card__apt">
+                    <p class="card__apt-note">{info.altstore.addNote}</p>
+                    <code>{altstoreSource}</code>
+                  </div>
+                )}
                 {'apt' in info && (
                   <div class="card__apt">
                     <p class="card__steps-title">{info.apt.title}</p>
@@ -152,9 +171,11 @@ const formats = ['avif', 'webp'] as const;
                   <p class="card__steps-title">{x.install}</p>
                   <ol>
                     {info.steps.map((step) => (
-                      <li>{step}</li>
+                      // Our own texts; the iPhone steps carry links to AltStore's guide.
+                      <li set:html={step} />
                     ))}
                   </ol>
+                  {'altstore' in info && <p class="card__apt-note">{info.altstore.browser}</p>}
                 </div>
               </li>
             );

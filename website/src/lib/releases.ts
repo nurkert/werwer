@@ -8,6 +8,8 @@ export interface Download {
   name: string;
   url: string;
   sizeMb: number;
+  /** The exact size in bytes (AltStore checks it). */
+  size: number;
   /** How often GitHub has served this file. */
   count: number;
 }
@@ -20,6 +22,8 @@ export interface Release {
   prerelease: boolean;
   downloads: Download[];
   checksumsUrl?: string;
+  /** What AltStore checks the iPhone .ipa against (tool/package_ipa.sh). */
+  altstoreUrl?: string;
   /** Downloads of every file of the release, as GitHub counts them. */
   totalDownloads: number;
 }
@@ -28,6 +32,7 @@ const api = 'https://api.github.com/repos/nurkert/whowolf/releases?per_page=10';
 
 const patterns: [Platform, RegExp][] = [
   ['android', /\.apk$/i],
+  ['ios', /\.ipa$/i],
   ['macos', /(\.dmg$|mac(os)?.*\.zip$)/i],
   ['windows', /(\.msix$|\.exe$|windows.*\.zip$)/i],
   ['linux', /(\.deb$|\.appimage$|linux.*\.tar\.gz$|\.flatpak$)/i],
@@ -66,6 +71,7 @@ export async function loadReleases(): Promise<Release[]> {
         prerelease: release.prerelease,
         totalDownloads: release.assets.reduce((sum, asset) => sum + (asset.download_count ?? 0), 0),
         checksumsUrl: release.assets.find((asset) => /sha256/i.test(asset.name))?.browser_download_url,
+        altstoreUrl: release.assets.find((asset) => /-ios-altstore\.json$/i.test(asset.name))?.browser_download_url,
         downloads: release.assets.flatMap((asset) => {
           const match = patterns.find(([, pattern]) => pattern.test(asset.name));
           return match
@@ -75,6 +81,7 @@ export async function loadReleases(): Promise<Release[]> {
                   name: asset.name,
                   url: asset.browser_download_url,
                   sizeMb: Math.round((asset.size / 1_048_576) * 10) / 10,
+                  size: asset.size,
                   count: asset.download_count ?? 0,
                 },
               ]

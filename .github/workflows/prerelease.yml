@@ -124,11 +124,14 @@ jobs:
               flutter build macos $FLAGS
               ditto -c -k --keepParent build/macos/Build/Products/Release/Whowolf.app "../dist/whowolf-$NAME-macos.zip" ;;
             ios)
-              # Compile check only; iPhone builds are distributed via TestFlight, not as a download.
-              flutter build ios $FLAGS --no-codesign ;;
+              # Unsigned .ipa for AltStore Classic: each player's own Apple ID
+              # signs it on the device. whowolf.de/altstore.json lists it,
+              # built from the metadata file next to it.
+              flutter build ios $FLAGS --no-codesign
+              ../tool/package_ipa.sh build/ios/iphoneos/Runner.app \
+                "../dist/whowolf-$NAME-ios.ipa" "../dist/whowolf-$NAME-ios-altstore.json" ;;
           esac
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: matrix.target != 'ios'
         with:
           name: app-${{ matrix.target }}
           path: dist/*

@@ -151,7 +151,7 @@ const en: Copy = {
       { state: 'done', title: '0.1.4: The living stage', text: 'Since 28 October the windows glow and waver, stars twinkle, the lake sways and fireflies drift. “How it works” explains a round in eight little scenes, and the host picks Classic or Whowolf in one tap.' },
       { state: 'done', title: '0.1.6: Narrator, sound and the browser', text: 'Since 28 October the narrator walks round the table like a storyteller, the table picks which phones play sound, and the seer sees her vision large. Without Wi-Fi you play in the browser through the server.' },
       { state: 'done', title: '0.1.7: A smooth game night', text: 'Since 28 October the game tells what really happened at the end, the dead have their last words, the table says when it is ready to vote, the game leader has the clock in hand, and a seat moves to another phone when a battery dies.' },
-      { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. The iPhone version comes via TestFlight as soon as there is an Apple developer account.' },
+      { state: 'next', title: 'Before the app stores', text: 'Someone independent reviews the encryption. Until then the iPhone app comes via AltStore; TestFlight and the App Store follow with an Apple developer account.' },
     ],
     roadmap: 'See the roadmap',
   },
@@ -198,7 +198,7 @@ const en: Copy = {
     source: 'Prefer to build it yourself? The complete source code is on GitHub.',
     platforms: {
       android: 'Install the APK directly, later also on Google Play.',
-      ios: 'Via TestFlight, later on the App Store.',
+      ios: 'Via AltStore Classic, later on the App Store.',
       macos: 'For Apple silicon and Intel.',
       windows: 'Windows 10 and 11.',
       linux: 'Debian package (.deb) for Debian, Ubuntu and friends.',
@@ -326,7 +326,20 @@ const en: Copy = {
     size: 'Size',
     getIt: 'Download',
     platforms: {
-      ios: { req: 'iOS 15 or later', steps: ['Get TestFlight from the App Store.', 'Open the invite link once it is published.', 'Install Whowolf in TestFlight.'] },
+      ios: {
+        req: 'iOS 15 or later, plus a Mac or Windows PC for AltStore',
+        steps: [
+          'Set up AltStore Classic: install AltServer on your Mac or PC and use it to put AltStore on your iPhone. AltStore’s guide walks you through it: <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos">with a Mac</a> or <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows">with Windows</a>.',
+          'On iOS 16 or later, turn on Developer Mode: Settings › Privacy & Security › Developer Mode. The iPhone restarts once.',
+          'On the iPhone, tap “Add to AltStore” above and install Whowolf. You sign in with your own Apple ID; no developer account needed.',
+          'AltStore renews the app every 7 days by itself while AltServer runs on the same Wi-Fi. New versions of Whowolf show up there automatically.',
+        ],
+        altstore: {
+          add: 'Add to AltStore',
+          addNote: 'If the button does nothing, add this address under “Sources” in AltStore:',
+          browser: 'No install needed either: play in the browser (Safari) as soon as the game leader shows you the code.',
+        },
+      },
       macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the test version is not notarized yet).'] },
       android: { req: 'Android 7 or later', steps: ['Download the APK on your phone.', 'Allow installs from this source when Android asks.', 'Open Whowolf.'] },
       windows: { req: 'Windows 10 or 11, 64-bit', steps: ['Download and unzip.', 'Run whowolf.exe.', 'On the SmartScreen warning: “More info” → “Run anyway”.'] },

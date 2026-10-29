@@ -7,6 +7,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ### Added
 
+- iPhone app via AltStore Classic: every release ships an unsigned `.ipa`, and whowolf.de/altstore.json lists it so AltStore installs and updates Whowolf without an Apple developer account.
+
+### Added
+
 - Join a running game by day: the game leader lets newcomers in with the
   check symbols; they come in as a ghost (default) or as a villager, as
   the table chooses in the settings.

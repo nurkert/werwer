@@ -165,6 +165,7 @@ Jeder Meilenstein hat ein **Ziel** und ein **Fertig-wenn**. Die konkreten Arbeit
 - [x] Release-Pipeline (GitHub Actions bei Tag `v*`): Android-APK (signiert), macOS, Windows, Linux → **GitHub-Release** mit Changelog, **SHA-256-Prüfsummen** und **Build-Provenance** (Artifact Attestations)
 - [x] Sicherheits-Check vor dem Release: Bedrohungsmodell durchgehen, `osv-scanner`, Secret-Scan (unabhängige Prüfung 2026-10-26, Befunde behoben oder unter „Grenzen“ in SECURITY_DESIGN)
 - [ ] **Externer Review des Handshakes** (`packages/secure_channel`) durch jemanden mit Krypto-Erfahrung (bis 2026-11-01 nicht zu schaffen: 0.1 bleibt als Entwickler-Beta gekennzeichnet, der Review ist Pflicht vor den Stores)
+- [x] iOS ohne Account über **AltStore Classic** (Task 026): unsignierte `.ipa` in jedem Release, Source unter whowolf.de/altstore.json, vollautomatisch
 - [ ] iOS über **TestFlight**, macOS signiert und notarisiert – **verschoben:** noch kein Apple Developer Account (Stand 2026-10-26). Die Pipeline steht bereit (`tool/apple_release.sh`, Secrets siehe TOOLING.md) und wird aktiv, sobald es einen Account und die vier Secrets gibt.
 - [x] **Website** (aus Spur D) um Downloads, Spielregeln und Mitmachen erweitern
 - [x] Datenschutz (keine Daten, kein Tracking) und Impressum für die Website prüfen; Datenschutz der App ergänzt

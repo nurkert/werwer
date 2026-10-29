@@ -150,7 +150,7 @@ const de = {
       { state: 'done', title: '0.1.4: Die lebendige Bühne', text: 'Seit dem 28. Oktober glühen und flackern die Fenster, Sterne funkeln, der See wogt und Glühwürmchen ziehen umher. „So geht’s“ erklärt eine Runde in acht kleinen Szenen, und der Spielleiter wählt Klassisch oder Whowolf mit einem Tipp.' },
       { state: 'done', title: '0.1.6: Erzähler, Ton und Browser', text: 'Seit dem 28. Oktober geht der Erzähler wie ein Geschichtenerzähler um den Tisch, der Tisch wählt, welche Handys Ton spielen, und die Seherin sieht ihre Vision groß. Ohne WLAN spielt man im Browser über den Server mit.' },
       { state: 'done', title: '0.1.7: Ein reibungsloser Spieleabend', text: 'Seit dem 28. Oktober erzählt das Spiel am Ende, was wirklich geschah, Tote haben ihre letzten Worte, der Tisch sagt, wann er abstimmen will, der Spielleiter hat die Uhr in der Hand, und ein Platz wandert aufs andere Handy, wenn ein Akku leer ist.' },
-      { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Das iPhone kommt über TestFlight, sobald es einen Apple-Entwickler-Account gibt.' },
+      { state: 'next', title: 'Vor den App Stores', text: 'Jemand Unabhängiges prüft die Verschlüsselung. Bis dahin gibt es die iPhone-App über AltStore; TestFlight und der App Store folgen mit einem Apple-Entwickler-Account.' },
     ],
     roadmap: 'Zur Roadmap',
   },
@@ -197,7 +197,7 @@ const de = {
     source: 'Lieber selbst bauen? Der komplette Quellcode liegt auf GitHub.',
     platforms: {
       android: 'APK direkt installieren, später auch bei Google Play.',
-      ios: 'Über TestFlight, später im App Store.',
+      ios: 'Über AltStore Classic, später im App Store.',
       macos: 'Für Apple Silicon und Intel.',
       windows: 'Windows 10 und 11.',
       linux: 'Debian-Paket (.deb) für Debian, Ubuntu und Verwandte.',
@@ -325,7 +325,20 @@ const de = {
     size: 'Größe',
     getIt: 'Herunterladen',
     platforms: {
-      ios: { req: 'iOS 15 oder neuer', steps: ['TestFlight aus dem App Store laden.', 'Einladungslink öffnen, sobald er veröffentlicht ist.', 'Whowolf in TestFlight installieren.'] },
+      ios: {
+        req: 'iOS 15 oder neuer, dazu ein Mac oder Windows-PC für AltStore',
+        steps: [
+          'AltStore Classic einrichten: AltServer auf deinem Mac oder PC installieren und damit AltStore aufs iPhone bringen. Die Anleitung von AltStore führt Schritt für Schritt durch: <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-macos">mit dem Mac</a> oder <a href="https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows">mit Windows</a>.',
+          'Ab iOS 16 den Entwicklermodus einschalten: Einstellungen › Datenschutz & Sicherheit › Entwicklermodus. Das iPhone startet dafür einmal neu.',
+          'Auf dem iPhone oben auf „In AltStore hinzufügen“ tippen und Whowolf installieren. Angemeldet wird mit deiner eigenen Apple-ID, ein Entwickler-Account ist nicht nötig.',
+          'AltStore erneuert die App alle 7 Tage von selbst, solange AltServer im selben WLAN läuft. Neue Versionen von Whowolf erscheinen dort automatisch.',
+        ],
+        altstore: {
+          add: 'In AltStore hinzufügen',
+          addNote: 'Klappt der Knopf nicht, trag in AltStore unter „Quellen“ diese Adresse ein:',
+          browser: 'Ohne Installation geht es auch: Im Browser (Safari) spielst du mit, sobald der Spielleiter dir den Code zeigt.',
+        },
+      },
       macos: { req: 'macOS 12 oder neuer, Apple Silicon oder Intel', steps: ['ZIP herunterladen und doppelklicken.', 'Whowolf in den Programme-Ordner ziehen.', 'Beim ersten Start: Rechtsklick → Öffnen (die Testversion ist noch nicht notarisiert).'] },
       android: { req: 'Android 7 oder neuer', steps: ['APK auf dem Handy herunterladen.', 'Installation aus dieser Quelle erlauben, wenn Android fragt.', 'Whowolf öffnen.'] },
       windows: { req: 'Windows 10 oder 11, 64 Bit', steps: ['ZIP herunterladen und entpacken.', 'whowolf.exe starten.', 'Bei der SmartScreen-Warnung: „Weitere Informationen“ → „Trotzdem ausführen“.'] },
