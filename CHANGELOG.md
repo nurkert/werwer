@@ -5,6 +5,11 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Website
+
+- Pages for people who want to play werewolf: the rules, a page per role (villager, werewolf, seer, witch, hunter, cupid, mayor), planning a game night, questions and answers and werewolf for Halloween, in German and English, linked from the home page and the guide.
+- The home page names what people search for in its headings; the developer pages are kept out of search results.
+
 ## 0.3.0 – 2026-10-29
 
 Every device at the table needs this version (protocol 18).
