@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+## 0.3.1 – 2026-10-29
+
+Plays with 0.3.0 (protocol 18).
+
 ### Changed
 
 - Relay operators can link their own imprint and privacy pages (`IMPRINT_URL`, `PRIVACY_URL`, optional English variants); without them the relay's pages and the web app on that server show no legal links, and never the official site's.
