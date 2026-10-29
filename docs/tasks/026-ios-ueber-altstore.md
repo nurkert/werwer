@@ -19,6 +19,7 @@ Ohne Apple-Entwickler-Account kommt die iPhone-App über **AltStore Classic**: J
 - [x] Download-Seite (de/en): Knopf „In AltStore hinzufügen“ (`altstore://source?url=…`), die Adresse zum Abtippen, Schritte außerhalb von AltStore (AltServer einrichten mit Link auf die AltStore-Anleitung für Mac und Windows, Entwicklermodus ab iOS 16, 7-Tage-Erneuerung) und der Browser als Alternative
 - [x] Spieleranleitung „Was ihr braucht“: iPhone im Browser oder über AltStore
 - [ ] Erstes Release mit `.ipa` beobachten: Source auf whowolf.de prüfen, in AltStore hinzufügen und auf einem echten iPhone installieren (mit dem Eigentümer)
+  - 0.2.1 (Run 40831013166): `.ipa` (52 MB) und Begleitdatei im Release, whowolf.de/altstore.json listet 0.2.1+18. Auf dem iPhone des Eigentümers liest AltStore die Source, zeigt Whowolf mit Icon und lädt die `.ipa`; die Installation scheiterte nur an „AltServer could not be found“ (kein AltServer auf seinem Mac). Offen: Installation mit laufendem AltServer.
 - [ ] Prüfen, ob AltStore den Link `altstore://source?url=…` öffnet (aus der Doku nicht eindeutig; sonst bleibt die Adresse zum Abtippen)
 
 ## Grenzen
