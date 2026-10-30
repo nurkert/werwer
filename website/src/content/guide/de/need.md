@@ -20,9 +20,9 @@ Jeder braucht ein eigenes Gerät: ein Handy, ein Tablet oder ein Laptop, mit der
 |---|---|---|
 | iPhone und iPad | iOS 15 oder neuer | im Browser (Safari) oder als App über [AltStore oder SideStore](/download/) |
 | Android | Android 7 oder neuer | APK zum Herunterladen |
-| Mac | macOS 12 oder neuer | Download |
-| Windows | Windows 10 oder 11, 64 Bit | Download |
-| Linux | Debian, Ubuntu oder verwandt, 64 Bit | Debian-Paket |
+| Mac | macOS 12 oder neuer | Disk-Image (.dmg) |
+| Windows | Windows 10 oder 11, 64 Bit | Installer oder ZIP ohne Installation |
+| Linux | jede gängige Distribution, 64 Bit | .deb, .rpm, Flatpak, AppImage oder Archiv |
 
 Alle Downloads und die Installationsschritte stehen auf der [Download-Seite](/download/). Den QR-Code scannen können iPhone, Android und Mac; an Windows- und Linux-Geräten tretet ihr über „Räume in der Nähe“ oder von Hand bei.
 

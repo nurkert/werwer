@@ -20,9 +20,9 @@ Everyone needs their own device: a phone, a tablet or a laptop, with the Whowolf
 |---|---|---|
 | iPhone and iPad | iOS 15 or later | in the browser (Safari) or as an app via [AltStore or SideStore](/en/download/) |
 | Android | Android 7 or later | APK download |
-| Mac | macOS 12 or later | download |
-| Windows | Windows 10 or 11, 64-bit | download |
-| Linux | Debian, Ubuntu or similar, 64-bit | Debian package |
+| Mac | macOS 12 or later | disk image (.dmg) |
+| Windows | Windows 10 or 11, 64-bit | installer, or a ZIP without installing |
+| Linux | any common distribution, 64-bit | .deb, .rpm, Flatpak, AppImage or archive |
 
 All downloads and installation steps are on the [download page](/en/download/). iPhone, Android and Mac can scan the QR code; on Windows and Linux you join via “Rooms nearby” or by hand.
 
