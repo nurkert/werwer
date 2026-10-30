@@ -9,6 +9,10 @@ on:
       version:
         description: 'Version without "v", e.g. 0.0.3'
         required: true
+      dry_run:
+        description: 'Only build and check every package, publish nothing'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -66,7 +70,11 @@ jobs:
           cache: true
       - name: Linux build dependencies
         if: matrix.target == 'linux'
-        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+        # The second line packs and starts the .rpm, AppImage and Flatpak.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libjsoncpp-dev libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+          sudo apt-get install -y rpm flatpak flatpak-builder xvfb libgl1-mesa-dri gstreamer1.0-plugins-good
       - name: Version
         run: |
           version="${VERSION#v}"
@@ -154,9 +162,16 @@ jobs:
               cp "$apk" "../dist/whowolf-$NAME-android.apk" ;;
             linux)
               flutter build linux $FLAGS
-              ../tool/package_deb.sh "$NAME" build/linux/x64/release/bundle "../dist/whowolf-$NAME-linux-amd64.deb" ;;
+              bundle=build/linux/x64/release/bundle
+              ../tool/package_deb.sh "$NAME" "$bundle" "../dist/whowolf-$NAME-linux-amd64.deb"
+              ../tool/package_rpm.sh "$NAME" "$bundle" "../dist/whowolf-$NAME-linux-x86_64.rpm"
+              ../tool/package_appimage.sh "$NAME" "$bundle" "../dist/whowolf-$NAME-linux-x86_64.AppImage"
+              ../tool/package_flatpak.sh "$NAME" "$bundle" "../dist/whowolf-$NAME-linux-x86_64.flatpak"
+              ../tool/package_tarball.sh "$NAME" "$bundle" "../dist/whowolf-$NAME-linux-x86_64.tar.gz" ;;
             windows)
               flutter build windows $FLAGS
+              # The installer, and the same files as a zip to run without installing.
+              ../tool/package_windows_setup.sh "$NAME" build/windows/x64/runner/Release "../dist/whowolf-$NAME-windows-x64-setup.exe"
               (cd build/windows/x64/runner/Release && 7z a -tzip "$GITHUB_WORKSPACE/dist/whowolf-$NAME-windows-x64.zip" . >/dev/null) ;;
             macos)
               # Unsigned: the repository has no App Store Connect key yet.
@@ -170,6 +185,28 @@ jobs:
               ../tool/package_ipa.sh build/ios/iphoneos/Runner.app \
                 "../dist/whowolf-$NAME-ios.ipa" "../dist/whowolf-$NAME-ios-altstore.json" ;;
           esac
+      - name: Start the Linux packages
+        # Each package installed the way a player would, then started for a
+        # while on a virtual display. The .rpm goes into a Fedora container,
+        # where dnf has to find every library it asks for.
+        if: matrix.target == 'linux'
+        env:
+          FEDORA: fedora:44@sha256:43b29f65a41eb9c35e1cd5323e3bdf3b655c2357a9f4f1ff2f9c2798e5045d80
+        run: |
+          sudo apt-get install -y "./dist/whowolf-$NAME-linux-amd64.deb"
+          tool/smoke_linux.sh 20 /usr/bin/whowolf
+          APPIMAGE_EXTRACT_AND_RUN=1 tool/smoke_linux.sh 20 "./dist/whowolf-$NAME-linux-x86_64.AppImage"
+          flatpak install --user -y --noninteractive "./dist/whowolf-$NAME-linux-x86_64.flatpak"
+          tool/smoke_linux.sh 30 flatpak run de.whowolf.app
+          docker run --rm -v "$PWD/dist:/dist:ro" "$FEDORA" bash -c '
+            set -euo pipefail
+            dnf install -y -q /dist/*.rpm
+            missing=$(ldd /opt/whowolf/whowolf /opt/whowolf/lib/*.so | grep "not found" || true)
+            [[ -z $missing ]] || { echo "missing libraries: $missing"; exit 1; }
+            echo "✓ the .rpm installs on Fedora with every library"'
+      - name: Install and uninstall on Windows
+        if: matrix.target == 'windows'
+        run: tool/check_windows_setup.sh "dist/whowolf-$NAME-windows-x64-setup.exe"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: app-${{ matrix.target }}
@@ -242,6 +279,8 @@ jobs:
 
   release:
     needs: build
+    # A dry run (workflow_dispatch) stops after the builds and their checks.
+    if: ${{ !inputs.dry_run }}
     runs-on: ubuntu-latest
     permissions:
       contents: write # create the release
@@ -274,9 +313,9 @@ jobs:
 
           **Opening the builds.** They are not signed by Apple or Microsoft yet:
           - **macOS:** open the `.dmg` and drag Whowolf into Applications. The first time, macOS blocks it: open System Settings → Privacy & Security and choose Open Anyway.
-          - **Windows:** unpack the `.zip` and start `whowolf.exe`; at "Windows protected your PC" choose More info → Run anyway.
+          - **Windows:** run `whowolf-*-windows-x64-setup.exe` (no admin rights needed); at "Windows protected your PC" choose More info → Run anyway. Or unpack the `.zip` and start `whowolf.exe` without installing.
           - **Android:** allow installing apps from your browser or file manager when asked.
-          - **Linux:** `sudo apt install ./whowolf-*-linux-amd64.deb`.
+          - **Linux:** Debian/Ubuntu `sudo apt install ./whowolf-*.deb`, Fedora/openSUSE `sudo dnf install ./whowolf-*.rpm`, Flatpak `flatpak install --user ./whowolf-*.flatpak`, any distribution: make the `.AppImage` executable and start it, or unpack the `.tar.gz`.
           - **iPhone:** via TestFlight as soon as it is set up.
 
           Check a download against `SHA256SUMS.txt`, or verify its build provenance with `gh attestation verify <file> --repo nurkert/whowolf`.

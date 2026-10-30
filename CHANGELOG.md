@@ -7,6 +7,8 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ### Changed
 
+- Windows gets an installer (`whowolf-*-windows-x64-setup.exe`) in the look of the app: installs for your user without admin rights, adds Whowolf to the Start menu and uninstalls from Settings. The ZIP stays for running without installing.
+- Linux gets an `.rpm` (Fedora, openSUSE), a Flatpak, an AppImage that runs on any common distribution, and a plain `.tar.gz` next to the `.deb`. Every package is installed and started once in CI before a release goes out.
 - macOS comes as a disk image (`.dmg`) instead of a ZIP: open it and drag Whowolf onto Applications, on the night stage of the app. Unsigned builds say on the image how to open them the first time (System Settings → Privacy & Security → Open Anyway).
 
 ## 0.3.1 – 2026-10-29

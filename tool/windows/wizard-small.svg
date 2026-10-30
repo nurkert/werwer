@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The small image at the top right of the Windows setup wizard (Inno Setup
+     WizardSmallImageFile): the emblem. 55 x 55 at 100 %, on the wizard's white
+     header. Rendered with tool/windows/render_wizard.sh. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="55" height="55" viewBox="0 0 55 55">
+  <rect width="55" height="55" fill="#ffffff"/>
+  <image x="3" y="2" width="49" height="52" xlink:href="emblem.png" href="emblem.png"/>
+</svg>

@@ -22,7 +22,10 @@ tool/test_fetch_webapps.sh
 echo "→ Shell scripts"
 command -v shellcheck >/dev/null ||
   { echo "error: shellcheck missing (brew install shellcheck / apt install shellcheck)" >&2; exit 1; }
-shellcheck server/deploy/update.sh tool/test_update_rollback.sh tool/package_dmg.sh tool/dmg/render_background.sh tool/apple_release.sh
+shellcheck server/deploy/update.sh tool/test_update_rollback.sh tool/package_dmg.sh tool/dmg/render_background.sh tool/apple_release.sh \
+  tool/package_deb.sh tool/package_rpm.sh tool/package_appimage.sh tool/package_flatpak.sh tool/package_tarball.sh \
+  tool/linux/install_share.sh tool/smoke_linux.sh \
+  tool/package_windows_setup.sh tool/check_windows_setup.sh tool/windows/render_wizard.sh
 
 echo "→ Format"
 dart format --output=none --set-exit-if-changed app/lib app/test packages server

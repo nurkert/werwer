@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Whowolf
+GenericName=Werewolf party game
+Comment=Werewolf at the table. Everyone on their own phone, the app narrates.
+Comment[de]=Werwolf am Tisch. Jeder am eigenen Handy, die App erzählt.
+Exec=whowolf
+Icon=de.whowolf.app
+Categories=Game;BoardGame;
+Keywords=werewolf;werwolf;mafia;party;social deduction;
+StartupWMClass=de.whowolf.app
+Terminal=false

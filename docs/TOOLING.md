@@ -76,6 +76,22 @@ Danach genügt ein neuer Tag. Der Build-Log zeigt den SHA-256 des Zertifikats (�
 
 **Sicherheit:** Gefährlich wäre ein geleakter Schlüssel (jemand könnte „Updates“ unterschieben) oder ein verlorener (nie mehr Updates). Dagegen: Der Schlüssel liegt nur in den Secrets und im Passwortmanager des Eigentümers, nie im Repo (`.gitignore`: `*.jks`, `*.keystore`, `key.properties`; das Skript verweigert Pfade im Repo), im Runner nur in `$RUNNER_TEMP` und nur im Android-Job; GitHub maskiert die Werte im Log, ausgegeben wird nur das öffentliche Zertifikat. Die Prüfung mit `apksigner` im Release bricht ab, wenn trotz Schlüssel debug-signiert wurde. Die Secrets stehen Läufen aus Forks nicht zur Verfügung, und der Release-Workflow läuft nur auf Tags.
 
+## Windows: Installer
+
+Der Release baut neben dem ZIP einen Installer mit Inno Setup (`tool/package_windows_setup.sh`, Skript `tool/windows/whowolf.iss`). Er installiert ohne Admin-Rechte für den eigenen Benutzer (`%LOCALAPPDATA%\Programs\Whowolf`), legt einen Startmenü-Eintrag an, auf Wunsch eine Desktop-Verknüpfung, und deinstalliert sich über die Einstellungen. Ein Update installiert über die alte Version; die `AppId` im Skript darf sich deshalb nie ändern. Inno Setup ist auf eine Version und einen SHA-256 festgelegt und wird im Job geladen (auf den Runnern ist es nicht mehr vorinstalliert). `tool/check_windows_setup.sh` installiert und deinstalliert im Release einmal still.
+
+Die Bilder des Assistenten kommen aus `tool/windows/wizard.svg` und `wizard-small.svg`; wer sie ändert, fährt `tool/windows/render_wizard.sh` und checkt die BMPs mit ein. Die SmartScreen-Warnung bleibt, solange der Installer nicht signiert ist.
+
+## Linux: Pakete
+
+Aus dem einen Flutter-Bundle entstehen `.deb`, `.rpm`, Flatpak, AppImage und `.tar.gz` (`tool/package_*.sh`). Desktop-Datei, AppStream-Metadaten und Icons liegen einmal in `tool/linux/` und werden von allen geteilt (`tool/linux/install_share.sh`). GTK, Mesa, libsecret und GStreamer kommen immer vom System bzw. der Flatpak-Laufzeit (`org.freedesktop.Platform` 25.08), nie aus dem Paket.
+
+Vor dem Release installiert der Linux-Job jedes Paket so, wie ein Spieler es täte, und startet es 20 bis 30 Sekunden auf einem virtuellen Bildschirm (`tool/smoke_linux.sh`); das `.rpm` wird in einem Fedora-Container installiert, wo `dnf` jede Bibliothek finden muss. `appimagetool` und die AppImage-Laufzeit sind mit SHA-256 festgelegt.
+
+Probelauf ohne Veröffentlichung: Actions → Pre-release → Run workflow mit `dry_run`, oder `gh workflow run prerelease.yml --ref <branch> -f version=0.0.0 -f dry_run=true`.
+
+Flathub: Die Datei `tool/flatpak/de.whowolf.app.yml` ist die Grundlage für einen späteren Antrag bei Flathub; eingereicht ist noch nichts.
+
 ## macOS: Disk-Image
 
 Der Release baut für macOS ein gestaltetes `.dmg`: Whowolf.app und ein Link auf Programme auf der Nachtbühne, zum Rüberziehen. `tool/package_dmg.sh VERSION Whowolf.app out.dmg` macht das mit dmgbuild (gepinnt in `tool/dmg/requirements.txt`, Installation steht im Kopf des Skripts) und prüft das Ergebnis: Image intakt, App und Programme-Link drin, Signatur der App gültig. Eine notarisierte App bekommt `tool/dmg/background.tiff`, jede andere `background-unsigned.tiff` mit dem Hinweis für den ersten Start.

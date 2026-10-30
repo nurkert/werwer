@@ -199,7 +199,7 @@ const neutralSource = new URL('/ios-source.json', Astro.site).toString();
                           <a class="card__download" href={file.url}>
                             <Icon name="download" />
                             <span>
-                              <strong>{x.getIt}</strong>
+                              <strong>{files.length > 1 ? x.formats[file.format] : x.getIt}</strong>
                               <small>
                                 {file.name} · {file.sizeMb} MB
                               </small>

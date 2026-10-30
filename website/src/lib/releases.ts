@@ -3,8 +3,12 @@
 
 export type Platform = 'android' | 'ios' | 'macos' | 'windows' | 'linux';
 
+/** Which kind of file a download is; the page names it and lists the main one first. */
+export type Format = 'apk' | 'ipa' | 'dmg' | 'setup' | 'portable' | 'deb' | 'rpm' | 'appimage' | 'flatpak' | 'tarball';
+
 export interface Download {
   platform: Platform;
+  format: Format;
   name: string;
   url: string;
   sizeMb: number;
@@ -35,8 +39,24 @@ const patterns: [Platform, RegExp][] = [
   ['ios', /\.ipa$/i],
   ['macos', /(\.dmg$|mac(os)?.*\.zip$)/i],
   ['windows', /(\.msix$|\.exe$|windows.*\.zip$)/i],
-  ['linux', /(\.deb$|\.appimage$|linux.*\.tar\.gz$|\.flatpak$)/i],
+  ['linux', /(\.deb$|\.rpm$|\.appimage$|linux.*\.tar\.gz$|\.flatpak$)/i],
 ];
+
+// In the order the page lists them: the easiest way first.
+const formats: [Format, RegExp][] = [
+  ['apk', /\.apk$/i],
+  ['ipa', /\.ipa$/i],
+  ['dmg', /\.(dmg|zip)$/i],
+  ['setup', /setup\.exe$|\.msix$/i],
+  ['portable', /\.(exe|zip)$/i],
+  ['deb', /\.deb$/i],
+  ['rpm', /\.rpm$/i],
+  ['flatpak', /\.flatpak$/i],
+  ['appimage', /\.appimage$/i],
+  ['tarball', /\.tar\.gz$/i],
+];
+const formatOf = (name: string): Format => formats.find(([, pattern]) => pattern.test(name))?.[0] ?? 'tarball';
+const rank = (format: Format) => formats.findIndex(([f]) => f === format);
 
 interface ApiAsset {
   name: string;
@@ -78,6 +98,7 @@ export async function loadReleases(): Promise<Release[]> {
             ? [
                 {
                   platform: match[0],
+                  format: formatOf(asset.name),
                   name: asset.name,
                   url: asset.browser_download_url,
                   sizeMb: Math.round((asset.size / 1_048_576) * 10) / 10,
@@ -86,7 +107,7 @@ export async function loadReleases(): Promise<Release[]> {
                 },
               ]
             : [];
-        }),
+        }).sort((a, b) => rank(a.format) - rank(b.format)),
       }))
       // Newest first, whatever order the API returns.
       .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());

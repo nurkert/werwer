@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata: software centres (GNOME Software, KDE Discover) show
+     it for the Flatpak and the packages. Shared by tool/package_*.sh. -->
+<component type="desktop-application">
+  <id>de.whowolf.app</id>
+  <name>Whowolf</name>
+  <summary>Werewolf at the table, everyone on their own phone</summary>
+  <summary xml:lang="de">Werwolf am Tisch, jeder am eigenen Handy</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <developer id="de.whowolf">
+    <name>Whowolf contributors</name>
+  </developer>
+  <description>
+    <p>
+      An open-source werewolf party game. You sit together in one room, every
+      player uses their own device, and the app is the narrator, so nobody has
+      to sit out as game master.
+    </p>
+    <p>
+      One device hosts the game in your own Wi-Fi; the others join with the
+      app or straight from the browser. Everything is end-to-end encrypted,
+      and there is no account.
+    </p>
+  </description>
+  <launchable type="desktop-id">de.whowolf.app.desktop</launchable>
+  <url type="homepage">https://whowolf.de</url>
+  <url type="bugtracker">https://github.com/nurkert/whowolf/issues</url>
+  <url type="vcs-browser">https://github.com/nurkert/whowolf</url>
+  <categories>
+    <category>Game</category>
+    <category>BoardGame</category>
+  </categories>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-fantasy">mild</content_attribute>
+  </content_rating>
+</component>

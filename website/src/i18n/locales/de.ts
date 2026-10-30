@@ -202,7 +202,7 @@ const de = {
       ios: 'Über AltStore Classic, später im App Store.',
       macos: 'Für Apple Silicon und Intel.',
       windows: 'Windows 10 und 11.',
-      linux: 'Debian-Paket (.deb) für Debian, Ubuntu und Verwandte.',
+      linux: '.deb, .rpm, Flatpak, AppImage und Archiv.',
     },
   },
   legal: {
@@ -343,6 +343,19 @@ const de = {
     file: 'Datei',
     size: 'Größe',
     getIt: 'Herunterladen',
+    // Shown when a system has more than one file.
+    formats: {
+      apk: 'Herunterladen',
+      ipa: 'Herunterladen',
+      dmg: 'Herunterladen',
+      setup: 'Installer (empfohlen)',
+      portable: 'Ohne Installation (ZIP)',
+      deb: 'Debian, Ubuntu, Mint (.deb)',
+      rpm: 'Fedora, openSUSE (.rpm)',
+      flatpak: 'Flatpak',
+      appimage: 'AppImage (jede Distribution)',
+      tarball: 'Archiv (.tar.gz)',
+    },
     platforms: {
       ios: {
         req: 'iOS 15 oder neuer, dazu einmal ein Mac oder PC',
@@ -380,10 +393,15 @@ const de = {
       },
       macos: { req: 'macOS 12 oder neuer, Apple Silicon oder Intel', steps: ['DMG herunterladen und doppelklicken.', 'Whowolf auf den Programme-Ordner ziehen.', 'Beim ersten Start blockiert macOS die App (noch nicht notarisiert): Systemeinstellungen → Datenschutz & Sicherheit → Trotzdem öffnen.'] },
       android: { req: 'Android 7 oder neuer', steps: ['APK auf dem Handy herunterladen.', 'Installation aus dieser Quelle erlauben, wenn Android fragt.', 'Whowolf öffnen.'] },
-      windows: { req: 'Windows 10 oder 11, 64 Bit', steps: ['ZIP herunterladen und entpacken.', 'whowolf.exe starten.', 'Bei der SmartScreen-Warnung: „Weitere Informationen“ → „Trotzdem ausführen“.'] },
+      windows: { req: 'Windows 10 oder 11, 64 Bit', steps: ['Installer herunterladen und starten (keine Admin-Rechte nötig).', 'Bei der SmartScreen-Warnung: „Weitere Informationen“ → „Trotzdem ausführen“.', 'Whowolf aus dem Startmenü öffnen. Ohne Installation: ZIP entpacken und whowolf.exe starten.'] },
       linux: {
-        req: 'Debian, Ubuntu oder verwandt, 64 Bit',
-        steps: ['.deb herunterladen.', 'Im Terminal: sudo apt install ./whowolf-*.deb', 'Whowolf aus dem Startmenü öffnen.'],
+        req: 'Jede gängige Distribution, 64 Bit',
+        steps: [
+          'Debian, Ubuntu, Mint: sudo apt install ./whowolf-*.deb',
+          'Fedora, openSUSE: sudo dnf install ./whowolf-*.rpm (openSUSE: zypper install)',
+          'Flatpak: flatpak install --user ./whowolf-*.flatpak',
+          'AppImage: ausführbar machen (chmod +x) und starten.',
+        ],
         apt: {
           title: 'Oder mit automatischen Updates',
           cmd: 'curl -fsSL https://apt.nurkert.de/install/whowolf | sudo sh',
@@ -393,7 +411,7 @@ const de = {
     },
     verifyTitle: 'So prüfst du eine Datei',
     verifyText: 'Vergleiche die Prüfsumme deiner Datei mit der Liste SHA256SUMS.txt des Releases. Stimmen sie überein, ist die Datei unverändert.',
-    verifyCmd: { mac: 'shasum -a 256 whowolf-*.dmg', linux: 'sha256sum whowolf-*.deb', win: 'certutil -hashfile whowolf-*.zip SHA256' },
+    verifyCmd: { mac: 'shasum -a 256 whowolf-*.dmg', linux: 'sha256sum whowolf-*', win: 'certutil -hashfile whowolf-*-setup.exe SHA256' },
     allReleases: 'Alle Versionen auf GitHub',
   },
   consent: {
