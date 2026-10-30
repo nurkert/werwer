@@ -29,21 +29,22 @@ inno_sha256=9c73c3bae7ed48d44112a0f48e66742c00090bdb5bef71d9d3c056c66e97b732
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-# Git Bash would turn every argument that starts with / into a path.
-export MSYS2_ARG_CONV_EXCL='*'
+# Git Bash turns every argument that starts with / into a path; the Windows
+# programs below get their switches unchanged (and Windows paths from cygpath).
+noconv=(env MSYS2_ARG_CONV_EXCL='*')
 
 iscc=${ISCC:-}
 if [[ -z $iscc ]]; then
   curl -fsSL --retry 3 -o "$work/innosetup.exe" "$inno_url"
   echo "$inno_sha256  $work/innosetup.exe" | sha256sum -c --quiet - ||
     { echo "error: the Inno Setup installer does not match its pinned sha256" >&2; exit 1; }
-  "$work/innosetup.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /CURRENTUSER \
+  "${noconv[@]}" "$work/innosetup.exe" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /CURRENTUSER \
     "/DIR=$(cygpath -w "$work/inno")"
   iscc="$work/inno/ISCC.exe"
 fi
 [[ -f $iscc ]] || { echo "error: ISCC.exe not found at $iscc" >&2; exit 1; }
 
-"$iscc" /Q \
+"${noconv[@]}" "$iscc" /Q \
   "/DAppVersion=$version" \
   "/DSourceDir=$(cygpath -w "$release")" \
   "/DRepoRoot=$(cygpath -w "$root")" \

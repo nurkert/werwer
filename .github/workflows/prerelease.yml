@@ -201,7 +201,8 @@ jobs:
           docker run --rm -v "$PWD/dist:/dist:ro" "$FEDORA" bash -c '
             set -euo pipefail
             dnf install -y -q /dist/*.rpm
-            missing=$(ldd /opt/whowolf/whowolf /opt/whowolf/lib/*.so | grep "not found" || true)
+            # The app, with everything it loads at start (its plugins through its RUNPATH).
+            missing=$(ldd /opt/whowolf/whowolf | grep "not found" || true)
             [[ -z $missing ]] || { echo "missing libraries: $missing"; exit 1; }
             echo "✓ the .rpm installs on Fedora with every library"'
       - name: Install and uninstall on Windows
