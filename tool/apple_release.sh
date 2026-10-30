@@ -5,7 +5,8 @@
 #
 #   tool/apple_release.sh ios VERSION BUILD     archive and upload to TestFlight
 #   tool/apple_release.sh macos VERSION BUILD   Developer ID app, notarized and
-#                                               stapled, zipped into dist/
+#                                               stapled, as a disk image in dist/
+#                                               (tool/package_dmg.sh, needs DMGBUILD)
 #
 # Needs (GitHub secrets, see docs/TOOLING.md):
 #   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64
@@ -81,16 +82,16 @@ EOF
     xcodebuild -exportArchive -archivePath "$work/Whowolf.xcarchive" \
       -exportOptionsPlist "$options" -exportPath "$work/export" "${auth[@]}"
     app="$work/export/Whowolf.app"
-    zip="$root/dist/whowolf-$version-macos.zip"
-    mkdir -p "$root/dist"
+    # The zip only carries the app to the notary; players get the disk image,
+    # whose app holds the stapled ticket (works offline).
+    zip="$work/Whowolf.zip"
     ditto -c -k --keepParent "$app" "$zip"
     xcrun notarytool submit "$zip" --key "$key" --key-id "$ASC_KEY_ID" \
       --issuer "$ASC_ISSUER_ID" --wait
     xcrun stapler staple "$app"
-    # Zip again so the download carries the stapled ticket (works offline).
-    rm "$zip"
-    ditto -c -k --keepParent "$app" "$zip"
-    echo "Signed and notarized: $zip"
+    dmg="$root/dist/whowolf-$version-macos.dmg"
+    "$root/tool/package_dmg.sh" "$version" "$app" "$dmg"
+    echo "Signed and notarized: $dmg"
     ;;
   *)
     echo "error: unknown target '$target' (ios or macos)" >&2

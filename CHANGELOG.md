@@ -5,6 +5,10 @@ All notable changes to Whowolf. Versions follow [Semantic Versioning](https://se
 
 ## Unreleased
 
+### Changed
+
+- macOS comes as a disk image (`.dmg`) instead of a ZIP: open it and drag Whowolf onto Applications, on the night stage of the app. Unsigned builds say on the image how to open them the first time (System Settings → Privacy & Security → Open Anyway).
+
 ## 0.3.1 – 2026-10-29
 
 Plays with 0.3.0 (protocol 18).

@@ -114,6 +114,14 @@ jobs:
             echo "keyAlias=$ANDROID_KEY_ALIAS"
             echo "keyPassword=$ANDROID_KEY_PASSWORD"
           } > app/android/key.properties
+      - name: Install dmgbuild
+        # Draws the macOS disk image without remote controlling Finder
+        # (tool/package_dmg.sh); pinned with hashes like every action here.
+        if: matrix.target == 'macos'
+        run: |
+          python3 -m venv "$RUNNER_TEMP/dmg"
+          "$RUNNER_TEMP/dmg/bin/pip" install --quiet --require-hashes --no-deps -r tool/dmg/requirements.txt
+          echo "DMGBUILD=$RUNNER_TEMP/dmg/bin/dmgbuild" >> "$GITHUB_ENV"
       - name: Signed Apple build
         # With the App Store Connect key in the repository secrets, macOS is
         # signed with Developer ID and notarized, and iOS goes to TestFlight.
@@ -153,7 +161,7 @@ jobs:
             macos)
               # Unsigned: the repository has no App Store Connect key yet.
               flutter build macos $FLAGS
-              ditto -c -k --keepParent build/macos/Build/Products/Release/Whowolf.app "../dist/whowolf-$NAME-macos.zip" ;;
+              ../tool/package_dmg.sh "$NAME" build/macos/Build/Products/Release/Whowolf.app "../dist/whowolf-$NAME-macos.dmg" ;;
             ios)
               # Unsigned .ipa for AltStore Classic: each player's own Apple ID
               # signs it on the device. whowolf.de/altstore.json lists it,
@@ -265,7 +273,7 @@ jobs:
           **Developer beta.** Playable with friends in your own Wi-Fi (or through your own relay server, see docker-compose.yml), end-to-end encrypted. Give every device at the table the same version, and only play with people you trust: an independent security review is still due. See CHANGELOG.md; bug reports welcome in the issues.
 
           **Opening the builds.** They are not signed by Apple or Microsoft yet:
-          - **macOS:** open the `.zip`, then right-click Whowolf → Open → Open (only the first time).
+          - **macOS:** open the `.dmg` and drag Whowolf into Applications. The first time, macOS blocks it: open System Settings → Privacy & Security and choose Open Anyway.
           - **Windows:** unpack the `.zip` and start `whowolf.exe`; at "Windows protected your PC" choose More info → Run anyway.
           - **Android:** allow installing apps from your browser or file manager when asked.
           - **Linux:** `sudo apt install ./whowolf-*-linux-amd64.deb`.

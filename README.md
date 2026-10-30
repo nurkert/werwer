@@ -45,7 +45,7 @@ Everyone picks one of twenty villagers, ten women and ten men. The figure says n
 
 ## Download
 
-Get the latest build from the [releases](https://github.com/nurkert/whowolf/releases): an APK for Android, a ZIP for macOS, an installer for Windows and a `.deb` for Linux. The iPhone version follows via TestFlight. Every release is built by GitHub Actions from this repository, with SHA-256 checksums and build provenance. The builds are not signed by Apple or Microsoft yet; the release notes say how to open them.
+Get the latest build from the [releases](https://github.com/nurkert/whowolf/releases): an APK for Android, a disk image (`.dmg`) for macOS, an installer for Windows and a `.deb` for Linux. The iPhone version follows via TestFlight. Every release is built by GitHub Actions from this repository, with SHA-256 checksums and build provenance. The builds are not signed by Apple or Microsoft yet; the release notes say how to open them.
 
 ## Build from source
 

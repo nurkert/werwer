@@ -379,7 +379,7 @@ const en: Copy = {
           },
         },
       },
-      macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the ZIP and double-click it.', 'Drag Whowolf into Applications.', 'First launch: right-click → Open (the test version is not notarized yet).'] },
+      macos: { req: 'macOS 12 or later, Apple silicon or Intel', steps: ['Download the DMG and double-click it.', 'Drag Whowolf onto Applications.', 'On first launch macOS blocks the app (not notarized yet): System Settings → Privacy & Security → Open Anyway.'] },
       android: { req: 'Android 7 or later', steps: ['Download the APK on your phone.', 'Allow installs from this source when Android asks.', 'Open Whowolf.'] },
       windows: { req: 'Windows 10 or 11, 64-bit', steps: ['Download and unzip.', 'Run whowolf.exe.', 'On the SmartScreen warning: “More info” → “Run anyway”.'] },
       linux: {
@@ -394,7 +394,7 @@ const en: Copy = {
     },
     verifyTitle: 'How to verify a file',
     verifyText: 'Compare your file’s checksum with the release’s SHA256SUMS.txt. If they match, the file is unmodified.',
-    verifyCmd: { mac: 'shasum -a 256 whowolf-*.zip', linux: 'sha256sum whowolf-*.deb', win: 'certutil -hashfile whowolf-*.zip SHA256' },
+    verifyCmd: { mac: 'shasum -a 256 whowolf-*.dmg', linux: 'sha256sum whowolf-*.deb', win: 'certutil -hashfile whowolf-*.zip SHA256' },
     allReleases: 'All versions on GitHub',
   },
   consent: {

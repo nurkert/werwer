@@ -76,6 +76,12 @@ Danach genügt ein neuer Tag. Der Build-Log zeigt den SHA-256 des Zertifikats (�
 
 **Sicherheit:** Gefährlich wäre ein geleakter Schlüssel (jemand könnte „Updates“ unterschieben) oder ein verlorener (nie mehr Updates). Dagegen: Der Schlüssel liegt nur in den Secrets und im Passwortmanager des Eigentümers, nie im Repo (`.gitignore`: `*.jks`, `*.keystore`, `key.properties`; das Skript verweigert Pfade im Repo), im Runner nur in `$RUNNER_TEMP` und nur im Android-Job; GitHub maskiert die Werte im Log, ausgegeben wird nur das öffentliche Zertifikat. Die Prüfung mit `apksigner` im Release bricht ab, wenn trotz Schlüssel debug-signiert wurde. Die Secrets stehen Läufen aus Forks nicht zur Verfügung, und der Release-Workflow läuft nur auf Tags.
 
+## macOS: Disk-Image
+
+Der Release baut für macOS ein gestaltetes `.dmg`: Whowolf.app und ein Link auf Programme auf der Nachtbühne, zum Rüberziehen. `tool/package_dmg.sh VERSION Whowolf.app out.dmg` macht das mit dmgbuild (gepinnt in `tool/dmg/requirements.txt`, Installation steht im Kopf des Skripts) und prüft das Ergebnis: Image intakt, App und Programme-Link drin, Signatur der App gültig. Eine notarisierte App bekommt `tool/dmg/background.tiff`, jede andere `background-unsigned.tiff` mit dem Hinweis für den ersten Start.
+
+Wer `tool/dmg/background.svg` ändert, rendert die TIFFs und `preview.png` neu (`tool/dmg/render_background.sh`, braucht `brew install librsvg`) und checkt sie mit ein. Die Positionen der Symbole in `tool/dmg/settings.py` müssen zu den Plaketten im SVG passen.
+
 ## Apple: TestFlight und signiertes macOS
 
 Der Release-Workflow signiert macOS mit Developer ID, lässt es notarisieren und lädt iOS zu TestFlight hoch, sobald diese vier **Repository-Secrets** existieren (GitHub → Settings → Secrets and variables → Actions). Ohne sie baut er wie bisher unsigniert. Die Logik steckt in `tool/apple_release.sh`; Zertifikate und Profile holt Xcode selbst (cloud-verwaltet), im Repo liegt nichts davon.
